@@ -1,0 +1,25 @@
+[package]
+name = "portfolio-api"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-stream = { version = "^0.3" }
+async-trait = { version = "0.1" }
+futures = { version = "^0.3" }
+futures-util = { version = "^0.3" }
+rocket = { version = "0.5.0-rc.2", features = [
+  "json",
+] }
+
+serde_json = { version = "^1" }
+
+portfolio-entity = { path = "../entity" }
+portfolio-migration = { path = "../migration" }
+portfolio-core = { path = "../core" }
+
+tokio = "1.21.2"
+
+[dependencies.sea-orm-rocket]
+version = "0.5.1"

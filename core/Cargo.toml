@@ -1,0 +1,25 @@
+[package]
+name = "portfolio-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+portfolio-entity = { path = "../entity" }
+
+[dependencies.sea-orm]
+version = "^0.10.0"
+features = [
+    "runtime-tokio-native-tls",
+    "sqlx-postgres",
+    "sqlx-sqlite",
+]
+
+[dev-dependencies]
+tokio = "1.21.2"
+
+[features]
+mock = ["sea-orm/mock"]
+
+[[test]]
+name = "mock"
+required-features = ["mock"]
