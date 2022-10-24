@@ -1,5 +1,6 @@
 mod mutation;
 mod query;
+pub mod crypto;
 
 pub use mutation::*;
 pub use query::*;

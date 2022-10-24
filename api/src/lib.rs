@@ -1,12 +1,9 @@
 #[macro_use]
 extern crate rocket;
+use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
-
 use rocket::fairing::{self, AdHoc};
-use rocket::form::{ Form};
-use rocket::fs::{relative, FileServer};
-use rocket::response::{Flash, Redirect};
-use rocket::{Build, Rocket};
+use rocket::response::status::BadRequest;
 use portfolio_core::{Mutation, Query};
 
 use migration::MigratorTrait;
@@ -18,18 +15,21 @@ use pool::Db;
 pub use entity::candidate;
 pub use entity::candidate::Entity as Candidate;
 
+use portfolio_core::crypto::{self, random_8_char_string};
+
 
 #[post("/", data = "<post_form>")]
-async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Flash<Redirect> {
+async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Result<String, BadRequest<String>> {   
     let db = conn.into_inner();
-
     let form = post_form.into_inner();
 
-    Mutation::create_candidate(db, form)
+    let plain_text_password = random_8_char_string();
+
+    Mutation::create_candidate(db, form, &plain_text_password)
         .await
         .expect("could not insert post");
 
-    Flash::success(Redirect::to("/"), "Post successfully added.")
+    Ok(plain_text_password)
 }
 
 #[get("/hello")]
