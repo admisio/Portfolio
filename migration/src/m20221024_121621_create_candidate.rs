@@ -15,7 +15,8 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Candidate::Application)
                             .integer()
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .unique_key(),
                     )
                     .col(ColumnDef::new(Candidate::Code).string().not_null())
                     .col(ColumnDef::new(Candidate::Name).string())
