@@ -14,7 +14,7 @@ pub fn random_8_char_string() -> String {
     
 
     let mut s = String::new();
-    for c in iterator { // remove all uppercase and lowercase characters, exclude 0 and O
+    for c in iterator { // add all characters except for: lowercase chars, 0 and O
         if ('1'..='9').contains(&c) ||
             ('A'..='N').contains(&c) ||
             ('P'..'Z').contains(&c)
