@@ -9,10 +9,10 @@ impl Mutation {
         db: &DbConn,
         form_data: candidate::Model,
         plain_text_password: &String,
-    ) -> Result<candidate::ActiveModel, DbErr> {
+    ) -> Result<candidate::Model, DbErr> {
         let hashed_password = hash_password(plain_text_password);
         candidate::ActiveModel {
-            application: Set(145 as i32), // TODO NEFUNGUJE
+            application: Set(form_data.application), // TODO NEFUNGUJE
             code: Set(hashed_password),
             public_key: Set("lorem ipsum pub key".to_string()),
             private_key: Set("lorem ipsum priv key".to_string()),
@@ -20,7 +20,7 @@ impl Mutation {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-            .save(db)
+            .insert(db)
             .await
     }
 }
