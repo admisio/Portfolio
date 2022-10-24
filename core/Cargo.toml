@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 portfolio-entity = { path = "../entity" }
 rand = "0.8.5"
-rust-argon2 = "1.0.0"
+argon2 = "0.4.1"
 chrono = "0.4.22"
 
 [dependencies.sea-orm]

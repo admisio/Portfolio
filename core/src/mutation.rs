@@ -10,7 +10,8 @@ impl Mutation {
         form_data: candidate::Model,
         plain_text_password: &String,
     ) -> Result<candidate::Model, DbErr> {
-        let hashed_password = hash_password(plain_text_password);
+        // TODO: unwrap pro testing..
+        let hashed_password = hash_password(plain_text_password).unwrap();
         candidate::ActiveModel {
             application: Set(form_data.application), // TODO NEFUNGUJE
             code: Set(hashed_password),

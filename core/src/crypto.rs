@@ -1,4 +1,6 @@
-use argon2::{self, Config};
+use argon2::{
+    Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
+};
 use rand::Rng;
 
 pub fn random_8_char_string() -> String {
@@ -9,17 +11,26 @@ pub fn random_8_char_string() -> String {
         .collect::<String>()
 }
 
-pub fn hash_password(password_plaint_text: &str) -> String {
-    let hash = argon2::hash_encoded(
-        password_plaint_text.as_bytes(), 
-        b"secretlytestingeverything",
-        &Config::default()
-    )
-        .unwrap();
+pub fn hash_password(password_plaint_text: &str) -> Result<String, argon2::password_hash::Error> {
+    let password = password_plaint_text.as_bytes();
+    let salt = "c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw";
 
-    hash
+    let argon_config = Argon2::default();
+
+    let hash = argon_config.hash_password(password, salt)?;
+
+    return Ok(hash.to_string());
 }
 
-pub fn verify_password(password_plaint_text: &str, hash: &str) -> bool {
-    argon2::verify_encoded(hash, password_plaint_text.as_bytes()).unwrap()
+pub fn verify_password(
+    password_plaint_text: &str,
+    hash: &str,
+) -> Result<bool, argon2::password_hash::Error> {
+    let argon_config = Argon2::default();
+
+    let parsed_hash = argon2::PasswordHash::new(&hash)?;
+
+    return Ok(argon_config
+        .verify_password(password_plaint_text.as_bytes(), &parsed_hash)
+        .is_ok());
 }
