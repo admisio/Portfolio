@@ -3,10 +3,10 @@ extern crate rocket;
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
-use rocket::response::status::BadRequest;
-use portfolio_core::{Mutation, Query};
+use rocket::response::status::Custom;
+use portfolio_core::{Mutation};
 
-use migration::MigratorTrait;
+use migration::{MigratorTrait};
 use sea_orm_rocket::{Connection, Database};
 
 mod pool;
@@ -15,11 +15,11 @@ use pool::Db;
 pub use entity::candidate;
 pub use entity::candidate::Entity as Candidate;
 
-use portfolio_core::crypto::{self, random_8_char_string};
+use portfolio_core::crypto::random_8_char_string;
 
 
 #[post("/", data = "<post_form>")]
-async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Result<String, BadRequest<String>> {   
+async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Result<String, Custom<String>> {   
     let db = conn.into_inner();
     let form = post_form.into_inner();
 
@@ -27,9 +27,9 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> 
 
     Mutation::create_candidate(db, form, &plain_text_password)
         .await
-        .expect("could not insert post");
+        .expect("Could not insert candidate");
 
-    Ok(plain_text_password)
+        Ok(plain_text_password)
 }
 
 #[get("/hello")]

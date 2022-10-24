@@ -1,6 +1,6 @@
-use ::entity::{candidate, candidate::Entity as Candidate};
+use ::entity::{candidate};
 use sea_orm::*;
-use crate::crypto::{self, hash_password};
+use crate::crypto::hash_password;
 
 pub struct Mutation;
 
