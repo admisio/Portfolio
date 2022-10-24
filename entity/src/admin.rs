@@ -12,6 +12,8 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub private_key_hash: String,
     pub password_hash: String,
+    pub created_at: DateTime,
+    pub updated_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

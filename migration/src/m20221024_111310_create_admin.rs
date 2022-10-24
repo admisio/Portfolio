@@ -22,6 +22,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Admin::PublicKey).string().not_null())
                     .col(ColumnDef::new(Admin::PrivateKeyHash).text().not_null())
                     .col(ColumnDef::new(Admin::PasswordHash).string().not_null())
+                    .col(ColumnDef::new(Admin::CreatedAt).date_time().not_null())
+                    .col(ColumnDef::new(Admin::UpdatedAt).date_time().not_null())
                     .to_owned(),
             )
             .await
@@ -43,4 +45,6 @@ enum Admin {
     PublicKey,
     PrivateKeyHash,
     PasswordHash,
+    CreatedAt,
+    UpdatedAt,
 }
