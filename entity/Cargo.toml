@@ -12,6 +12,7 @@ path = "src/lib.rs"
 rocket = { version = "0.5.0-rc.2", features = [
   "json",
 ] }
+chrono = "0.4.22"
 
 [dependencies.sea-orm]
 version = "^0.10.0"
