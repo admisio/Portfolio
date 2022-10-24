@@ -13,7 +13,7 @@ impl Mutation {
         // TODO: unwrap pro testing..
         let hashed_password = hash_password(plain_text_password).unwrap();
         candidate::ActiveModel {
-            application: Set(form_data.application), // TODO NEFUNGUJE
+            application: Set(form_data.application),
             code: Set(hashed_password),
             public_key: Set("lorem ipsum pub key".to_string()),
             private_key: Set("lorem ipsum priv key".to_string()),
