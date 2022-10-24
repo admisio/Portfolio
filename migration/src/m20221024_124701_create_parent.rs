@@ -15,7 +15,8 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Parent::Application)
                             .integer()
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .unique_key(),
                     )
                     .col(ColumnDef::new(Parent::Name).string())
                     .col(ColumnDef::new(Parent::Surname).string())
