@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./
+    depends_on: 
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+    ports:
+      - "9000:8000"
+    command: sh -c "cargo watch -x run"
+    volumes:
+      -  ./:/app
+    networks:
+       - db
+  adminer:
+    image: adminer:latest
+    depends_on: 
+      - db
+    ports:
+      - 9002:8080
+    networks:
+       - db
+  db:
+    image: "postgres:15"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres  
+    ports:
+      - "9001:5432"
+    networks:
+       - db
+
+networks:
+  db:
