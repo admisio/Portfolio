@@ -3,12 +3,29 @@ use argon2::{
 };
 use rand::Rng;
 
+
+/// Foolproof random 8 char string
+/// only uppercase letters (except for 0 and O) and numbers
+/// TODO tests
 pub fn random_8_char_string() -> String {
-    rand::thread_rng()
+    let iterator = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
-        .take(8)
-        .map(char::from)
-        .collect::<String>()
+        .map(char::from);
+    
+
+    let mut s = String::new();
+    for c in iterator { // remove all uppercase and lowercase characters, exclude 0 and O
+        if ('1'..='9').contains(&c) ||
+            ('A'..='N').contains(&c) ||
+            ('P'..'Z').contains(&c)
+        {
+            s.push(c);
+            if s.len() == 8 {
+                break;
+            }
+        }
+    }
+    s
 }
 
 pub fn hash_password(password_plaint_text: &str) -> Result<String, argon2::password_hash::Error> {
