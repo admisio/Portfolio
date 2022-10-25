@@ -6,7 +6,7 @@ use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
 use rocket::http::Status;
-use rocket::{Rocket, Build, custom};
+use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
 use rocket::response::status::Custom;
@@ -27,9 +27,8 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
-
-fn custom_err_from_service_err(err: ServiceError) -> Custom<String> {
-    Custom(Status::InternalServerError, err.1.to_string())
+fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
+    Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
 }
 
 #[post("/", data = "<post_form>")]
