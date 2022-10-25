@@ -7,6 +7,12 @@ use portfolio_core::token::decode_candidate_token;
 
 pub struct TokenRequest(CandidateToken);
 
+impl TokenRequest {
+    pub fn to_token(self) -> CandidateToken {
+        self.0
+    }
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for TokenRequest {
     type Error = Status;
