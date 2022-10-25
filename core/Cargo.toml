@@ -8,6 +8,7 @@ portfolio-entity = { path = "../entity" }
 rand = "0.8.5"
 argon2 = "0.4.1"
 chrono = "0.4.22"
+jsonwebtoken = "8.1.1"
 
 [dependencies.sea-orm]
 version = "^0.10.0"
