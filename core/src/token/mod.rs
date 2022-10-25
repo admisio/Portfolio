@@ -11,6 +11,7 @@ use jsonwebtoken::{Header, Validation};
 
 use admin_token::AdminToken;
 use candidate_token::CandidateToken;
+use serde::Deserialize;
 
 const ONE_WEEK: i64 = 60 * 60 * 24 * 7;
 
@@ -46,20 +47,20 @@ pub fn generate_admin_token(_admin: admin::Model) -> String {
     .unwrap()
 }
 
-pub fn decode_candidate_token(token: String) -> Result<TokenData<CandidateToken>> {
-    jsonwebtoken::decode::<CandidateToken>(
+pub fn decode_token<T: for<'a> Deserialize<'a>>(token: String) -> Result<TokenData<T>> {
+    jsonwebtoken::decode::<T>(
         &token,
         &DecodingKey::from_secret(include_bytes!("secret.key")),
         &Validation::default(),
     )
 }
 
+pub fn decode_candidate_token(token: String) -> Result<TokenData<CandidateToken>> {
+    decode_token(token)
+}
+
 pub fn decode_admin_token(token: String) -> Result<TokenData<AdminToken>> {
-    jsonwebtoken::decode::<AdminToken>(
-        &token,
-        &DecodingKey::from_secret(include_bytes!("secret.key")),
-        &Validation::default(),
-    )
+    decode_token(token)
 }
 
 /*pub fn verify_token(token_data: &TokenData<UserToken>, conn: &DbConn) -> bool {
