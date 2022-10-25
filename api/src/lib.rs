@@ -2,10 +2,11 @@
 extern crate rocket;
 
 use guard::candidate_jwt::TokenRequest;
+use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
 use rocket::http::Status;
-use rocket::{Rocket, Build};
+use rocket::{Rocket, Build, custom};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
 use rocket::response::status::Custom;
@@ -26,6 +27,10 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
+
+fn custom_err_from_service_err(err: ServiceError) -> Custom<String> {
+    Custom(Status::InternalServerError, err.1.to_string())
+}
 
 #[post("/", data = "<post_form>")]
 async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Result<String, Custom<String>> {   
@@ -50,10 +55,15 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
         login_form.application_id, 
         login_form.password.to_owned()).await;
 
-    if jwt.is_some() {
-        return Ok(jwt.unwrap())
+    if jwt.is_ok() {
+        return Ok(
+            jwt.ok().unwrap()
+        );
+    } else {
+        return Err(
+            custom_err_from_service_err(jwt.err().unwrap())
+        )
     }
-    Err(Custom(Status::Unauthorized, "Invalid credentials".to_string()))
 }
 
 #[get("/whoami")]
