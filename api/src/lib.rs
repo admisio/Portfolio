@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate rocket;
+
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
