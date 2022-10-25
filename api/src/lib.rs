@@ -9,7 +9,10 @@ use portfolio_core::{Mutation};
 use migration::{MigratorTrait};
 use sea_orm_rocket::{Connection, Database};
 
+
 mod pool;
+mod guard;
+
 use pool::Db;
 
 pub use entity::candidate;

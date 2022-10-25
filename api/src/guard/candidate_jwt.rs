@@ -5,6 +5,7 @@ use rocket::request::{self, FromRequest, Request};
 use rocket::response::status;
 use rocket_contrib::json::Json;
 
+use portfolio_core::token::candidate_token::CandidateToken;
 use portfolio_core::token::decode_candidate_token;
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserToken {
