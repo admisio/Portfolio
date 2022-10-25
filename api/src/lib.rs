@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate rocket;
 
+use guard::candidate_jwt::TokenRequest;
+use portfolio_core::services::candidate_service::CandidateService;
+use requests::LoginRequest;
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
@@ -13,6 +16,7 @@ use sea_orm_rocket::{Connection, Database};
 
 mod pool;
 mod guard;
+mod requests;
 
 use pool::Db;
 
@@ -36,6 +40,28 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> 
         Ok(plain_text_password)
 }
 
+#[post("/login", data = "<login_form>")]
+async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+    println!("{} {}", login_form.application_id, login_form.password);
+
+    let jwt = CandidateService::login(db, 
+        login_form.application_id, 
+        login_form.password.to_owned()).await;
+
+    if jwt.is_some() {
+        return Ok(jwt.unwrap())
+    }
+    Ok("jwt here".to_owned())
+}
+
+#[get("/whoami")]
+async fn whoami(token: TokenRequest) -> Result<String, Custom<String>> {
+    println!("{:?}", token.to_token());
+
+    Ok("authenticated!".to_owned())
+}
+
 #[get("/hello")]
 async fn hello() -> &'static str {
     "Hello, world!"
@@ -53,7 +79,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, hello])
+        .mount("/", routes![create, login, hello, whoami])
         .register("/", catchers![])
         .launch()
         .await
