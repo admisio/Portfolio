@@ -1,7 +1,7 @@
 use jsonwebtoken::{Header, EncodingKey};
 use sea_orm::DatabaseConnection;
 
-use crate::{crypto, Query, token::candidate_token::CandidateToken, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, JWT_ERROR, DB_ERROR}};
+use crate::{crypto, Query, token::{candidate_token::CandidateToken, generate_candidate_token}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, JWT_ERROR, DB_ERROR}};
 
 pub struct CandidateService;
 
@@ -23,19 +23,8 @@ impl CandidateService {
             return Err(INVALID_CREDENTIALS_ERROR)
         }
 
-        let payload = CandidateToken::generate("candidate.name.unwrap()".to_owned(),
-            "candidate.surname.unwrap()".to_owned());
-    
-        let jwt = jsonwebtoken::encode(
-            &Header::default(), 
-        &payload,
-            &EncodingKey::from_secret(&[0])
-        ).ok();
-        
-        match jwt {
-            Some(jwt) => Ok(jwt),
-            None => Err(JWT_ERROR)
-        }
+        let jwt = generate_candidate_token(candidate); // TODO better error handling
+        Ok(jwt)
             
         }
     }
