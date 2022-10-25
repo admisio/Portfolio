@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+serde = { version = "1.0", features = ["derive"] }
 portfolio-entity = { path = "../entity" }
 rand = "0.8.5"
 argon2 = "0.4.1"
 chrono = "0.4.22"
 jsonwebtoken = "8.1.1"
+dotenv = "0.15.0"
 
 [dependencies.sea-orm]
 version = "^0.10.0"
