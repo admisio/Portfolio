@@ -4,6 +4,7 @@ extern crate rocket;
 use guard::candidate_jwt::TokenRequest;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
+use rocket::http::Status;
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
@@ -52,7 +53,7 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
     if jwt.is_some() {
         return Ok(jwt.unwrap())
     }
-    Ok("jwt here".to_owned())
+    Err(Custom(Status::Unauthorized, "Invalid credentials".to_string()))
 }
 
 #[get("/whoami")]
