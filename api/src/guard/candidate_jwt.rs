@@ -5,18 +5,18 @@ use rocket::request::{FromRequest, Request};
 use portfolio_core::token::candidate_token::CandidateToken;
 use portfolio_core::token::decode_candidate_token;
 
-pub struct Token(CandidateToken);
+pub struct TokenRequest(CandidateToken);
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for Token {
+impl<'r> FromRequest<'r> for TokenRequest {
     type Error = Status;
-    async fn from_request(req: &'r Request<'_>) -> Outcome<Token, (Status, Status), ()> {
+    async fn from_request(req: &'r Request<'_>) -> Outcome<TokenRequest, (Status, Status), ()> {
         if let Some(auth) = req.headers().get_one("Authorization") {
             let auth_string = auth.to_string();
             if auth_string.starts_with("Bearer") {
                 let token = auth_string[6..auth_string.len()].trim();
                 if let Ok(token_data) = decode_candidate_token(token.to_string()) {
-                    return Outcome::Success(Token(token_data.claims));
+                    return Outcome::Success(TokenRequest(token_data.claims));
                 }
             }
         }
