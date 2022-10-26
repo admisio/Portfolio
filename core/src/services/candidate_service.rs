@@ -1,7 +1,6 @@
-use jsonwebtoken::{Header, EncodingKey};
 use sea_orm::DatabaseConnection;
 
-use crate::{crypto, Query, token::{candidate_token::CandidateToken, generate_candidate_token}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, JWT_ERROR, DB_ERROR}};
+use crate::{crypto, Query, token::{generate_candidate_token}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR}};
 
 pub struct CandidateService;
 
