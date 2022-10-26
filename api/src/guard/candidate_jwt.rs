@@ -21,8 +21,10 @@ impl<'r> FromRequest<'r> for TokenRequest {
             let auth_string = auth.to_string();
             if auth_string.starts_with("Bearer") {
                 let token = auth_string[6..auth_string.len()].trim();
-                if let Ok(token_data) = decode_candidate_token(token.to_string()) {
-                    return Outcome::Success(TokenRequest(token_data.claims));
+                let token_data = decode_candidate_token(token.to_string());
+
+                if token_data.is_ok() {
+                    return Outcome::Success(TokenRequest(token_data.ok().unwrap().claims));
                 }
             }
         }
