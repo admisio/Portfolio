@@ -20,6 +20,7 @@ pub fn generate_candidate_token(candidate: candidate::Model) -> String {
     let payload = CandidateToken {
         iat: now,
         exp: now + ONE_WEEK,
+        application_id: candidate.application,
         name: candidate.name.unwrap_or_else(|| "".into()),
         surname: candidate.surname.unwrap_or_else(|| "".into()),
     };

@@ -7,16 +7,18 @@ pub struct CandidateToken {
     pub iat: i64,
     // expiration
     pub exp: i64,
+    pub application_id: i32,
     pub name: String,
     pub surname: String,
 }
 
 impl CandidateToken {
-    pub fn generate(name: String, surname: String) -> Self {
+    pub fn generate(application_id: i32, name: String, surname: String) -> Self {
         let now = Utc::now().timestamp();
         CandidateToken {
             iat: now,
             exp: now + 60 * 60, // 1 hour for now
+            application_id,
             name,
             surname,
         }
