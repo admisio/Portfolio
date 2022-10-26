@@ -1,7 +1,7 @@
 use entity::candidate;
 use sea_orm::DatabaseConnection;
 
-use crate::{crypto, Query, token::{generate_candidate_token, decode_candidate_token, candidate_token::CandidateToken}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, JWT_ERROR, USER_NOT_FOUND_BY_JWT_ID}};
+use crate::{crypto, Query, token::{generate_candidate_token, candidate_token::CandidateToken}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID}};
 
 pub struct CandidateService;
 
