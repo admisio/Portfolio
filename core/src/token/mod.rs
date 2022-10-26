@@ -16,7 +16,7 @@ use serde::Deserialize;
 const ONE_WEEK: i64 = 60 * 60 * 24 * 7;
 
 pub fn generate_candidate_token(candidate: candidate::Model) -> String {
-    let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
+    let now = Utc::now().timestamp();
     let payload = CandidateToken {
         iat: now,
         exp: now + ONE_WEEK,
@@ -33,7 +33,7 @@ pub fn generate_candidate_token(candidate: candidate::Model) -> String {
 }
 
 pub fn generate_admin_token(_admin: admin::Model) -> String {
-    let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
+    let now = Utc::now().timestamp();
     let payload = AdminToken {
         iat: now,
         exp: now + ONE_WEEK,
@@ -63,6 +63,35 @@ pub fn decode_admin_token(token: String) -> Result<TokenData<AdminToken>> {
     decode_token(token)
 }
 
-/*pub fn verify_token(token_data: &TokenData<UserToken>, conn: &DbConn) -> bool {
-    User::is_valid_login_session(&token_data.claims, conn)
-}*/
+
+#[test]
+fn test_encode_decode_verify_token() {
+    let candidate_model = candidate::Model {
+        application: 101204,
+        code: "random_code".to_string(),
+        birth_surname: None,
+        birthplace: None,
+        birthdate: None,
+        address: None,
+        telephone: None,
+        citizenship: None,
+        sex: None,
+        study: None,
+        personal_identification_number: None,
+        personal_identification_number_hash: None,
+        public_key: "None".to_owned(),
+        private_key: "None".to_owned(),
+        created_at: Utc::now().naive_local(),
+        updated_at: Utc::now().naive_local(),
+        name: Some("Uplnej".to_string()),
+        surname: Some("Magor".to_string()),
+        email: Some("email.uchazece@centrum.cz".to_string()),
+    };
+
+    let jwt = generate_candidate_token(candidate_model.clone());
+
+    let decoded = decode_candidate_token(jwt).unwrap();
+    let token_claims = decoded.claims;
+    assert_eq!(candidate_model.name.unwrap(), token_claims.name);
+    assert_eq!(candidate_model.surname.unwrap(), token_claims.surname);
+}
