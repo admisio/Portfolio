@@ -66,10 +66,15 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
 }
 
 #[get("/whoami")]
-async fn whoami(token: TokenRequest) -> Result<String, Custom<String>> {
-    println!("{:?}", token.to_token());
+async fn whoami(conn: Connection<'_, Db>, token_req: Result<TokenRequest, Status>) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+    let token = token_req.ok().unwrap().to_token();
+    let user = CandidateService::authenticate_candidate(db, token).await;
 
-    Ok("authenticated!".to_owned())
+    match user {
+        Ok(user) => Ok(format!("{} {}", user.name.unwrap(), user.surname.unwrap())),
+        Err(e) => Err(custom_err_from_service_err(e)),
+    }
 }
 
 #[get("/hello")]
