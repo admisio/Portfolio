@@ -65,7 +65,7 @@ pub fn decode_admin_token(token: String) -> Result<TokenData<AdminToken>> {
 
 
 #[test]
-fn test_encode_decode_verify_token() {
+fn test_encode_decode_token() {
     let candidate_model = candidate::Model {
         application: 101204,
         code: "random_code".to_string(),
