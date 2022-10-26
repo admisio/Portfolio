@@ -24,6 +24,7 @@ jobs:
           toolchain: stable
           override: true
           default: true
+
       - name: Set up cargo cache 📦
         uses: actions/cache@v3
         continue-on-error: false
@@ -36,7 +37,9 @@ jobs:
             target/            
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
+
       - name: Build 🔨
         run: cargo build --verbose
+        
       - name: Run tests 🚀
         run: cargo test --all --verbose
