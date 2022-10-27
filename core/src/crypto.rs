@@ -1,4 +1,4 @@
-use std::io::{Write, Read};
+use futures::io::{AsyncReadExt, AsyncWriteExt};
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
@@ -29,52 +29,55 @@ pub fn random_8_char_string() -> String {
     s
 }
 
-pub fn hash_password(password_plaint_text: &str) -> Result<String, argon2::password_hash::Error> {
-    let password = password_plaint_text.as_bytes();
-    let salt = "c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw";
-
+pub async fn hash_password(password_plaint_text: String) -> Result<String, argon2::password_hash::Error> {
     let argon_config = Argon2::default();
 
-    let hash = argon_config.hash_password(password, salt)?;
+    let hash = tokio::task::spawn_blocking(move || {
+        let password = password_plaint_text.as_bytes();
+        let salt = "c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw";
+        
+        let encrypted = argon_config.hash_password(password, salt);
+        encrypted
+    }).await;
 
-    return Ok(hash.to_string());
+    let result = hash.unwrap()?;
+
+    return Ok(result.to_string());
 }
 
-// TODO: Async? Zatím pod spawn_blocking
-pub fn encrypt_password(password_plaint_text: &str, key: &str) -> Result<String, age::EncryptError> {
+pub async fn encrypt_password(password_plaint_text: &str, key: &str) -> Result<String, age::EncryptError> {
     let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(key.to_owned()));
 
     let mut encrypt_buffer = Vec::new();
-    let mut encrypt_writer = encryptor.wrap_output(&mut encrypt_buffer)?;
+    let mut encrypt_writer = encryptor.wrap_async_output(&mut encrypt_buffer).await?;
 
-    encrypt_writer.write_all(password_plaint_text.as_bytes())?;
+    encrypt_writer.write_all(password_plaint_text.as_bytes()).await?;
 
-    encrypt_writer.finish()?;
+    encrypt_writer.flush().await?;
+
+    encrypt_writer.close().await?;
     
-
     Ok(base64::encode(encrypt_buffer))
 }
 
-pub fn decrypt_password(
+pub async fn decrypt_password(
     password_encrypted: &str,
     key: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let encrypted = base64::decode(password_encrypted)?;
 
-    let decryptor = match age::Decryptor::new(&encrypted[..])? {
+    let decryptor = match age::Decryptor::new_async(&encrypted[..]).await? {
         age::Decryptor::Passphrase(d) => d,
         _ => unreachable!(),
     };
 
     let mut decrypt_buffer = Vec::new();
-    let mut decrypt_writer = decryptor.decrypt(&age::secrecy::Secret::new(key.to_owned()), None)?;
+    let mut decrypt_writer = decryptor.decrypt_async(&age::secrecy::Secret::new(key.to_owned()), None)?;
 
-    decrypt_writer.read_to_end(&mut decrypt_buffer)?;
+    decrypt_writer.read_to_end(&mut decrypt_buffer).await?;
 
     Ok(String::from_utf8(decrypt_buffer)?)
 }
-
-
 
 pub fn verify_password(
     password_plaint_text: &str,
