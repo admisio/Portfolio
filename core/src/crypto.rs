@@ -1,3 +1,4 @@
+use std::io::{Write, Read};
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
@@ -38,6 +39,42 @@ pub fn hash_password(password_plaint_text: &str) -> Result<String, argon2::passw
 
     return Ok(hash.to_string());
 }
+
+// TODO: Async? Zatím pod spawn_blocking
+pub fn encrypt_password(password_plaint_text: &str, key: &str) -> Result<String, age::EncryptError> {
+    let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(key.to_owned()));
+
+    let mut encrypt_buffer = Vec::new();
+    let mut encrypt_writer = encryptor.wrap_output(&mut encrypt_buffer)?;
+
+    encrypt_writer.write_all(password_plaint_text.as_bytes())?;
+
+    encrypt_writer.finish()?;
+    
+
+    Ok(base64::encode(encrypt_buffer))
+}
+
+pub fn decrypt_password(
+    password_encrypted: &str,
+    key: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let encrypted = base64::decode(password_encrypted)?;
+
+    let decryptor = match age::Decryptor::new(&encrypted[..])? {
+        age::Decryptor::Passphrase(d) => d,
+        _ => unreachable!(),
+    };
+
+    let mut decrypt_buffer = Vec::new();
+    let mut decrypt_writer = decryptor.decrypt(&age::secrecy::Secret::new(key.to_owned()), None)?;
+
+    decrypt_writer.read_to_end(&mut decrypt_buffer)?;
+
+    Ok(String::from_utf8(decrypt_buffer)?)
+}
+
+
 
 pub fn verify_password(
     password_plaint_text: &str,
