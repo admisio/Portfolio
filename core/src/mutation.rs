@@ -11,7 +11,7 @@ impl Mutation {
         plain_text_password: &String,
     ) -> Result<candidate::Model, DbErr> {
         // TODO: unwrap pro testing..
-        let hashed_password = hash_password(plain_text_password).unwrap();
+        let hashed_password = hash_password(plain_text_password.to_string()).await.unwrap();
         candidate::ActiveModel {
             application: Set(form_data.application),
             code: Set(hashed_password),
