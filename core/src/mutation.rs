@@ -1,5 +1,6 @@
-use ::entity::{candidate};
-use sea_orm::*;
+use chrono::Utc;
+use ::entity::{candidate, session};
+use sea_orm::{*, prelude::Uuid};
 use crate::crypto::hash_password;
 
 pub struct Mutation;
@@ -20,6 +21,24 @@ impl Mutation {
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
+        }
+            .insert(db)
+            .await
+    }
+
+
+    pub async fn insert_session(
+        db: &DbConn,
+        user_id: i32,
+        random_uuid: Uuid,
+        hashed_jwt: String
+    ) -> Result<session::Model, DbErr> {
+        session::ActiveModel {
+            id: Set(random_uuid),
+            hashed_token: Set(hashed_jwt),
+            user_id: Set(user_id),
+            created_at: Set(Utc::now().naive_local()),
+            updated_at: Set(Utc::now().naive_local()),
         }
             .insert(db)
             .await

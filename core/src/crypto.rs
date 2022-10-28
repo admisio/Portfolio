@@ -2,6 +2,7 @@ use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
 use rand::Rng;
+use sha2::{Sha256, Digest};
 
 
 /// Foolproof random 8 char string
@@ -28,6 +29,14 @@ pub fn random_8_char_string() -> String {
     s
 }
 
+pub fn hash_sha256(s: String) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(s);
+    let result = hasher.finalize();
+    format!("{result:x}")
+
+}
+
 pub fn hash_password(password_plaint_text: &str) -> Result<String, argon2::password_hash::Error> {
     let password = password_plaint_text.as_bytes();
     let salt = "c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw";
@@ -50,4 +59,11 @@ pub fn verify_password(
     return Ok(argon_config
         .verify_password(password_plaint_text.as_bytes(), &parsed_hash)
         .is_ok());
+}
+
+#[test]
+fn verify_password_test() {
+    let password = "test";
+    let hash = hash_password(password).unwrap();
+    assert!(verify_password(password, &hash).unwrap());
 }
