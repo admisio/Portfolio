@@ -14,9 +14,9 @@ tokio = "1.21.2"
 futures = "0.3.25"
 
 # crypto
-argon2 = "0.4.1"
-age =  { version = "0.9.0", features = ["async"] }
-base64 = "0.13.1"
+argon2 = { version = "0.4", features = ["std"] }
+age =  { version = "0.9", features = ["async"] }
+base64 = "0.13"
 
 [dependencies.sea-orm]
 version = "^0.10.0"

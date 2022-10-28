@@ -30,7 +30,7 @@ pub fn random_8_char_string() -> String {
 // TODO: No unwrap for spawn_blocking
 pub async fn hash_password(
     password_plain_text: String,
-) -> Result<String, argon2::password_hash::Error> {
+) -> Result<String,  Box<dyn std::error::Error>> {
     let argon_config = Argon2::default();
 
     let hash = tokio::task::spawn_blocking(move || {
@@ -40,19 +40,16 @@ pub async fn hash_password(
         let encrypted = argon_config.hash_password(password, salt);
         encrypted
     })
-    .await
-    .unwrap();
+    .await??;
 
-    let result = hash?;
-
-    return Ok(result.to_string());
+    return Ok(hash.to_string());
 }
 
 // TODO: No unwrap for spawn_blocking
 pub async fn verify_password<'a>(
     password_plaint_text: String,
     hash: String,
-) -> Result<bool, argon2::password_hash::Error> {
+) -> Result<bool, Box<dyn std::error::Error>> {
     let argon_config = Argon2::default();
 
     let result: Result<bool, argon2::password_hash::Error> =
@@ -67,10 +64,9 @@ pub async fn verify_password<'a>(
                 Err(error) => return Err(error),
             }
         })
-        .await
-        .unwrap();
+        .await?;
 
-    result
+    Ok(result?)
 }
 
 pub async fn encrypt_password(
