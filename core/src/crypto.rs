@@ -237,6 +237,19 @@ pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
     Ok(())
 }
 
+pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
+    cipher_file_path: P,
+    key: &str,
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
+
+    let mut plain_file = Vec::new();
+
+    age_decrypt_with_private_key(cipher_file, &mut plain_file, key).await?;
+
+    Ok(plain_file)
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -410,6 +423,40 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(std::fs::read_to_string(&decrypted_file).unwrap(), "PASSWORD");
+        assert_eq!(
+            std::fs::read_to_string(&decrypted_file).unwrap(),
+            "PASSWORD"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_decrypt_file_with_private_key_as_buffer() {
+        const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
+        const PRIVATE_KEY: &str =
+            "AGE-SECRET-KEY-1WPDHL2FLJ23T6RK5KCX8KS8DNLX0CGXMNZG0XNUAH4QP5C8ZZ46QGD3STV";
+
+        const PASSWORD: &str = "test";
+
+        let mut plain_file = tempfile::NamedTempFile::new().unwrap();
+        let encrypted_file = tempfile::NamedTempFile::new().unwrap();
+
+        std::io::Write::write_all(&mut plain_file, PASSWORD.as_bytes()).unwrap();
+
+        let plain_buffer = std::fs::read(&plain_file).unwrap();
+
+        assert_eq!(String::from_utf8(plain_buffer.clone()).unwrap(), PASSWORD);
+
+        super::encrypt_file_with_recipients(&plain_file, &encrypted_file, vec![PUBLIC_KEY])
+            .await
+            .unwrap();
+
+        let decrypted_buffer =
+            super::decrypt_file_with_private_key_as_buffer(encrypted_file, PRIVATE_KEY)
+                .await
+                .unwrap();
+
+        assert_eq!(plain_buffer.len(), decrypted_buffer.len());
+
+        assert_eq!(String::from_utf8(decrypted_buffer.clone()).unwrap(), PASSWORD);
     }
 }
