@@ -11,6 +11,7 @@ argon2 = "0.4.1"
 chrono = "0.4.22"
 jsonwebtoken = "8.1.1"
 dotenv = "0.15.0"
+sha2 = "0.10.6"
 
 [dependencies.sea-orm]
 version = "^0.10.0"
