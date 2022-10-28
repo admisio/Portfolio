@@ -35,14 +35,16 @@ pub async fn hash_password(
 
     let hash = tokio::task::spawn_blocking(move || {
         let password = password_plain_text.as_bytes();
-        let salt = "c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw";
 
-        let encrypted = argon_config.hash_password(password, salt);
-        encrypted
-    })
-    .await??;
+        let salt_str = argon2::password_hash::SaltString::generate(rand::thread_rng());
+        let salt = salt_str.as_salt();
 
-    return Ok(hash.to_string());
+        return argon_config.hash_password(password, &salt).map(|x| x.serialize().to_string());
+    });
+
+    let hash_string = hash.await??;
+
+    return Ok(hash_string);
 }
 
 // TODO: No unwrap for spawn_blocking
