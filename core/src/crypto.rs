@@ -27,7 +27,6 @@ pub fn random_8_char_string() -> String {
     s
 }
 
-// TODO: No unwrap for spawn_blocking
 pub async fn hash_password(
     password_plain_text: String,
 ) -> Result<String,  Box<dyn std::error::Error>> {
@@ -47,7 +46,6 @@ pub async fn hash_password(
     return Ok(hash_string);
 }
 
-// TODO: No unwrap for spawn_blocking
 pub async fn verify_password<'a>(
     password_plaint_text: String,
     hash: String,
