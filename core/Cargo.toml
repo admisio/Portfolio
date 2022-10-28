@@ -31,4 +31,4 @@ features = [
 
 [dev-dependencies]
 tokio = "1.21"
-tempfile = "3.3"
+async-tempfile = "0.2.0"

@@ -399,30 +399,30 @@ mod tests {
 
         const PASSWORD: &str = "test";
 
-        let mut plain_file = tempfile::NamedTempFile::new().unwrap();
-        let mut encrypted_file = tempfile::NamedTempFile::new().unwrap();
+        let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
+        let mut encrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        std::io::Write::write_all(&mut plain_file, PASSWORD.as_bytes()).unwrap();
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
 
-        assert_eq!(std::fs::read_to_string(&plain_file).unwrap(), PASSWORD);
+        assert_eq!(tokio::fs::read_to_string(&plain_file.file_path()).await.unwrap(), PASSWORD);
 
-        super::encrypt_file_with_recipients(&plain_file, &encrypted_file, vec![PUBLIC_KEY])
+        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
             .await
             .unwrap();
 
         let mut buffer = [0; 21];
 
-        std::io::Read::read(&mut encrypted_file, &mut buffer).unwrap();
+        tokio::io::AsyncReadExt::read(&mut encrypted_file, &mut buffer).await.unwrap();
 
         assert_eq!(&buffer, b"age-encryption.org/v1");
 
-        let decrypted_file = tempfile::NamedTempFile::new().unwrap();
+        let decrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        super::decrypt_file_with_private_key(&encrypted_file, &decrypted_file, PRIVATE_KEY)
+        super::decrypt_file_with_private_key(&encrypted_file.file_path(), &decrypted_file.file_path(), PRIVATE_KEY)
             .await
             .unwrap();
 
-        assert_eq!(std::fs::read_to_string(&decrypted_file).unwrap(), PASSWORD);
+        assert_eq!(tokio::fs::read_to_string(&decrypted_file.file_path()).await.unwrap(), PASSWORD);
     }
 
     #[tokio::test]
@@ -433,21 +433,21 @@ mod tests {
 
         const PASSWORD: &str = "test";
 
-        let mut plain_file = tempfile::NamedTempFile::new().unwrap();
-        let encrypted_file = tempfile::NamedTempFile::new().unwrap();
+        let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
+        let encrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        std::io::Write::write_all(&mut plain_file, PASSWORD.as_bytes()).unwrap();
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
 
-        let plain_buffer = std::fs::read(&plain_file).unwrap();
+        let plain_buffer = tokio::fs::read(&plain_file.file_path()).await.unwrap();
 
         assert_eq!(String::from_utf8(plain_buffer.clone()).unwrap(), PASSWORD);
 
-        super::encrypt_file_with_recipients(&plain_file, &encrypted_file, vec![PUBLIC_KEY])
+        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
             .await
             .unwrap();
 
         let decrypted_buffer =
-            super::decrypt_file_with_private_key_as_buffer(encrypted_file, PRIVATE_KEY)
+            super::decrypt_file_with_private_key_as_buffer(encrypted_file.file_path(), PRIVATE_KEY)
                 .await
                 .unwrap();
 
