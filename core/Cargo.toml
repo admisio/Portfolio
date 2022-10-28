@@ -16,6 +16,7 @@ futures = "0.3.25"
 # crypto
 argon2 = { version = "0.4", features = ["std"] }
 age =  { version = "0.9", features = ["async"] }
+secrecy = { version = "0.8.0" }
 base64 = "0.13"
 
 [dependencies.sea-orm]

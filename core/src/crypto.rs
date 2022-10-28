@@ -1,6 +1,7 @@
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
+use secrecy::ExposeSecret;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
 use std::iter;
@@ -107,6 +108,13 @@ pub async fn decrypt_password(
     decrypt_writer.read_to_end(&mut decrypt_buffer).await?;
 
     Ok(String::from_utf8(decrypt_buffer)?)
+}
+
+pub fn create_identity() -> (String, String){
+    let identity = age::x25519::Identity::generate();
+
+    // Public Key & Private Key
+    (identity.to_public().to_string(), identity.to_string().expose_secret().to_string())
 }
 
 pub async fn encrypt_password_with_recipients(
@@ -270,6 +278,14 @@ mod tests {
         let decrypted = super::decrypt_password(&encrypted, KEY).await.unwrap();
 
         assert_eq!(PASSWORD, decrypted);
+    }
+    
+    #[test]
+    fn test_create_identity() {
+        let identity = super::create_identity();
+
+        assert!(identity.0.contains("age"));
+        assert!(identity.1.contains("AGE-SECRET-KEY-"));
     }
 
     #[tokio::test]
