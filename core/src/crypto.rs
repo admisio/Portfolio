@@ -281,8 +281,6 @@ mod tests {
             .await
             .unwrap();
 
-        eprint!("{}", encrypted);
-
         assert!(base64::decode(encrypted).is_ok());
     }
 
