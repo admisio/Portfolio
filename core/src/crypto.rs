@@ -353,4 +353,29 @@ mod tests {
 
         assert_eq!(PASSWORD, decrypted_2);
     }
+
+    #[tokio::test]
+    async fn test_encrypt_file_with_recipients() {
+        const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
+        const PRIVATE_KEY: &str =
+                "AGE-SECRET-KEY-1WPDHL2FLJ23T6RK5KCX8KS8DNLX0CGXMNZG0XNUAH4QP5C8ZZ46QGD3STV";
+
+        const PASSWORD: &str = "test";
+
+        let mut plain_file = tempfile::NamedTempFile::new().unwrap();
+        let mut encrypted_file = tempfile::NamedTempFile::new().unwrap();
+
+        std::io::Write::write_all(&mut plain_file, PASSWORD.as_bytes()).unwrap();
+
+        assert_eq!(std::fs::read_to_string(&plain_file).unwrap(), PASSWORD);
+
+        super::encrypt_file_with_recipients(&plain_file, &encrypted_file, vec![PUBLIC_KEY]).await.unwrap();
+        
+        let mut buffer = [0; 21];
+
+        std::io::Read::read(&mut encrypted_file, &mut buffer).unwrap();
+
+        assert_eq!(&buffer, b"age-encryption.org/v1");
+    }
+    
 }
