@@ -220,6 +220,23 @@ pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
     age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, recipients).await
 }
 
+pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
+    cipher_file_path: P,
+    plain_file_path: P,
+    key: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
+    let mut plain_file = tokio::fs::File::create(plain_file_path).await?;
+
+    let mut plain_file_contents = Vec::new();
+
+    age_decrypt_with_private_key(cipher_file, &mut plain_file_contents, key).await?;
+
+    tokio::io::AsyncWriteExt::write_all(&mut plain_file, plain_file_contents.as_slice()).await?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -363,7 +380,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_encrypt_file_with_recipients() {
+    async fn test_encrypt_decrypt_file_with_recipients() {
         const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-1WPDHL2FLJ23T6RK5KCX8KS8DNLX0CGXMNZG0XNUAH4QP5C8ZZ46QGD3STV";
@@ -386,5 +403,13 @@ mod tests {
         std::io::Read::read(&mut encrypted_file, &mut buffer).unwrap();
 
         assert_eq!(&buffer, b"age-encryption.org/v1");
+
+        let decrypted_file = tempfile::NamedTempFile::new().unwrap();
+
+        super::decrypt_file_with_private_key(&encrypted_file, &decrypted_file, PRIVATE_KEY)
+            .await
+            .unwrap();
+
+        assert_eq!(std::fs::read_to_string(&decrypted_file).unwrap(), "PASSWORD");
     }
 }
