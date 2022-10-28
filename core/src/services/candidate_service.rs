@@ -65,17 +65,19 @@ mod tests {
     
     #[tokio::test]
     async fn test_create_candidate() {
+        const SECRET: &str = "Tajny_kod";
+
         let db = get_memory_sqlite_connection().await;
     
         let form = serde_json::from_value(json!({
                 "application": 5555555,
             })).unwrap();
     
-        let candidate = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+        let candidate = Mutation::create_candidate(&db, form, &SECRET.to_string()).await.unwrap();
     
         assert_eq!(candidate.application, 5555555);
-        assert_ne!(candidate.code, "Tajny_kod".to_string());
-        assert!(crypto::verify_password("Tajny_kod", &*candidate.code).ok().unwrap());
+        assert_ne!(candidate.code, SECRET.to_string());
+        assert!(crypto::verify_password(SECRET.to_string(), candidate.code).await.ok().unwrap());
     }
     
     
