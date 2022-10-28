@@ -17,7 +17,7 @@ impl CandidateService {
         };
     
         
-        let valid = crypto::verify_password(&password,&candidate.code )
+        let valid = crypto::verify_password(password,candidate.code.clone()).await
             .expect("Invalid password");
         
         if !valid {
