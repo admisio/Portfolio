@@ -348,7 +348,6 @@ mod tests {
                 .await
                 .unwrap();
 
-        println!("{}", encrypted);
         assert!(base64::decode(encrypted).is_ok());
     }
 
@@ -423,10 +422,7 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(
-            std::fs::read_to_string(&decrypted_file).unwrap(),
-            "PASSWORD"
-        );
+        assert_eq!(std::fs::read_to_string(&decrypted_file).unwrap(), PASSWORD);
     }
 
     #[tokio::test]
@@ -457,6 +453,9 @@ mod tests {
 
         assert_eq!(plain_buffer.len(), decrypted_buffer.len());
 
-        assert_eq!(String::from_utf8(decrypted_buffer.clone()).unwrap(), PASSWORD);
+        assert_eq!(
+            String::from_utf8(decrypted_buffer.clone()).unwrap(),
+            PASSWORD
+        );
     }
 }
