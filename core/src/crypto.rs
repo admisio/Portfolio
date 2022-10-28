@@ -6,6 +6,7 @@ use secrecy::ExposeSecret;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
 use std::iter;
+use std::path::Path;
 use std::str::FromStr;
 
 /// Foolproof random 8 char string
@@ -173,9 +174,9 @@ pub async fn decrypt_password_with_private_key(
 }
 
 // TODO: Massive refactor of encrypt_file_with_recipients required
-pub async fn encrypt_file_with_recipients(
-    plain_file_path: &str,
-    cipher_file_path: &str,
+pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
+    plain_file_path: P,
+    cipher_file_path: P,
     recipients: Vec<&str>,
 ) -> Result<(), age::EncryptError> {
     let public_keys = recipients
