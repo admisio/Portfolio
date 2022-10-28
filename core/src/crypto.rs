@@ -1,6 +1,7 @@
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
+use async_compat::CompatExt;
 use secrecy::ExposeSecret;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
@@ -195,16 +196,13 @@ pub async fn encrypt_file_with_recipients(
 
         tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
 
-        let mut encrypt_buffer = Vec::new();
-        let mut encrypt_writer = encryptor.wrap_async_output(&mut encrypt_buffer).await?;
+        let mut encrypt_writer = encryptor.wrap_async_output(cipher_file.compat_mut()).await?;
 
         encrypt_writer.write_all(&plain_file_contents).await?;
 
         encrypt_writer.flush().await?;
 
         encrypt_writer.close().await?;
-
-        tokio::io::AsyncWriteExt::write_all(&mut cipher_file, &encrypt_buffer).await?;
 
         return Ok(());
     } else {

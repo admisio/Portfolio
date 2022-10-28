@@ -13,6 +13,7 @@ jsonwebtoken = "8.1.1"
 dotenv = "0.15.0"
 tokio = "1.21.2"
 futures = "0.3.25"
+async-compat = "0.2.1"
 
 # crypto
 argon2 = { version = "0.4", features = ["std"] }
