@@ -5,6 +5,7 @@ use guard::candidate_jwt::TokenRequest;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
+use rocket::data::ToByteUnit;
 use rocket::http::Status;
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
@@ -26,9 +27,23 @@ pub use entity::candidate;
 pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
+use rocket::Data;
+use tokio::io::AsyncWriteExt;
 
 fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
     Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
+}
+
+#[post("/upload", data = "<data>")]
+async fn upload(data: Data<'_>) -> Result<String, std::io::Error> {
+    let bytes = data.open(200.megabytes()).into_bytes().await;
+    if bytes.is_ok() {
+        let mut f: tokio::fs::File = tokio::fs::File::create("test.png").await.unwrap();
+        let b = bytes.ok().unwrap();
+        f.write_all(&b).await.unwrap();
+        f.flush().await.expect("TODO: panic message");
+    }
+    Ok(String::new())
 }
 
 #[post("/", data = "<post_form>")]
@@ -94,7 +109,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, whoami])
+        .mount("/", routes![create, login, hello, whoami, upload])
         .register("/", catchers![])
         .launch()
         .await
