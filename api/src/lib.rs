@@ -4,7 +4,6 @@ extern crate rocket;
 use guard::candidate_jwt::TokenRequest;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
-use portfolio_core::services::session_service::SessionService;
 use requests::LoginRequest;
 use rocket::http::Status;
 use rocket::{Rocket, Build};
@@ -48,15 +47,15 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> 
         Ok(plain_text_password)
 }
 
-#[get("/refresh")]
+/* #[get("/refresh")]
 async fn refresh_token(conn: Connection<'_, Db>, token_req: Result<TokenRequest, Status>) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     let jwt = token_req.ok().unwrap().to_token();
 
-    let refresh_token = SessionService::new_refresh_token(db, jwt.application_id).await;
+    let refresh_token = SessionService::login_user(db, jwt.application_id).await;
 
     Ok(refresh_token.ok().unwrap())
-}
+} */
 
 #[get("/validate_refresh")]
 async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Status>) -> Result<String, Custom<String>> {
@@ -75,17 +74,18 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
-    let jwt = CandidateService::login(db, 
-        login_form.application_id, 
-        login_form.password.to_owned()).await;
+    let session_token = CandidateService::get_session(db,
+         login_form.application_id,
+          login_form.password.to_string()
+        ).await;
 
-    if jwt.is_ok() {
+    if session_token.is_ok() {
         return Ok(
-            jwt.ok().unwrap()
+            session_token.ok().unwrap()
         );
     } else {
         return Err(
-            custom_err_from_service_err(jwt.err().unwrap())
+            custom_err_from_service_err(session_token.err().unwrap())
         )
     }
 }
@@ -125,7 +125,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, whoami, refresh_token, validate])
+        .mount("/", routes![create, login, hello, whoami, validate])
         .register("/", catchers![])
         .launch()
         .await

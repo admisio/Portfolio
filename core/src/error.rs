@@ -4,6 +4,9 @@ pub struct Status {
 
 pub const INVALID_CREDENTIALS_ERROR: ServiceError = ServiceError(Status { code: 401 }, 
     "Invalid credentials");
+pub const EXPIRED_SESSION_ERROR: ServiceError = ServiceError(Status { code: 401 }, 
+    "Session expired, please login again");
+
 pub const JWT_ERROR: ServiceError = ServiceError(Status { code: 500 }, 
     "Error while encoding JWT");
 

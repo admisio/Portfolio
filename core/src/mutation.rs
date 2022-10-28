@@ -43,4 +43,16 @@ impl Mutation {
             .insert(db)
             .await
     }
+
+    pub async fn delete_session(
+        db: &DbConn,
+        session_id: Uuid
+    ) -> Result<DeleteResult, DbErr> {
+        session::ActiveModel {
+            id: Set(session_id),
+            ..Default::default()
+        }
+            .delete(db)
+            .await
+    }
 }
