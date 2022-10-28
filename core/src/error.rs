@@ -13,6 +13,9 @@ pub const USER_NOT_FOUND_ERROR: ServiceError = ServiceError(Status { code: 404 }
 pub const DB_ERROR: ServiceError = ServiceError(Status { code: 500 }, 
     "Database error");
 
-pub const USER_NOT_FOUND_BY_JWT_ID: ServiceError = ServiceError(Status { code: 500 }, // User got somehow
+pub const USER_NOT_FOUND_BY_JWT_ID: ServiceError = ServiceError(Status { code: 500 }, // User got somehow deleted
+    "User not found, please contact technical support");                              // Shouldn't ever happen
+
+pub const USER_NOT_FOUND_BY_SESSION_ID: ServiceError = ServiceError(Status { code: 500 }, // User got somehow deleted
     "User not found, please contact technical support");                              // Shouldn't ever happen
 pub struct ServiceError<'a>(pub Status, pub &'a str);
