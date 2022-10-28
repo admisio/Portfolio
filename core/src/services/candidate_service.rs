@@ -7,7 +7,7 @@ use crate::{crypto::{self, hash_sha256}, Query, token::{generate_candidate_token
 pub struct CandidateService;
 
 impl CandidateService {
-    #[deprecated(note = "Use login instead")]
+    #[deprecated(note = "Use session login instead")]
     pub async fn login(db: &DatabaseConnection, id: i32, password: String) -> Result<String, ServiceError> {
         let candidate = match Query::find_candidate_by_id(db, id).await {
             Ok(candidate) => match candidate {
@@ -110,19 +110,23 @@ impl CandidateService {
 #[cfg(test)]
 mod tests {
     use entity::candidate;
-    use sea_orm::{DbConn, Database, sea_query::TableCreateStatement, DbBackend, Schema, ConnectionTrait};
+    use sea_orm::{DbConn, Database, sea_query::TableCreateStatement, DbBackend, Schema, ConnectionTrait, prelude::Uuid};
     use serde_json::json;
 
     use crate::{crypto, Mutation, services::candidate_service::CandidateService, token};
 
     #[cfg(test)]
     async fn get_memory_sqlite_connection() -> DbConn {
+        use entity::session;
+
         let base_url = "sqlite::memory:";
         let db: DbConn = Database::connect(base_url).await.unwrap();
     
         let schema = Schema::new(DbBackend::Sqlite);
         let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
+        let stmt2: TableCreateStatement = schema.create_table_from_entity(session::Entity);
         db.execute(db.get_database_backend().build(&stmt)).await.unwrap();
+        db.execute(db.get_database_backend().build(&stmt2)).await.unwrap();
         db
     }
     
@@ -157,5 +161,47 @@ mod tests {
         let claims = token::decode_candidate_token(jwt).ok().unwrap().claims;
     
         assert_eq!(claims.application_id, candidate.application);
+    }
+
+    #[tokio::test]
+    async fn test_candidate_session_correct_password() {
+        let db = &get_memory_sqlite_connection().await;
+
+        let form = serde_json::from_value(json!({
+            "application": 5555555,
+        })).unwrap();
+
+        Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+
+        // correct password
+        let session = CandidateService::get_session(
+                db,
+                5555555,
+                "Tajny_kod".to_string()
+            )
+                .await.ok().unwrap();
+            // println!("{}", session.err().unwrap().1);
+
+        assert!(
+            CandidateService::auth_user_session(db, Uuid::parse_str(&session).unwrap())
+                .await
+                .is_ok()
+            );
+    }
+
+    #[tokio::test]
+    async fn test_candidate_session_incorrect_password() {
+        let db = &get_memory_sqlite_connection().await;
+
+        let form = serde_json::from_value(json!({
+            "application": 5555555,
+        })).unwrap();
+
+        let candidate_form = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+
+         // incorrect password
+         assert!(
+            CandidateService::get_session(db, candidate_form.application, "Spatny_kod".to_string()).await.is_err()
+        );
     }
 }
