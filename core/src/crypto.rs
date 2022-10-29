@@ -254,12 +254,14 @@ pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
 mod tests {
     #[test]
     fn test_random_8_char_string() {
-        let s = super::random_8_char_string();
-        // Is 8 chars long
-        assert_eq!(s.len(), 8);
-        // Does not contain possibly confusing characters
-        assert!(!s.contains('0'));
-        assert!(!s.contains('O'));
+        for _ in 0..1000 {
+            let s = super::random_8_char_string();
+            // Is 8 chars long
+            assert_eq!(s.len(), 8);
+            // Does not contain possibly confusing characters
+            assert!(!s.contains('0'));
+            assert!(!s.contains('O'));
+        }
     }
 
     #[tokio::test]
