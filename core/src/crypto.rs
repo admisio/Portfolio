@@ -403,12 +403,14 @@ mod tests {
         let mut encrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
         tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
+        encrypted_file.sync_all().await.unwrap();
 
         assert_eq!(tokio::fs::read_to_string(&plain_file.file_path()).await.unwrap(), PASSWORD);
 
         super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
             .await
             .unwrap();
+        encrypted_file.sync_all().await.unwrap();
 
         let mut buffer = [0; 21];
 
@@ -421,6 +423,7 @@ mod tests {
         super::decrypt_file_with_private_key(&encrypted_file.file_path(), &decrypted_file.file_path(), PRIVATE_KEY)
             .await
             .unwrap();
+        decrypted_file.sync_all().await.unwrap();
 
         assert_eq!(tokio::fs::read_to_string(&decrypted_file.file_path()).await.unwrap(), PASSWORD);
     }
