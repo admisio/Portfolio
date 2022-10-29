@@ -121,7 +121,7 @@ mod tests {
                 "application": 5555555,
             })).unwrap();
     
-        let candidate = Mutation::create_candidate(&db, form, &SECRET.to_string()).await.unwrap();
+        let candidate = Mutation::create_candidate(&db, form, &SECRET.to_string(), "".to_string()).await.unwrap();
     
         assert_eq!(candidate.application, 5555555);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -136,7 +136,7 @@ mod tests {
             "application": 5555555,
         })).unwrap();
 
-        Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+        Mutation::create_candidate(&db, form, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
 
         // correct password
         let session = CandidateService::new_session(
@@ -163,7 +163,7 @@ mod tests {
             "application": 5555555,
         })).unwrap();
 
-        let candidate_form = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+        let candidate_form = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
 
          // incorrect password
          assert!(

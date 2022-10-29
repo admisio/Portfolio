@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
-use requests::LoginRequest;
+use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
 use rocket::{Rocket, Build};
 use rocket::serde::json::Json;
@@ -35,13 +35,13 @@ fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
 }
 
 #[post("/", data = "<post_form>")]
-async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> Result<String, Custom<String>> {   
+async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> Result<String, Custom<String>> {   
     let db = conn.into_inner();
     let form = post_form.into_inner();
 
     let plain_text_password = random_8_char_string();
 
-    Mutation::create_candidate(db, form, &plain_text_password)
+    Mutation::create_candidate(db, form.application_id, &plain_text_password, form.personal_id_number)
         .await
         .expect("Could not insert candidate");
 
