@@ -1,1 +1,1 @@
-pub mod candidate_refresh_token;
+pub mod candidate_jwt;
