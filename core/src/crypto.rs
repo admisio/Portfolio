@@ -1,10 +1,12 @@
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
-use secrecy::ExposeSecret;
+use async_compat::CompatExt;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
+use secrecy::ExposeSecret;
 use std::iter;
+use std::path::Path;
 use std::str::FromStr;
 
 /// Foolproof random 8 char string
@@ -30,7 +32,7 @@ pub fn random_8_char_string() -> String {
 
 pub async fn hash_password(
     password_plain_text: String,
-) -> Result<String,  Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error>> {
     let argon_config = Argon2::default();
 
     let hash = tokio::task::spawn_blocking(move || {
@@ -39,7 +41,9 @@ pub async fn hash_password(
         let salt_str = argon2::password_hash::SaltString::generate(rand::thread_rng());
         let salt = salt_str.as_salt();
 
-        return argon_config.hash_password(password, &salt).map(|x| x.serialize().to_string());
+        return argon_config
+            .hash_password(password, &salt)
+            .map(|x| x.serialize().to_string());
     });
 
     let hash_string = hash.await??;
@@ -110,71 +114,19 @@ pub async fn decrypt_password(
     Ok(String::from_utf8(decrypt_buffer)?)
 }
 
-pub fn create_identity() -> (String, String){
+pub fn create_identity() -> (String, String) {
     let identity = age::x25519::Identity::generate();
 
     // Public Key & Private Key
-    (identity.to_public().to_string(), identity.to_string().expose_secret().to_string())
+    (
+        identity.to_public().to_string(),
+        identity.to_string().expose_secret().to_string(),
+    )
 }
 
-pub async fn encrypt_password_with_recipients(
-    password_plain_text: &str,
-    recipients: Vec<&str>,
-) -> Result<String, age::EncryptError> {
-    let public_keys = recipients
-        .into_iter()
-        .map(|recipient| {
-            //TODO: No unwrap
-            Box::new(age::x25519::Recipient::from_str(recipient).unwrap()) as _
-        })
-        .collect();
-
-    let encryptor_option = age::Encryptor::with_recipients(public_keys);
-
-    if let Some(encryptor) = encryptor_option {
-        let mut encrypt_buffer = Vec::new();
-        let mut encrypt_writer = encryptor.wrap_async_output(&mut encrypt_buffer).await?;
-
-        encrypt_writer
-            .write_all(password_plain_text.as_bytes())
-            .await?;
-
-        encrypt_writer.flush().await?;
-
-        encrypt_writer.close().await?;
-
-        Ok(base64::encode(encrypt_buffer))
-    } else {
-        // TODO: Error handling
-        unreachable!("No recipients provided");
-    }
-}
-
-pub async fn decrypt_password_with_private_key(
-    password_encrypted: &str,
-    key: &str,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let encrypted = base64::decode(password_encrypted)?;
-
-    let decryptor = match age::Decryptor::new_async(&encrypted[..]).await? {
-        age::Decryptor::Recipients(d) => d,
-        _ => unreachable!(),
-    };
-
-    let mut decrypt_buffer = Vec::new();
-    let mut decrypt_writer = decryptor.decrypt_async(iter::once(
-        &age::x25519::Identity::from_str(key)? as &dyn age::Identity,
-    ))?;
-
-    decrypt_writer.read_to_end(&mut decrypt_buffer).await?;
-
-    Ok(String::from_utf8(decrypt_buffer)?)
-}
-
-// TODO: Massive refactor of encrypt_file_with_recipients required
-pub async fn encrypt_file_with_recipients(
-    plain_file_path: &str,
-    cipher_file_path: &str,
+async fn age_encrypt_with_recipients<W: tokio::io::AsyncWrite + Unpin>(
+    input_buffer: &[u8],
+    output_buffer: &mut W,
     recipients: Vec<&str>,
 ) -> Result<(), age::EncryptError> {
     let public_keys = recipients
@@ -188,29 +140,114 @@ pub async fn encrypt_file_with_recipients(
     let encryptor_option = age::Encryptor::with_recipients(public_keys);
 
     if let Some(encryptor) = encryptor_option {
-        let mut cipher_file = tokio::fs::File::create(cipher_file_path).await?;
-        let mut plain_file = tokio::fs::File::open(plain_file_path).await?;
+        let mut encrypt_writer = encryptor
+            .wrap_async_output(output_buffer.compat_mut())
+            .await?;
 
-        let mut plain_file_contents = Vec::new();
-
-        tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
-
-        let mut encrypt_buffer = Vec::new();
-        let mut encrypt_writer = encryptor.wrap_async_output(&mut encrypt_buffer).await?;
-
-        encrypt_writer.write_all(&plain_file_contents).await?;
+        encrypt_writer.write_all(input_buffer).await?;
 
         encrypt_writer.flush().await?;
 
         encrypt_writer.close().await?;
-
-        tokio::io::AsyncWriteExt::write_all(&mut cipher_file, &encrypt_buffer).await?;
 
         return Ok(());
     } else {
         // TODO: Error handling
         unreachable!("No recipients provided");
     }
+}
+
+async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
+    input_buffer: R,
+    output_buffer: &mut Vec<u8>,
+    key: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let decryptor = match age::Decryptor::new_async(input_buffer.compat()).await? {
+        age::Decryptor::Recipients(d) => d,
+        _ => unreachable!(),
+    };
+
+    let mut decrypt_writer = decryptor.decrypt_async(iter::once(
+        &age::x25519::Identity::from_str(key)? as &dyn age::Identity,
+    ))?;
+
+    decrypt_writer.read_to_end(output_buffer).await?;
+
+    Ok(())
+}
+
+pub async fn encrypt_password_with_recipients(
+    password_plain_text: &str,
+    recipients: Vec<&str>,
+) -> Result<String, age::EncryptError> {
+    let mut encrypt_buffer = Vec::new();
+
+    age_encrypt_with_recipients(
+        password_plain_text.as_bytes(),
+        &mut encrypt_buffer,
+        recipients,
+    )
+    .await?;
+
+    Ok(base64::encode(encrypt_buffer))
+}
+
+pub async fn decrypt_password_with_private_key(
+    password_encrypted: &str,
+    key: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let encrypted = base64::decode(password_encrypted)?;
+
+    let mut decrypt_buffer = Vec::new();
+
+    age_decrypt_with_private_key(encrypted.as_slice(), &mut decrypt_buffer, key).await?;
+
+    Ok(String::from_utf8(decrypt_buffer)?)
+}
+
+pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
+    plain_file_path: P,
+    cipher_file_path: P,
+    recipients: Vec<&str>,
+) -> Result<(), age::EncryptError> {
+    let mut cipher_file = tokio::fs::File::create(cipher_file_path).await?;
+    let mut plain_file = tokio::fs::File::open(plain_file_path).await?;
+
+    let mut plain_file_contents = Vec::new();
+
+    tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
+
+    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, recipients).await
+}
+
+pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
+    cipher_file_path: P,
+    plain_file_path: P,
+    key: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
+    let mut plain_file = tokio::fs::File::create(plain_file_path).await?;
+
+    let mut plain_file_contents = Vec::new();
+
+    age_decrypt_with_private_key(cipher_file, &mut plain_file_contents, key).await?;
+
+    tokio::io::AsyncWriteExt::write_all(&mut plain_file, plain_file_contents.as_slice()).await?;
+
+    Ok(())
+}
+
+pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
+    cipher_file_path: P,
+    key: &str,
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
+
+    let mut plain_file = Vec::new();
+
+    age_decrypt_with_private_key(cipher_file, &mut plain_file, key).await?;
+
+    Ok(plain_file)
 }
 
 #[cfg(test)]
@@ -279,7 +316,7 @@ mod tests {
 
         assert_eq!(PASSWORD, decrypted);
     }
-    
+
     #[test]
     fn test_create_identity() {
         let identity = super::create_identity();
@@ -311,7 +348,6 @@ mod tests {
                 .await
                 .unwrap();
 
-        println!("{}", encrypted);
         assert!(base64::decode(encrypted).is_ok());
     }
 
@@ -353,5 +389,76 @@ mod tests {
             .unwrap();
 
         assert_eq!(PASSWORD, decrypted_2);
+    }
+
+    #[tokio::test]
+    async fn test_encrypt_decrypt_file_with_recipients() {
+        const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
+        const PRIVATE_KEY: &str =
+            "AGE-SECRET-KEY-1WPDHL2FLJ23T6RK5KCX8KS8DNLX0CGXMNZG0XNUAH4QP5C8ZZ46QGD3STV";
+
+        const PASSWORD: &str = "test";
+
+        let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
+        let mut encrypted_file = async_tempfile::TempFile::new().await.unwrap();
+
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
+        encrypted_file.sync_all().await.unwrap();
+
+        assert_eq!(tokio::fs::read_to_string(&plain_file.file_path()).await.unwrap(), PASSWORD);
+
+        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
+            .await
+            .unwrap();
+        encrypted_file.sync_all().await.unwrap();
+
+        let mut buffer = [0; 21];
+
+        tokio::io::AsyncReadExt::read(&mut encrypted_file, &mut buffer).await.unwrap();
+
+        assert_eq!(&buffer, b"age-encryption.org/v1");
+
+        let decrypted_file = async_tempfile::TempFile::new().await.unwrap();
+
+        super::decrypt_file_with_private_key(&encrypted_file.file_path(), &decrypted_file.file_path(), PRIVATE_KEY)
+            .await
+            .unwrap();
+        decrypted_file.sync_all().await.unwrap();
+
+        assert_eq!(tokio::fs::read_to_string(&decrypted_file.file_path()).await.unwrap(), PASSWORD);
+    }
+
+    #[tokio::test]
+    async fn test_decrypt_file_with_private_key_as_buffer() {
+        const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
+        const PRIVATE_KEY: &str =
+            "AGE-SECRET-KEY-1WPDHL2FLJ23T6RK5KCX8KS8DNLX0CGXMNZG0XNUAH4QP5C8ZZ46QGD3STV";
+
+        const PASSWORD: &str = "test";
+
+        let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
+        let encrypted_file = async_tempfile::TempFile::new().await.unwrap();
+
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
+
+        let plain_buffer = tokio::fs::read(&plain_file.file_path()).await.unwrap();
+
+        assert_eq!(String::from_utf8(plain_buffer.clone()).unwrap(), PASSWORD);
+
+        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
+            .await
+            .unwrap();
+
+        let decrypted_buffer =
+            super::decrypt_file_with_private_key_as_buffer(encrypted_file.file_path(), PRIVATE_KEY)
+                .await
+                .unwrap();
+
+        assert_eq!(plain_buffer.len(), decrypted_buffer.len());
+
+        assert_eq!(
+            String::from_utf8(decrypted_buffer.clone()).unwrap(),
+            PASSWORD
+        );
     }
 }

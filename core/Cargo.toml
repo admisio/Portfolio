@@ -13,6 +13,7 @@ jsonwebtoken = "8.1.1"
 dotenv = "0.15.0"
 tokio = "1.21.2"
 futures = "0.3.25"
+async-compat = "0.2.1"
 
 infer = "0.9"
 
@@ -31,4 +32,5 @@ features = [
 ]
 
 [dev-dependencies]
-tokio = "1.21.2"
+tokio = "1.21"
+async-tempfile = "0.2.0"
