@@ -1,13 +1,27 @@
-use chrono::Duration;
+use std::cmp::min;
+
 use entity::candidate;
 use sea_orm::{DatabaseConnection, prelude::Uuid, ModelTrait};
 
-use crate::{crypto::{self}, Query, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID}, Mutation};
+use crate::{crypto::{self}, Query, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID, EXPIRED_SESSION_ERROR}, Mutation};
 
 pub struct CandidateService;
 
 impl CandidateService {
-    pub async fn new_session(db: &DatabaseConnection, user_id: i32, password: String) -> Result<String, ServiceError> {
+    async fn delete_old_sessions(db: &DatabaseConnection, user_id: i32, keep_n_recent: usize) -> Result<(), ServiceError> {
+        let mut sessions = Query::find_sessions_by_user_id(db, user_id).await.unwrap();
+        
+       sessions.sort_by_key(|s| s.created_at);
+
+       
+        for session in sessions.iter().take(sessions.len() - min(sessions.len(), keep_n_recent)) {
+            Mutation::delete_session(db, session.id).await.unwrap();
+        }
+
+        Ok(())
+    }
+
+    pub async fn new_session(db: &DatabaseConnection, user_id: i32, password: String, ip_addr: String) -> Result<String, ServiceError> {
         let candidate = match Query::find_candidate_by_id(db, user_id).await {
             Ok(candidate) => match candidate {
                 Some(candidate) => candidate,
@@ -27,14 +41,18 @@ impl CandidateService {
         }
 
         // TODO delete old sessions?
-    
+
+        
         // user is authenticated, generate a session
         let random_uuid: Uuid = Uuid::new_v4();
 
-        let session = match Mutation::insert_session(db, user_id, random_uuid).await {
+        let session = match Mutation::insert_session(db, user_id, random_uuid, ip_addr).await {
             Ok(session) => session,
             Err(_) => return Err(DB_ERROR)
         };
+
+        // delete old sessions
+        CandidateService::delete_old_sessions(db, candidate.application, 3).await.ok(); // TODO move to dotenv
 
         Ok(session.id.to_string())
     }
@@ -48,13 +66,12 @@ impl CandidateService {
             Err(_) => {return Err(DB_ERROR)}
         };
 
-        let limit = session.created_at.checked_add_signed(Duration::days(1)).unwrap();
         let now = chrono::Utc::now().naive_utc();
         // check if session is expired
-        if now > limit {
+        if now > session.expires_at {
             // delete session
             Mutation::delete_session(db, session.id).await.unwrap();
-            return Err(USER_NOT_FOUND_BY_SESSION_ID)
+            return Err(EXPIRED_SESSION_ERROR)
         }
 
         let candidate = match session.find_related(candidate::Entity).one(db).await {
@@ -125,7 +142,8 @@ mod tests {
         let session = CandidateService::new_session(
                 db,
                 5555555,
-                "Tajny_kod".to_string()
+                "Tajny_kod".to_string(),
+                "127.0.0.1".to_string(),
             )
                 .await.ok().unwrap();
             // println!("{}", session.err().unwrap().1);
@@ -149,7 +167,7 @@ mod tests {
 
          // incorrect password
          assert!(
-            CandidateService::new_session(db, candidate_form.application, "Spatny_kod".to_string()).await.is_err()
+            CandidateService::new_session(db, candidate_form.application, "Spatny_kod".to_string(), "127.0.0.1".to_string()).await.is_err()
         );
     }
 }

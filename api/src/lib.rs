@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+use std::net::SocketAddr;
+
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
@@ -59,13 +61,14 @@ async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Stat
 }
 
 #[post("/login", data = "<login_form>")]
-async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Result<String, Custom<String>> {
+async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr: SocketAddr) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
     let session_token = CandidateService::new_session(db,
-         login_form.application_id,
-          login_form.password.to_string()
+          login_form.application_id,
+          login_form.password.to_string(),
+          ip_addr.ip().to_string()
         ).await;
 
     if session_token.is_ok() {
