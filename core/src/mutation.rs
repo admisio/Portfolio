@@ -1,3 +1,5 @@
+use std::vec;
+
 use chrono::{Utc, Duration};
 use ::entity::{candidate, session};
 use sea_orm::{*, prelude::Uuid};
@@ -8,17 +10,23 @@ pub struct Mutation;
 impl Mutation {
     pub async fn create_candidate(
         db: &DbConn,
-        form_data: candidate::Model,
+        application_id: i32,
         plain_text_password: &String,
+        personal_id_number: String,
     ) -> Result<candidate::Model, DbErr> {
         // TODO: unwrap pro testing..
         let hashed_password = hash_password(plain_text_password.to_string()).await.unwrap();
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
         let encrypted_priv_key = crypto::encrypt_password_age(&priv_key_plain_text, &plain_text_password.to_string()).await.unwrap();
 
+        let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
+            &personal_id_number, vec![&pubkey]
+        ).await.unwrap();
+
 
         candidate::ActiveModel {
-            application: Set(form_data.application),
+            application: Set(application_id),
+            personal_identification_number: Set(Some(encrypted_personal_id_number)),
             code: Set(hashed_password),
             public_key: Set(pubkey),
             private_key: Set(encrypted_priv_key),
@@ -97,7 +105,7 @@ mod tests {
         let secret_message = "trnka".to_string();
 
         
-        let candidate = Mutation::create_candidate(&db, form, &plain_text_password).await.unwrap();
+        let candidate = Mutation::create_candidate(&db, form, &plain_text_password, "".to_string()).await.unwrap();
 
         let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
 
