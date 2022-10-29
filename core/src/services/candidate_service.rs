@@ -2,7 +2,7 @@ use chrono::Duration;
 use entity::candidate;
 use sea_orm::{DatabaseConnection, prelude::Uuid, ModelTrait};
 
-use crate::{crypto::{self, hash_sha256}, Query, token::{generate_candidate_token, candidate_token::CandidateToken}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID}, Mutation};
+use crate::{crypto::{self}, Query, token::{generate_candidate_token, candidate_token::CandidateToken}, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID}, Mutation};
 
 pub struct CandidateService;
 

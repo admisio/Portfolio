@@ -1,28 +1,11 @@
 use sea_orm_migration::prelude::*;
 
-use crate::m20221024_121621_create_candidate::Candidate;
-
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        let table = Table::create()
-            .table(Session::Table)
-            .if_not_exists()
-            .col(
-                ColumnDef::new(Session::Id)
-                    .uuid()
-                    .not_null()
-                    .unique_key()
-                    .primary_key(),
-            )
-            .col(ColumnDef::new(Session::UserId).integer().not_null())
-            .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
-            .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())
-            .to_owned();
-
         manager
             .create_table(
                 Table::create()
@@ -36,7 +19,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Session::UserId).integer().not_null())
-                    .col(ColumnDef::new(Session::IpAddress).inet().not_null())
+                    .col(ColumnDef::new(Session::IpAddress).string().not_null())
                     .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())
                     .to_owned(),
