@@ -1,7 +1,6 @@
 mod mutation;
 mod query;
 pub mod crypto;
-pub mod token;
 pub mod services;
 pub mod error;
 
