@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate rocket;
 
-use guard::candidate_jwt::TokenRequest;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
@@ -47,17 +46,7 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> 
         Ok(plain_text_password)
 }
 
-/* #[get("/refresh")]
-async fn refresh_token(conn: Connection<'_, Db>, token_req: Result<TokenRequest, Status>) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    let jwt = token_req.ok().unwrap().to_token();
-
-    let refresh_token = SessionService::login_user(db, jwt.application_id).await;
-
-    Ok(refresh_token.ok().unwrap())
-} */
-
-#[get("/validate_refresh")]
+#[get("/whoami")]
 async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Status>) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     let user = CandidateService::auth_user_session(db, uuid_cookie.ok().unwrap().value()).await;
@@ -90,24 +79,6 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
     }
 }
 
-#[get("/whoami")]
-async fn whoami(conn: Connection<'_, Db>, token_req: Result<TokenRequest, Status>) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    let token = token_req.ok().unwrap().to_token();
-    let user = CandidateService::authenticate_candidate(db, token).await;
-
-    match user {
-        Ok(user) => Ok(
-                format!("{} {} {}",
-                user.application, 
-                user.name.unwrap_or("".to_owned()),
-                user.surname.unwrap_or("".to_owned())
-                )
-            ),
-        Err(e) => Err(custom_err_from_service_err(e)),
-    }
-}
-
 #[get("/hello")]
 async fn hello() -> &'static str {
     "Hello, world!"
@@ -125,7 +96,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, whoami, validate])
+        .mount("/", routes![create, login, hello, validate])
         .register("/", catchers![])
         .launch()
         .await
