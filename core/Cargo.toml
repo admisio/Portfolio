@@ -26,6 +26,7 @@ infer = "^0.9"
 
 # crypto
 rand = "^0.8"
+aes-gcm = { version = "^0.10", features = ["std"] }
 argon2 = { version = "^0.4", features = ["std"] }
 age =  { version = "^0.9", features = ["async"] }
 secrecy = { version = "^0.8" }
