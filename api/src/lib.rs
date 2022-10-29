@@ -74,7 +74,7 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Resu
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
-    let session_token = CandidateService::get_session(db,
+    let session_token = CandidateService::new_session(db,
          login_form.application_id,
           login_form.password.to_string()
         ).await;

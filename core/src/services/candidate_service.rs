@@ -29,7 +29,7 @@ impl CandidateService {
         Ok(jwt)
     }
 
-    pub async fn get_session(db: &DatabaseConnection, user_id: i32, password: String) -> Result<String, ServiceError> {
+    pub async fn new_session(db: &DatabaseConnection, user_id: i32, password: String) -> Result<String, ServiceError> {
         let candidate = match Query::find_candidate_by_id(db, user_id).await {
             Ok(candidate) => match candidate {
                 Some(candidate) => candidate,
@@ -174,7 +174,7 @@ mod tests {
         Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
 
         // correct password
-        let session = CandidateService::get_session(
+        let session = CandidateService::new_session(
                 db,
                 5555555,
                 "Tajny_kod".to_string()
@@ -201,7 +201,7 @@ mod tests {
 
          // incorrect password
          assert!(
-            CandidateService::get_session(db, candidate_form.application, "Spatny_kod".to_string()).await.is_err()
+            CandidateService::new_session(db, candidate_form.application, "Spatny_kod".to_string()).await.is_err()
         );
     }
 }
