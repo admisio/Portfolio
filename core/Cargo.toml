@@ -2,29 +2,40 @@
 name = "portfolio-core"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-portfolio-entity = { path = "../entity" }
-rand = "0.8.5"
-chrono = "0.4.22"
-jsonwebtoken = "8.1.1"
-dotenv = "0.15.0"
-tokio = "1.21.2"
-futures = "0.3.25"
-async-compat = "0.2.1"
+chrono = "^0.4"
 
-infer = "0.9"
+# serialization & deserialization
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"
+
+portfolio-entity = { path = "../entity" }
+
+# tokens
+jsonwebtoken = "^8.1"
+
+# env
+dotenv = "^0.15"
+
+# async
+tokio = "^1.21"
+futures = "^0.3"
+async-compat = "^0.2"
+
+# file identifier
+infer = "^0.9"
 
 # crypto
-argon2 = { version = "0.4", features = ["std"] }
-age =  { version = "0.9", features = ["async"] }
-secrecy = { version = "0.8.0" }
-base64 = "0.13"
+rand = "^0.8"
+argon2 = { version = "^0.4", features = ["std"] }
+age =  { version = "^0.9", features = ["async"] }
+secrecy = { version = "^0.8" }
+base64 = "^0.13"
 
 [dependencies.sea-orm]
-version = "^0.10.0"
+version = "^0.10"
 features = [
     "runtime-tokio-native-tls",
     "sqlx-postgres",
@@ -32,5 +43,5 @@ features = [
 ]
 
 [dev-dependencies]
-tokio = "1.21"
-async-tempfile = "0.2.0"
+tokio = "^1.21"
+async-tempfile = "^0.2"
