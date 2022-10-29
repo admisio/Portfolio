@@ -1,5 +1,5 @@
 use aes_gcm::aead::Aead;
-use aes_gcm::{KeyInit};
+use aes_gcm::KeyInit;
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
@@ -53,7 +53,7 @@ pub async fn hash_password(
     return Ok(hash_string);
 }
 
-pub async fn verify_password<'a>(
+pub async fn verify_password(
     password_plaint_text: String,
     hash: String,
 ) -> Result<bool, Box<dyn std::error::Error>> {
@@ -107,7 +107,10 @@ pub async fn encrypt_password(
     Ok(base64::encode(hash))
 }
 
-pub async fn decrypt_password(password_cipher_text: String, key: String) -> Result<String, Box<dyn std::error::Error>>  {
+pub async fn decrypt_password(
+    password_cipher_text: String,
+    key: String,
+) -> Result<String, Box<dyn std::error::Error>> {
     let input = base64::decode(password_cipher_text).unwrap();
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
@@ -118,10 +121,10 @@ pub async fn decrypt_password(password_cipher_text: String, key: String) -> Resu
         let res = cipher.decrypt(nonce, &*input);
 
         res
-    }).await??;
+    })
+    .await??;
 
     Ok(String::from_utf8(plain).unwrap())
-
 }
 
 #[deprecated(note = "Too slow, use AES instead")]
@@ -351,11 +354,16 @@ mod tests {
 
     #[test]
     fn test_convert_key_aes256() {
-        const KEY: &str = "test";
+        let key_1 = super::convert_key_aes256("a");
+        assert!(key_1.len() >= 32);
 
-        let key = super::convert_key_aes256(KEY);
+        let key_2 = super::convert_key_aes256(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        );
+        assert!(key_2.len() >= 32);
 
-        assert!(key.len() >= 32);
+        let key_3 = super::convert_key_aes256(&super::random_8_char_string());
+        assert!(key_3.len() >= 32);
     }
 
     #[tokio::test]
@@ -363,7 +371,9 @@ mod tests {
         const PASSWORD: &str = "test";
         const KEY: &str = "testtesttesttesttesttest";
 
-        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string()).await.unwrap();
+        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string())
+            .await
+            .unwrap();
 
         assert!(base64::decode(encrypted).is_ok());
     }
@@ -373,9 +383,13 @@ mod tests {
         const PASSWORD: &str = "test";
         const KEY: &str = "test";
 
-        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string()).await.unwrap();
+        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string())
+            .await
+            .unwrap();
 
-        let decrypted = super::decrypt_password(encrypted, KEY.to_string()).await.unwrap();
+        let decrypted = super::decrypt_password(encrypted, KEY.to_string())
+            .await
+            .unwrap();
 
         assert_eq!(PASSWORD, decrypted);
     }
