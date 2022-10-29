@@ -18,10 +18,10 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Session::HashedToken).string().not_null())
                     .col(ColumnDef::new(Session::UserId).integer().not_null())
+                    .col(ColumnDef::new(Session::IpAddress).string().not_null())
                     .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
-                    .col(ColumnDef::new(Session::UpdatedAt).date_time().not_null())
+                    .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())
                     .to_owned(),
             )
             .await
@@ -36,11 +36,11 @@ impl MigrationTrait for Migration {
 
 /// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-enum Session {
+pub enum Session {
     Table,
     Id,
-    HashedToken,
     UserId,
+    IpAddress,
     CreatedAt,
-    UpdatedAt
+    ExpiresAt,
 }

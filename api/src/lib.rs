@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate rocket;
 
-use guard::candidate_jwt::TokenRequest;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
@@ -27,6 +26,8 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
+use crate::guard::candidate_refresh_token::UUIDCookie;
+
 fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
     Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
 }
@@ -45,35 +46,36 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<candidate::Model>) -> 
         Ok(plain_text_password)
 }
 
+#[get("/whoami")]
+async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Status>) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+    let user = CandidateService::auth_user_session(db, uuid_cookie.ok().unwrap().value()).await;
+
+
+    match user {
+        Ok(user) => Ok(user.application.to_string()),
+        Err(err) => Err(custom_err_from_service_err(err))
+    }
+}
+
 #[post("/login", data = "<login_form>")]
 async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
-    let jwt = CandidateService::login(db, 
-        login_form.application_id, 
-        login_form.password.to_owned()).await;
+    let session_token = CandidateService::new_session(db,
+         login_form.application_id,
+          login_form.password.to_string()
+        ).await;
 
-    if jwt.is_ok() {
+    if session_token.is_ok() {
         return Ok(
-            jwt.ok().unwrap()
+            session_token.ok().unwrap()
         );
     } else {
         return Err(
-            custom_err_from_service_err(jwt.err().unwrap())
+            custom_err_from_service_err(session_token.err().unwrap())
         )
-    }
-}
-
-#[get("/whoami")]
-async fn whoami(conn: Connection<'_, Db>, token_req: Result<TokenRequest, Status>) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    let token = token_req.ok().unwrap().to_token();
-    let user = CandidateService::authenticate_candidate(db, token).await;
-
-    match user {
-        Ok(user) => Ok(format!("{} {}", user.name.unwrap(), user.surname.unwrap())),
-        Err(e) => Err(custom_err_from_service_err(e)),
     }
 }
 
@@ -94,7 +96,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, whoami])
+        .mount("/", routes![create, login, hello, validate])
         .register("/", catchers![])
         .launch()
         .await
