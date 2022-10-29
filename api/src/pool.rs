@@ -2,7 +2,7 @@ use portfolio_core::sea_orm;
 
 use async_trait::async_trait;
 use sea_orm::ConnectOptions;
-use sea_orm_rocket::{rocket::figment::Figment, Config, Database};
+use sea_orm_rocket::{rocket::figment::Figment, Database};
 use std::time::Duration;
 
 #[derive(Database, Debug)]
@@ -20,7 +20,7 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
 
     type Connection = sea_orm::DatabaseConnection;
 
-    async fn init(figment: &Figment) -> Result<Self, Self::Error> {
+    async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
         dotenv::dotenv().ok();
         let database_url = std::env::var("DATABASE_URL").unwrap();
         let mut options: ConnectOptions = database_url.into();

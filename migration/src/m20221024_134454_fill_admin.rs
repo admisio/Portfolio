@@ -40,8 +40,6 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let db = manager.get_connection();
 
-        print!("{:?}", self.admin.clone().id);
-
         self.admin.to_owned().delete(db).await?;
 
         Ok(())
