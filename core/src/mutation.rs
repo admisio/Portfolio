@@ -1,7 +1,7 @@
 use chrono::{Utc, Duration};
 use ::entity::{candidate, session};
 use sea_orm::{*, prelude::Uuid};
-use crate::crypto::hash_password;
+use crate::crypto::{hash_password, self};
 
 pub struct Mutation;
 
@@ -13,11 +13,15 @@ impl Mutation {
     ) -> Result<candidate::Model, DbErr> {
         // TODO: unwrap pro testing..
         let hashed_password = hash_password(plain_text_password.to_string()).await.unwrap();
+        let (pubkey, priv_key_plain_text) = crypto::create_identity();
+        let encrypted_priv_key = crypto::encrypt_password(&priv_key_plain_text, &plain_text_password.to_string()).await.unwrap();
+
+
         candidate::ActiveModel {
             application: Set(form_data.application),
             code: Set(hashed_password),
-            public_key: Set("lorem ipsum pub key".to_string()),
-            private_key: Set("lorem ipsum priv key".to_string()),
+            public_key: Set(pubkey),
+            private_key: Set(encrypted_priv_key),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
@@ -53,5 +57,54 @@ impl Mutation {
         }
             .delete(db)
             .await
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use sea_orm::{Database, DbConn};
+    use serde_json::json;
+
+    use crate::{Mutation, crypto};
+
+    #[cfg(test)]
+    async fn get_memory_sqlite_connection() -> DbConn {
+        use entity::candidate;
+        use sea_orm::{DbBackend, sea_query::TableCreateStatement, ConnectionTrait};
+        use sea_orm::Schema;
+
+
+        let base_url = "sqlite::memory:";
+        let db: DbConn = Database::connect(base_url).await.unwrap();
+    
+        let schema = Schema::new(DbBackend::Sqlite);
+        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
+        db.execute(db.get_database_backend().build(&stmt)).await.unwrap();
+        db
+    }
+
+    #[tokio::test]
+    async fn test_encrypt_decrypt_private_key_with_passphrase() {
+        let db = get_memory_sqlite_connection().await;
+
+        let form = serde_json::from_value(json!({
+            "application": 5555555,
+        })).unwrap();
+        let plain_text_password = "test".to_string();
+
+        let secret_message = "trnka".to_string();
+
+        
+        let candidate = Mutation::create_candidate(&db, form, &plain_text_password).await.unwrap();
+
+        let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
+
+        let private_key_plain_text = crypto::decrypt_password(&candidate.private_key, &plain_text_password).await.unwrap();
+
+        let decrypted_message = crypto::decrypt_password_with_private_key(&encrypted_message, &private_key_plain_text).await.unwrap();
+
+        assert_eq!(secret_message, decrypted_message);
+
     }
 }
