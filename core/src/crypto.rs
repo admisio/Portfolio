@@ -1,5 +1,5 @@
-use aes_gcm::aead::Aead;
-use aes_gcm::KeyInit;
+use aes_gcm_siv::aead::Aead;
+use aes_gcm_siv::KeyInit;
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
@@ -95,9 +95,9 @@ pub async fn encrypt_password(
     let hash = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
-        let nonce = aes_gcm::Nonce::from_slice(&aes_key_nonce[..12]);
+        let nonce = aes_gcm_siv::Nonce::from_slice(&aes_key_nonce[..12]);
 
-        let cipher = aes_gcm::Aes256Gcm::new_from_slice(&aes_key_nonce[..32]).unwrap();
+        let cipher = aes_gcm_siv::Aes256GcmSiv::new_from_slice(&aes_key_nonce[..32]).unwrap();
 
         let res = cipher.encrypt(nonce, password_plain_text.as_bytes());
         res
@@ -115,8 +115,8 @@ pub async fn decrypt_password(
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
-        let nonce = aes_gcm::Nonce::from_slice(&aes_key_nonce[..12]);
-        let cipher = aes_gcm::Aes256Gcm::new_from_slice(&aes_key_nonce[..32]).unwrap();
+        let nonce = aes_gcm_siv::Nonce::from_slice(&aes_key_nonce[..12]);
+        let cipher = aes_gcm_siv::Aes256GcmSiv::new_from_slice(&aes_key_nonce[..32]).unwrap();
 
         let res = cipher.decrypt(nonce, &*input);
 
