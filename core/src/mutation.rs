@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{Utc, Duration};
 use ::entity::{candidate, session};
 use sea_orm::{*, prelude::Uuid};
 use crate::crypto::hash_password;
@@ -31,14 +31,13 @@ impl Mutation {
         db: &DbConn,
         user_id: i32,
         random_uuid: Uuid,
-        hashed_jwt: String
     ) -> Result<session::Model, DbErr> {
         session::ActiveModel {
             id: Set(random_uuid),
-            hashed_token: Set(hashed_jwt),
             user_id: Set(user_id),
+            ip_address: Set("127.0.0.1".to_string()),
             created_at: Set(Utc::now().naive_local()),
-            updated_at: Set(Utc::now().naive_local()),
+            expires_at: Set(Utc::now().naive_local().checked_add_signed(Duration::days(1)).unwrap()),
         }
             .insert(db)
             .await

@@ -53,9 +53,7 @@ impl CandidateService {
         // user is authenticated, generate a session
         let random_uuid: Uuid = Uuid::new_v4();
 
-        let jwt = generate_candidate_token(candidate);
-
-        let session = match Mutation::insert_session(db, user_id, random_uuid, hash_sha256(jwt)).await {
+        let session = match Mutation::insert_session(db, user_id, random_uuid).await {
             Ok(session) => session,
             Err(_) => return Err(DB_ERROR)
         };

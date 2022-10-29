@@ -7,10 +7,11 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub hashed_token: String,
     pub user_id: i32,
+    #[sea_orm(column_type = "Custom(\"inet\".to_owned())")]
+    pub ip_address: String,
     pub created_at: DateTime,
-    pub updated_at: DateTime,
+    pub expires_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
