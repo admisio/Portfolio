@@ -78,9 +78,14 @@ pub async fn verify_password(
 
 fn convert_key_aes256(key: &str) -> Vec<u8> {
     const REQUIRED_KEY_BYTES: usize = 32;
-    //const REQUIRED_NONCE_BYTES: usize = 32;
+    //const REQUIRED_NONCE_BYTES: usize = 12;
 
     let key_len = key.as_bytes().len();
+
+    if key_len >= REQUIRED_KEY_BYTES {
+        return key.as_bytes().to_vec();
+    }
+
     let multiplied_key: String = key.repeat((REQUIRED_KEY_BYTES / key_len) + 1);
 
     let key = multiplied_key.as_bytes().to_vec();
