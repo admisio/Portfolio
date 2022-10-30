@@ -92,7 +92,6 @@ impl CandidateService {
 mod tests {
     use entity::candidate;
     use sea_orm::{DbConn, Database, sea_query::TableCreateStatement, DbBackend, Schema, ConnectionTrait, prelude::Uuid};
-    use serde_json::json;
 
     use crate::{crypto, Mutation, services::candidate_service::CandidateService};
 
@@ -117,11 +116,7 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
     
-        let form = serde_json::from_value(json!({
-                "application": 5555555,
-            })).unwrap();
-    
-        let candidate = Mutation::create_candidate(&db, form, &SECRET.to_string()).await.unwrap();
+        let candidate = Mutation::create_candidate(&db, 5555555, &SECRET.to_string(), "".to_string()).await.unwrap();
     
         assert_eq!(candidate.application, 5555555);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -132,11 +127,7 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let form = serde_json::from_value(json!({
-            "application": 5555555,
-        })).unwrap();
-
-        Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+        Mutation::create_candidate(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
 
         // correct password
         let session = CandidateService::new_session(
@@ -159,11 +150,7 @@ mod tests {
     async fn test_candidate_session_incorrect_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let form = serde_json::from_value(json!({
-            "application": 5555555,
-        })).unwrap();
-
-        let candidate_form = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string()).await.unwrap();
+        let candidate_form = Mutation::create_candidate(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
 
          // incorrect password
          assert!(
