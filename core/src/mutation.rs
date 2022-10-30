@@ -17,7 +17,7 @@ impl Mutation {
         // TODO: unwrap pro testing..
         let hashed_password = hash_password(plain_text_password.to_string()).await.unwrap();
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
-        let encrypted_priv_key = crypto::encrypt_password(&priv_key_plain_text, &plain_text_password.to_string()).await.unwrap();
+        let encrypted_priv_key = crypto::encrypt_password_age(&priv_key_plain_text, &plain_text_password.to_string()).await.unwrap();
 
         let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
             &personal_id_number, vec![&pubkey]
@@ -105,7 +105,7 @@ mod tests {
 
         let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
 
-        let private_key_plain_text = crypto::decrypt_password(&candidate.private_key, &plain_text_password).await.unwrap();
+        let private_key_plain_text = crypto::decrypt_password_age(&candidate.private_key, &plain_text_password).await.unwrap();
 
         let decrypted_message = crypto::decrypt_password_with_private_key(&encrypted_message, &private_key_plain_text).await.unwrap();
 

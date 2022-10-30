@@ -1,3 +1,5 @@
+use aes_gcm_siv::aead::Aead;
+use aes_gcm_siv::KeyInit;
 use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
@@ -51,7 +53,7 @@ pub async fn hash_password(
     return Ok(hash_string);
 }
 
-pub async fn verify_password<'a>(
+pub async fn verify_password(
     password_plaint_text: String,
     hash: String,
 ) -> Result<bool, Box<dyn std::error::Error>> {
@@ -74,7 +76,64 @@ pub async fn verify_password<'a>(
     Ok(result?)
 }
 
+fn convert_key_aes256(key: &str) -> Vec<u8> {
+    const REQUIRED_KEY_BYTES: usize = 32;
+    //const REQUIRED_NONCE_BYTES: usize = 12;
+
+    let key_len = key.as_bytes().len();
+
+    if key_len >= REQUIRED_KEY_BYTES {
+        return key.as_bytes().to_vec();
+    }
+
+    let multiplied_key: String = key.repeat((REQUIRED_KEY_BYTES / key_len) + 1);
+
+    let key = multiplied_key.as_bytes().to_vec();
+
+    key
+}
+
 pub async fn encrypt_password(
+    password_plain_text: String,
+    key: String,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let hash = tokio::task::spawn_blocking(move || {
+        let aes_key_nonce = convert_key_aes256(&key);
+
+        let nonce = aes_gcm_siv::Nonce::from_slice(&aes_key_nonce[..12]);
+
+        let cipher = aes_gcm_siv::Aes256GcmSiv::new_from_slice(&aes_key_nonce[..32]).unwrap();
+
+        let res = cipher.encrypt(nonce, password_plain_text.as_bytes());
+        res
+    })
+    .await??;
+
+    Ok(base64::encode(hash))
+}
+
+pub async fn decrypt_password(
+    password_cipher_text: String,
+    key: String,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let input = base64::decode(password_cipher_text).unwrap();
+    let plain = tokio::task::spawn_blocking(move || {
+        let aes_key_nonce = convert_key_aes256(&key);
+
+        let nonce = aes_gcm_siv::Nonce::from_slice(&aes_key_nonce[..12]);
+        let cipher = aes_gcm_siv::Aes256GcmSiv::new_from_slice(&aes_key_nonce[..32]).unwrap();
+
+        let res = cipher.decrypt(nonce, &*input);
+
+        res
+    })
+    .await??;
+
+    Ok(String::from_utf8(plain).unwrap())
+}
+
+#[deprecated(note = "Too slow, use AES instead")]
+pub async fn encrypt_password_age(
     password_plain_text: &str,
     key: &str,
 ) -> Result<String, age::EncryptError> {
@@ -94,7 +153,8 @@ pub async fn encrypt_password(
     Ok(base64::encode(encrypt_buffer))
 }
 
-pub async fn decrypt_password(
+#[deprecated(note = "Too slow, use AES instead")]
+pub async fn decrypt_password_age(
     password_encrypted: &str,
     key: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
@@ -297,12 +357,28 @@ mod tests {
         assert!(result);
     }
 
+    #[test]
+    fn test_convert_key_aes256() {
+        let key_1 = super::convert_key_aes256("a");
+        assert!(key_1.len() >= 32);
+
+        let key_2 = super::convert_key_aes256(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        );
+        assert!(key_2.len() >= 32);
+
+        let key_3 = super::convert_key_aes256(&super::random_8_char_string());
+        assert!(key_3.len() >= 32);
+    }
+
     #[tokio::test]
     async fn test_encrypt_password_is_valid_base64() {
         const PASSWORD: &str = "test";
-        const KEY: &str = "test";
+        const KEY: &str = "testtesttesttesttesttest";
 
-        let encrypted = super::encrypt_password(PASSWORD, KEY).await.unwrap();
+        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string())
+            .await
+            .unwrap();
 
         assert!(base64::decode(encrypted).is_ok());
     }
@@ -312,9 +388,37 @@ mod tests {
         const PASSWORD: &str = "test";
         const KEY: &str = "test";
 
-        let encrypted = super::encrypt_password(PASSWORD, KEY).await.unwrap();
+        let encrypted = super::encrypt_password(PASSWORD.to_string(), KEY.to_string())
+            .await
+            .unwrap();
 
-        let decrypted = super::decrypt_password(&encrypted, KEY).await.unwrap();
+        let decrypted = super::decrypt_password(encrypted, KEY.to_string())
+            .await
+            .unwrap();
+
+        assert_eq!(PASSWORD, decrypted);
+    }
+
+    #[tokio::test]
+    async fn test_encrypt_password_age_is_valid_base64() {
+        const PASSWORD: &str = "test";
+        const KEY: &str = "testtesttesttesttesttest";
+
+        #[allow(deprecated)]
+        let encrypted = super::encrypt_password_age(PASSWORD, KEY).await.unwrap();
+
+        assert!(base64::decode(encrypted).is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_encrypt_decrypt_age_password() {
+        const PASSWORD: &str = "test";
+        const KEY: &str = "test";
+
+        #[allow(deprecated)]
+        let encrypted = super::encrypt_password_age(PASSWORD, KEY).await.unwrap();
+        #[allow(deprecated)]
+        let decrypted = super::decrypt_password_age(&encrypted, KEY).await.unwrap();
 
         assert_eq!(PASSWORD, decrypted);
     }
@@ -404,30 +508,52 @@ mod tests {
         let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
         let mut encrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
-        encrypted_file.sync_all().await.unwrap();
-
-        assert_eq!(tokio::fs::read_to_string(&plain_file.file_path()).await.unwrap(), PASSWORD);
-
-        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes())
             .await
             .unwrap();
         encrypted_file.sync_all().await.unwrap();
 
+        assert_eq!(
+            tokio::fs::read_to_string(&plain_file.file_path())
+                .await
+                .unwrap(),
+            PASSWORD
+        );
+
+        super::encrypt_file_with_recipients(
+            &plain_file.file_path(),
+            &encrypted_file.file_path(),
+            vec![PUBLIC_KEY],
+        )
+        .await
+        .unwrap();
+        encrypted_file.sync_all().await.unwrap();
+
         let mut buffer = [0; 21];
 
-        tokio::io::AsyncReadExt::read(&mut encrypted_file, &mut buffer).await.unwrap();
+        tokio::io::AsyncReadExt::read(&mut encrypted_file, &mut buffer)
+            .await
+            .unwrap();
 
         assert_eq!(&buffer, b"age-encryption.org/v1");
 
         let decrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        super::decrypt_file_with_private_key(&encrypted_file.file_path(), &decrypted_file.file_path(), PRIVATE_KEY)
-            .await
-            .unwrap();
+        super::decrypt_file_with_private_key(
+            &encrypted_file.file_path(),
+            &decrypted_file.file_path(),
+            PRIVATE_KEY,
+        )
+        .await
+        .unwrap();
         decrypted_file.sync_all().await.unwrap();
 
-        assert_eq!(tokio::fs::read_to_string(&decrypted_file.file_path()).await.unwrap(), PASSWORD);
+        assert_eq!(
+            tokio::fs::read_to_string(&decrypted_file.file_path())
+                .await
+                .unwrap(),
+            PASSWORD
+        );
     }
 
     #[tokio::test]
@@ -441,15 +567,21 @@ mod tests {
         let mut plain_file = async_tempfile::TempFile::new().await.unwrap();
         let encrypted_file = async_tempfile::TempFile::new().await.unwrap();
 
-        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes()).await.unwrap();
+        tokio::io::AsyncWriteExt::write_all(&mut plain_file, PASSWORD.as_bytes())
+            .await
+            .unwrap();
 
         let plain_buffer = tokio::fs::read(&plain_file.file_path()).await.unwrap();
 
         assert_eq!(String::from_utf8(plain_buffer.clone()).unwrap(), PASSWORD);
 
-        super::encrypt_file_with_recipients(&plain_file.file_path(), &encrypted_file.file_path(), vec![PUBLIC_KEY])
-            .await
-            .unwrap();
+        super::encrypt_file_with_recipients(
+            &plain_file.file_path(),
+            &encrypted_file.file_path(),
+            vec![PUBLIC_KEY],
+        )
+        .await
+        .unwrap();
 
         let decrypted_buffer =
             super::decrypt_file_with_private_key_as_buffer(encrypted_file.file_path(), PRIVATE_KEY)
