@@ -105,7 +105,7 @@ mod tests {
 
         let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
 
-        let private_key_plain_text = crypto::decrypt_password_age(&candidate.private_key, &plain_text_password).await.unwrap();
+        let private_key_plain_text = crypto::decrypt_password(candidate.private_key, plain_text_password).await.unwrap();
 
         let decrypted_message = crypto::decrypt_password_with_private_key(&encrypted_message, &private_key_plain_text).await.unwrap();
 
