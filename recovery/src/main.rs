@@ -11,13 +11,13 @@ use ::entity::parent::Entity as Parent;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let clap = command!()
-        .arg(arg!([name] "Path to the db .sql backup"))
         .arg(
             arg!(
-                -d --database <DATABASE> "Path to the database SQL backup file"
+                -d --database <URL> "URL to the database or sql file with postgres:// or sqlite://"
             )
+            .alias("url")
             .required(true)
-            .value_parser(value_parser!(PathBuf)),
+            .value_parser(value_parser!(Url)),
         )
         .arg(
             arg!(
@@ -34,8 +34,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .get_matches();
 
-    let mut sqlite_url = Url::from_file_path(clap.get_one::<PathBuf>("DATABASE").unwrap()).unwrap();
-    sqlite_url.set_scheme("sqlite").unwrap();
+    let sqlite_url = clap.get_one::<Url>("database").unwrap();
+
+    println!("Connecting to {:?}", sqlite_url);
+
+    if sqlite_url.scheme() != "sqlite" && sqlite_url.scheme() != "postgres" {
+        return Err("URL scheme postgres:// or sqlite:// required")?;
+    }
 
     let db: DatabaseConnection = Database::connect(sqlite_url.as_str()).await?;
 
