@@ -26,7 +26,7 @@ impl Mutation {
 
         candidate::ActiveModel {
             application: Set(application_id),
-            personal_identification_number: Set(Some(encrypted_personal_id_number)),
+            personal_identification_number: Set(encrypted_personal_id_number),
             code: Set(hashed_password),
             public_key: Set(pubkey),
             private_key: Set(encrypted_priv_key),
@@ -98,7 +98,7 @@ mod tests {
         let db = get_memory_sqlite_connection().await;
 
         let form = serde_json::from_value(json!({
-            "application": 5555555,
+            "application_id": 5555555,
         })).unwrap();
         let plain_text_password = "test".to_string();
 
