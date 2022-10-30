@@ -1,0 +1,25 @@
+[package]
+name = "portfolio-recovery"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+url = "^2.3"
+clap = { version = "^4.0", features = ["cargo"] }
+
+portfolio-entity = { path = "../entity" }
+
+[dependencies.tokio]
+version = "^1.21"
+features = [
+    "macros",
+]
+
+[dependencies.sea-orm]
+version = "^0.10"
+features = [
+    "sqlx-sqlite",
+    # TODO: Migrate to rustls for better compatibility with various OS
+    "runtime-tokio-native-tls"
+]
