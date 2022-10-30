@@ -18,8 +18,9 @@ use sea_orm_rocket::{Connection, Database};
 
 
 mod pool;
-mod guard;
+mod guards;
 mod requests;
+mod routes;
 
 use pool::Db;
 
@@ -28,7 +29,7 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
-use crate::guard::candidate_refresh_token::UUIDCookie;
+use crate::guards::request::candidate_refresh_token::UUIDCookie;
 
 fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
     Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
@@ -49,9 +50,9 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> R
 }
 
 #[get("/whoami")]
-async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Status>) -> Result<String, Custom<String>> {
+async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Option<String>>) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
-    let user = CandidateService::auth_user_session(db, uuid_cookie.ok().unwrap().value()).await;
+    let user = CandidateService::auth_user_session(db, uuid_cookie.ok().unwrap().into()).await;
 
 
     match user {
