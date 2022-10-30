@@ -118,7 +118,7 @@ mod tests {
         let db = get_memory_sqlite_connection().await;
     
         let form = serde_json::from_value(json!({
-                "application": 5555555,
+                "application_id": 5555555,
             })).unwrap();
     
         let candidate = Mutation::create_candidate(&db, form, &SECRET.to_string(), "".to_string()).await.unwrap();
@@ -133,7 +133,7 @@ mod tests {
         let db = &get_memory_sqlite_connection().await;
 
         let form = serde_json::from_value(json!({
-            "application": 5555555,
+            "application_id": 5555555,
         })).unwrap();
 
         Mutation::create_candidate(&db, form, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
@@ -160,7 +160,7 @@ mod tests {
         let db = &get_memory_sqlite_connection().await;
 
         let form = serde_json::from_value(json!({
-            "application": 5555555,
+            "application_id": 5555555,
         })).unwrap();
 
         let candidate_form = Mutation::create_candidate(&db, form, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
