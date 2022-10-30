@@ -100,6 +100,8 @@ pub async fn encrypt_password(
     let hash = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
+        // Nonce should be always unique, but for our use case it's fine
+        // Also aes-gcm-siv is not vulnerable to nonce reuse
         let nonce = aes_gcm_siv::Nonce::from_slice(&aes_key_nonce[..12]);
 
         let cipher = aes_gcm_siv::Aes256GcmSiv::new_from_slice(&aes_key_nonce[..32]).unwrap();
