@@ -37,7 +37,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(Iden)]
-enum Parent {
+pub enum Parent {
     Table,
     Application,
     Name,
