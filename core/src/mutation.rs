@@ -73,7 +73,6 @@ impl Mutation {
 #[cfg(test)]
 mod tests {
     use sea_orm::{Database, DbConn};
-    use serde_json::json;
 
     use crate::{Mutation, crypto};
 
@@ -97,15 +96,12 @@ mod tests {
     async fn test_encrypt_decrypt_private_key_with_passphrase() {
         let db = get_memory_sqlite_connection().await;
 
-        let form = serde_json::from_value(json!({
-            "application_id": 5555555,
-        })).unwrap();
         let plain_text_password = "test".to_string();
 
         let secret_message = "trnka".to_string();
 
         
-        let candidate = Mutation::create_candidate(&db, form, &plain_text_password, "".to_string()).await.unwrap();
+        let candidate = Mutation::create_candidate(&db, 5555555, &plain_text_password, "".to_string()).await.unwrap();
 
         let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
 
