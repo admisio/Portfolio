@@ -9,9 +9,9 @@ use crate::pool::Db;
 
 pub struct SessionAuth(Candidate);
 
-impl From<SessionAuth> for Candidate {
-    fn from(src: SessionAuth) -> Candidate {
-        src.0
+impl Into<Candidate> for SessionAuth {
+    fn into(self) -> Candidate {
+        self.0
     }
 }
     
