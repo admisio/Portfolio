@@ -1,27 +1,39 @@
+use entity::candidate::Model;
 use portfolio_core::sea_orm::prelude::Uuid;
+use portfolio_core::services::candidate_service::CandidateService;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{FromRequest, Request};
 
+use crate::pool::Db;
 
-pub struct UUIDCookie(Uuid);
 
-impl Into<Uuid> for UUIDCookie {
-    fn into(self) -> Uuid {
+pub struct SessionAuth(Model);
+
+impl SessionAuth {
+    pub fn model(self) -> Model { // TODO: use into_inner instead?
         self.0
     }
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for UUIDCookie {
+impl<'r> FromRequest<'r> for SessionAuth {
     type Error = Option<String>;
-    async fn from_request(req: &'r Request<'_>) -> Outcome<UUIDCookie, (Status, Self::Error), ()> {
+    async fn from_request(req: &'r Request<'_>) -> Outcome<SessionAuth, (Status, Self::Error), ()> {
         let session_id = req.cookies().get("id").unwrap().name_value().1;
-        println!("session_id: {}", session_id);
+        let conn = &req.rocket().state::<Db>().unwrap().conn;
 
-        match Uuid::parse_str(&session_id) {
-            Ok(uuid) => Outcome::Success(UUIDCookie(uuid)),
+        let uuid = match Uuid::parse_str(&session_id) {
+            Ok(uuid) => uuid,
             Err(_) => return Outcome::Failure((Status::BadRequest, None)),
+        };
+
+        let session = CandidateService::auth_user_session(conn, uuid).await;
+
+        match session {
+            Ok(model) => Outcome::Success(SessionAuth(model)),
+            Err(_) => Outcome::Failure((Status::Unauthorized, None)),
         }
+
     }
 }

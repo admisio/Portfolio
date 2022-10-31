@@ -3,6 +3,7 @@ extern crate rocket;
 
 use std::net::SocketAddr;
 
+use guards::request::candidate_refresh_token::SessionAuth;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::{LoginRequest, RegisterRequest};
@@ -29,8 +30,6 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
-use crate::guards::request::candidate_refresh_token::UUIDCookie;
-
 fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
     Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
 }
@@ -50,15 +49,8 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> R
 }
 
 #[get("/whoami")]
-async fn validate(conn: Connection<'_, Db>, uuid_cookie: Result<UUIDCookie, Option<String>>) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    let user = CandidateService::auth_user_session(db, uuid_cookie.ok().unwrap().into()).await;
-
-
-    match user {
-        Ok(user) => Ok(user.application.to_string()),
-        Err(err) => Err(custom_err_from_service_err(err))
-    }
+async fn validate(session: SessionAuth) -> Result<String, Custom<String>> {
+    Ok(session.model().application.to_string())
 }
 
 #[post("/login", data = "<login_form>")]
