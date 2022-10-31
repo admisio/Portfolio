@@ -35,7 +35,11 @@ pub fn random_8_char_string() -> String {
 pub async fn hash_password(
     password_plain_text: String,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let argon_config = Argon2::default();
+    let argon_config = Argon2::new(
+        argon2::Algorithm::Argon2i,
+        argon2::Version::V0x13,
+        argon2::Params::new(6000, 3, 10, None)?,
+    );
 
     let hash = tokio::task::spawn_blocking(move || {
         let password = password_plain_text.as_bytes();
@@ -57,7 +61,11 @@ pub async fn verify_password(
     password_plaint_text: String,
     hash: String,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-    let argon_config = Argon2::default();
+    let argon_config = Argon2::new(
+        argon2::Algorithm::Argon2i,
+        argon2::Version::V0x13,
+        argon2::Params::new(6000, 3, 10, None)?,
+    );
 
     let result: Result<bool, argon2::password_hash::Error> =
         tokio::task::spawn_blocking(move || {
