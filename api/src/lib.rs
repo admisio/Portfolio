@@ -3,7 +3,7 @@ extern crate rocket;
 
 use std::net::SocketAddr;
 
-use guards::request::candidate_refresh_token::SessionAuth;
+use guards::request::session_auth::SessionAuth;
 use portfolio_core::error::ServiceError;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::{LoginRequest, RegisterRequest};
