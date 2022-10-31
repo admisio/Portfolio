@@ -1,4 +1,4 @@
-use entity::candidate::Model;
+use entity::candidate::Model as Candidate;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::candidate_service::CandidateService;
 use rocket::http::Status;
@@ -7,15 +7,14 @@ use rocket::request::{FromRequest, Request};
 
 use crate::pool::Db;
 
+pub struct SessionAuth(Candidate);
 
-pub struct SessionAuth(Model);
-
-impl SessionAuth {
-    pub fn model(self) -> Model { // TODO: use into_inner instead?
-        self.0
+impl From<SessionAuth> for Candidate {
+    fn from(src: SessionAuth) -> Candidate {
+        src.0
     }
 }
-
+    
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for SessionAuth {
     type Error = Option<String>;

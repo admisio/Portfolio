@@ -50,7 +50,8 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> R
 
 #[get("/whoami")]
 async fn validate(session: SessionAuth) -> Result<String, Custom<String>> {
-    Ok(session.model().application.to_string())
+    let candidate: entity::candidate::Model = session.into();
+    Ok(candidate.application.to_string())
 }
 
 #[post("/login", data = "<login_form>")]
