@@ -1,6 +1,6 @@
 use entity::candidate::Model as Candidate;
 use portfolio_core::sea_orm::prelude::Uuid;
-use portfolio_core::services::session_service::SessionService;
+use portfolio_core::services::candidate_service::CandidateService;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{FromRequest, Request};
@@ -27,7 +27,7 @@ impl<'r> FromRequest<'r> for SessionAuth {
             Err(_) => return Outcome::Failure((Status::BadRequest, None)),
         };
 
-        let session = SessionService::auth_user_session(conn, uuid).await;
+        let session = CandidateService::auth(conn, uuid).await;
 
         match session {
             Ok(model) => Outcome::Success(SessionAuth(model)),
