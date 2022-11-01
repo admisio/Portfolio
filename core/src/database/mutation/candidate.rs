@@ -1,27 +1,17 @@
 use crate::Mutation;
-use std::vec;
 
 use ::entity::candidate;
 use sea_orm::{*};
-use crate::{crypto::{hash_password, self}};
 
 impl Mutation {
     pub async fn create_candidate(
         db: &DbConn,
         application_id: i32,
-        plain_text_password: &String,
-        personal_id_number: String,
+        hashed_password: String,
+        encrypted_personal_id_number: String,
+        pubkey: String,
+        encrypted_priv_key: String
     ) -> Result<candidate::Model, DbErr> {
-        // TODO: unwrap pro testing..
-        let hashed_password = hash_password(plain_text_password.to_string()).await.unwrap();
-        let (pubkey, priv_key_plain_text) = crypto::create_identity();
-        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await.unwrap();
-
-        let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
-            &personal_id_number, vec![&pubkey]
-        ).await.unwrap();
-
-
         candidate::ActiveModel {
             application: Set(application_id),
             personal_identification_number: Set(encrypted_personal_id_number),
@@ -36,48 +26,8 @@ impl Mutation {
             .await
     }
 }
-
-
+/* 
 #[cfg(test)]
 mod tests {
-    use sea_orm::{Database, DbConn};
-
-    use crate::{Mutation, crypto};
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        use entity::candidate;
-        use sea_orm::{DbBackend, sea_query::TableCreateStatement, ConnectionTrait};
-        use sea_orm::Schema;
-
-
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-    
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        db.execute(db.get_database_backend().build(&stmt)).await.unwrap();
-        db
-    }
-
-    #[tokio::test]
-    async fn test_encrypt_decrypt_private_key_with_passphrase() {
-        let db = get_memory_sqlite_connection().await;
-
-        let plain_text_password = "test".to_string();
-
-        let secret_message = "trnka".to_string();
-
-        
-        let candidate = Mutation::create_candidate(&db, 5555555, &plain_text_password, "".to_string()).await.unwrap();
-
-        let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
-
-        let private_key_plain_text = crypto::decrypt_password(candidate.private_key, plain_text_password).await.unwrap();
-
-        let decrypted_message = crypto::decrypt_password_with_private_key(&encrypted_message, &private_key_plain_text).await.unwrap();
-
-        assert_eq!(secret_message, decrypted_message);
-
-    }
-}
+    #[tokio::fs]
+} */

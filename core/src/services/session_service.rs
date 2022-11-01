@@ -3,7 +3,7 @@ use std::cmp::min;
 use entity::candidate;
 use sea_orm::{DatabaseConnection, prelude::Uuid, ModelTrait};
 
-use crate::{crypto::{self}, Query, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID, EXPIRED_SESSION_ERROR}, Mutation};
+use crate::{crypto::{self}, Query, error::{ServiceError}, Mutation};
 
 // TODO: generics
 pub struct SessionService;
@@ -28,19 +28,19 @@ impl SessionService {
         let candidate = match Query::find_candidate_by_id(db, user_id).await {
             Ok(candidate) => match candidate {
                 Some(candidate) => candidate,
-                None => return Err(USER_NOT_FOUND_ERROR)
+                None => return Err(ServiceError::UserNotFound)
             },
-            Err(_) => {return Err(DB_ERROR)}
+            Err(_) => {return Err(ServiceError::DbError)}
         };
 
         // compare passwords
         match crypto::verify_password(password,candidate.code.clone()).await {
             Ok(valid) => {
                 if !valid {
-                    return Err(INVALID_CREDENTIALS_ERROR)
+                    return Err(ServiceError::InvalidCredentials)
                 }
             },
-            Err(_) => {return Err(INVALID_CREDENTIALS_ERROR)}
+            Err(_) => {return Err(ServiceError::InvalidCredentials)}
         }
 
         
@@ -49,7 +49,7 @@ impl SessionService {
 
         let session = match Mutation::insert_session(db, user_id, random_uuid, ip_addr).await {
             Ok(session) => session,
-            Err(_) => return Err(DB_ERROR)
+            Err(_) => return Err(ServiceError::DbError)
         };
 
         // delete old sessions
@@ -64,9 +64,9 @@ impl SessionService {
         let session = match Query::find_session_by_uuid(db, uuid).await {
             Ok(session) => match session {
                 Some(session) => session,
-                None => return Err(USER_NOT_FOUND_BY_SESSION_ID)
+                None => return Err(ServiceError::UserNotFoundBySessionId)
             },
-            Err(_) => {return Err(DB_ERROR)}
+            Err(_) => {return Err(ServiceError::DbError)}
         };
 
         let now = chrono::Utc::now().naive_utc();
@@ -74,15 +74,15 @@ impl SessionService {
         if now > session.expires_at {
             // delete session
             Mutation::delete_session(db, session.id).await.unwrap();
-            return Err(EXPIRED_SESSION_ERROR)
+            return Err(ServiceError::ExpiredSession)
         }
 
         let candidate = match session.find_related(candidate::Entity).one(db).await {
             Ok(candidate) => match candidate {
                 Some(candidate) => candidate,
-                None => return Err(USER_NOT_FOUND_BY_JWT_ID)
+                None => return Err(ServiceError::UserNotFoundBySessionId)
             },
-            Err(_) => {return Err(DB_ERROR)}
+            Err(_) => {return Err(ServiceError::DbError)}
         };
 
         Ok(candidate)
@@ -93,10 +93,10 @@ impl SessionService {
 
 #[cfg(test)]
 mod tests {
-    use entity::candidate;
+    use entity::{candidate};
     use sea_orm::{DbConn, Database, sea_query::TableCreateStatement, DbBackend, Schema, ConnectionTrait, prelude::Uuid};
 
-    use crate::{crypto, Mutation, services::session_service::SessionService};
+    use crate::{crypto, services::{session_service::SessionService, candidate_service::CandidateService}};
 
     #[cfg(test)]
     async fn get_memory_sqlite_connection() -> DbConn {
@@ -119,7 +119,7 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
     
-        let candidate = Mutation::create_candidate(&db, 5555555, &SECRET.to_string(), "".to_string()).await.unwrap();
+        let candidate = CandidateService::create(&db, 5555555, &SECRET.to_string(), "".to_string()).await.ok().unwrap();
     
         assert_eq!(candidate.application, 5555555);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -130,7 +130,7 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        Mutation::create_candidate(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
+        CandidateService::create(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
 
         // correct password
         let session = SessionService::new_session(
@@ -153,7 +153,7 @@ mod tests {
     async fn test_candidate_session_incorrect_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let candidate_form = Mutation::create_candidate(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
+        let candidate_form = CandidateService::create(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
 
          // incorrect password
          assert!(
