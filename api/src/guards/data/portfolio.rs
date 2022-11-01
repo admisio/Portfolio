@@ -16,9 +16,9 @@ impl<'r> FromData<'r> for Portfolio {
     type Error = Option<String>;
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
-        let content_type_pdf = ContentType::new("application", "application/zip");
+        let content_type_zip = ContentType::new("application", "application/zip");
 
-        if req.content_type() != Some(&content_type_pdf) {
+        if req.content_type() != Some(&content_type_zip) {
             return Outcome::Failure((Status::BadRequest, None))
         }
 
@@ -32,9 +32,9 @@ impl<'r> FromData<'r> for Portfolio {
 
         let data_bytes = data_bytes.into_inner();
 
-        let is_pdf = portfolio_core::filetype::filetype_is_zip(&data_bytes);
+        let is_zip = portfolio_core::filetype::filetype_is_zip(&data_bytes);
 
-        if !is_pdf {
+        if !is_zip {
             // TODO: Not ZIP
         }
 

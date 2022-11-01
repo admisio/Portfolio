@@ -35,7 +35,7 @@ impl<'r> FromData<'r> for Letter {
         let is_pdf = portfolio_core::filetype::filetype_is_pdf(&data_bytes);
 
         if !is_pdf {
-            // TODO: Not ZIP
+            // TODO: Not PDF
         }
 
         Outcome::Success(Letter(data_bytes))
