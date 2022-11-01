@@ -6,7 +6,7 @@ use sea_orm::{DatabaseConnection, prelude::Uuid, ModelTrait};
 use crate::{crypto::{self}, Query, error::{ServiceError}, Mutation};
 
 // TODO: generics
-pub(crate) struct SessionService;
+pub(in crate::services) struct SessionService;
 
 impl SessionService {
     /// Delete n old sessions for user
