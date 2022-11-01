@@ -28,10 +28,6 @@ pub use entity::candidate::Entity as Candidate;
 
 use portfolio_core::crypto::random_8_char_string;
 
-/* fn custom_err_from_service_err(service_err: ServiceError) -> Custom<String> {
-    Custom(Status::from_code(service_err.0.code).unwrap_or_default(), service_err.1.to_string())
-} */
-
 #[post("/", data = "<post_form>")]
 async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> Result<String, Custom<String>> {   
     let db = conn.into_inner();
@@ -39,11 +35,15 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> R
 
     let plain_text_password = random_8_char_string();
 
-    CandidateService::create(db, form.application_id, &plain_text_password, form.personal_id_number)
-        .await
-        .unwrap();
+    let candidate = CandidateService::create(db, form.application_id, &plain_text_password, form.personal_id_number)
+        .await;
+    
+    if candidate.is_err() { // TODO cleanup
+        let e = candidate.err().unwrap();
+        return Err(Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
+    }
 
-        Ok(plain_text_password)
+    Ok(plain_text_password)
 }
 
 #[get("/whoami")]
@@ -65,16 +65,7 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr
     )
         .await;
 
-    if session_token.is_ok() {
-        return Ok(
-            session_token.ok().unwrap()
-        );
-    } else {
-        return Err(
-            // custom_err_from_service_err(session_token.err().unwrap())
-            Custom(Status::Unauthorized, "TODO".to_string())
-        )
-    }
+    session_token.map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()))
 }
 
 #[get("/hello")]
