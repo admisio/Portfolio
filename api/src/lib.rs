@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 
 use guards::request::session_auth::SessionAuth;
 use portfolio_core::error::ServiceError;
-use portfolio_core::services::candidate_service::CandidateService;
+use portfolio_core::services::session_service::SessionService;
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
 use rocket::{Rocket, Build};
@@ -59,7 +59,7 @@ async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
-    let session_token = CandidateService::new_session(db,
+    let session_token = SessionService::new_session(db,
           login_form.application_id,
           login_form.password.to_string(),
           ip_addr.ip().to_string()

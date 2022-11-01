@@ -5,9 +5,10 @@ use sea_orm::{DatabaseConnection, prelude::Uuid, ModelTrait};
 
 use crate::{crypto::{self}, Query, error::{ServiceError, USER_NOT_FOUND_ERROR, INVALID_CREDENTIALS_ERROR, DB_ERROR, USER_NOT_FOUND_BY_JWT_ID, USER_NOT_FOUND_BY_SESSION_ID, EXPIRED_SESSION_ERROR}, Mutation};
 
-pub struct CandidateService;
+// TODO: generics
+pub struct SessionService;
 
-impl CandidateService {
+impl SessionService {
     /// Delete n old sessions for user
     async fn delete_old_sessions(db: &DatabaseConnection, user_id: i32, keep_n_recent: usize) -> Result<(), ServiceError> {
         let mut sessions = Query::find_sessions_by_user_id(db, user_id).await.unwrap();
@@ -52,7 +53,7 @@ impl CandidateService {
         };
 
         // delete old sessions
-        CandidateService::delete_old_sessions(db, candidate.application, 3).await.ok(); // TODO move to dotenv
+        SessionService::delete_old_sessions(db, candidate.application, 3).await.ok(); // TODO move to dotenv
 
         Ok(session.id.to_string())
     }
@@ -95,7 +96,7 @@ mod tests {
     use entity::candidate;
     use sea_orm::{DbConn, Database, sea_query::TableCreateStatement, DbBackend, Schema, ConnectionTrait, prelude::Uuid};
 
-    use crate::{crypto, Mutation, services::candidate_service::CandidateService};
+    use crate::{crypto, Mutation, services::session_service::SessionService};
 
     #[cfg(test)]
     async fn get_memory_sqlite_connection() -> DbConn {
@@ -132,7 +133,7 @@ mod tests {
         Mutation::create_candidate(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.unwrap();
 
         // correct password
-        let session = CandidateService::new_session(
+        let session = SessionService::new_session(
                 db,
                 5555555,
                 "Tajny_kod".to_string(),
@@ -142,7 +143,7 @@ mod tests {
             // println!("{}", session.err().unwrap().1);
 
         assert!(
-            CandidateService::auth_user_session(db, Uuid::parse_str(&session).unwrap())
+            SessionService::auth_user_session(db, Uuid::parse_str(&session).unwrap())
                 .await
                 .is_ok()
             );
@@ -156,7 +157,7 @@ mod tests {
 
          // incorrect password
          assert!(
-            CandidateService::new_session(db, candidate_form.application, "Spatny_kod".to_string(), "127.0.0.1".to_string()).await.is_err()
+            SessionService::new_session(db, candidate_form.application, "Spatny_kod".to_string(), "127.0.0.1".to_string()).await.is_err()
         );
     }
 }
