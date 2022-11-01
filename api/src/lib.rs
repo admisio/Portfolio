@@ -3,7 +3,7 @@ extern crate rocket;
 
 use std::net::SocketAddr;
 
-use guards::request::session_auth::SessionAuth;
+use guards::request::session_auth::CandidateAuth;
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
@@ -47,7 +47,7 @@ async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> R
 }
 
 #[get("/whoami")]
-async fn validate(session: SessionAuth) -> Result<String, Custom<String>> {
+async fn validate(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
     Ok(candidate.application.to_string())
 }
