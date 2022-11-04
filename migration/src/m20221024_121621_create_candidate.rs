@@ -34,6 +34,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::PersonalIdentificationNumberHash).text())
                     .col(ColumnDef::new(Candidate::PublicKey).string().not_null())
                     .col(ColumnDef::new(Candidate::PrivateKey).string().not_null())
+                    .col(ColumnDef::new(Candidate::IsAdmin).boolean().not_null().default(false))
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Candidate::UpdatedAt).date_time().not_null())
                     .to_owned(),
@@ -68,6 +69,7 @@ pub enum Candidate {
     PersonalIdentificationNumberHash,
     PublicKey,
     PrivateKey,
+    IsAdmin,
     CreatedAt,
     UpdatedAt,
 }

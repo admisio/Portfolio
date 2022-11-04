@@ -22,6 +22,7 @@ pub struct Model {
     pub personal_identification_number_hash: Option<String>,
     pub public_key: String,
     pub private_key: String,
+    pub is_admin: bool,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }
