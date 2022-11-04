@@ -137,9 +137,12 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
+    use chrono::NaiveDate;
     use sea_orm::{Database, DbConn};
 
     use crate::{crypto, services::candidate_service::CandidateService};
+
+    use super::AddUserDetailsForm;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -187,5 +190,30 @@ mod tests {
 
         assert_eq!(secret_message, decrypted_message);
 
+    }
+
+    #[tokio::test]
+    async fn test_put_user_data() {
+        let db = get_memory_sqlite_connection().await;
+        let plain_text_password = "test".to_string();
+        let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string()).await.ok().unwrap();
+
+        let form = AddUserDetailsForm {
+            application_id: candidate.application,
+            name: "test".to_string(),
+            surname: "a".to_string(),
+            birthplace: "b".to_string(),
+            birthdate: NaiveDate::from_ymd(1999, 1, 1),
+            address: "test".to_string(),
+            telephone: "test".to_string(),
+            citizenship: "test".to_string(),
+            email: "test".to_string(),
+            sex: "test".to_string(),
+            study: "test".to_string(),
+        };
+
+        let candidate = CandidateService::add_user_details(&db, form).await.ok().unwrap();
+
+        assert!(candidate.name.is_some());
     }
 }
