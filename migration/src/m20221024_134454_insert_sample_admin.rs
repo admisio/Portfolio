@@ -1,5 +1,5 @@
 use chrono::Local;
-use entity::admin;
+use entity::{candidate};
 use sea_orm_migration::{
     prelude::*,
     sea_orm::{ActiveModelTrait, Set},
@@ -7,20 +7,22 @@ use sea_orm_migration::{
 
 #[derive(DeriveMigrationName)]
 pub struct Migration {
-    admin: admin::ActiveModel,
+    candidate: candidate::ActiveModel,
 }
 
 impl Default for Migration {
     fn default() -> Self {
         Self {
-            admin: admin::ActiveModel {
-                id: Set(1),
-                name: Set("Administrátor Pepa".to_owned()),
+            candidate: candidate::ActiveModel {
+                application: Set(1),
+                name: Set(Some("Administrátor Pepa".to_owned())),
                 public_key: Set("lorem ipsum".to_owned()),
-                private_key_hash: Set("lorem ipsum".to_owned()),
-                password_hash: Set("lorem ipsum".to_owned()),
+                private_key: Set("lorem ipsum".to_owned()),
+                code: Set("$argon2id$v=19$m=4096,t=3,p=1$V2M1eENXcnJvenhqTVF1Yw$xwriCZexpzF7Qtj9lwq0Sw".to_owned()),
+                personal_identification_number: Set("ADMIN".to_owned()),
                 created_at: Set(Local::now().naive_local()),
                 updated_at: Set(Local::now().naive_local()),
+                is_admin: Set(true),
                 ..Default::default()
             },
         }
@@ -32,7 +34,7 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let db = manager.get_connection();
 
-        self.admin.to_owned().insert(db).await?;
+        self.candidate.to_owned().insert(db).await?;
 
         Ok(())
     }
@@ -40,7 +42,7 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let db = manager.get_connection();
 
-        self.admin.to_owned().delete(db).await?;
+        self.candidate.to_owned().delete(db).await?;
 
         Ok(())
     }

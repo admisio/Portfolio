@@ -1,24 +1,45 @@
-pub struct Status {
-    pub code: u16,
+pub enum ServiceError {
+    InvalidCredentials,
+    Forbidden,
+    ExpiredSession,
+    JwtError,
+    UserNotFound,
+    DbError,
+    UserNotFoundByJwtId,
+    UserNotFoundBySessionId,
 }
 
-pub const INVALID_CREDENTIALS_ERROR: ServiceError = ServiceError(Status { code: 401 }, 
-    "Invalid credentials");
-pub const EXPIRED_SESSION_ERROR: ServiceError = ServiceError(Status { code: 401 }, 
-    "Session expired, please login again");
+impl ServiceError {
+    fn code_and_message(&self) -> (u16, String) {
+        match self {
+            ServiceError::InvalidCredentials => (401, "Invalid credentials".to_string()),
+            ServiceError::Forbidden => (403, "Forbidden".to_string()),
+            ServiceError::ExpiredSession => (401, "Session expired, please login again".to_string()),
+            ServiceError::JwtError => (500, "Error while encoding JWT".to_string()),
+            ServiceError::UserNotFound => (404, "User not found".to_string()),
+            ServiceError::DbError => (500, "Database error".to_string()),
+            ServiceError::UserNotFoundByJwtId => (500, "User not found, please contact technical support".to_string()),
+            ServiceError::UserNotFoundBySessionId => (500, "User not found, please contact technical support".to_string()),
+        }
+    }
 
-pub const JWT_ERROR: ServiceError = ServiceError(Status { code: 500 }, 
-    "Error while encoding JWT");
+    pub fn code(&self) -> u16 {
+        self.code_and_message().0
+    }
 
-pub const USER_NOT_FOUND_ERROR: ServiceError = ServiceError(Status { code: 404 }, 
-    "User not found");
+    pub fn message(&self) -> String {
+        self.code_and_message().1
+    }
+}
 
-pub const DB_ERROR: ServiceError = ServiceError(Status { code: 500 }, 
-    "Database error");
+impl std::fmt::Debug for ServiceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ServiceError {{ code: {}, message: {} }}", self.code(), self.message())
+    }
+}
 
-pub const USER_NOT_FOUND_BY_JWT_ID: ServiceError = ServiceError(Status { code: 500 }, // User got somehow deleted
-    "User not found, please contact technical support");                              // Shouldn't ever happen
-
-pub const USER_NOT_FOUND_BY_SESSION_ID: ServiceError = ServiceError(Status { code: 500 }, // User got somehow deleted
-    "User not found, please contact technical support");                              // Shouldn't ever happen
-pub struct ServiceError<'a>(pub Status, pub &'a str);
+impl std::fmt::Display for ServiceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ServiceError {{ code: {}, message: {} }}", self.code(), self.message())
+    }
+}
