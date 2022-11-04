@@ -121,7 +121,7 @@ mod tests {
         let secret_message = "trnka".to_string();
 
         
-        let candidate = CandidateService::create(&db, 5555555, &plain_text_password, "".to_string()).await.ok().unwrap();
+        let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string()).await.ok().unwrap();
 
         let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
 
