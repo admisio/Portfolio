@@ -8,6 +8,7 @@ use crate::{crypto::{self}, Query, error::{ServiceError, USER_NOT_FOUND_ERROR, I
 pub struct CandidateService;
 
 impl CandidateService {
+    /// Delete n old sessions for user
     async fn delete_old_sessions(db: &DatabaseConnection, user_id: i32, keep_n_recent: usize) -> Result<(), ServiceError> {
         let mut sessions = Query::find_sessions_by_user_id(db, user_id).await.unwrap();
         
@@ -21,6 +22,7 @@ impl CandidateService {
         Ok(())
     }
 
+    /// Authenticate user by application id and password and generate a new session
     pub async fn new_session(db: &DatabaseConnection, user_id: i32, password: String, ip_addr: String) -> Result<String, ServiceError> {
         let candidate = match Query::find_candidate_by_id(db, user_id).await {
             Ok(candidate) => match candidate {
@@ -40,10 +42,8 @@ impl CandidateService {
             Err(_) => {return Err(INVALID_CREDENTIALS_ERROR)}
         }
 
-        // TODO delete old sessions?
-
         
-        // user is authenticated, generate a session
+        // user is authenticated, generate a new session
         let random_uuid: Uuid = Uuid::new_v4();
 
         let session = match Mutation::insert_session(db, user_id, random_uuid, ip_addr).await {
@@ -57,6 +57,8 @@ impl CandidateService {
         Ok(session.id.to_string())
     }
 
+    /// Authenticate user by session id
+    /// Return user model if session is valid
     pub async fn auth_user_session(db: &DatabaseConnection, uuid: Uuid) -> Result<candidate::Model, ServiceError> {
         let session = match Query::find_session_by_uuid(db, uuid).await {
             Ok(session) => match session {
