@@ -1,5 +1,6 @@
 use entity::candidate::Model as Candidate;
 use portfolio_core::sea_orm::prelude::Uuid;
+use portfolio_core::services::admin_service::AdminService;
 use portfolio_core::services::candidate_service::CandidateService;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
@@ -57,17 +58,13 @@ impl<'r> FromRequest<'r> for AdminAuth {
             Err(_) => return Outcome::Failure((Status::BadRequest, None)),
         };
 
-        let session = CandidateService::auth(conn, uuid).await;
+        let session = AdminService::auth(conn, uuid).await;
 
         match session {
-            Ok(model) => {
-                if model.is_admin {
-                    Outcome::Success(AdminAuth(model))
-                } else {
-                    Outcome::Failure((Status::Forbidden, None))
-                }
-            },
-            Err(_) => Outcome::Failure((Status::Unauthorized, None)),
+            Ok(model) => Outcome::Success(AdminAuth(model)),
+            Err(e) => Outcome::Failure(
+                (Status::from_code(e.code()).unwrap_or(Status::InternalServerError), None)
+            ),
         }
 
     }
