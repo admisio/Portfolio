@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use entity::candidate;
 use sea_orm::{DbConn, prelude::Uuid};
 
@@ -6,6 +7,51 @@ use crate::{Mutation, crypto::{hash_password, self}, error::{ServiceError}, Quer
 use super::session_service::SessionService;
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
+
+pub struct EncryptedAddUserData {
+    pub name: String,
+    pub surname: String,
+    pub birthplace: String,
+    pub birthdate: NaiveDate,
+    pub address: String,
+    pub telephone: String,
+    pub citizenship: String,
+    pub email: String,
+    pub sex: String,
+    pub study: String,
+}
+
+pub struct AddUserDetailsForm {
+    pub application_id: i32,
+
+    pub name: String,
+    pub surname: String,
+    pub birthplace: String,
+    pub birthdate: NaiveDate,
+    pub address: String,
+    pub telephone: String,
+    pub citizenship: String,
+    pub email: String,
+    pub sex: String,
+    pub study: String,
+}
+
+impl AddUserDetailsForm {
+    pub async fn to_encrypted(self, recipients: Vec<&str>) -> EncryptedAddUserData {
+        EncryptedAddUserData {
+            name: crypto::encrypt_password_with_recipients(&self.name, &recipients).await.unwrap(),
+            surname: crypto::encrypt_password_with_recipients(&self.surname, &recipients).await.unwrap(),
+            birthplace: crypto::encrypt_password_with_recipients(&self.birthplace, &recipients).await.unwrap(),
+            birthdate: self.birthdate, // TODO: encrypt
+            address: crypto::encrypt_password_with_recipients(&self.address, &recipients).await.unwrap(),
+            telephone: crypto::encrypt_password_with_recipients(&self.telephone, &recipients).await.unwrap(),
+            citizenship: crypto::encrypt_password_with_recipients(&self.citizenship, &recipients).await.unwrap(),
+            email: crypto::encrypt_password_with_recipients(&self.email, &recipients).await.unwrap(),
+            sex: crypto::encrypt_password_with_recipients(&self.sex, &recipients).await.unwrap(),
+            study: crypto::encrypt_password_with_recipients(&self.study, &recipients).await.unwrap(),
+        }
+    }
+}
 
 pub struct CandidateService;
 
@@ -37,7 +83,7 @@ impl CandidateService {
         let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await.unwrap();
 
         let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
-            &personal_id_number, vec![&pubkey]
+            &personal_id_number, &vec![&pubkey]
         ).await.unwrap();
 
         Mutation::create_candidate(
@@ -50,6 +96,16 @@ impl CandidateService {
         )
             .await
             .map_err(|_| ServiceError::DbError)
+    }
+
+    pub async fn add_user_details(
+        db: &DbConn,
+        details: AddUserDetailsForm,
+    ) -> Result<entity::candidate::Model, sea_orm::DbErr> {
+        let user = Query::find_candidate_by_id(db, details.application_id).await.unwrap().unwrap();
+        let recipients = vec![&*user.public_key];
+        let encrypted = details.to_encrypted(recipients).await;
+        Mutation::add_user_details(db, user, encrypted).await
     }
 
     pub async fn login(
@@ -123,7 +179,7 @@ mod tests {
         
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string()).await.ok().unwrap();
 
-        let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, vec![&candidate.public_key]).await.unwrap();
+        let encrypted_message = crypto::encrypt_password_with_recipients(&secret_message, &vec![&candidate.public_key]).await.unwrap();
 
         let private_key_plain_text = crypto::decrypt_password(candidate.private_key, plain_text_password).await.unwrap();
 

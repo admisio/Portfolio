@@ -197,7 +197,7 @@ pub fn create_identity() -> (String, String) {
 async fn age_encrypt_with_recipients<W: tokio::io::AsyncWrite + Unpin>(
     input_buffer: &[u8],
     output_buffer: &mut W,
-    recipients: Vec<&str>,
+    recipients: &Vec<&str>,
 ) -> Result<(), age::EncryptError> {
     let public_keys = recipients
         .into_iter()
@@ -248,7 +248,7 @@ async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
 
 pub async fn encrypt_password_with_recipients(
     password_plain_text: &str,
-    recipients: Vec<&str>,
+    recipients: &Vec<&str>,
 ) -> Result<String, age::EncryptError> {
     let mut encrypt_buffer = Vec::new();
 
@@ -287,7 +287,7 @@ pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
 
     tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
 
-    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, recipients).await
+    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, &recipients).await
 }
 
 pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
@@ -446,7 +446,7 @@ mod tests {
         const PASSWORD: &str = "test";
         const PUBLIC_KEY: &str = "age1t220v5c8ye0pjx99kw8nr57y7a5qlw4ke0wchjuxnr2gcvfzt3hq7fufz0";
 
-        let encrypted = super::encrypt_password_with_recipients(PASSWORD, vec![PUBLIC_KEY])
+        let encrypted = super::encrypt_password_with_recipients(PASSWORD, &vec![PUBLIC_KEY])
             .await
             .unwrap();
 
@@ -460,7 +460,7 @@ mod tests {
         const PUBLIC_KEY_2: &str = "age1ygswsk38cq9r64um5klqxyvzemfdvx6qe5zed99pdexakwwhpatsgatgpw";
 
         let encrypted =
-            super::encrypt_password_with_recipients(PASSWORD, vec![PUBLIC_KEY_1, PUBLIC_KEY_2])
+            super::encrypt_password_with_recipients(PASSWORD, &vec![PUBLIC_KEY_1, PUBLIC_KEY_2])
                 .await
                 .unwrap();
 

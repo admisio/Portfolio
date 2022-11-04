@@ -1,6 +1,6 @@
-use crate::Mutation;
+use crate::{Mutation, services::candidate_service::{AddUserDetailsForm, EncryptedAddUserData}};
 
-use ::entity::candidate;
+use ::entity::candidate::{self, Model};
 use sea_orm::{*};
 
 impl Mutation {
@@ -24,5 +24,27 @@ impl Mutation {
         }
             .insert(db)
             .await
+    }
+
+    pub async fn add_user_details(
+        db: &DbConn,
+        user: Model,
+        details: EncryptedAddUserData,
+    ) -> Result<candidate::Model, sea_orm::DbErr> {
+        let mut user: candidate::ActiveModel = user.into();
+        user.name = Set(Some(details.name));
+        user.surname = Set(Some(details.surname));
+        user.birthplace = Set(Some(details.birthplace));
+        user.birthdate = Set(Some(details.birthdate));
+        user.address = Set(Some(details.address));
+        user.telephone = Set(Some(details.telephone));
+        user.citizenship = Set(Some(details.citizenship));
+        user.email = Set(Some(details.email));
+        user.sex = Set(Some(details.sex));
+        user.study = Set(Some(details.study));
+
+        user.updated_at = Set(chrono::offset::Local::now().naive_local());
+
+        user.update(db).await
     }
 }
