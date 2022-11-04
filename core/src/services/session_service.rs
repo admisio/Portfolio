@@ -119,9 +119,9 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
     
-        let candidate = CandidateService::create(&db, 5555555, &SECRET.to_string(), "".to_string()).await.ok().unwrap();
+        let candidate = CandidateService::create(&db, 103151, &SECRET.to_string(), "".to_string()).await.ok().unwrap();
     
-        assert_eq!(candidate.application, 5555555);
+        assert_eq!(candidate.application, 103151);
         assert_ne!(candidate.code, SECRET.to_string());
         assert!(crypto::verify_password(SECRET.to_string(), candidate.code).await.ok().unwrap());
     }
@@ -130,12 +130,12 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        CandidateService::create(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
+        CandidateService::create(&db, 103151, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
 
         // correct password
         let session = SessionService::new_session(
                 db,
-                5555555,
+                103151,
                 "Tajny_kod".to_string(),
                 "127.0.0.1".to_string(),
             )
@@ -153,7 +153,7 @@ mod tests {
     async fn test_candidate_session_incorrect_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let candidate_form = CandidateService::create(&db, 5555555, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
+        let candidate_form = CandidateService::create(&db, 103151, &"Tajny_kod".to_string(), "".to_string()).await.ok().unwrap();
 
          // incorrect password
          assert!(

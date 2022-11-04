@@ -1,8 +1,10 @@
 pub enum ServiceError {
+    InvalidApplicationId,
     InvalidCredentials,
     Forbidden,
     ExpiredSession,
     JwtError,
+    UserAlreadyExists,
     UserNotFound,
     DbError,
     UserNotFoundByJwtId,
@@ -12,10 +14,12 @@ pub enum ServiceError {
 impl ServiceError {
     fn code_and_message(&self) -> (u16, String) {
         match self {
+            ServiceError::InvalidApplicationId => (400, "Invalid application id".to_string()),
             ServiceError::InvalidCredentials => (401, "Invalid credentials".to_string()),
             ServiceError::Forbidden => (403, "Forbidden".to_string()),
             ServiceError::ExpiredSession => (401, "Session expired, please login again".to_string()),
             ServiceError::JwtError => (500, "Error while encoding JWT".to_string()),
+            ServiceError::UserAlreadyExists => (409, "User already exists".to_string()),
             ServiceError::UserNotFound => (404, "User not found".to_string()),
             ServiceError::DbError => (500, "Database error".to_string()),
             ServiceError::UserNotFoundByJwtId => (500, "User not found, please contact technical support".to_string()),
