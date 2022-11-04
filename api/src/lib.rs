@@ -3,7 +3,7 @@ extern crate rocket;
 
 use std::net::SocketAddr;
 
-use guards::request::session_auth::{CandidateAuth, AdminAuth};
+use guards::request::auth::{CandidateAuth, AdminAuth};
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
