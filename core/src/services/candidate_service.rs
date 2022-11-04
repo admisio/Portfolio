@@ -5,7 +5,7 @@ use crate::{Mutation, crypto::{hash_password, self}, error::{ServiceError}, Quer
 
 use super::session_service::SessionService;
 
-const CODES: [&str; 3] = ["101", "102", "103"];
+const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
 pub struct CandidateService;
 
@@ -70,11 +70,11 @@ impl CandidateService {
 
     fn is_application_id_valid(application_id: i32) -> bool {
         let s = &application_id.to_string();
-        if s.len() <= 3 { // TODO: does the code have to be exactly 6 digits?
+        if s.len() <= 3 { // TODO: does the field of study prefix have to be exactly 6 digits?
             return false;
         }
-        let code = &s[0..3];
-        CODES.contains(&code)
+        let field_of_study_prefix = &s[0..3];
+        FIELD_OF_STUDY_PREFIXES.contains(&field_of_study_prefix)
     }
 }
 
