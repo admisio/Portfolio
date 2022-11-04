@@ -3,7 +3,7 @@ extern crate rocket;
 
 use std::net::SocketAddr;
 
-use guards::request::session_auth::CandidateAuth;
+use guards::request::session_auth::{CandidateAuth, AdminAuth};
 use portfolio_core::services::candidate_service::CandidateService;
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
@@ -52,6 +52,11 @@ async fn validate(session: CandidateAuth) -> Result<String, Custom<String>> {
     Ok(candidate.application.to_string())
 }
 
+#[get("/admin")]
+async fn admin(session: AdminAuth) -> Result<String, Custom<String>> {
+    Ok("Hello admin".to_string())
+}
+
 #[post("/login", data = "<login_form>")]
 async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr: SocketAddr) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
@@ -85,7 +90,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, validate])
+        .mount("/", routes![create, login, hello, validate, admin])
         .register("/", catchers![])
         .launch()
         .await
