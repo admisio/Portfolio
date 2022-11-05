@@ -9,6 +9,8 @@ pub enum ServiceError {
     DbError,
     UserNotFoundByJwtId,
     UserNotFoundBySessionId,
+    CryptoHashFailed,
+    CryptoEncryptFailed,
 }
 
 impl ServiceError {
@@ -24,6 +26,8 @@ impl ServiceError {
             ServiceError::DbError => (500, "Database error".to_string()),
             ServiceError::UserNotFoundByJwtId => (500, "User not found, please contact technical support".to_string()),
             ServiceError::UserNotFoundBySessionId => (500, "User not found, please contact technical support".to_string()),
+            ServiceError::CryptoHashFailed => (500, "Crypto hash failed, please contact technical support".to_string()),
+            ServiceError::CryptoEncryptFailed => (500, "Crypto encryption failed, please contact technical support".to_string()),
         }
     }
 

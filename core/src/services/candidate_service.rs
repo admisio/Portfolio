@@ -40,17 +40,19 @@ impl CandidateService {
             return Err(ServiceError::UserAlreadyExists);
         }
 
-        // TODO: unwrap pro testing..
-        let hashed_password = hash_password(plain_text_password.to_string())
-            .await
-            .unwrap();
-        let (pubkey, priv_key_plain_text) = crypto::create_identity();
-        let encrypted_priv_key =
-            crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string())
-                .await
-                .unwrap();
+        let Ok(hashed_password) = hash_password(plain_text_password.to_string()).await else {
+            return Err(ServiceError::CryptoHashFailed);
+        };
 
-        let hashed_personal_id_number = hash_password(personal_id_number).await.unwrap();
+        let (pubkey, priv_key_plain_text) = crypto::create_identity();
+
+        let Ok(encrypted_priv_key) = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await else {
+            return Err(ServiceError::CryptoEncryptFailed);
+        };
+
+        let Ok(hashed_personal_id_number) = hash_password(personal_id_number).await else {
+            return Err(ServiceError::CryptoHashFailed);
+        };
         /* let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
             &personal_id_number, &vec![&pubkey]
         ).await.unwrap(); */
@@ -80,15 +82,23 @@ impl CandidateService {
         email: String,
         sex: String,
         study: String,
-    ) -> Result<entity::candidate::Model, sea_orm::DbErr> {
-        let user = Query::find_candidate_by_id(db, application_id)
-            .await?
-            .unwrap();
+    ) -> Result<entity::candidate::Model, ServiceError> {
+        let Ok(user) =  Query::find_candidate_by_id(db, application_id).await else {
+            return Err(ServiceError::DbError);
+        };
 
-        let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
-        let mut admin_public_keys_refrence: Vec<&str> = admin_public_keys.iter().map(|s| &**s).collect();
+        let Some(user_unwrapped) = user else {
+            return Err(ServiceError::UserNotFound);
+        };
 
-        let mut recipients = vec![&*user.public_key];
+        let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
+            return Err(ServiceError::DbError);
+        };
+
+        let mut admin_public_keys_refrence: Vec<&str> =
+            admin_public_keys.iter().map(|s| &**s).collect();
+
+        let mut recipients = vec![&*user_unwrapped.public_key];
 
         recipients.append(&mut admin_public_keys_refrence);
 
@@ -118,7 +128,7 @@ impl CandidateService {
 
         Mutation::add_candidate_details(
             db,
-            user,
+            user_unwrapped,
             enc_name.unwrap(),
             enc_surname.unwrap(),
             enc_birthplace.unwrap(),
@@ -131,6 +141,7 @@ impl CandidateService {
             enc_study.unwrap(),
         )
         .await
+        .map_err(|_| ServiceError::DbError)
     }
 
     pub async fn login(
