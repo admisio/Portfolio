@@ -15,11 +15,13 @@ impl Default for Migration {
         Self {
             candidate: candidate::ActiveModel {
                 application: Set(1),
-                name: Set(Some("Administrátor Pepa".to_owned())),
-                public_key: Set("lorem ipsum".to_owned()),
-                private_key: Set("lorem ipsum".to_owned()),
-                code: Set("$argon2id$v=19$m=4096,t=3,p=1$V2M1eENXcnJvenhqTVF1Yw$xwriCZexpzF7Qtj9lwq0Sw".to_owned()),
-                personal_identification_number: Set("ADMIN".to_owned()),
+                name: Set(Some("Admin".to_owned())),
+                public_key: Set("age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_owned()),
+                // AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS
+                private_key: Set("5KCEGk0ueWVGnu5Xo3rmpLoilcVZ2ZWmwIcdZEJ8rrBNW7jwzZU/XTcTXtk/xyy/zjF8s+YnuVpOklQvX3EC/Sn+ZwyPY3jokM2RNwnZZlnqdehOEV1SMm/Y".to_owned()),
+                // test
+                code: Set("$argon2i$v=19$m=6000,t=3,p=10$WE9xCQmmWdBK82R4SEjoqA$TZSc6PuLd4aWK2x2WAb+Lm9sLySqjK3KLbNyqyQmzPQ".to_owned()),
+                personal_identification_number_hash: Set("ADMIN".to_owned()),
                 created_at: Set(Local::now().naive_local()),
                 updated_at: Set(Local::now().naive_local()),
                 is_admin: Set(true),
