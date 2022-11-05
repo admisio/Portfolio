@@ -30,7 +30,13 @@ impl<'r> FromRequest<'r> for AdminAuth {
         let session = AdminService::auth(conn, uuid).await;
 
         match session {
-            Ok(model) => Outcome::Success(AdminAuth(model)),
+            Ok(model) => {
+                if model.is_admin {
+                    Outcome::Success(AdminAuth(model))
+                } else {
+                    Outcome::Failure((Status::Forbidden, None))
+                }
+            },
             Err(e) => Outcome::Failure(
                 (Status::from_code(e.code()).unwrap_or(Status::InternalServerError), None)
             ),
