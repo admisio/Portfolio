@@ -1,4 +1,4 @@
-pub struct Mutation;
+pub(crate) struct Mutation;
 
 pub mod session;
 pub mod candidate;
