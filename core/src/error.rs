@@ -11,6 +11,8 @@ pub enum ServiceError {
     UserNotFoundBySessionId,
     CryptoHashFailed,
     CryptoEncryptFailed,
+    CryptoDecryptFailed,
+    CandidateDetailsNotSet,
 }
 
 impl ServiceError {
@@ -28,6 +30,8 @@ impl ServiceError {
             ServiceError::UserNotFoundBySessionId => (500, "User not found, please contact technical support".to_string()),
             ServiceError::CryptoHashFailed => (500, "Crypto hash failed, please contact technical support".to_string()),
             ServiceError::CryptoEncryptFailed => (500, "Crypto encryption failed, please contact technical support".to_string()),
+            ServiceError::CryptoDecryptFailed => (500, "Crypto decryption failed, please contact technical support".to_string()),
+            ServiceError::CandidateDetailsNotSet => (500, "Candidate details not set, please contact technical support".to_string()),
         }
     }
 
