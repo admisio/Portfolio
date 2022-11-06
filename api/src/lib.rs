@@ -4,7 +4,7 @@ extern crate rocket;
 use std::net::SocketAddr;
 
 use guards::request::auth::{CandidateAuth, AdminAuth};
-use portfolio_core::services::candidate_service::CandidateService;
+use portfolio_core::services::candidate_service::{CandidateService, AddUserDetailsForm};
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
 use rocket::{Rocket, Build};
@@ -57,6 +57,23 @@ async fn admin(session: AdminAuth) -> Result<String, Custom<String>> {
     Ok("Hello admin".to_string())
 }
 
+#[put("/details", data = "<details>")]
+async fn fill_details(conn: Connection<'_, Db>, details: Json<AddUserDetailsForm>, session: CandidateAuth) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+    let form = details.into_inner();
+    let candidate: entity::candidate::Model = session.into();
+
+    let candidate = CandidateService::add_user_details(db, candidate, form)
+        .await;
+
+    if candidate.is_err() { // TODO cleanup
+        let e = candidate.err().unwrap();
+        return Err(Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
+    }
+
+    Ok("Details added".to_string())
+}
+
 #[post("/login", data = "<login_form>")]
 async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr: SocketAddr) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
@@ -90,7 +107,7 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, validate, admin])
+        .mount("/", routes![create, login, hello, validate, fill_details, admin])
         .register("/", catchers![])
         .launch()
         .await
