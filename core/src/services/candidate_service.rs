@@ -12,7 +12,7 @@ use super::session_service::{AdminUser, SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
-pub(crate) struct EncryptedAddUserData {
+pub(crate) struct EncryptedUserDetails {
     pub name: String,
     pub surname: String,
     pub birthplace: String,
@@ -25,8 +25,8 @@ pub(crate) struct EncryptedAddUserData {
     pub study: String,
 }
 
-impl EncryptedAddUserData {
-    pub async fn encrypt_form(form: UserDetails, recipients: Vec<&str>) -> EncryptedAddUserData {
+impl EncryptedUserDetails {
+    pub async fn encrypt_form(form: UserDetails, recipients: Vec<&str>) -> EncryptedUserDetails {
         let (
             Ok(name),
             Ok(surname),
@@ -53,7 +53,7 @@ impl EncryptedAddUserData {
             panic!("Failed to encrypt user details"); // TODO
         };
 
-        EncryptedAddUserData {
+        EncryptedUserDetails {
             name,
             surname,
             birthplace,
@@ -108,11 +108,11 @@ impl EncryptedAddUserData {
         })
     }
 
-    pub fn from_model(candidate: candidate::Model) -> Result<EncryptedAddUserData, ServiceError> {
+    pub fn from_model(candidate: candidate::Model) -> Result<EncryptedUserDetails, ServiceError> {
         let Ok(details) = Self::extract_enc_candidate_details(candidate) else {
             return Err(ServiceError::CandidateDetailsNotSet);
         };
-        Ok(EncryptedAddUserData {
+        Ok(EncryptedUserDetails {
             name: details.name,
             surname: details.surname,
             birthplace: details.birthplace,
@@ -257,7 +257,7 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let enc_details = EncryptedAddUserData::encrypt_form(form, recipients).await;
+        let enc_details = EncryptedUserDetails::encrypt_form(form, recipients).await;
 
         Mutation::add_candidate_details(
             db,
@@ -289,7 +289,7 @@ impl CandidateService {
         }
 
         let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password).await.ok().unwrap();
-        let enc_details = EncryptedAddUserData::from_model(candidate)?;
+        let enc_details = EncryptedUserDetails::from_model(candidate)?;
 
         enc_details.decrypt(dec_priv_key).await
     }
@@ -331,7 +331,7 @@ mod tests {
 
     use crate::{crypto, services::candidate_service::{CandidateService, UserDetails}};
 
-    use super::EncryptedAddUserData;
+    use super::EncryptedUserDetails;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -438,7 +438,7 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let dec_candidate = EncryptedAddUserData::from_model(enc_candidate).unwrap().decrypt(dec_priv_key).await.unwrap();
+        let dec_candidate = EncryptedUserDetails::from_model(enc_candidate).unwrap().decrypt(dec_priv_key).await.unwrap();
 
         assert_eq!(dec_candidate.name, "test");
     }
