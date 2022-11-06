@@ -8,13 +8,15 @@ use crate::Mutation;
 impl Mutation {
     pub async fn insert_session(
         db: &DbConn,
-        user_id: i32,
+        user_id: Option<i32>,
+        admin_id: Option<i32>,
         random_uuid: Uuid,
         ip_addr: String,
     ) -> Result<session::Model, DbErr> {
         session::ActiveModel {
             id: Set(random_uuid),
             user_id: Set(user_id),
+            admin_id: Set(admin_id),
             ip_address: Set(ip_addr),
             created_at: Set(Utc::now().naive_local()),
             expires_at: Set(Utc::now()

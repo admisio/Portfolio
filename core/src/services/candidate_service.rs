@@ -8,7 +8,7 @@ use crate::{
     Mutation, Query,
 };
 
-use super::session_service::SessionService;
+use super::session_service::{AdminUser, SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -150,11 +150,17 @@ impl CandidateService {
         password: String,
         ip_addr: String,
     ) -> Result<String, ServiceError> {
-        SessionService::new_session(db, user_id, password, ip_addr).await
+        SessionService::new_session(db, Some(user_id), None, password, ip_addr).await
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
-        SessionService::auth_user_session(db, session_uuid).await
+        match SessionService::auth_user_session(db, session_uuid).await {
+            Ok(user) => match user {
+                AdminUser::User(candidate) => Ok(candidate),
+                AdminUser::Admin(_) => Err(ServiceError::DbError),
+            },
+            Err(e) => Err(e),
+        }
     }
 
     fn is_application_id_valid(application_id: i32) -> bool {
@@ -188,7 +194,7 @@ mod tests {
 
     #[cfg(test)]
     async fn get_memory_sqlite_connection() -> DbConn {
-        use entity::candidate;
+        use entity::{admin, candidate};
         use sea_orm::Schema;
         use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
 
@@ -197,7 +203,13 @@ mod tests {
 
         let schema = Schema::new(DbBackend::Sqlite);
         let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
+
+        let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
+
         db.execute(db.get_database_backend().build(&stmt))
+            .await
+            .unwrap();
+        db.execute(db.get_database_backend().build(&stmt2))
             .await
             .unwrap();
         db
