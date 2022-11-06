@@ -17,7 +17,7 @@ pub(crate) struct EncryptedAddUserData {
     pub name: String,
     pub surname: String,
     pub birthplace: String,
-    pub birthdate: NaiveDate,
+    // pub birthdate: NaiveDate,
     pub address: String,
     pub telephone: String,
     pub citizenship: String,
@@ -58,7 +58,7 @@ impl EncryptedAddUserData {
             name,
             surname,
             birthplace,
-            birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
             address,
             telephone,
             citizenship,
@@ -74,7 +74,7 @@ pub struct AddUserDetailsForm {
     pub name: String,
     pub surname: String,
     pub birthplace: String,
-    pub birthdate: NaiveDate,
+    // pub birthdate: NaiveDate,
     pub address: String,
     pub telephone: String,
     pub citizenship: String,
@@ -143,16 +143,16 @@ impl CandidateService {
 
     pub async fn add_user_details(
         db: &DbConn,
-        application_id: i32,
+        user: candidate::Model,
         form: AddUserDetailsForm,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let Ok(user) =  Query::find_candidate_by_id(db, application_id).await else {
+        /* let Ok(user) =  Query::find_candidate_by_id(db, application_id).await else {
             return Err(ServiceError::DbError);
         };
 
         let Some(user_unwrapped) = user else {
             return Err(ServiceError::UserNotFound);
-        };
+        }; */
 
         let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
             return Err(ServiceError::DbError);
@@ -161,7 +161,7 @@ impl CandidateService {
         let mut admin_public_keys_refrence: Vec<&str> =
             admin_public_keys.iter().map(|s| &**s).collect();
 
-        let mut recipients = vec![&*user_unwrapped.public_key];
+        let mut recipients = vec![&*user.public_key];
 
         recipients.append(&mut admin_public_keys_refrence);
 
@@ -169,7 +169,7 @@ impl CandidateService {
 
         Mutation::add_candidate_details(
             db,
-            user_unwrapped,
+            user,
             enc_details,
         )
         .await
@@ -279,7 +279,7 @@ mod tests {
             name: "test".to_string(),
             surname: "a".to_string(),
             birthplace: "b".to_string(),
-            birthdate: NaiveDate::from_ymd(1999, 1, 1),
+            // birthdate: NaiveDate::from_ymd(1999, 1, 1),
             address: "test".to_string(),
             telephone: "test".to_string(),
             citizenship: "test".to_string(),
@@ -287,7 +287,7 @@ mod tests {
             sex: "test".to_string(),
             study: "test".to_string(),
         };
-        let candidate = CandidateService::add_user_details(&db, candidate.application, form).await.ok().unwrap();
+        let candidate = CandidateService::add_user_details(&db, candidate, form).await.ok().unwrap();
     
 
 
