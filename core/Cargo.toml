@@ -9,6 +9,9 @@ chrono = "^0.4"
 
 portfolio-entity = { path = "../entity" }
 
+# serde
+serde = { version = "^1.0", features = ["derive"] }
+
 # env
 dotenv = "^0.15"
 
