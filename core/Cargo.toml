@@ -21,7 +21,7 @@ futures = "^0.3"
 async-compat = "^0.2"
 
 # file identifier
-infer = "^0.9"
+infer = "^0.11"
 
 # crypto
 rand = "^0.8"
