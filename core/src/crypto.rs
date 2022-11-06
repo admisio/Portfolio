@@ -344,7 +344,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_verify_password() {
-        const HASH: &str = "$argon2i$v=19$m=6000,t=3,p=10$WE9xCQmmWdBK82R4SEjoqA$TZSc6PuLd4aWK2x2WAb+Lm9sLySqjK3KLbNyqyQmzPQ";
+        const HASH: &str = "$argon2id$v=19$m=4096,t=3,p=1$c2VjcmV0bHl0ZXN0aW5nZXZlcnl0aGluZw$xEzH8wD/ZjzgZTDTl3YtzMFCfcVa5M5m9y6NfSyB1n4";
         const PASSWORD: &str = "test";
 
         let result = super::verify_password(PASSWORD.to_string(), HASH.to_string())

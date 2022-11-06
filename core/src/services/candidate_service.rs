@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
+use serde::Deserialize;
 
 use crate::{
     crypto::{self, hash_password},
@@ -11,6 +12,77 @@ use crate::{
 use super::session_service::SessionService;
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
+
+pub(crate) struct EncryptedAddUserData {
+    pub name: String,
+    pub surname: String,
+    pub birthplace: String,
+    pub birthdate: NaiveDate,
+    pub address: String,
+    pub telephone: String,
+    pub citizenship: String,
+    pub email: String,
+    pub sex: String,
+    pub study: String,
+}
+
+impl EncryptedAddUserData {
+    pub async fn encrypt_form(form: AddUserDetailsForm, recipients: Vec<&str>) -> EncryptedAddUserData {
+        let (
+            Ok(name),
+            Ok(surname),
+            Ok(birthplace),
+            // Ok(enc_birthdate),
+            Ok(address),
+            Ok(telephone),
+            Ok(citizenship),
+            Ok(email),
+            Ok(sex),
+            Ok(study),
+        ) = tokio::join!(
+            crypto::encrypt_password_with_recipients(&form.name, &recipients),
+            crypto::encrypt_password_with_recipients(&form.surname, &recipients),
+            crypto::encrypt_password_with_recipients(&form.birthplace, &recipients),
+            // crypto::encrypt_password_with_recipients(&self.birthdate, &recipients), // TODO
+            crypto::encrypt_password_with_recipients(&form.address, &recipients),
+            crypto::encrypt_password_with_recipients(&form.telephone, &recipients),
+            crypto::encrypt_password_with_recipients(&form.citizenship, &recipients),
+            crypto::encrypt_password_with_recipients(&form.email, &recipients),
+            crypto::encrypt_password_with_recipients(&form.sex, &recipients),
+            crypto::encrypt_password_with_recipients(&form.study, &recipients),
+        ) else {
+            panic!("Failed to encrypt user details"); // TODO
+        };
+
+        EncryptedAddUserData {
+            name,
+            surname,
+            birthplace,
+            birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            address,
+            telephone,
+            citizenship,
+            email,
+            sex,
+            study,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AddUserDetailsForm {
+    pub name: String,
+    pub surname: String,
+    pub birthplace: String,
+    pub birthdate: NaiveDate,
+    pub address: String,
+    pub telephone: String,
+    pub citizenship: String,
+    pub email: String,
+    pub sex: String,
+    pub study: String,
+}
+
 
 pub struct CandidateService;
 
@@ -72,16 +144,7 @@ impl CandidateService {
     pub async fn add_user_details(
         db: &DbConn,
         application_id: i32,
-        name: String,
-        surname: String,
-        birthplace: String,
-        birthdate: String,
-        address: String,
-        telephone: String,
-        citizenship: String,
-        email: String,
-        sex: String,
-        study: String,
+        form: AddUserDetailsForm,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let Ok(user) =  Query::find_candidate_by_id(db, application_id).await else {
             return Err(ServiceError::DbError);
@@ -102,43 +165,12 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let (
-            enc_name,
-            enc_surname,
-            enc_birthplace,
-            enc_birthdate,
-            enc_address,
-            enc_telephone,
-            enc_citizenship,
-            enc_email,
-            enc_sex,
-            enc_study,
-        ) = tokio::join!(
-            crypto::encrypt_password_with_recipients(&name, &recipients),
-            crypto::encrypt_password_with_recipients(&surname, &recipients),
-            crypto::encrypt_password_with_recipients(&birthplace, &recipients),
-            crypto::encrypt_password_with_recipients(&birthdate, &recipients),
-            crypto::encrypt_password_with_recipients(&address, &recipients),
-            crypto::encrypt_password_with_recipients(&telephone, &recipients),
-            crypto::encrypt_password_with_recipients(&citizenship, &recipients),
-            crypto::encrypt_password_with_recipients(&email, &recipients),
-            crypto::encrypt_password_with_recipients(&sex, &recipients),
-            crypto::encrypt_password_with_recipients(&study, &recipients),
-        );
+        let enc_details = EncryptedAddUserData::encrypt_form(form, recipients).await;
 
         Mutation::add_candidate_details(
             db,
             user_unwrapped,
-            enc_name.unwrap(),
-            enc_surname.unwrap(),
-            enc_birthplace.unwrap(),
-            enc_birthdate.unwrap(),
-            enc_address.unwrap(),
-            enc_telephone.unwrap(),
-            enc_citizenship.unwrap(),
-            enc_email.unwrap(),
-            enc_sex.unwrap(),
-            enc_study.unwrap(),
+            enc_details,
         )
         .await
         .map_err(|_| ServiceError::DbError)
@@ -173,7 +205,7 @@ mod tests {
     use chrono::NaiveDate;
     use sea_orm::{Database, DbConn};
 
-    use crate::{crypto, services::candidate_service::CandidateService};
+    use crate::{crypto, services::candidate_service::{CandidateService, AddUserDetailsForm}};
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -243,23 +275,21 @@ mod tests {
             .ok()
             .unwrap();
 
-        let candidate = CandidateService::add_user_details(
-            &db,
-            candidate.application,
-            "test".to_string(),
-            "a".to_string(),
-            "b".to_string(),
-            NaiveDate::from_ymd(1999, 1, 1).to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        )
-        .await
-        .ok()
-        .unwrap();
+        let form = AddUserDetailsForm {
+            name: "test".to_string(),
+            surname: "a".to_string(),
+            birthplace: "b".to_string(),
+            birthdate: NaiveDate::from_ymd(1999, 1, 1),
+            address: "test".to_string(),
+            telephone: "test".to_string(),
+            citizenship: "test".to_string(),
+            email: "test".to_string(),
+            sex: "test".to_string(),
+            study: "test".to_string(),
+        };
+        let candidate = CandidateService::add_user_details(&db, candidate.application, form).await.ok().unwrap();
+    
+
 
         assert!(candidate.name.is_some());
     }
