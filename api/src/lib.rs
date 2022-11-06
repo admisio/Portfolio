@@ -4,7 +4,7 @@ extern crate rocket;
 use std::net::SocketAddr;
 
 use guards::request::auth::{CandidateAuth, AdminAuth};
-use portfolio_core::services::candidate_service::{CandidateService, AddUserDetailsForm};
+use portfolio_core::services::candidate_service::{CandidateService, UserDetails};
 use requests::{LoginRequest, RegisterRequest};
 use rocket::http::Status;
 use rocket::{Rocket, Build};
@@ -58,7 +58,7 @@ async fn admin(session: AdminAuth) -> Result<String, Custom<String>> {
 }
 
 #[put("/details", data = "<details>")]
-async fn fill_details(conn: Connection<'_, Db>, details: Json<AddUserDetailsForm>, session: CandidateAuth) -> Result<String, Custom<String>> {
+async fn fill_details(conn: Connection<'_, Db>, details: Json<UserDetails>, session: CandidateAuth) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into();
