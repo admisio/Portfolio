@@ -1,4 +1,3 @@
-use chrono::NaiveDate;
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 use serde::Deserialize;
@@ -66,6 +65,107 @@ impl EncryptedAddUserData {
             sex,
             study,
         }
+    }
+
+    fn extract_enc_candidate_details(candidate: candidate::Model) -> Result<AddUserDetailsForm, ServiceError> {
+        let (   // TODO: simplify??
+            Some(name),
+            Some(surname),
+            Some(birthplace),
+            // Some(birthdate),
+            Some(address),
+            Some(telephone),
+            Some(citizenship),
+            Some(email),
+            Some(sex),
+            Some(study),
+        ) = (
+            candidate.name,
+            candidate.surname,
+            candidate.birthplace,
+            // candidate.birthdate,
+            candidate.address,
+            candidate.telephone,
+            candidate.citizenship,
+            candidate.email,
+            candidate.sex,
+            candidate.study,
+        ) else {
+            return Err(ServiceError::CandidateDetailsNotSet);
+        };
+
+        Ok(AddUserDetailsForm {
+            name,
+            surname,
+            birthplace,
+            // birthdate,
+            address,
+            telephone,
+            citizenship,
+            email,
+            sex,
+            study,
+        })
+    }
+
+    pub fn from_model(candidate: candidate::Model) -> Result<EncryptedAddUserData, ServiceError> {
+        let Ok(details) = Self::extract_enc_candidate_details(candidate) else {
+            return Err(ServiceError::CandidateDetailsNotSet);
+        };
+        Ok(EncryptedAddUserData {
+            name: details.name,
+            surname: details.surname,
+            birthplace: details.birthplace,
+            // birthdate,
+            address: details.address,
+            telephone: details.telephone,
+            citizenship: details.citizenship,
+            email: details.email,
+            sex: details.sex,
+            study: details.study,
+        })
+    }
+
+    pub async fn decrypt(self, priv_key: String) -> Result<AddUserDetailsForm, ServiceError> {
+        let (
+            Ok(name),
+            Ok(surname),
+            Ok(birthplace),
+            // Ok(enc_birthdate),
+            Ok(address),
+            Ok(telephone),
+            Ok(citizenship),
+            Ok(email),
+            Ok(sex),
+            Ok(study),
+        ) = tokio::join!(
+            crypto::decrypt_password_with_private_key(&self.name, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.surname, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.birthplace, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.address, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.telephone, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.citizenship, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.email, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.sex, &priv_key),
+            crypto::decrypt_password_with_private_key(&self.study, &priv_key),
+        ) else {
+            panic!("Failed to encrypt user details"); // TODO
+        };
+
+        Ok(
+            AddUserDetailsForm {
+                name,
+                surname,
+                birthplace,
+                // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+                address,
+                telephone,
+                citizenship,
+                email,
+                sex,
+                study,
+            }
+        )
     }
 }
 
@@ -146,14 +246,6 @@ impl CandidateService {
         user: candidate::Model,
         form: AddUserDetailsForm,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        /* let Ok(user) =  Query::find_candidate_by_id(db, application_id).await else {
-            return Err(ServiceError::DbError);
-        };
-
-        let Some(user_unwrapped) = user else {
-            return Err(ServiceError::UserNotFound);
-        }; */
-
         let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
             return Err(ServiceError::DbError);
         };
@@ -174,6 +266,32 @@ impl CandidateService {
         )
         .await
         .map_err(|_| ServiceError::DbError)
+    }
+
+    pub async fn decrypt_details(
+        db: &DbConn,
+        candidate_id: i32,
+        password: String,
+    ) -> Result<AddUserDetailsForm, ServiceError> {
+        // compare passwords // TODO: login in api?? // TODO: dedicated function
+        let candidate = Query::find_candidate_by_id(db, candidate_id)
+            .await
+            .map_err(|_| ServiceError::DbError)?
+            .ok_or(ServiceError::UserNotFound)?;
+
+        match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
+            Ok(valid) => {
+                if !valid {
+                    return Err(ServiceError::InvalidCredentials)
+                }
+            },
+            Err(_) => {return Err(ServiceError::InvalidCredentials)}
+        }
+
+        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password).await.ok().unwrap();
+        let enc_details = EncryptedAddUserData::from_model(candidate)?;
+
+        enc_details.decrypt(dec_priv_key).await
     }
 
     pub async fn login(
@@ -208,10 +326,12 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
-    use chrono::NaiveDate;
     use sea_orm::{Database, DbConn};
+    use entity::candidate::Model;
 
     use crate::{crypto, services::candidate_service::{CandidateService, AddUserDetailsForm}};
+
+    use super::EncryptedAddUserData;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -278,9 +398,9 @@ mod tests {
         assert_eq!(secret_message, decrypted_message);
     }
 
-    #[tokio::test]
-    async fn test_put_user_data() {
-        let db = get_memory_sqlite_connection().await;
+
+    #[cfg(test)]
+    async fn put_user_data(db: &DbConn) -> Model {
         let plain_text_password = "test".to_string();
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
             .await
@@ -299,10 +419,27 @@ mod tests {
             sex: "test".to_string(),
             study: "test".to_string(),
         };
-        let candidate = CandidateService::add_user_details(&db, candidate, form).await.ok().unwrap();
-    
+        CandidateService::add_user_details(&db, candidate, form).await.ok().unwrap()
+    }
 
-
+    #[tokio::test]
+    async fn test_put_user_data() {
+        let db = get_memory_sqlite_connection().await;
+        let candidate = put_user_data(&db).await;
         assert!(candidate.name.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_encrypt_decrypt_user_data() {
+        let password = "test".to_string();
+        let db = get_memory_sqlite_connection().await;
+        let enc_candidate = put_user_data(&db).await;
+
+        let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
+            .await
+            .unwrap();
+        let dec_candidate = EncryptedAddUserData::from_model(enc_candidate).unwrap().decrypt(dec_priv_key).await.unwrap();
+
+        assert_eq!(dec_candidate.name, "test");
     }
 }
