@@ -1,10 +1,10 @@
 use crate::Query;
 
-use ::entity::{candidate, candidate::Entity as Admin};
+use ::entity::{admin, admin::Entity as Admin};
 use sea_orm::*;
 
 impl Query {
-    pub async fn find_admin_by_id(db: &DbConn, id: i32) -> Result<Option<candidate::Model>, DbErr> {
+    pub async fn find_admin_by_id(db: &DbConn, id: i32) -> Result<Option<admin::Model>, DbErr> {
         Admin::find_by_id(id).one(db).await
     }
 

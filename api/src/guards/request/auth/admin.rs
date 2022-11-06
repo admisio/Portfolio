@@ -1,4 +1,4 @@
-use entity::candidate::Model as Admin;
+use entity::admin::Model as Admin;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::admin_service::AdminService;
 use rocket::http::Status;

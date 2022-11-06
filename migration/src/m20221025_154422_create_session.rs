@@ -18,7 +18,8 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Session::UserId).integer().not_null())
+                    .col(ColumnDef::new(Session::UserId).integer())
+                    .col(ColumnDef::new(Session::AdminId).integer())
                     .col(ColumnDef::new(Session::IpAddress).string().not_null())
                     .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())
@@ -39,6 +40,7 @@ pub enum Session {
     Table,
     Id,
     UserId,
+    AdminId,
     IpAddress,
     CreatedAt,
     ExpiresAt,

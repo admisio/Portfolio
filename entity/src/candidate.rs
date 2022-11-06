@@ -3,7 +3,7 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "candidate")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
+    #[sea_orm(column_type = "Integer", primary_key, auto_increment = false)]
     pub application: i32,
     pub code: String,
     pub name: Option<String>,
@@ -22,8 +22,6 @@ pub struct Model {
     pub personal_identification_number_hash: String,
     pub public_key: String,
     pub private_key: String,
-    #[sea_orm(default_value = false)]
-    pub is_admin: bool,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }
