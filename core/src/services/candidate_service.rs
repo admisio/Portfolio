@@ -26,7 +26,7 @@ pub(crate) struct EncryptedAddUserData {
 }
 
 impl EncryptedAddUserData {
-    pub async fn encrypt_form(form: AddUserDetailsForm, recipients: Vec<&str>) -> EncryptedAddUserData {
+    pub async fn encrypt_form(form: UserDetails, recipients: Vec<&str>) -> EncryptedAddUserData {
         let (
             Ok(name),
             Ok(surname),
@@ -67,7 +67,7 @@ impl EncryptedAddUserData {
         }
     }
 
-    fn extract_enc_candidate_details(candidate: candidate::Model) -> Result<AddUserDetailsForm, ServiceError> {
+    fn extract_enc_candidate_details(candidate: candidate::Model) -> Result<UserDetails, ServiceError> {
         let (   // TODO: simplify??
             Some(name),
             Some(surname),
@@ -94,7 +94,7 @@ impl EncryptedAddUserData {
             return Err(ServiceError::CandidateDetailsNotSet);
         };
 
-        Ok(AddUserDetailsForm {
+        Ok(UserDetails {
             name,
             surname,
             birthplace,
@@ -126,7 +126,7 @@ impl EncryptedAddUserData {
         })
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<AddUserDetailsForm, ServiceError> {
+    pub async fn decrypt(self, priv_key: String) -> Result<UserDetails, ServiceError> {
         let (
             Ok(name),
             Ok(surname),
@@ -153,7 +153,7 @@ impl EncryptedAddUserData {
         };
 
         Ok(
-            AddUserDetailsForm {
+            UserDetails {
                 name,
                 surname,
                 birthplace,
@@ -170,7 +170,7 @@ impl EncryptedAddUserData {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct AddUserDetailsForm {
+pub struct UserDetails {
     pub name: String,
     pub surname: String,
     pub birthplace: String,
@@ -244,7 +244,7 @@ impl CandidateService {
     pub async fn add_user_details(
         db: &DbConn,
         user: candidate::Model,
-        form: AddUserDetailsForm,
+        form: UserDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
             return Err(ServiceError::DbError);
@@ -272,7 +272,7 @@ impl CandidateService {
         db: &DbConn,
         candidate_id: i32,
         password: String,
-    ) -> Result<AddUserDetailsForm, ServiceError> {
+    ) -> Result<UserDetails, ServiceError> {
         // compare passwords // TODO: login in api?? // TODO: dedicated function
         let candidate = Query::find_candidate_by_id(db, candidate_id)
             .await
@@ -329,7 +329,7 @@ mod tests {
     use sea_orm::{Database, DbConn};
     use entity::candidate::Model;
 
-    use crate::{crypto, services::candidate_service::{CandidateService, AddUserDetailsForm}};
+    use crate::{crypto, services::candidate_service::{CandidateService, UserDetails}};
 
     use super::EncryptedAddUserData;
 
@@ -407,7 +407,7 @@ mod tests {
             .ok()
             .unwrap();
 
-        let form = AddUserDetailsForm {
+        let form = UserDetails {
             name: "test".to_string(),
             surname: "a".to_string(),
             birthplace: "b".to_string(),
