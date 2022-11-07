@@ -38,8 +38,7 @@ pub async fn login(
         ));
     } else {
         let session_token = session_token.unwrap();
-        // Todo: Add private?
-        cookies.add(Cookie::new("id", session_token.clone()));
+        cookies.add_private(Cookie::new("id", session_token.clone()));
 
         return Ok(session_token);
     }
