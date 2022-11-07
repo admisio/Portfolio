@@ -3,7 +3,7 @@ use rocket::http::{ContentType, Status};
 use rocket::outcome::Outcome;
 use rocket::request::Request;
 
-struct Letter(Vec<u8>);
+pub struct Letter(Vec<u8>);
 
 impl Into<Vec<u8>> for Letter {
     fn into(self) -> Vec<u8> {

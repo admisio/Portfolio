@@ -3,7 +3,7 @@ use rocket::http::{ContentType, Status};
 use rocket::outcome::Outcome;
 use rocket::request::Request;
 
-struct Portfolio(Vec<u8>);
+pub struct Portfolio(Vec<u8>);
 
 impl Into<Vec<u8>> for Portfolio {
     fn into(self) -> Vec<u8> {
