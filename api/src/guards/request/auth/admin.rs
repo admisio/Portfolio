@@ -19,7 +19,14 @@ impl Into<Admin> for AdminAuth {
 impl<'r> FromRequest<'r> for AdminAuth {
     type Error = Option<String>;
     async fn from_request(req: &'r Request<'_>) -> Outcome<AdminAuth, (Status, Self::Error), ()> {
-        let session_id = req.cookies().get("id").unwrap().name_value().1;
+        let cookie = req.cookies().get_private("id");
+
+        let Some(cookie) = cookie else {
+            return Outcome::Failure((Status::Unauthorized, None));
+        };
+
+        let session_id = cookie.name_value().1;
+        
         let conn = &req.rocket().state::<Db>().unwrap().conn;
 
         let uuid = match Uuid::parse_str(&session_id) {

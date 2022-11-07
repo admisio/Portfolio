@@ -1,23 +1,15 @@
 #[macro_use]
 extern crate rocket;
 
-use std::net::SocketAddr;
-
-use guards::request::auth::{CandidateAuth, AdminAuth};
-use portfolio_core::services::candidate_service::{CandidateService, UserDetails};
-use requests::{LoginRequest, RegisterRequest};
-use rocket::http::Status;
-use rocket::{Rocket, Build};
-use rocket::serde::json::Json;
 use rocket::fairing::{self, AdHoc};
-use rocket::response::status::Custom;
 
-use migration::{MigratorTrait};
-use sea_orm_rocket::{Connection, Database};
+use rocket::{Build, Rocket};
 
+use migration::MigratorTrait;
+use sea_orm_rocket::Database;
 
-mod pool;
 mod guards;
+mod pool;
 mod requests;
 mod routes;
 
@@ -25,70 +17,6 @@ use pool::Db;
 
 pub use entity::candidate;
 pub use entity::candidate::Entity as Candidate;
-
-use portfolio_core::crypto::random_8_char_string;
-
-#[post("/", data = "<post_form>")]
-async fn create(conn: Connection<'_, Db>, post_form: Json<RegisterRequest>) -> Result<String, Custom<String>> {   
-    let db = conn.into_inner();
-    let form = post_form.into_inner();
-
-    let plain_text_password = random_8_char_string();
-
-    let candidate = CandidateService::create(db, form.application_id, &plain_text_password, form.personal_id_number)
-        .await;
-    
-    if candidate.is_err() { // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
-    }
-
-    Ok(plain_text_password)
-}
-
-#[get("/whoami")]
-async fn validate(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-    Ok(candidate.application.to_string())
-}
-
-#[get("/admin")]
-async fn admin(session: AdminAuth) -> Result<String, Custom<String>> {
-    Ok("Hello admin".to_string())
-}
-
-#[put("/details", data = "<details>")]
-async fn fill_details(conn: Connection<'_, Db>, details: Json<UserDetails>, session: CandidateAuth) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    let form = details.into_inner();
-    let candidate: entity::candidate::Model = session.into();
-
-    let candidate = CandidateService::add_user_details(db, candidate, form)
-        .await;
-
-    if candidate.is_err() { // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
-    }
-
-    Ok("Details added".to_string())
-}
-
-#[post("/login", data = "<login_form>")]
-async fn login(conn: Connection<'_, Db>, login_form: Json<LoginRequest>, ip_addr: SocketAddr) -> Result<String, Custom<String>> {
-    let db = conn.into_inner();
-    println!("{} {}", login_form.application_id, login_form.password);
-
-    let session_token = CandidateService::login(
-        db,
-        login_form.application_id,
-        login_form.password.to_string(),
-        ip_addr.ip().to_string()
-    )
-        .await;
-
-    session_token.map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()))
-}
 
 #[get("/hello")]
 async fn hello() -> &'static str {
@@ -107,7 +35,24 @@ async fn start() -> Result<(), rocket::Error> {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![create, login, hello, validate, fill_details, admin])
+        .mount("/", routes![hello])
+        .mount(
+            "/candidate/",
+            routes![
+                routes::candidate::login,
+                routes::candidate::whoami,
+                routes::candidate::fill_details,
+            ],
+        )
+        .mount(
+            "/admin/",
+            routes![
+                routes::admin::login,
+                routes::admin::whoami,
+                routes::admin::hello,
+                routes::admin::create_candidate,
+            ],
+        )
         .register("/", catchers![])
         .launch()
         .await
