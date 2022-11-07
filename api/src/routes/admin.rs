@@ -5,7 +5,7 @@ use portfolio_core::{
     services::{admin_service::AdminService, candidate_service::CandidateService},
 };
 use requests::{AdminLoginRequest, RegisterRequest};
-use rocket::http::Status;
+use rocket::http::{Cookie, Status, CookieJar};
 use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 
@@ -18,6 +18,7 @@ pub async fn login(
     conn: Connection<'_, Db>,
     login_form: Json<AdminLoginRequest>,
     ip_addr: SocketAddr,
+    cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     println!("{} {}", login_form.admin_id, login_form.password);
@@ -30,7 +31,18 @@ pub async fn login(
     )
     .await;
 
-    session_token.map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()))
+    if let Err(e) = session_token {
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
+            e.to_string(),
+        ));
+    } else {
+        let session_token = session_token.unwrap();
+        // Todo: Add private?
+        cookies.add(Cookie::new("id", session_token.clone()));
+
+        return Ok(session_token);
+    }
 }
 
 #[get("/whoami")]

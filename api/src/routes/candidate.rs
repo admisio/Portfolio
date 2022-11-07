@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::services::candidate_service::{CandidateService, UserDetails};
 use requests::LoginRequest;
-use rocket::http::Status;
+use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 
@@ -15,6 +15,7 @@ pub async fn login(
     conn: Connection<'_, Db>,
     login_form: Json<LoginRequest>,
     ip_addr: SocketAddr,
+    cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
@@ -27,9 +28,19 @@ pub async fn login(
     )
     .await;
 
-    session_token.map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()))
-}
+    if let Err(e) = session_token {
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
+            e.to_string(),
+        ));
+    } else {
+        let session_token = session_token.unwrap();
+        // Todo: Add private?
+        cookies.add(Cookie::new("id", session_token.clone()));
 
+        return Ok(session_token);
+    }
+}
 
 #[get("/whoami")]
 pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
@@ -60,4 +71,3 @@ pub async fn fill_details(
 
     Ok("Details added".to_string())
 }
-
