@@ -16,9 +16,7 @@ impl<'r> FromData<'r> for Portfolio {
     type Error = Option<String>;
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
-        let content_type_zip = ContentType::new("application", "application/zip");
-
-        if req.content_type() != Some(&content_type_zip) {
+        if req.content_type() != Some(&ContentType::ZIP) {
             return Outcome::Failure((Status::BadRequest, None))
         }
 

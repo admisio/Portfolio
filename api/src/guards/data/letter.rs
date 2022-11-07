@@ -16,9 +16,7 @@ impl<'r> FromData<'r> for Letter {
     type Error = Option<String>;
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
-        let content_type_pdf = ContentType::new("application", "application/pdf");
-
-        if req.content_type() != Some(&content_type_pdf) {
+        if req.content_type() != Some(&ContentType::PDF) {
             return Outcome::Failure((Status::BadRequest, None))
         }
 
