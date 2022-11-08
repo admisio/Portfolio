@@ -92,28 +92,3 @@ pub async fn get_details(
 
     details.map(|d| Json(d))
 }
-
-// #[post("/details", data = "<password_form>")]
-// pub async fn get_details(
-//     conn: Connection<'_, Db>,
-//     password_form: Json<PasswordRequest>,
-//     session: CandidateAuth,
-// ) -> Result<String, Custom<String>> {
-//     let db = conn.into_inner();
-//     let candidate: entity::candidate::Model = session.into();
-//     let password = password_form.password.clone();
-
-//     let details = CandidateService::decrypt_details(db, candidate.application, password).await;
-
-//     if details.is_err() {
-//         // TODO cleanup
-//         let e = details.err().unwrap();
-//         return Err(Custom(
-//             Status::from_code(e.code()).unwrap_or_default(),
-//             e.message(),
-//         ));
-//     }
-
-//     // Ok(Json(details.unwrap()))
-//     Ok("coming soon".to_string())
-// }
