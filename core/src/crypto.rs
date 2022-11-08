@@ -267,14 +267,18 @@ pub async fn encrypt_password_with_recipients(
 pub async fn decrypt_password_with_private_key(
     password_encrypted: &str,
     key: &str,
-) -> Result<String, ServiceError> {
-    let encrypted = base64::decode(password_encrypted).unwrap();
+) -> Result<String, ServiceError> { // TODO More specific error handling
+    let Ok(encrypted) = base64::decode(password_encrypted) else {
+        return Err(ServiceError::CryptoEncryptFailed);
+    };
 
     let mut decrypt_buffer = Vec::new();
 
-    age_decrypt_with_private_key(encrypted.as_slice(), &mut decrypt_buffer, key).await.unwrap();
+    if age_decrypt_with_private_key(encrypted.as_slice(), &mut decrypt_buffer, key).await.is_err() {
+        return Err(ServiceError::CryptoDecryptFailed);
+    };
 
-    Ok(String::from_utf8(decrypt_buffer).ok().unwrap())
+    String::from_utf8(decrypt_buffer).map_err(|_| ServiceError::CryptoDecryptFailed)
 }
 
 pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
