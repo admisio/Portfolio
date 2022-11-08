@@ -26,6 +26,7 @@ impl<'r> FromData<'r> for Letter {
 
         if !data_bytes.is_complete() {
             // TODO: Over limit
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         let data_bytes = data_bytes.into_inner();
@@ -34,6 +35,7 @@ impl<'r> FromData<'r> for Letter {
 
         if !is_pdf {
             // TODO: Not PDF
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         Outcome::Success(Letter(data_bytes))
