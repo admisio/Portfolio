@@ -26,6 +26,7 @@ impl<'r> FromData<'r> for Portfolio {
 
         if !data_bytes.is_complete() {
             // TODO: Over limit
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         let data_bytes = data_bytes.into_inner();
@@ -34,6 +35,7 @@ impl<'r> FromData<'r> for Portfolio {
 
         if !is_zip {
             // TODO: Not ZIP
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         Outcome::Success(Portfolio(data_bytes))
