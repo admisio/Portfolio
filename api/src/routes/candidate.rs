@@ -8,6 +8,7 @@ use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
+use crate::requests::PasswordRequest;
 use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
@@ -70,3 +71,49 @@ pub async fn fill_details(
 
     Ok("Details added".to_string())
 }
+
+#[post("/get_details", data = "<password_form>")]
+pub async fn get_details(
+    conn: Connection<'_, Db>,
+    password_form: Json<PasswordRequest>,
+    session: CandidateAuth,
+) -> Result<Json<UserDetails>, Custom<String>> {
+    let db = conn.into_inner();
+    let candidate: entity::candidate::Model = session.into();
+    let password = password_form.password.clone();
+
+    // let handle = tokio::spawn(async move {
+    let details = CandidateService::decrypt_details(db, candidate.application, password).await.map_err(|e| {
+        Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.message(),
+        )
+    });
+
+    details.map(|d| Json(d))
+}
+
+// #[post("/details", data = "<password_form>")]
+// pub async fn get_details(
+//     conn: Connection<'_, Db>,
+//     password_form: Json<PasswordRequest>,
+//     session: CandidateAuth,
+// ) -> Result<String, Custom<String>> {
+//     let db = conn.into_inner();
+//     let candidate: entity::candidate::Model = session.into();
+//     let password = password_form.password.clone();
+
+//     let details = CandidateService::decrypt_details(db, candidate.application, password).await;
+
+//     if details.is_err() {
+//         // TODO cleanup
+//         let e = details.err().unwrap();
+//         return Err(Custom(
+//             Status::from_code(e.code()).unwrap_or_default(),
+//             e.message(),
+//         ));
+//     }
+
+//     // Ok(Json(details.unwrap()))
+//     Ok("coming soon".to_string())
+// }
