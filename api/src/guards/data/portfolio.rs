@@ -3,7 +3,7 @@ use rocket::http::{ContentType, Status};
 use rocket::outcome::Outcome;
 use rocket::request::Request;
 
-struct Portfolio(Vec<u8>);
+pub struct Portfolio(Vec<u8>);
 
 impl Into<Vec<u8>> for Portfolio {
     fn into(self) -> Vec<u8> {
@@ -16,9 +16,7 @@ impl<'r> FromData<'r> for Portfolio {
     type Error = Option<String>;
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
-        let content_type_zip = ContentType::new("application", "application/zip");
-
-        if req.content_type() != Some(&content_type_zip) {
+        if req.content_type() != Some(&ContentType::ZIP) {
             return Outcome::Failure((Status::BadRequest, None))
         }
 
@@ -28,6 +26,7 @@ impl<'r> FromData<'r> for Portfolio {
 
         if !data_bytes.is_complete() {
             // TODO: Over limit
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         let data_bytes = data_bytes.into_inner();
@@ -36,6 +35,7 @@ impl<'r> FromData<'r> for Portfolio {
 
         if !is_zip {
             // TODO: Not ZIP
+            return Outcome::Failure((Status::BadRequest, None))
         }
 
         Outcome::Success(Portfolio(data_bytes))

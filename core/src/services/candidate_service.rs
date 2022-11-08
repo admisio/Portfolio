@@ -67,7 +67,9 @@ impl EncryptedUserDetails {
         }
     }
 
-    fn extract_enc_candidate_details(candidate: candidate::Model) -> Result<UserDetails, ServiceError> {
+    fn extract_enc_candidate_details(
+        candidate: candidate::Model,
+    ) -> Result<UserDetails, ServiceError> {
         let (   // TODO: simplify??
             Some(name),
             Some(surname),
@@ -152,20 +154,18 @@ impl EncryptedUserDetails {
             panic!("Failed to encrypt user details"); // TODO
         };
 
-        Ok(
-            UserDetails {
-                name,
-                surname,
-                birthplace,
-                // birthdate: NaiveDate::from_ymd(2000, 1, 1),
-                address,
-                telephone,
-                citizenship,
-                email,
-                sex,
-                study,
-            }
-        )
+        Ok(UserDetails {
+            name,
+            surname,
+            birthplace,
+            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            address,
+            telephone,
+            citizenship,
+            email,
+            sex,
+            study,
+        })
     }
 }
 
@@ -182,7 +182,6 @@ pub struct UserDetails {
     pub sex: String,
     pub study: String,
 }
-
 
 pub struct CandidateService;
 
@@ -259,13 +258,9 @@ impl CandidateService {
 
         let enc_details = EncryptedUserDetails::encrypt_form(form, recipients).await;
 
-        Mutation::add_candidate_details(
-            db,
-            user,
-            enc_details,
-        )
-        .await
-        .map_err(|_| ServiceError::DbError)
+        Mutation::add_candidate_details(db, user, enc_details)
+            .await
+            .map_err(|_| ServiceError::DbError)
     }
 
     pub async fn decrypt_details(
@@ -282,16 +277,34 @@ impl CandidateService {
         match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
             Ok(valid) => {
                 if !valid {
-                    return Err(ServiceError::InvalidCredentials)
+                    return Err(ServiceError::InvalidCredentials);
                 }
-            },
-            Err(_) => {return Err(ServiceError::InvalidCredentials)}
+            }
+            Err(_) => return Err(ServiceError::InvalidCredentials),
         }
 
-        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password).await.ok().unwrap();
+        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)
+            .await
+            .ok()
+            .unwrap();
         let enc_details = EncryptedUserDetails::from_model(candidate)?;
 
         enc_details.decrypt(dec_priv_key).await
+    }
+
+    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+        // TODO
+        Ok(())
+    }
+
+    pub async fn add_portfolio_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError>  {
+        // TODO
+        Ok(())
+    }
+
+    pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError>  {
+        // TODO
+        Ok(())
     }
 
     pub async fn login(
@@ -326,10 +339,13 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
-    use sea_orm::{Database, DbConn};
     use entity::candidate::Model;
+    use sea_orm::{Database, DbConn};
 
-    use crate::{crypto, services::candidate_service::{CandidateService, UserDetails}};
+    use crate::{
+        crypto,
+        services::candidate_service::{CandidateService, UserDetails},
+    };
 
     use super::EncryptedUserDetails;
 
@@ -398,7 +414,6 @@ mod tests {
         assert_eq!(secret_message, decrypted_message);
     }
 
-
     #[cfg(test)]
     async fn put_user_data(db: &DbConn) -> Model {
         let plain_text_password = "test".to_string();
@@ -419,7 +434,10 @@ mod tests {
             sex: "test".to_string(),
             study: "test".to_string(),
         };
-        CandidateService::add_user_details(&db, candidate, form).await.ok().unwrap()
+        CandidateService::add_user_details(&db, candidate, form)
+            .await
+            .ok()
+            .unwrap()
     }
 
     #[tokio::test]
@@ -438,7 +456,11 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let dec_candidate = EncryptedUserDetails::from_model(enc_candidate).unwrap().decrypt(dec_priv_key).await.unwrap();
+        let dec_candidate = EncryptedUserDetails::from_model(enc_candidate)
+            .unwrap()
+            .decrypt(dec_priv_key)
+            .await
+            .unwrap();
 
         assert_eq!(dec_candidate.name, "test");
     }
