@@ -293,6 +293,21 @@ impl CandidateService {
         enc_details.decrypt(dec_priv_key).await
     }
 
+    pub async fn is_set_up(
+        candidate: &candidate::Model,
+    ) -> bool {
+            candidate.name.is_some() &&
+            candidate.surname.is_some() &&
+            candidate.birthplace.is_some() &&
+            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            candidate.address.is_some() &&
+            candidate.telephone.is_some() &&
+            candidate.citizenship.is_some() &&
+            candidate.email.is_some() &&
+            candidate.sex.is_some() &&
+            candidate.study.is_some() 
+    }
+
     pub async fn login(
         db: &DbConn,
         user_id: i32,
