@@ -1,6 +1,6 @@
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     crypto::{self, hash_password},
@@ -169,7 +169,7 @@ impl EncryptedUserDetails {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserDetails {
     pub name: String,
     pub surname: String,
@@ -268,11 +268,10 @@ impl CandidateService {
         candidate_id: i32,
         password: String,
     ) -> Result<UserDetails, ServiceError> {
-        // compare passwords // TODO: login in api?? // TODO: dedicated function
-        let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await
-            .map_err(|_| ServiceError::DbError)?
-            .ok_or(ServiceError::UserNotFound)?;
+        let candidate = match Query::find_candidate_by_id(db, candidate_id).await {
+            Ok(candidate) => candidate.unwrap(),
+            Err(_) => return Err(ServiceError::DbError), // TODO: logging
+        };
 
         match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
             Ok(valid) => {
@@ -290,6 +289,21 @@ impl CandidateService {
         let enc_details = EncryptedUserDetails::from_model(candidate)?;
 
         enc_details.decrypt(dec_priv_key).await
+    }
+
+    pub async fn is_set_up(
+        candidate: &candidate::Model,
+    ) -> bool {
+            candidate.name.is_some() &&
+            candidate.surname.is_some() &&
+            candidate.birthplace.is_some() &&
+            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            candidate.address.is_some() &&
+            candidate.telephone.is_some() &&
+            candidate.citizenship.is_some() &&
+            candidate.email.is_some() &&
+            candidate.sex.is_some() &&
+            candidate.study.is_some() 
     }
 
     pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {

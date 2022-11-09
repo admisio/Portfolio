@@ -22,3 +22,9 @@ pub struct AdminLoginRequest {
     pub admin_id: i32,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct PasswordRequest {
+    pub password: String,
+}
