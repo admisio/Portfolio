@@ -9,6 +9,8 @@ use rocket::serde::json::Json;
 use sea_orm_rocket::Connection;
 
 use crate::requests::PasswordRequest;
+use crate::guards::data::letter::Letter;
+use crate::guards::data::portfolio::Portfolio;
 use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
@@ -48,7 +50,7 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
     Ok(candidate.application.to_string())
 }
 
-#[put("/details", data = "<details>")]
+#[post("/details", data = "<details>")]
 pub async fn fill_details(
     conn: Connection<'_, Db>,
     details: Json<UserDetails>,
@@ -91,4 +93,66 @@ pub async fn get_details(
     });
 
     details.map(|d| Json(d))
+}
+#[post("/coverletter", data = "<letter>")]
+pub async fn upload_cover_letter(
+    session: CandidateAuth,
+    letter: Letter,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let candidate = CandidateService::add_cover_letter(candidate.application, letter.into()).await;
+
+    if candidate.is_err() {
+        // TODO cleanup
+        let e = candidate.err().unwrap();
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.message(),
+        ));
+    }
+
+    Ok("Letter added".to_string())
+}
+
+#[post("/portfolioletter", data = "<letter>")]
+pub async fn upload_portfolio_letter(
+    session: CandidateAuth,
+    letter: Letter,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let candidate = CandidateService::add_portfolio_letter(candidate.application, letter.into()).await;
+
+    if candidate.is_err() {
+        // TODO cleanup
+        let e = candidate.err().unwrap();
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.message(),
+        ));
+    }
+
+    Ok("Letter added".to_string())
+}
+
+#[post("/portfolio", data = "<portfolio>")]
+pub async fn upload_portfolio_zip(
+    session: CandidateAuth,
+    portfolio: Portfolio,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let candidate = CandidateService::add_portfolio_zip(candidate.application, portfolio.into()).await;
+
+    if candidate.is_err() {
+        // TODO cleanup
+        let e = candidate.err().unwrap();
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.message(),
+        ));
+    }
+
+    Ok("Letter added".to_string())
 }
