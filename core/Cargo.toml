@@ -27,6 +27,8 @@ async-compat = "^0.2"
 # file identifier
 infer = "^0.11"
 
+async_zip = "0.0.9"
+
 # crypto
 rand = "^0.8"
 aes-gcm-siv = { version = "^0.11", features = ["std"] }
