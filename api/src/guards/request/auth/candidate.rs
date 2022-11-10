@@ -7,11 +7,17 @@ use rocket::request::{FromRequest, Request};
 
 use crate::pool::Db;
 
-pub struct CandidateAuth(Candidate);
+pub struct CandidateAuth(Candidate, String);
 
 impl Into<Candidate> for CandidateAuth {
     fn into(self) -> Candidate {
         self.0
+    }
+}
+
+impl CandidateAuth {
+    pub fn get_private_key(&self) -> String {
+        self.1.clone()
     }
 }
 
@@ -21,13 +27,19 @@ impl<'r> FromRequest<'r> for CandidateAuth {
     async fn from_request(
         req: &'r Request<'_>,
     ) -> Outcome<CandidateAuth, (Status, Self::Error), ()> {
-        let cookie = req.cookies().get_private("id");
+        let cookie_id = req.cookies().get_private("id");
+        let cookie_private_key = req.cookies().get_private("private_key");
 
-        let Some(cookie) = cookie else {
+        let Some(cookie_id) = cookie_id else {
             return Outcome::Failure((Status::Unauthorized, None));
         };
 
-        let session_id = cookie.name_value().1;
+        let Some(cookie_private_key) = cookie_private_key else {
+            return Outcome::Failure((Status::Unauthorized, None));
+        };
+
+        let session_id = cookie_id.value();
+        let private_key = cookie_private_key.value();
 
         let conn = &req.rocket().state::<Db>().unwrap().conn;
 
@@ -39,7 +51,7 @@ impl<'r> FromRequest<'r> for CandidateAuth {
         let session = CandidateService::auth(conn, uuid).await;
 
         match session {
-            Ok(model) => Outcome::Success(CandidateAuth(model)),
+            Ok(model) => Outcome::Success(CandidateAuth(model, private_key.to_string().to_string())),
             Err(_) => Outcome::Failure((Status::Unauthorized, None)),
         }
     }

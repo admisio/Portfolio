@@ -23,7 +23,7 @@ pub async fn login(
     let db = conn.into_inner();
     println!("{} {}", login_form.admin_id, login_form.password);
 
-    let session_token = AdminService::login(
+    let session_token_key = AdminService::login(
         db,
         login_form.admin_id,
         login_form.password.to_string(),
@@ -31,18 +31,27 @@ pub async fn login(
     )
     .await;
 
-    if let Err(e) = session_token {
+    let Ok(session_token_key) = session_token_key else {
+        let e = session_token_key.unwrap_err();
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
             e.to_string(),
         ));
-    } else {
-        let session_token = session_token.unwrap();
-        cookies.add_private(Cookie::new("id", session_token.clone()));
+    
+    };
 
-        return Ok(session_token);
-    }
+    let session_token = session_token_key.0;
+    let private_key = session_token_key.1;
+
+    cookies.add_private(Cookie::new("id", session_token.clone()));
+    cookies.add_private(Cookie::new("key", private_key.clone()));
+
+    // TODO: JSON
+    let response = format!("{} {}", session_token, private_key);
+
+    return Ok(response);
 }
+
 
 #[get("/whoami")]
 pub async fn whoami(session: AdminAuth) -> Result<String, Custom<String>> {

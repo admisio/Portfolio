@@ -8,9 +8,9 @@ use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
-use crate::requests::PasswordRequest;
 use crate::guards::data::letter::Letter;
 use crate::guards::data::portfolio::Portfolio;
+use crate::requests::PasswordRequest;
 use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
@@ -23,7 +23,7 @@ pub async fn login(
     let db = conn.into_inner();
     println!("{} {}", login_form.application_id, login_form.password);
 
-    let session_token = CandidateService::login(
+    let session_token_key = CandidateService::login(
         db,
         login_form.application_id,
         login_form.password.to_string(),
@@ -31,17 +31,23 @@ pub async fn login(
     )
     .await;
 
-    if let Err(e) = session_token {
+    let Ok(session_token_key) = session_token_key else {
+        let e = session_token_key.unwrap_err();
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
             e.to_string(),
         ));
-    } else {
-        let session_token = session_token.unwrap();
-        cookies.add_private(Cookie::new("id", session_token.clone()));
+    };
 
-        return Ok(session_token);
-    }
+    let session_token = session_token_key.0;
+    let private_key = session_token_key.1;
+
+    cookies.add_private(Cookie::new("id", session_token.clone()));
+    cookies.add_private(Cookie::new("key", private_key.clone()));
+
+    let response = format!("{} {}", session_token, private_key);
+
+    return Ok(response);
 }
 
 #[get("/whoami")]
@@ -85,12 +91,9 @@ pub async fn get_details(
     let password = password_form.password.clone();
 
     // let handle = tokio::spawn(async move {
-    let details = CandidateService::decrypt_details(db, candidate.application, password).await.map_err(|e| {
-        Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.message(),
-        )
-    });
+    let details = CandidateService::decrypt_details(db, candidate.application, password)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
 
     details.map(|d| Json(d))
 }
@@ -122,7 +125,8 @@ pub async fn upload_portfolio_letter(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate = CandidateService::add_portfolio_letter(candidate.application, letter.into()).await;
+    let candidate =
+        CandidateService::add_portfolio_letter(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -143,7 +147,8 @@ pub async fn upload_portfolio_zip(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate = CandidateService::add_portfolio_zip(candidate.application, portfolio.into()).await;
+    let candidate =
+        CandidateService::add_portfolio_zip(candidate.application, portfolio.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
