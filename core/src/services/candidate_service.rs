@@ -1,5 +1,8 @@
+use std::path::Path;
+
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
+use tokio::io::AsyncWriteExt;
 
 use crate::{
     candidate_details::EncryptedApplicationDetails,
@@ -54,6 +57,10 @@ impl CandidateService {
             return Err(ServiceError::CryptoHashFailed);
         };
 
+        // TODO: Specify root path in config?
+        tokio::fs::create_dir_all(Path::new(&application_id.to_string()).join("cache")).await?;
+
+
         let candidate = Mutation::create_candidate(
             db,
             application_id,
@@ -88,22 +95,33 @@ impl CandidateService {
             && candidate.study.is_some()
     }
 
-    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
+    async fn write_portfolio_file(
+        candidate_id: i32,
+        data: Vec<u8>,
+        filename: &str,
+    ) -> Result<(), ServiceError> {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        let mut file = tokio::fs::File::create(cache_path.join(filename)).await?;
+
+        file.write_all(&data).await?;
+
         Ok(())
+    }
+
+    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+        Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
     pub async fn add_portfolio_letter(
         candidate_id: i32,
         letter: Vec<u8>,
     ) -> Result<(), ServiceError> {
-        // TODO
-        Ok(())
+        Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
     pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
-        Ok(())
+        Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
     }
 
     async fn decrypt_private_key(
