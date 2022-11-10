@@ -1,10 +1,9 @@
 use std::path::Path;
 
 use entity::candidate;
-use infer::app;
 use sea_orm::{prelude::Uuid, DbConn};
 use serde::{Deserialize, Serialize};
-use tokio::{fs::create_dir_all, io::AsyncWriteExt};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{
     crypto::{self, hash_password},
@@ -363,6 +362,56 @@ impl CandidateService {
             && tokio::fs::metadata(cache_path.join("PORTFOLIO.zip"))
                 .await
                 .is_ok()
+    }
+
+    pub async fn submit_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
+        let path = Path::new(&candidate_id.to_string()).to_path_buf();
+        let cache_path = path.join("cache");
+
+        if Self::is_portfolio_complete(candidate_id).await == false {
+            return Err(ServiceError::IncompletePortfolio);
+        }
+
+        let archive = tokio::fs::File::create(path.join("PORTFOLIO.zip")).await;
+
+        let Ok(mut archive) = archive else {
+            return Err(ServiceError::FileCreationError);
+        };
+
+        let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
+
+        for entry in vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"] {
+            let entry_file = tokio::fs::File::open(cache_path.join(entry)).await;
+
+            let Ok(mut entry_file) = entry_file else {
+                return Err(ServiceError::FileOpenError);
+            };
+
+            let mut contents = vec![];
+            let read = entry_file.read_to_end(&mut contents).await;
+
+            let Ok(_) = read else {
+                return Err(ServiceError::FileReadError);
+            };
+
+            let builder =
+                async_zip::ZipEntryBuilder::new(entry.to_string(), async_zip::Compression::Deflate);
+            // TODO: Ne unwrap
+            let mut entry_writer = writer.write_entry_stream(builder).await.unwrap();
+
+            // TODO: write_all_buf?
+            let write = entry_writer.write_all(&mut contents).await;
+
+            let Ok(_) = write else {
+                return Err(ServiceError::FileWriteError);
+            };
+        }
+
+        // TODO: Ne unwrap
+        writer.close().await.unwrap();
+        archive.shutdown().await.unwrap();
+
+        Ok(())
     }
 
     async fn decrypt_private_key(
