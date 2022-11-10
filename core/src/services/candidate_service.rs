@@ -124,6 +124,20 @@ impl CandidateService {
         Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
     }
 
+    pub async fn is_portfolio_complete(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join("MOTIVACNI_DOPIS.pdf"))
+            .await
+            .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.pdf"))
+                .await
+                .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.zip"))
+                .await
+                .is_ok()
+    }
+
     async fn decrypt_private_key(
         candidate: candidate::Model,
         password: String,
