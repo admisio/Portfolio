@@ -1,6 +1,10 @@
+use std::path::Path;
+
 use entity::candidate;
+use infer::app;
 use sea_orm::{prelude::Uuid, DbConn};
 use serde::{Deserialize, Serialize};
+use tokio::{fs::create_dir_all, io::AsyncWriteExt};
 
 use crate::{
     crypto::{self, hash_password},
@@ -228,6 +232,14 @@ impl CandidateService {
             &personal_id_number, &vec![&pubkey]
         ).await.unwrap(); */
 
+        // TODO: Specify root path in config?
+        let folder =
+            tokio::fs::create_dir_all(Path::new(&application_id.to_string()).join("cache")).await;
+
+        if let Err(_e) = folder {
+            return Err(ServiceError::FolderCreationError);
+        }
+
         Mutation::create_candidate(
             db,
             application_id,
@@ -304,22 +316,35 @@ impl CandidateService {
             candidate.study.is_some()
     }
 
-    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
+    async fn write_portfolio_file(candidate_id: i32, data: Vec<u8>, filename: &str) -> Result<(), ServiceError> {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        let file = tokio::fs::File::create(cache_path.join(filename)).await;
+
+        let Ok(mut file) = file else {
+            return Err(ServiceError::FileCreationError);
+        };
+
+        let Ok(_) = file.write_all(&data).await else {
+            return Err(ServiceError::FileWriteError);
+        };
+
         Ok(())
+    }
+
+    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+        Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
     pub async fn add_portfolio_letter(
         candidate_id: i32,
         letter: Vec<u8>,
     ) -> Result<(), ServiceError> {
-        // TODO
-        Ok(())
+        Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
     pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
-        Ok(())
+        Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
     }
 
     async fn decrypt_private_key(
