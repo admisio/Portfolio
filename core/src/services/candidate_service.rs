@@ -316,7 +316,11 @@ impl CandidateService {
             candidate.study.is_some()
     }
 
-    async fn write_portfolio_file(candidate_id: i32, data: Vec<u8>, filename: &str) -> Result<(), ServiceError> {
+    async fn write_portfolio_file(
+        candidate_id: i32,
+        data: Vec<u8>,
+        filename: &str,
+    ) -> Result<(), ServiceError> {
         let cache_path = Path::new(&candidate_id.to_string()).join("cache");
 
         let file = tokio::fs::File::create(cache_path.join(filename)).await;
@@ -345,6 +349,20 @@ impl CandidateService {
 
     pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
+    }
+
+    pub async fn is_portfolio_complete(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join("MOTIVACNI_DOPIS.pdf"))
+            .await
+            .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.pdf"))
+                .await
+                .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.zip"))
+                .await
+                .is_ok()
     }
 
     async fn decrypt_private_key(
