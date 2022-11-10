@@ -13,6 +13,9 @@ pub enum ServiceError {
     CryptoEncryptFailed,
     CryptoDecryptFailed,
     CandidateDetailsNotSet,
+    FolderCreationError,
+    FileCreationError,
+    FileWriteError,
 }
 
 impl ServiceError {
@@ -32,6 +35,9 @@ impl ServiceError {
             ServiceError::CryptoEncryptFailed => (500, "Crypto encryption failed, please contact technical support".to_string()),
             ServiceError::CryptoDecryptFailed => (500, "Crypto decryption failed, please contact technical support".to_string()),
             ServiceError::CandidateDetailsNotSet => (500, "Candidate details not set, please contact technical support".to_string()),
+            ServiceError::FolderCreationError => (500, "Failed to create candidate folder".to_string()),
+            ServiceError::FileCreationError => (500, "Failed to create file".to_string()),
+            ServiceError::FileWriteError => (500, "Failed to write file".to_string()),
         }
     }
 
