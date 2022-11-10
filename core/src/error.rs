@@ -16,6 +16,9 @@ pub enum ServiceError {
     FolderCreationError,
     FileCreationError,
     FileWriteError,
+    FileOpenError,
+    FileReadError,
+    IncompletePortfolio,
 }
 
 impl ServiceError {
@@ -38,6 +41,9 @@ impl ServiceError {
             ServiceError::FolderCreationError => (500, "Failed to create candidate folder".to_string()),
             ServiceError::FileCreationError => (500, "Failed to create file".to_string()),
             ServiceError::FileWriteError => (500, "Failed to write file".to_string()),
+            ServiceError::FileOpenError => (500, "Failed to open file".to_string()),
+            ServiceError::FileReadError => (500, "Failed to read file".to_string()),
+            ServiceError::IncompletePortfolio => (500, "Incomplete portfolio".to_string()),
         }
     }
 
