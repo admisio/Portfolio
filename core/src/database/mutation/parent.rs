@@ -1,4 +1,4 @@
-use crate::Mutation;
+use crate::{Mutation, candidate_details::EncryptedCandidateDetails};
 
 use ::entity::parent::{self, Model};
 use sea_orm::*;
@@ -17,17 +17,14 @@ impl Mutation {
 
     pub async fn add_parent_details(
         db: &DbConn,
-        user: Model,
-        name: String,
-        surname: String,
-        telephone: String,
-        email: String,
+        parent: Model,
+        enc_details: EncryptedCandidateDetails, // TODO: use seperate struct??
     ) -> Result<Model, sea_orm::DbErr> {
-        let mut user: parent::ActiveModel = user.into();
-        user.name = Set(Some(name));
-        user.surname = Set(Some(surname));
-        user.telephone = Set(Some(telephone));
-        user.email = Set(Some(email));
+        let mut user: parent::ActiveModel = parent.into();
+        user.name = Set(Some(enc_details.parent_name.into()));
+        user.surname = Set(Some(enc_details.parent_surname.into()));
+        user.telephone = Set(Some(enc_details.parent_telephone.into()));
+        user.email = Set(Some(enc_details.parent_email.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 

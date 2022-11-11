@@ -75,22 +75,14 @@ pub async fn create_candidate(
 
     let plain_text_password = random_8_char_string();
 
-    let candidate = CandidateService::create(
+    CandidateService::create(
         db,
         form.application_id,
         &plain_text_password,
         form.personal_id_number,
     )
-    .await;
-
-    if candidate.is_err() {
-        // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.message(),
-        ));
-    }
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
     Ok(plain_text_password)
 }

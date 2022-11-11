@@ -1,4 +1,4 @@
-use entity::candidate;
+use entity::{candidate};
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
@@ -7,7 +7,7 @@ use crate::{
     Mutation, Query, candidate_details::{CandidateDetails, EncryptedCandidateDetails},
 };
 
-use super::session_service::{AdminUser, SessionService};
+use super::{session_service::{AdminUser, SessionService}, parent_service::ParentService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -52,9 +52,9 @@ impl CandidateService {
         let Ok(hashed_personal_id_number) = hash_password(personal_id_number).await else {
             return Err(ServiceError::CryptoHashFailed);
         };
-        /* let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
-            &personal_id_number, &vec![&pubkey]
-        ).await.unwrap(); */
+
+        ParentService::create_parent(db, application_id)
+            .await?;
 
         Mutation::create_candidate(
             db,
@@ -64,8 +64,8 @@ impl CandidateService {
             pubkey,
             encrypted_priv_key,
         )
-        .await
-        .map_err(|_| ServiceError::DbError)
+            .await
+            .map_err(|_| ServiceError::DbError)
     }
 
     pub async fn add_candidate_details(
@@ -85,21 +85,23 @@ impl CandidateService {
         recipients.append(&mut admin_public_keys_refrence);
 
         let enc_details = EncryptedCandidateDetails::new(form, recipients).await?;
-
-        Mutation::add_candidate_details(db, candidate, enc_details)
+            
+        ParentService::add_parent_details(db, candidate.application, enc_details.clone()).await?;
+        Mutation::add_candidate_details(db, candidate, enc_details.clone())
             .await
             .map_err(|_| ServiceError::DbError)
     }
 
     pub async fn decrypt_details(
         db: &DbConn,
-        candidate_id: i32,
+        application_id: i32,
         password: String,
     ) -> Result<CandidateDetails, ServiceError> {
-        let candidate = match Query::find_candidate_by_id(db, candidate_id).await {
+        let candidate = match Query::find_candidate_by_id(db, application_id).await {
             Ok(candidate) => candidate.unwrap(),
             Err(_) => return Err(ServiceError::DbError), // TODO: logging
         };
+        let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
 
         match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
             Ok(valid) => {
@@ -114,7 +116,7 @@ impl CandidateService {
             .await
             .ok()
             .unwrap();
-        let enc_details = EncryptedCandidateDetails::try_from(candidate)?;
+        let enc_details = EncryptedCandidateDetails::try_from((candidate, parent))?;
 
         enc_details.decrypt(dec_priv_key).await
     }
@@ -162,7 +164,7 @@ impl CandidateService {
         };
 
         let Some(candidate) = candidate else {
-            return Err(ServiceError::UserNotFound);
+            return Err(ServiceError::CandidateNotFound);
         };
 
         let private_key_encrypted = candidate.private_key;
@@ -221,7 +223,7 @@ mod tests {
 
     use crate::{
         crypto,
-        services::candidate_service::{CandidateService, CandidateDetails},
+        services::candidate_service::{CandidateService, CandidateDetails}, Query, Mutation,
     };
 
     use super::EncryptedCandidateDetails;
@@ -239,7 +241,7 @@ mod tests {
 
     #[cfg(test)]
     async fn get_memory_sqlite_connection() -> DbConn {
-        use entity::{admin, candidate};
+        use entity::{admin, candidate, parent};
         use sea_orm::Schema;
         use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
 
@@ -248,13 +250,16 @@ mod tests {
 
         let schema = Schema::new(DbBackend::Sqlite);
         let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-
         let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
+        let stmt3: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
 
         db.execute(db.get_database_backend().build(&stmt))
             .await
             .unwrap();
         db.execute(db.get_database_backend().build(&stmt2))
+            .await
+            .unwrap();
+        db.execute(db.get_database_backend().build(&stmt3))
             .await
             .unwrap();
         db
@@ -267,6 +272,9 @@ mod tests {
         let plain_text_password = "test".to_string();
 
         let secret_message = "trnka".to_string();
+
+        Mutation::create_parent(&db, 1)
+        .await.unwrap();
 
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
             .await
@@ -303,7 +311,7 @@ mod tests {
 
         let form = CandidateDetails {
             name: "test".to_string(),
-            surname: "a".to_string(),
+            surname: "aaa".to_string(),
             birthplace: "b".to_string(),
             birthdate: NaiveDate::from_ymd(1999, 1, 1),
             address: "test".to_string(),
@@ -312,10 +320,15 @@ mod tests {
             email: "test".to_string(),
             sex: "test".to_string(),
             study: "test".to_string(),
+            parent_name: "test".to_string(),
+            parent_surname: "test".to_string(),
+            parent_telephone: "test".to_string(),
+            parent_email: "test".to_string(),
+
         };
+
         CandidateService::add_candidate_details(&db, candidate, form)
             .await
-            .ok()
             .unwrap()
     }
 
@@ -331,16 +344,15 @@ mod tests {
         let password = "test".to_string();
         let db = get_memory_sqlite_connection().await;
         let enc_candidate = put_user_data(&db).await;
+        let enc_parent = Query::find_parent_by_id(&db, enc_candidate.application).await.unwrap().unwrap();
 
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let dec_candidate = EncryptedCandidateDetails::try_from(enc_candidate)
-            .unwrap()
-            .decrypt(dec_priv_key)
-            .await
-            .unwrap();
+        let enc_details = EncryptedCandidateDetails::try_from((enc_candidate, enc_parent)).ok().unwrap();
+        let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
-        assert_eq!(dec_candidate.name, "test");
+        assert_eq!(dec_details.name, "test"); // TODO: test every element
+        assert_eq!(dec_details.parent_surname, "test");
     }
 }

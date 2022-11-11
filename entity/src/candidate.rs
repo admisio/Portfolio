@@ -3,7 +3,7 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "candidate")]
 pub struct Model {
-    #[sea_orm(column_type = "Integer", primary_key, auto_increment = false)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub application: i32,
     pub code: String,
     pub name: Option<String>,
@@ -17,8 +17,8 @@ pub struct Model {
     pub email: Option<String>,
     pub sex: Option<String>,
     pub study: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
     pub personal_identification_number: Option<String>,
+    #[sea_orm(column_type = "Text")]
     pub personal_identification_number_hash: String,
     pub public_key: String,
     pub private_key: String,
@@ -28,16 +28,8 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_one = "super::parent::Entity")]
-    Parent,
     #[sea_orm(has_many = "super::session::Entity")]
     Session,
-}
-
-impl Related<super::parent::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Parent.def()
-    }
 }
 
 impl Related<super::session::Entity> for Entity {

@@ -20,7 +20,7 @@ impl AdminService {
         };
 
         let Some(admin) = admin else {
-            return Err(ServiceError::UserNotFound);
+            return Err(ServiceError::CandidateNotFound);
         };
 
         let private_key_encrypted = admin.private_key;

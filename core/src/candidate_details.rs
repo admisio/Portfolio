@@ -1,11 +1,12 @@
 use chrono::{NaiveDate};
-use entity::candidate;
+use entity::{candidate, parent};
 use serde::{Serialize, Deserialize};
 
 use crate::{error::ServiceError, crypto};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
+#[derive(Clone)]
 pub struct EncryptedString(String);
 
 impl EncryptedString {
@@ -56,7 +57,9 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString { // TODO: take a look at th
     }
 }
 
-pub(crate) struct EncryptedCandidateDetails {
+#[derive(Clone)]
+pub struct EncryptedCandidateDetails {
+    // Candidate
     pub name: EncryptedString,
     pub surname: EncryptedString,
     pub birthplace: EncryptedString,
@@ -67,6 +70,12 @@ pub(crate) struct EncryptedCandidateDetails {
     pub email: EncryptedString,
     pub sex: EncryptedString,
     pub study: EncryptedString,
+
+    // Parent
+    pub parent_name: EncryptedString,
+    pub parent_surname: EncryptedString,
+    pub parent_telephone: EncryptedString,
+    pub parent_email: EncryptedString,
 }
 
 impl EncryptedCandidateDetails {
@@ -76,13 +85,18 @@ impl EncryptedCandidateDetails {
             EncryptedString::new(&form.name, &recipients),
             EncryptedString::new(&form.surname, &recipients),
             EncryptedString::new(&form.birthplace, &recipients),
-            EncryptedString::new(&birthdate_str, &recipients), // TODO
+            EncryptedString::new(&birthdate_str, &recipients),
             EncryptedString::new(&form.address, &recipients),
             EncryptedString::new(&form.telephone, &recipients),
             EncryptedString::new(&form.citizenship, &recipients),
             EncryptedString::new(&form.email, &recipients),
             EncryptedString::new(&form.sex, &recipients),
             EncryptedString::new(&form.study, &recipients),
+            
+            EncryptedString::new(&form.parent_name, &recipients),
+            EncryptedString::new(&form.parent_surname, &recipients),
+            EncryptedString::new(&form.parent_telephone, &recipients),
+            EncryptedString::new(&form.parent_email, &recipients),
         )?;
 
         Ok(EncryptedCandidateDetails {
@@ -96,21 +110,31 @@ impl EncryptedCandidateDetails {
             email: d.7,
             sex: d.8,
             study: d.9,
+
+            parent_name: d.10,
+            parent_surname: d.11,
+            parent_telephone: d.12,
+            parent_email: d.13,
         })
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
         let d =  tokio::try_join!(
-            self.name.decrypt(&priv_key),
-            self.surname.decrypt(&priv_key),
-            self.birthplace.decrypt(&priv_key),
-            self.birthdate.decrypt(&priv_key),
-            self.address.decrypt(&priv_key),
-            self.telephone.decrypt(&priv_key),
-            self.citizenship.decrypt(&priv_key),
-            self.email.decrypt(&priv_key),
-            self.sex.decrypt(&priv_key),
-            self.study.decrypt(&priv_key),
+            self.name.decrypt(&priv_key), // 0
+            self.surname.decrypt(&priv_key), // 1
+            self.birthplace.decrypt(&priv_key), // 2
+            self.birthdate.decrypt(&priv_key), // 3
+            self.address.decrypt(&priv_key), // 4
+            self.telephone.decrypt(&priv_key), // 5
+            self.citizenship.decrypt(&priv_key), // 6
+            self.email.decrypt(&priv_key), // 7
+            self.sex.decrypt(&priv_key), // 8
+            self.study.decrypt(&priv_key), // 9
+
+            self.parent_name.decrypt(&priv_key),
+            self.parent_surname.decrypt(&priv_key),
+            self.parent_telephone.decrypt(&priv_key),
+            self.parent_email.decrypt(&priv_key),
         )?;
 
         Ok(CandidateDetails {
@@ -124,14 +148,19 @@ impl EncryptedCandidateDetails {
             email: d.7,
             sex: d.8,
             study: d.9,
+
+            parent_name: d.10,
+            parent_surname: d.11,
+            parent_telephone: d.12,
+            parent_email: d.13,
         })
     }
 }
 
-impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
+impl TryFrom<(candidate::Model, parent::Model)> for EncryptedCandidateDetails {
     type Error = ServiceError;
 
-    fn try_from(candidate: candidate::Model) -> Result<Self, Self::Error> {
+    fn try_from((candidate, parent): (candidate::Model, parent::Model)) -> Result<Self, Self::Error> {
         Ok(EncryptedCandidateDetails {
             name: EncryptedString::try_from(candidate.name)?,
             surname: EncryptedString::try_from(candidate.surname)?,
@@ -143,12 +172,18 @@ impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
             email: EncryptedString::try_from(candidate.email)?,
             sex: EncryptedString::try_from(candidate.sex)?,
             study: EncryptedString::try_from(candidate.study)?,
+
+            parent_name: EncryptedString::try_from(parent.name)?,
+            parent_surname: EncryptedString::try_from(parent.surname)?,
+            parent_telephone: EncryptedString::try_from(parent.telephone)?,
+            parent_email: EncryptedString::try_from(parent.email)?,
         })
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CandidateDetails {
+    // Candidate
     pub name: String,
     pub surname: String,
     pub birthplace: String,
@@ -159,4 +194,10 @@ pub struct CandidateDetails {
     pub email: String,
     pub sex: String,
     pub study: String,
+    
+    // Parent
+    pub parent_name: String,
+    pub parent_surname: String,
+    pub parent_telephone: String,
+    pub parent_email: String,
 }
