@@ -218,6 +218,26 @@ impl CandidateService {
         Ok(())
     }
 
+    pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
+        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
+            return Err(ServiceError::DbError);
+        };
+
+        let Some(candidate) = candidate else {
+            return Err(ServiceError::UserNotFound);
+        };
+
+        let candidate_public_key = candidate.public_key;
+
+        let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.zip");
+
+        let Ok(buffer) = crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await else {
+            return Err(ServiceError::CryptoDecryptFailed);
+        };
+
+        Ok(buffer)
+    }
+
     async fn decrypt_private_key(
         candidate: candidate::Model,
         password: String,
