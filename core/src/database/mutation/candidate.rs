@@ -1,4 +1,4 @@
-use crate::{Mutation, candidate_details::{EncryptedCandidateDetails}};
+use crate::{Mutation, candidate_details::{EncryptedApplicationDetails}};
 
 use ::entity::candidate::{self};
 use sea_orm::{*};
@@ -29,7 +29,7 @@ impl Mutation {
     pub async fn add_candidate_details(
         db: &DbConn,
         user: candidate::Model,
-        enc_details: EncryptedCandidateDetails,
+        enc_details: EncryptedApplicationDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let mut user: candidate::ActiveModel = user.into();
         user.name = Set(Some(enc_details.name.into()));

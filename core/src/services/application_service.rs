@@ -1,7 +1,7 @@
 use entity::{candidate, parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, candidate_details::{CandidateDetails, EncryptedCandidateDetails}, Query, crypto};
+use crate::{error::ServiceError, candidate_details::{ApplicationDetails, EncryptedApplicationDetails}, Query, crypto};
 
 use super::{parent_service::ParentService, candidate_service::CandidateService};
 
@@ -25,7 +25,7 @@ impl ApplicationService {
     pub async fn add_all_details(
         db: &DbConn,
         application: i32,
-        form: CandidateDetails,
+        form: ApplicationDetails,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, application)
             .await
@@ -47,7 +47,7 @@ impl ApplicationService {
         let mut recipients = vec![&*candidate.public_key];
         recipients.append(&mut admin_public_keys_refrence);
 
-        let enc_details = EncryptedCandidateDetails::new(form, recipients).await?;
+        let enc_details = EncryptedApplicationDetails::new(form, recipients).await?;
 
         Ok(
             (
@@ -61,7 +61,7 @@ impl ApplicationService {
         db: &DbConn,
         application_id: i32,
         password: String,
-    ) -> Result<CandidateDetails, ServiceError>  {
+    ) -> Result<ApplicationDetails, ServiceError>  {
         let candidate = match Query::find_candidate_by_id(db, application_id).await {
             Ok(candidate) => candidate.unwrap(),
             Err(_) => return Err(ServiceError::DbError), // TODO: logging
@@ -81,7 +81,7 @@ impl ApplicationService {
             .await
             .ok()
             .unwrap();
-        let enc_details = EncryptedCandidateDetails::try_from((candidate, parent))?;
+        let enc_details = EncryptedApplicationDetails::try_from((candidate, parent))?;
 
         enc_details.decrypt(dec_priv_key).await
     }

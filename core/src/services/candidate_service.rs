@@ -4,7 +4,7 @@ use sea_orm::{prelude::Uuid, DbConn};
 use crate::{
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, candidate_details::{EncryptedCandidateDetails},
+    Mutation, Query, candidate_details::{EncryptedApplicationDetails},
 };
 
 use super::{session_service::{AdminUser, SessionService}};
@@ -68,7 +68,7 @@ impl CandidateService {
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
-        enc_details: EncryptedCandidateDetails,
+        enc_details: EncryptedApplicationDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
         Mutation::add_candidate_details(db, candidate, enc_details.clone())
             .await
@@ -173,12 +173,12 @@ mod tests {
         services::candidate_service::{CandidateService}, Mutation,
     };
 
-    use super::EncryptedCandidateDetails;
+    use super::EncryptedApplicationDetails;
     use chrono::NaiveDate;
     use entity::{parent, candidate};
 
     use crate::services::application_service::ApplicationService;
-    use crate::candidate_details::CandidateDetails;
+    use crate::candidate_details::ApplicationDetails;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -259,7 +259,7 @@ mod tests {
             .ok()
             .unwrap();
 
-        let form = CandidateDetails {
+        let form = ApplicationDetails {
             name: "test".to_string(),
             surname: "aaa".to_string(),
             birthplace: "b".to_string(),
@@ -299,7 +299,7 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let enc_details = EncryptedCandidateDetails::try_from((enc_candidate, enc_parent)).ok().unwrap();
+        let enc_details = EncryptedApplicationDetails::try_from((enc_candidate, enc_parent)).ok().unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
         assert_eq!(dec_details.name, "test"); // TODO: test every element

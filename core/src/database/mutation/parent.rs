@@ -1,4 +1,4 @@
-use crate::{Mutation, candidate_details::EncryptedCandidateDetails};
+use crate::{Mutation, candidate_details::EncryptedApplicationDetails};
 
 use ::entity::parent::{self, Model};
 use sea_orm::*;
@@ -18,7 +18,7 @@ impl Mutation {
     pub async fn add_parent_details(
         db: &DbConn,
         parent: Model,
-        enc_details: EncryptedCandidateDetails, // TODO: use seperate struct??
+        enc_details: EncryptedApplicationDetails, // TODO: use seperate struct??
     ) -> Result<Model, sea_orm::DbErr> {
         let mut user: parent::ActiveModel = parent.into();
         user.name = Set(Some(enc_details.parent_name.into()));

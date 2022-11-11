@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use portfolio_core::candidate_details::CandidateDetails;
+use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::{CandidateService};
 use requests::LoginRequest;
@@ -61,7 +61,7 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
 #[post("/details", data = "<details>")]
 pub async fn fill_details(
     conn: Connection<'_, Db>,
-    details: Json<CandidateDetails>,
+    details: Json<ApplicationDetails>,
     session: CandidateAuth,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
@@ -87,7 +87,7 @@ pub async fn get_details(
     conn: Connection<'_, Db>,
     password_form: Json<PasswordRequest>,
     session: CandidateAuth,
-) -> Result<Json<CandidateDetails>, Custom<String>> {
+) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let candidate: entity::candidate::Model = session.into();
     let password = password_form.password.clone();

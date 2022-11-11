@@ -58,7 +58,7 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString { // TODO: take a look at th
 }
 
 #[derive(Clone)]
-pub struct EncryptedCandidateDetails {
+pub struct EncryptedApplicationDetails {
     // Candidate
     pub name: EncryptedString,
     pub surname: EncryptedString,
@@ -78,8 +78,8 @@ pub struct EncryptedCandidateDetails {
     pub parent_email: EncryptedString,
 }
 
-impl EncryptedCandidateDetails {
-    pub async fn new(form: CandidateDetails, recipients: Vec<&str>) -> Result<EncryptedCandidateDetails, ServiceError> {
+impl EncryptedApplicationDetails {
+    pub async fn new(form: ApplicationDetails, recipients: Vec<&str>) -> Result<EncryptedApplicationDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d =  tokio::try_join!(
             EncryptedString::new(&form.name, &recipients),
@@ -99,7 +99,7 @@ impl EncryptedCandidateDetails {
             EncryptedString::new(&form.parent_email, &recipients),
         )?;
 
-        Ok(EncryptedCandidateDetails {
+        Ok(EncryptedApplicationDetails {
             name: d.0,
             surname: d.1,
             birthplace: d.2,
@@ -118,7 +118,7 @@ impl EncryptedCandidateDetails {
         })
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
+    pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
         let d =  tokio::try_join!(
             self.name.decrypt(&priv_key), // 0
             self.surname.decrypt(&priv_key), // 1
@@ -137,7 +137,7 @@ impl EncryptedCandidateDetails {
             self.parent_email.decrypt(&priv_key),
         )?;
 
-        Ok(CandidateDetails {
+        Ok(ApplicationDetails {
             name: d.0,
             surname: d.1,
             birthplace: d.2,
@@ -157,11 +157,11 @@ impl EncryptedCandidateDetails {
     }
 }
 
-impl TryFrom<(candidate::Model, parent::Model)> for EncryptedCandidateDetails {
+impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from((candidate, parent): (candidate::Model, parent::Model)) -> Result<Self, Self::Error> {
-        Ok(EncryptedCandidateDetails {
+        Ok(EncryptedApplicationDetails {
             name: EncryptedString::try_from(candidate.name)?,
             surname: EncryptedString::try_from(candidate.surname)?,
             birthplace: EncryptedString::try_from(candidate.birthplace)?,
@@ -182,7 +182,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedCandidateDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CandidateDetails {
+pub struct ApplicationDetails {
     // Candidate
     pub name: String,
     pub surname: String,
