@@ -291,10 +291,8 @@ impl CandidateService {
         enc_details.decrypt(dec_priv_key).await
     }
 
-    pub async fn is_set_up(
-        candidate: &candidate::Model,
-    ) -> bool {
-            candidate.name.is_some() &&
+    pub async fn is_set_up(candidate: &candidate::Model) -> bool {
+        candidate.name.is_some() &&
             candidate.surname.is_some() &&
             candidate.birthplace.is_some() &&
             // birthdate: NaiveDate::from_ymd(2000, 1, 1),
@@ -303,7 +301,7 @@ impl CandidateService {
             candidate.citizenship.is_some() &&
             candidate.email.is_some() &&
             candidate.sex.is_some() &&
-            candidate.study.is_some() 
+            candidate.study.is_some()
     }
 
     pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
@@ -311,14 +309,43 @@ impl CandidateService {
         Ok(())
     }
 
-    pub async fn add_portfolio_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError>  {
+    pub async fn add_portfolio_letter(
+        candidate_id: i32,
+        letter: Vec<u8>,
+    ) -> Result<(), ServiceError> {
         // TODO
         Ok(())
     }
 
-    pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError>  {
+    pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
         // TODO
         Ok(())
+    }
+
+    async fn decrypt_private_key(
+        db: &DbConn,
+        candidate_id: i32,
+        password: String,
+    ) -> Result<String, ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await;
+
+        let Ok(candidate) = candidate else {
+            return Err(ServiceError::DbError);
+        };
+
+        let Some(candidate) = candidate else {
+            return Err(ServiceError::UserNotFound);
+        };
+
+        let private_key_encrypted = candidate.private_key;
+
+        let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
+
+        let Ok(private_key) = private_key else {
+            return Err(ServiceError::CryptoDecryptFailed);
+        };
+
+        Ok(private_key)
     }
 
     pub async fn login(
@@ -326,8 +353,16 @@ impl CandidateService {
         user_id: i32,
         password: String,
         ip_addr: String,
-    ) -> Result<String, ServiceError> {
-        SessionService::new_session(db, Some(user_id), None, password, ip_addr).await
+    ) -> Result<(String, String), ServiceError> {
+        let session_id =
+            SessionService::new_session(db, Some(user_id), None, password.clone(), ip_addr).await;
+        match session_id {
+            Ok(session_id) => {
+                let private_key = Self::decrypt_private_key(db, user_id, password).await?;
+                Ok((session_id, private_key))
+            }
+            Err(e) => Err(e),
+        }
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
