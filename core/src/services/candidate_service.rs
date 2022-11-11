@@ -84,7 +84,7 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let enc_details = EncryptedCandidateDetails::new(form, recipients).await;
+        let enc_details = EncryptedCandidateDetails::new(form, recipients).await?;
 
         Mutation::add_candidate_details(db, candidate, enc_details)
             .await

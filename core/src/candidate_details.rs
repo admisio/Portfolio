@@ -56,60 +56,36 @@ pub(crate) struct EncryptedCandidateDetails {
 }
 
 impl EncryptedCandidateDetails {
-    pub async fn new(form: CandidateDetails, recipients: Vec<&str>) -> EncryptedCandidateDetails {
-        let (
-            Ok(name),
-            Ok(surname),
-            Ok(birthplace),
-            // Ok(enc_birthdate),
-            Ok(address),
-            Ok(telephone),
-            Ok(citizenship),
-            Ok(email),
-            Ok(sex),
-            Ok(study),
-        ) = tokio::join!(
+    pub async fn new(form: CandidateDetails, recipients: Vec<&str>) -> Result<EncryptedCandidateDetails, ServiceError> {
+        let d =  tokio::try_join!(
             EncryptedString::new(&form.name, &recipients),
             EncryptedString::new(&form.surname, &recipients),
             EncryptedString::new(&form.birthplace, &recipients),
-            // EncryptedString::new((&self.birthdate, &recipients), // TODO
+            EncryptedString::new("&form.birthdate", &recipients), // TODO
             EncryptedString::new(&form.address, &recipients),
             EncryptedString::new(&form.telephone, &recipients),
             EncryptedString::new(&form.citizenship, &recipients),
             EncryptedString::new(&form.email, &recipients),
             EncryptedString::new(&form.sex, &recipients),
             EncryptedString::new(&form.study, &recipients),
-        ) else {
-            panic!("Failed to encrypt user details"); // TODO
-        };
+        )?;
 
-        EncryptedCandidateDetails {
-            name,
-            surname,
-            birthplace,
+        Ok(EncryptedCandidateDetails {
+            name: d.0,
+            surname: d.1,
+            birthplace: d.2,
             // birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address,
-            telephone,
-            citizenship,
-            email,
-            sex,
-            study,
-        }
+            address: d.4,
+            telephone: d.5,
+            citizenship: d.6,
+            email: d.7,
+            sex: d.8,
+            study: d.9,
+        })
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
-        let (
-            Ok(name),
-            Ok(surname),
-            Ok(birthplace),
-            // Ok(enc_birthdate),
-            Ok(address),
-            Ok(telephone),
-            Ok(citizenship),
-            Ok(email),
-            Ok(sex),
-            Ok(study),
-        ) = tokio::join!(
+        let d =  tokio::try_join!(
             self.name.decrypt(&priv_key),
             self.surname.decrypt(&priv_key),
             self.birthplace.decrypt(&priv_key),
@@ -120,21 +96,19 @@ impl EncryptedCandidateDetails {
             self.email.decrypt(&priv_key),
             self.sex.decrypt(&priv_key),
             self.study.decrypt(&priv_key),
-        ) else {
-            panic!("Failed to encrypt user details"); // TODO
-        };
+        )?;
 
         Ok(CandidateDetails {
-            name,
-            surname,
-            birthplace,
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address,
-            telephone,
-            citizenship,
-            email,
-            sex,
-            study,
+            name: d.0,
+            surname: d.1,
+            birthplace: d.2,
+            // birthdate: NaiveDate::from_ymd(2000, 1, 1), // TODO
+            address: d.3,
+            telephone: d.4,
+            citizenship: d.5,
+            email: d.6,
+            sex: d.7,
+            study: d.8,
         })
     }
 }
