@@ -50,8 +50,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ),
         )
         .subcommand(
-            Command::new("encryption")
-                .about("Encryption operations")
+            Command::new("symmetric")
+                .about("Symmetric encryption operations")
                 .arg(
                     arg!(
                         -d --decrypt ... "Decrypt flag"
@@ -73,8 +73,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
         )
         .subcommand(
-            Command::new("asymetric")
-                .about("Asymetric encryption operations")
+            Command::new("asymmetric")
+                .about("Asymmetric encryption operations")
                 .arg(
                     arg!(
                         -d --decrypt ... "Decrypt flag"
@@ -129,7 +129,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             println!("{}", hash);
         }
-        Some(("encryption", sub_matches)) => {
+        Some(("symmetric", sub_matches)) => {
             let decrypt = sub_matches.get_one::<bool>("decrypt").unwrap();
             let input = sub_matches.get_one::<String>("input").unwrap();
             let key = sub_matches.get_one::<String>("key").unwrap();
@@ -142,7 +142,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             println!("{}", result);
         }
-        Some(("asymetric", sub_matches)) => {
+        Some(("asymmetric", sub_matches)) => {
             let decrypt = sub_matches.get_one::<bool>("decrypt").unwrap();
             let input = sub_matches.get_one::<String>("input").unwrap();
             let key = sub_matches.get_one::<String>("key").unwrap();
