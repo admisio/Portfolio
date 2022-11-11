@@ -293,6 +293,8 @@ mod tests {
 
     #[cfg(test)]
     async fn put_user_data(db: &DbConn) -> Model {
+        use chrono::NaiveDate;
+
         let plain_text_password = "test".to_string();
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
             .await
@@ -303,7 +305,7 @@ mod tests {
             name: "test".to_string(),
             surname: "a".to_string(),
             birthplace: "b".to_string(),
-            // birthdate: NaiveDate::from_ymd(1999, 1, 1),
+            birthdate: NaiveDate::from_ymd(1999, 1, 1),
             address: "test".to_string(),
             telephone: "test".to_string(),
             citizenship: "test".to_string(),

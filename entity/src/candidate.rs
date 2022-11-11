@@ -10,7 +10,7 @@ pub struct Model {
     pub surname: Option<String>,
     pub birth_surname: Option<String>,
     pub birthplace: Option<String>,
-    pub birthdate: Option<Date>,
+    pub birthdate: Option<String>,
     pub address: Option<String>,
     pub telephone: Option<String>,
     pub citizenship: Option<String>,

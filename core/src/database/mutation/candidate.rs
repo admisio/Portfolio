@@ -1,4 +1,4 @@
-use crate::{Mutation, candidate_details::EncryptedCandidateDetails};
+use crate::{Mutation, candidate_details::{EncryptedCandidateDetails}};
 
 use ::entity::candidate::{self};
 use sea_orm::{*};
@@ -35,6 +35,7 @@ impl Mutation {
         user.name = Set(Some(enc_details.name.into()));
         user.surname = Set(Some(enc_details.surname.into()));
         user.birthplace = Set(Some(enc_details.birthplace.into()));
+        user.birthdate = Set(Some(enc_details.birthdate.into()));
         user.address = Set(Some(enc_details.address.into()));
         user.telephone = Set(Some(enc_details.telephone.into()));
         user.citizenship = Set(Some(enc_details.citizenship.into()));

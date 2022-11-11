@@ -1,7 +1,10 @@
+use chrono::{NaiveDate};
 use entity::candidate;
 use serde::{Serialize, Deserialize};
 
 use crate::{error::ServiceError, crypto};
+
+pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
 pub struct EncryptedString(String);
 
@@ -20,7 +23,7 @@ impl EncryptedString {
         }
     }
 
-    pub async fn to_string(self) -> String {
+    pub fn to_string(self) -> String {
         self.0
     }
 }
@@ -42,11 +45,22 @@ impl TryFrom<Option<String>> for EncryptedString {
     }
 }
 
+impl TryFrom<Option<NaiveDate>> for EncryptedString { // TODO: take a look at this
+    type Error = ServiceError;
+
+    fn try_from(d: Option<NaiveDate>) -> Result<Self, Self::Error> {
+        match d {
+            Some(d) => Ok(Self(d.to_string())),
+            None => Err(ServiceError::CandidateDetailsNotSet),
+        }
+    }
+}
+
 pub(crate) struct EncryptedCandidateDetails {
     pub name: EncryptedString,
     pub surname: EncryptedString,
     pub birthplace: EncryptedString,
-    // pub birthdate: NaiveDate,
+    pub birthdate: EncryptedString,
     pub address: EncryptedString,
     pub telephone: EncryptedString,
     pub citizenship: EncryptedString,
@@ -57,11 +71,12 @@ pub(crate) struct EncryptedCandidateDetails {
 
 impl EncryptedCandidateDetails {
     pub async fn new(form: CandidateDetails, recipients: Vec<&str>) -> Result<EncryptedCandidateDetails, ServiceError> {
+        let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d =  tokio::try_join!(
             EncryptedString::new(&form.name, &recipients),
             EncryptedString::new(&form.surname, &recipients),
             EncryptedString::new(&form.birthplace, &recipients),
-            EncryptedString::new("&form.birthdate", &recipients), // TODO
+            EncryptedString::new(&birthdate_str, &recipients), // TODO
             EncryptedString::new(&form.address, &recipients),
             EncryptedString::new(&form.telephone, &recipients),
             EncryptedString::new(&form.citizenship, &recipients),
@@ -74,7 +89,7 @@ impl EncryptedCandidateDetails {
             name: d.0,
             surname: d.1,
             birthplace: d.2,
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            birthdate: d.3,
             address: d.4,
             telephone: d.5,
             citizenship: d.6,
@@ -89,7 +104,7 @@ impl EncryptedCandidateDetails {
             self.name.decrypt(&priv_key),
             self.surname.decrypt(&priv_key),
             self.birthplace.decrypt(&priv_key),
-            // self.birthdate.decrypt(&priv_key),
+            self.birthdate.decrypt(&priv_key),
             self.address.decrypt(&priv_key),
             self.telephone.decrypt(&priv_key),
             self.citizenship.decrypt(&priv_key),
@@ -102,13 +117,13 @@ impl EncryptedCandidateDetails {
             name: d.0,
             surname: d.1,
             birthplace: d.2,
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1), // TODO
-            address: d.3,
-            telephone: d.4,
-            citizenship: d.5,
-            email: d.6,
-            sex: d.7,
-            study: d.8,
+            birthdate: NaiveDate::parse_from_str(&d.3, NAIVE_DATE_FMT).unwrap(), // TODO
+            address: d.4,
+            telephone: d.5,
+            citizenship: d.6,
+            email: d.7,
+            sex: d.8,
+            study: d.9,
         })
     }
 }
@@ -121,7 +136,7 @@ impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
             name: EncryptedString::try_from(candidate.name)?,
             surname: EncryptedString::try_from(candidate.surname)?,
             birthplace: EncryptedString::try_from(candidate.birthplace)?,
-            // birthdate?,
+            birthdate: EncryptedString::try_from(candidate.birthdate)?,
             address: EncryptedString::try_from(candidate.address)?,
             telephone: EncryptedString::try_from(candidate.telephone)?,
             citizenship: EncryptedString::try_from(candidate.citizenship)?,
@@ -137,7 +152,7 @@ pub struct CandidateDetails {
     pub name: String,
     pub surname: String,
     pub birthplace: String,
-    // pub birthdate: NaiveDate,
+    pub birthdate: NaiveDate, // TODO: User NaiveDate or String?
     pub address: String,
     pub telephone: String,
     pub citizenship: String,
