@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use url::Url;
 
-use clap::{arg, command, value_parser, Command, ArgAction};
+use clap::{arg, command, value_parser, ArgAction, Command};
 use sea_orm::{Database, DatabaseConnection};
 
 use ::entity::candidate::Entity as Candidate;
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     arg!(
                         -d --decrypt ... "Decrypt flag"
                     )
-                    .action(ArgAction::SetFalse)
+                    .action(ArgAction::SetTrue)
                     .required(false)
                 )
                 .arg(
@@ -68,6 +68,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .arg(
                     arg!(
                         -k --key <KEY> "Key for encryption/decryption"
+                    )
+                    .required(true),
+                )
+        )
+        .subcommand(
+            Command::new("asymetric")
+                .about("Asymetric encryption operations")
+                .arg(
+                    arg!(
+                        -d --decrypt ... "Decrypt flag"
+                    )
+                    .action(ArgAction::SetTrue)
+                    .required(false)
+                )
+                .arg(
+                    arg!(
+                        -i --input <INPUT> "Plaintext to encrypt/decrypt"
+                    )
+                    .required(true)
+                )
+                .arg(
+                    arg!(
+                        -k --key <KEY> "Public key / Private key"
                     )
                     .required(true),
                 )
@@ -111,11 +134,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let input = sub_matches.get_one::<String>("input").unwrap();
             let key = sub_matches.get_one::<String>("key").unwrap();
 
+            let result = if !*decrypt {
+                portfolio_core::crypto::encrypt_password(input.to_string(), key.to_string()).await?
+            } else {
+                portfolio_core::crypto::decrypt_password(input.to_string(), key.to_string()).await?
+            };
+
+            println!("{}", result);
+        }
+        Some(("asymetric", sub_matches)) => {
+            let decrypt = sub_matches.get_one::<bool>("decrypt").unwrap();
+            let input = sub_matches.get_one::<String>("input").unwrap();
+            let key = sub_matches.get_one::<String>("key").unwrap();
+
+            println!("Decrypt: {}", decrypt);
 
             let result = if !*decrypt {
-                portfolio_core::crypto::decrypt_password(input.to_string(), key.to_string()).await?
+                portfolio_core::crypto::encrypt_password_with_recipients(input, &vec![key]).await?
             } else {
-                portfolio_core::crypto::encrypt_password(input.to_string(), key.to_string()).await?
+                portfolio_core::crypto::decrypt_password_with_private_key(input, key).await.map_err(|e| e.to_string())?
             };
 
             println!("{}", result);
