@@ -147,8 +147,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let input = sub_matches.get_one::<String>("input").unwrap();
             let key = sub_matches.get_one::<String>("key").unwrap();
 
-            println!("Decrypt: {}", decrypt);
-
             let result = if !*decrypt {
                 portfolio_core::crypto::encrypt_password_with_recipients(input, &vec![key]).await?
             } else {
