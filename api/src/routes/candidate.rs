@@ -1,6 +1,7 @@
 use std::net::SocketAddr;
 
-use portfolio_core::services::candidate_service::{CandidateService, UserDetails};
+use portfolio_core::candidate_details::CandidateDetails;
+use portfolio_core::services::candidate_service::{CandidateService};
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -59,7 +60,7 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
 #[post("/details", data = "<details>")]
 pub async fn fill_details(
     conn: Connection<'_, Db>,
-    details: Json<UserDetails>,
+    details: Json<CandidateDetails>,
     session: CandidateAuth,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
@@ -85,7 +86,7 @@ pub async fn get_details(
     conn: Connection<'_, Db>,
     password_form: Json<PasswordRequest>,
     session: CandidateAuth,
-) -> Result<Json<UserDetails>, Custom<String>> {
+) -> Result<Json<CandidateDetails>, Custom<String>> {
     let db = conn.into_inner();
     let candidate: entity::candidate::Model = session.into();
     let password = password_form.password.clone();

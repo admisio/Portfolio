@@ -1,189 +1,15 @@
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
-use serde::{Deserialize, Serialize};
 
 use crate::{
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query,
+    Mutation, Query, candidate_details::{CandidateDetails, EncryptedCandidateDetails},
 };
 
 use super::session_service::{AdminUser, SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
-
-pub struct EncryptedString(String);
-
-impl EncryptedString {
-    pub async fn new(s: &str, recipients: &Vec<&str>) -> Result<Self, ServiceError> {
-        match crypto::encrypt_password_with_recipients(&s, &recipients).await{
-            Ok(encrypted) => Ok(Self(encrypted)),
-            Err(_) => Err(ServiceError::CryptoEncryptFailed),   
-        }
-    }
-
-    pub async fn decrypt(&self, private_key: &String) -> Result<String, ServiceError> {
-        match crypto::decrypt_password_with_private_key(&self.0, private_key).await {
-            Ok(decrypted) => Ok(decrypted),
-            Err(_) => Err(ServiceError::CryptoDecryptFailed),   
-        }
-    }
-
-    pub async fn to_string(self) -> String {
-        self.0
-    }
-}
-
-impl Into<String> for EncryptedString {
-    fn into(self) -> String {
-        self.0
-    }
-}
-
-impl TryFrom<Option<String>> for EncryptedString {
-    type Error = ServiceError;
-
-    fn try_from(s: Option<String>) -> Result<Self, Self::Error> {
-        match s {
-            Some(s) => Ok(Self(s)),
-            None => Err(ServiceError::CandidateDetailsNotSet),
-        }
-    }
-}
-
-pub(crate) struct EncryptedUserDetails {
-    pub name: EncryptedString,
-    pub surname: EncryptedString,
-    pub birthplace: EncryptedString,
-    // pub birthdate: NaiveDate,
-    pub address: EncryptedString,
-    pub telephone: EncryptedString,
-    pub citizenship: EncryptedString,
-    pub email: EncryptedString,
-    pub sex: EncryptedString,
-    pub study: EncryptedString,
-}
-
-impl EncryptedUserDetails {
-    pub async fn new(form: UserDetails, recipients: Vec<&str>) -> EncryptedUserDetails {
-        let (
-            Ok(name),
-            Ok(surname),
-            Ok(birthplace),
-            // Ok(enc_birthdate),
-            Ok(address),
-            Ok(telephone),
-            Ok(citizenship),
-            Ok(email),
-            Ok(sex),
-            Ok(study),
-        ) = tokio::join!(
-            EncryptedString::new(&form.name, &recipients),
-            EncryptedString::new(&form.surname, &recipients),
-            EncryptedString::new(&form.birthplace, &recipients),
-            // EncryptedString::new((&self.birthdate, &recipients), // TODO
-            EncryptedString::new(&form.address, &recipients),
-            EncryptedString::new(&form.telephone, &recipients),
-            EncryptedString::new(&form.citizenship, &recipients),
-            EncryptedString::new(&form.email, &recipients),
-            EncryptedString::new(&form.sex, &recipients),
-            EncryptedString::new(&form.study, &recipients),
-        ) else {
-            panic!("Failed to encrypt user details"); // TODO
-        };
-
-        EncryptedUserDetails {
-            name,
-            surname,
-            birthplace,
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address,
-            telephone,
-            citizenship,
-            email,
-            sex,
-            study,
-        }
-    }
-
-    pub async fn decrypt(self, priv_key: String) -> Result<UserDetails, ServiceError> {
-        let (
-            Ok(name),
-            Ok(surname),
-            Ok(birthplace),
-            // Ok(enc_birthdate),
-            Ok(address),
-            Ok(telephone),
-            Ok(citizenship),
-            Ok(email),
-            Ok(sex),
-            Ok(study),
-        ) = tokio::join!(
-            self.name.decrypt(&priv_key),
-            self.surname.decrypt(&priv_key),
-            self.birthplace.decrypt(&priv_key),
-            // self.birthdate.decrypt(&priv_key),
-            self.address.decrypt(&priv_key),
-            self.telephone.decrypt(&priv_key),
-            self.citizenship.decrypt(&priv_key),
-            self.email.decrypt(&priv_key),
-            self.sex.decrypt(&priv_key),
-            self.study.decrypt(&priv_key),
-        ) else {
-            panic!("Failed to encrypt user details"); // TODO
-        };
-
-        Ok(UserDetails {
-            name,
-            surname,
-            birthplace,
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address,
-            telephone,
-            citizenship,
-            email,
-            sex,
-            study,
-        })
-    }
-}
-
-impl TryFrom<candidate::Model> for EncryptedUserDetails {
-    type Error = ServiceError;
-
-    fn try_from(candidate: candidate::Model) -> Result<Self, Self::Error> {
-        if !CandidateService::is_set_up(&candidate) {
-            return Err(ServiceError::CandidateDetailsNotSet);
-        }
-        
-        Ok(EncryptedUserDetails {
-            name: EncryptedString::try_from(candidate.name)?,
-            surname: EncryptedString::try_from(candidate.surname)?,
-            birthplace: EncryptedString::try_from(candidate.birthplace)?,
-            // birthdate?,
-            address: EncryptedString::try_from(candidate.address)?,
-            telephone: EncryptedString::try_from(candidate.telephone)?,
-            citizenship: EncryptedString::try_from(candidate.citizenship)?,
-            email: EncryptedString::try_from(candidate.email)?,
-            sex: EncryptedString::try_from(candidate.sex)?,
-            study: EncryptedString::try_from(candidate.study)?,
-        })
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserDetails {
-    pub name: String,
-    pub surname: String,
-    pub birthplace: String,
-    // pub birthdate: NaiveDate,
-    pub address: String,
-    pub telephone: String,
-    pub citizenship: String,
-    pub email: String,
-    pub sex: String,
-    pub study: String,
-}
 
 pub struct CandidateService;
 
@@ -245,7 +71,7 @@ impl CandidateService {
     pub async fn add_user_details(
         db: &DbConn,
         user: candidate::Model,
-        form: UserDetails,
+        form: CandidateDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
             return Err(ServiceError::DbError);
@@ -258,7 +84,7 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let enc_details = EncryptedUserDetails::new(form, recipients).await;
+        let enc_details = EncryptedCandidateDetails::new(form, recipients).await;
 
         Mutation::add_candidate_details(db, user, enc_details)
             .await
@@ -269,7 +95,7 @@ impl CandidateService {
         db: &DbConn,
         candidate_id: i32,
         password: String,
-    ) -> Result<UserDetails, ServiceError> {
+    ) -> Result<CandidateDetails, ServiceError> {
         let candidate = match Query::find_candidate_by_id(db, candidate_id).await {
             Ok(candidate) => candidate.unwrap(),
             Err(_) => return Err(ServiceError::DbError), // TODO: logging
@@ -288,7 +114,7 @@ impl CandidateService {
             .await
             .ok()
             .unwrap();
-        let enc_details = EncryptedUserDetails::try_from(candidate)?;
+        let enc_details = EncryptedCandidateDetails::try_from(candidate)?;
 
         enc_details.decrypt(dec_priv_key).await
     }
@@ -395,10 +221,10 @@ mod tests {
 
     use crate::{
         crypto,
-        services::candidate_service::{CandidateService, UserDetails},
+        services::candidate_service::{CandidateService, CandidateDetails},
     };
 
-    use super::EncryptedUserDetails;
+    use super::EncryptedCandidateDetails;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -473,7 +299,7 @@ mod tests {
             .ok()
             .unwrap();
 
-        let form = UserDetails {
+        let form = CandidateDetails {
             name: "test".to_string(),
             surname: "a".to_string(),
             birthplace: "b".to_string(),
@@ -507,7 +333,7 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let dec_candidate = EncryptedUserDetails::try_from(enc_candidate)
+        let dec_candidate = EncryptedCandidateDetails::try_from(enc_candidate)
             .unwrap()
             .decrypt(dec_priv_key)
             .await
