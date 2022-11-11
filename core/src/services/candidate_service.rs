@@ -138,7 +138,7 @@ impl CandidateService {
                 .is_ok()
     }
 
-    pub async fn submit_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
+    pub async fn submit_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
         let path = Path::new(&candidate_id.to_string()).to_path_buf();
         let cache_path = path.join("cache");
 
@@ -184,6 +184,36 @@ impl CandidateService {
         // TODO: Ne unwrap
         writer.close().await.unwrap();
         archive.shutdown().await.unwrap();
+
+        let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
+            return Err(ServiceError::DbError);
+        };
+
+        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
+            return Err(ServiceError::DbError);
+        };
+
+        let Some(candidate) = candidate else {
+            return Err(ServiceError::UserNotFound);
+        };
+
+        let candidate_public_key = candidate.public_key;
+
+        let mut admin_public_keys_refrence: Vec<&str> =
+            admin_public_keys.iter().map(|s| &**s).collect();
+
+        let mut recipients = vec![&*candidate_public_key];
+
+        recipients.append(&mut admin_public_keys_refrence);
+
+        let Ok(_) = crypto::encrypt_file_with_recipients(
+            path.join("PORTFOLIO.zip"),
+            path.join("PORTFOLIO.zip"),
+            recipients,
+        )
+        .await else {
+            return Err(ServiceError::CryptoEncryptFailed);
+        };
 
         Ok(())
     }
