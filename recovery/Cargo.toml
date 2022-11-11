@@ -9,6 +9,7 @@ url = "^2.3"
 clap = { version = "^4.0", features = ["cargo"] }
 
 portfolio-entity = { path = "../entity" }
+portfolio-core = { path = "../core" }
 
 [dependencies.tokio]
 version = "^1.21"
