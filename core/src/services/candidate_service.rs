@@ -12,21 +12,60 @@ use super::session_service::{AdminUser, SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
+pub struct EncryptedString(String);
+
+impl EncryptedString {
+    pub async fn new(s: &str, recipients: &Vec<&str>) -> Result<Self, ServiceError> {
+        match crypto::encrypt_password_with_recipients(&s, &recipients).await{
+            Ok(encrypted) => Ok(Self(encrypted)),
+            Err(_) => Err(ServiceError::CryptoEncryptFailed),   
+        }
+    }
+
+    pub async fn decrypt(&self, private_key: &String) -> Result<String, ServiceError> {
+        match crypto::decrypt_password_with_private_key(&self.0, private_key).await {
+            Ok(decrypted) => Ok(decrypted),
+            Err(_) => Err(ServiceError::CryptoDecryptFailed),   
+        }
+    }
+
+    pub async fn to_string(self) -> String {
+        self.0
+    }
+}
+
+impl Into<String> for EncryptedString {
+    fn into(self) -> String {
+        self.0
+    }
+}
+
+impl TryFrom<Option<String>> for EncryptedString {
+    type Error = ServiceError;
+
+    fn try_from(s: Option<String>) -> Result<Self, Self::Error> {
+        match s {
+            Some(s) => Ok(Self(s)),
+            None => Err(ServiceError::CandidateDetailsNotSet),
+        }
+    }
+}
+
 pub(crate) struct EncryptedUserDetails {
-    pub name: String,
-    pub surname: String,
-    pub birthplace: String,
+    pub name: EncryptedString,
+    pub surname: EncryptedString,
+    pub birthplace: EncryptedString,
     // pub birthdate: NaiveDate,
-    pub address: String,
-    pub telephone: String,
-    pub citizenship: String,
-    pub email: String,
-    pub sex: String,
-    pub study: String,
+    pub address: EncryptedString,
+    pub telephone: EncryptedString,
+    pub citizenship: EncryptedString,
+    pub email: EncryptedString,
+    pub sex: EncryptedString,
+    pub study: EncryptedString,
 }
 
 impl EncryptedUserDetails {
-    pub async fn encrypt_form(form: UserDetails, recipients: Vec<&str>) -> EncryptedUserDetails {
+    pub async fn new(form: UserDetails, recipients: Vec<&str>) -> EncryptedUserDetails {
         let (
             Ok(name),
             Ok(surname),
@@ -39,16 +78,16 @@ impl EncryptedUserDetails {
             Ok(sex),
             Ok(study),
         ) = tokio::join!(
-            crypto::encrypt_password_with_recipients(&form.name, &recipients),
-            crypto::encrypt_password_with_recipients(&form.surname, &recipients),
-            crypto::encrypt_password_with_recipients(&form.birthplace, &recipients),
-            // crypto::encrypt_password_with_recipients(&self.birthdate, &recipients), // TODO
-            crypto::encrypt_password_with_recipients(&form.address, &recipients),
-            crypto::encrypt_password_with_recipients(&form.telephone, &recipients),
-            crypto::encrypt_password_with_recipients(&form.citizenship, &recipients),
-            crypto::encrypt_password_with_recipients(&form.email, &recipients),
-            crypto::encrypt_password_with_recipients(&form.sex, &recipients),
-            crypto::encrypt_password_with_recipients(&form.study, &recipients),
+            EncryptedString::new(&form.name, &recipients),
+            EncryptedString::new(&form.surname, &recipients),
+            EncryptedString::new(&form.birthplace, &recipients),
+            // EncryptedString::new((&self.birthdate, &recipients), // TODO
+            EncryptedString::new(&form.address, &recipients),
+            EncryptedString::new(&form.telephone, &recipients),
+            EncryptedString::new(&form.citizenship, &recipients),
+            EncryptedString::new(&form.email, &recipients),
+            EncryptedString::new(&form.sex, &recipients),
+            EncryptedString::new(&form.study, &recipients),
         ) else {
             panic!("Failed to encrypt user details"); // TODO
         };
@@ -67,67 +106,6 @@ impl EncryptedUserDetails {
         }
     }
 
-    fn extract_enc_candidate_details(
-        candidate: candidate::Model,
-    ) -> Result<UserDetails, ServiceError> {
-        let (   // TODO: simplify??
-            Some(name),
-            Some(surname),
-            Some(birthplace),
-            // Some(birthdate),
-            Some(address),
-            Some(telephone),
-            Some(citizenship),
-            Some(email),
-            Some(sex),
-            Some(study),
-        ) = (
-            candidate.name,
-            candidate.surname,
-            candidate.birthplace,
-            // candidate.birthdate,
-            candidate.address,
-            candidate.telephone,
-            candidate.citizenship,
-            candidate.email,
-            candidate.sex,
-            candidate.study,
-        ) else {
-            return Err(ServiceError::CandidateDetailsNotSet);
-        };
-
-        Ok(UserDetails {
-            name,
-            surname,
-            birthplace,
-            // birthdate,
-            address,
-            telephone,
-            citizenship,
-            email,
-            sex,
-            study,
-        })
-    }
-
-    pub fn from_model(candidate: candidate::Model) -> Result<EncryptedUserDetails, ServiceError> {
-        let Ok(details) = Self::extract_enc_candidate_details(candidate) else {
-            return Err(ServiceError::CandidateDetailsNotSet);
-        };
-        Ok(EncryptedUserDetails {
-            name: details.name,
-            surname: details.surname,
-            birthplace: details.birthplace,
-            // birthdate,
-            address: details.address,
-            telephone: details.telephone,
-            citizenship: details.citizenship,
-            email: details.email,
-            sex: details.sex,
-            study: details.study,
-        })
-    }
-
     pub async fn decrypt(self, priv_key: String) -> Result<UserDetails, ServiceError> {
         let (
             Ok(name),
@@ -141,15 +119,16 @@ impl EncryptedUserDetails {
             Ok(sex),
             Ok(study),
         ) = tokio::join!(
-            crypto::decrypt_password_with_private_key(&self.name, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.surname, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.birthplace, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.address, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.telephone, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.citizenship, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.email, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.sex, &priv_key),
-            crypto::decrypt_password_with_private_key(&self.study, &priv_key),
+            self.name.decrypt(&priv_key),
+            self.surname.decrypt(&priv_key),
+            self.birthplace.decrypt(&priv_key),
+            // self.birthdate.decrypt(&priv_key),
+            self.address.decrypt(&priv_key),
+            self.telephone.decrypt(&priv_key),
+            self.citizenship.decrypt(&priv_key),
+            self.email.decrypt(&priv_key),
+            self.sex.decrypt(&priv_key),
+            self.study.decrypt(&priv_key),
         ) else {
             panic!("Failed to encrypt user details"); // TODO
         };
@@ -165,6 +144,29 @@ impl EncryptedUserDetails {
             email,
             sex,
             study,
+        })
+    }
+}
+
+impl TryFrom<candidate::Model> for EncryptedUserDetails {
+    type Error = ServiceError;
+
+    fn try_from(candidate: candidate::Model) -> Result<Self, Self::Error> {
+        if !CandidateService::is_set_up(&candidate) {
+            return Err(ServiceError::CandidateDetailsNotSet);
+        }
+        
+        Ok(EncryptedUserDetails {
+            name: EncryptedString::try_from(candidate.name)?,
+            surname: EncryptedString::try_from(candidate.surname)?,
+            birthplace: EncryptedString::try_from(candidate.birthplace)?,
+            // birthdate?,
+            address: EncryptedString::try_from(candidate.address)?,
+            telephone: EncryptedString::try_from(candidate.telephone)?,
+            citizenship: EncryptedString::try_from(candidate.citizenship)?,
+            email: EncryptedString::try_from(candidate.email)?,
+            sex: EncryptedString::try_from(candidate.sex)?,
+            study: EncryptedString::try_from(candidate.study)?,
         })
     }
 }
@@ -256,7 +258,7 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let enc_details = EncryptedUserDetails::encrypt_form(form, recipients).await;
+        let enc_details = EncryptedUserDetails::new(form, recipients).await;
 
         Mutation::add_candidate_details(db, user, enc_details)
             .await
@@ -286,12 +288,12 @@ impl CandidateService {
             .await
             .ok()
             .unwrap();
-        let enc_details = EncryptedUserDetails::from_model(candidate)?;
+        let enc_details = EncryptedUserDetails::try_from(candidate)?;
 
         enc_details.decrypt(dec_priv_key).await
     }
 
-    pub async fn is_set_up(candidate: &candidate::Model) -> bool {
+    pub fn is_set_up(candidate: &candidate::Model) -> bool {
         candidate.name.is_some() &&
             candidate.surname.is_some() &&
             candidate.birthplace.is_some() &&
@@ -505,7 +507,7 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let dec_candidate = EncryptedUserDetails::from_model(enc_candidate)
+        let dec_candidate = EncryptedUserDetails::try_from(enc_candidate)
             .unwrap()
             .decrypt(dec_priv_key)
             .await
