@@ -1876,6 +1876,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "portfolio-cli"
+version = "0.1.0"
+dependencies = [
+ "clap 4.0.23",
+ "portfolio-core",
+ "portfolio-entity",
+ "sea-orm",
+ "tokio",
+ "url",
+]
+
+[[package]]
 name = "portfolio-core"
 version = "0.1.0"
 dependencies = [
@@ -1914,18 +1926,6 @@ dependencies = [
  "sea-orm-migration",
  "serde",
  "tokio",
-]
-
-[[package]]
-name = "portfolio-recovery"
-version = "0.1.0"
-dependencies = [
- "clap 4.0.23",
- "portfolio-core",
- "portfolio-entity",
- "sea-orm",
- "tokio",
- "url",
 ]
 
 [[package]]
