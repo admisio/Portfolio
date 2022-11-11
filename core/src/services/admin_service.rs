@@ -55,7 +55,7 @@ impl AdminService {
         match SessionService::auth_user_session(db, session_uuid).await {
             Ok(user) => match user {
                 AdminUser::Admin(admin) => Ok(admin),
-                AdminUser::User(_) => Err(ServiceError::DbError),
+                AdminUser::Candidate(_) => Err(ServiceError::DbError),
             },
             Err(e) => Err(e),
         }

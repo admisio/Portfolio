@@ -11,7 +11,7 @@ use crate::{
 
 pub enum AdminUser {
     Admin(entity::admin::Model),
-    User(entity::candidate::Model),
+    Candidate(entity::candidate::Model),
 }
 
 pub(in crate::services) struct SessionService;
@@ -147,7 +147,7 @@ impl SessionService {
 
         if candidate.is_ok() {
             if let Some(candidate) = candidate.unwrap() {
-                return Ok(AdminUser::User(candidate));
+                return Ok(AdminUser::Candidate(candidate));
             }
         }
 

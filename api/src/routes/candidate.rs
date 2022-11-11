@@ -67,7 +67,7 @@ pub async fn fill_details(
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate = CandidateService::add_user_details(db, candidate, form).await;
+    let candidate = CandidateService::add_candidate_details(db, candidate, form).await;
 
     if candidate.is_err() {
         // TODO cleanup

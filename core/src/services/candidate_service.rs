@@ -68,9 +68,9 @@ impl CandidateService {
         .map_err(|_| ServiceError::DbError)
     }
 
-    pub async fn add_user_details(
+    pub async fn add_candidate_details(
         db: &DbConn,
-        user: candidate::Model,
+        candidate: candidate::Model,
         form: CandidateDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
@@ -80,13 +80,13 @@ impl CandidateService {
         let mut admin_public_keys_refrence: Vec<&str> =
             admin_public_keys.iter().map(|s| &**s).collect();
 
-        let mut recipients = vec![&*user.public_key];
+        let mut recipients = vec![&*candidate.public_key];
 
         recipients.append(&mut admin_public_keys_refrence);
 
         let enc_details = EncryptedCandidateDetails::new(form, recipients).await;
 
-        Mutation::add_candidate_details(db, user, enc_details)
+        Mutation::add_candidate_details(db, candidate, enc_details)
             .await
             .map_err(|_| ServiceError::DbError)
     }
@@ -178,15 +178,15 @@ impl CandidateService {
 
     pub async fn login(
         db: &DbConn,
-        user_id: i32,
+        candidate_id: i32,
         password: String,
         ip_addr: String,
     ) -> Result<(String, String), ServiceError> {
         let session_id =
-            SessionService::new_session(db, Some(user_id), None, password.clone(), ip_addr).await;
+            SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr).await;
         match session_id {
             Ok(session_id) => {
-                let private_key = Self::decrypt_private_key(db, user_id, password).await?;
+                let private_key = Self::decrypt_private_key(db, candidate_id, password).await?;
                 Ok((session_id, private_key))
             }
             Err(e) => Err(e),
@@ -196,7 +196,7 @@ impl CandidateService {
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
         match SessionService::auth_user_session(db, session_uuid).await {
             Ok(user) => match user {
-                AdminUser::User(candidate) => Ok(candidate),
+                AdminUser::Candidate(candidate) => Ok(candidate),
                 AdminUser::Admin(_) => Err(ServiceError::DbError),
             },
             Err(e) => Err(e),
@@ -311,7 +311,7 @@ mod tests {
             sex: "test".to_string(),
             study: "test".to_string(),
         };
-        CandidateService::add_user_details(&db, candidate, form)
+        CandidateService::add_candidate_details(&db, candidate, form)
             .await
             .ok()
             .unwrap()
