@@ -4,10 +4,10 @@ use sea_orm::{prelude::Uuid, DbConn};
 use crate::{
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, candidate_details::{CandidateDetails, EncryptedCandidateDetails},
+    Mutation, Query, candidate_details::{EncryptedCandidateDetails},
 };
 
-use super::{session_service::{AdminUser, SessionService}, parent_service::ParentService};
+use super::{session_service::{AdminUser, SessionService}};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -79,7 +79,7 @@ impl CandidateService {
         candidate.name.is_some() &&
             candidate.surname.is_some() &&
             candidate.birthplace.is_some() &&
-            // birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            candidate.birthdate.is_some() &&
             candidate.address.is_some() &&
             candidate.telephone.is_some() &&
             candidate.citizenship.is_some() &&
@@ -107,20 +107,9 @@ impl CandidateService {
     }
 
     async fn decrypt_private_key(
-        db: &DbConn,
-        candidate_id: i32,
+        candidate: candidate::Model,
         password: String,
     ) -> Result<String, ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, candidate_id).await;
-
-        let Ok(candidate) = candidate else {
-            return Err(ServiceError::DbError);
-        };
-
-        let Some(candidate) = candidate else {
-            return Err(ServiceError::CandidateNotFound);
-        };
-
         let private_key_encrypted = candidate.private_key;
 
         let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
@@ -138,11 +127,16 @@ impl CandidateService {
         password: String,
         ip_addr: String,
     ) -> Result<(String, String), ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, candidate_id)
+            .await
+            .map_err(|_| ServiceError::DbError)?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
         let session_id =
             SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr).await;
         match session_id {
             Ok(session_id) => {
-                let private_key = Self::decrypt_private_key(db, candidate_id, password).await?;
+                let private_key = Self::decrypt_private_key(candidate, password).await?;
                 Ok((session_id, private_key))
             }
             Err(e) => Err(e),
@@ -176,7 +170,7 @@ mod tests {
 
     use crate::{
         crypto,
-        services::candidate_service::{CandidateService, CandidateDetails}, Query, Mutation,
+        services::candidate_service::{CandidateService}, Mutation,
     };
 
     use super::EncryptedCandidateDetails;
@@ -184,6 +178,7 @@ mod tests {
     use entity::{parent, candidate};
 
     use crate::services::application_service::ApplicationService;
+    use crate::candidate_details::CandidateDetails;
 
     #[tokio::test]
     async fn test_application_id_validation() {
