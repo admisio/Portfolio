@@ -26,7 +26,7 @@ impl<'r> FromRequest<'r> for AdminAuth {
     type Error = Option<String>;
     async fn from_request(req: &'r Request<'_>) -> Outcome<AdminAuth, (Status, Self::Error), ()> {
         let cookie_id = req.cookies().get_private("id");
-        let cookie_private_key = req.cookies().get_private("private_key");
+        let cookie_private_key = req.cookies().get_private("key");
 
         let Some(cookie_id) = cookie_id else {
             return Outcome::Failure((Status::Unauthorized, None));
