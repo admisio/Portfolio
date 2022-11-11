@@ -171,7 +171,7 @@ mod tests {
 
     use crate::{
         crypto,
-        services::{candidate_service::CandidateService, session_service::SessionService},
+        services::{session_service::SessionService, application_service::ApplicationService},
     };
 
     #[cfg(test)]
@@ -205,10 +205,10 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = CandidateService::create(&db, 103151, &SECRET.to_string(), "".to_string())
+        let candidate = ApplicationService::create_candidate_with_parent(&db, 103151, &SECRET.to_string(), "".to_string())
             .await
             .ok()
-            .unwrap();
+            .unwrap().0;
 
         assert_eq!(candidate.application, 103151);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -222,9 +222,9 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        CandidateService::create(db, 103151, &"Tajny_kod".to_string(), "".to_string())
+        ApplicationService::create_candidate_with_parent(db, 103151, &"Tajny_kod".to_string(), "".to_string())
             .await
-            .unwrap();
+            .unwrap().0;
 
         // correct password
         let session = SessionService::new_session(
@@ -249,9 +249,9 @@ mod tests {
         let db = &get_memory_sqlite_connection().await;
 
         let candidate_form =
-            CandidateService::create(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
+            ApplicationService::create_candidate_with_parent(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
                 .await
-                .unwrap();
+                .unwrap().0;
 
         // incorrect password
         assert!(SessionService::new_session(

@@ -1,6 +1,7 @@
 use std::net::SocketAddr;
 
 use portfolio_core::candidate_details::CandidateDetails;
+use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::{CandidateService};
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
@@ -65,13 +66,13 @@ pub async fn fill_details(
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
-    let candidate: entity::candidate::Model = session.into();
+    let candidate: entity::candidate::Model = session.into(); // TODO: don't return candidate from session
 
-    let candidate = CandidateService::add_candidate_details(db, candidate, form).await;
+    let candidate_parent = ApplicationService::add_all_details(db, candidate.application, form).await;
 
-    if candidate.is_err() {
+    if candidate_parent.is_err() {
         // TODO cleanup
-        let e = candidate.err().unwrap();
+        let e = candidate_parent.err().unwrap();
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or_default(),
             e.message(),
@@ -92,7 +93,7 @@ pub async fn get_details(
     let password = password_form.password.clone();
 
     // let handle = tokio::spawn(async move {
-    let details = CandidateService::decrypt_details(db, candidate.application, password)
+    let details = ApplicationService::decrypt_all_details(db, candidate.application, password)
         .await
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
 

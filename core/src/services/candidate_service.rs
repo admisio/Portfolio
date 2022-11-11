@@ -19,7 +19,7 @@ impl CandidateService {
     /// Hashed password
     /// Encrypted private key
     /// Public key
-    pub async fn create(
+    pub(in crate::services) async fn create(
         db: &DbConn,
         application_id: i32,
         plain_text_password: &String,
@@ -53,9 +53,6 @@ impl CandidateService {
             return Err(ServiceError::CryptoHashFailed);
         };
 
-        ParentService::create_parent(db, application_id)
-            .await?;
-
         Mutation::create_candidate(
             db,
             application_id,
@@ -68,57 +65,14 @@ impl CandidateService {
             .map_err(|_| ServiceError::DbError)
     }
 
-    pub async fn add_candidate_details(
+    pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
-        form: CandidateDetails,
+        enc_details: EncryptedCandidateDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
-            return Err(ServiceError::DbError);
-        };
-
-        let mut admin_public_keys_refrence: Vec<&str> =
-            admin_public_keys.iter().map(|s| &**s).collect();
-
-        let mut recipients = vec![&*candidate.public_key];
-
-        recipients.append(&mut admin_public_keys_refrence);
-
-        let enc_details = EncryptedCandidateDetails::new(form, recipients).await?;
-            
-        ParentService::add_parent_details(db, candidate.application, enc_details.clone()).await?;
         Mutation::add_candidate_details(db, candidate, enc_details.clone())
             .await
             .map_err(|_| ServiceError::DbError)
-    }
-
-    pub async fn decrypt_details(
-        db: &DbConn,
-        application_id: i32,
-        password: String,
-    ) -> Result<CandidateDetails, ServiceError> {
-        let candidate = match Query::find_candidate_by_id(db, application_id).await {
-            Ok(candidate) => candidate.unwrap(),
-            Err(_) => return Err(ServiceError::DbError), // TODO: logging
-        };
-        let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
-
-        match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
-            Ok(valid) => {
-                if !valid {
-                    return Err(ServiceError::InvalidCredentials);
-                }
-            }
-            Err(_) => return Err(ServiceError::InvalidCredentials),
-        }
-
-        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)
-            .await
-            .ok()
-            .unwrap();
-        let enc_details = EncryptedCandidateDetails::try_from((candidate, parent))?;
-
-        enc_details.decrypt(dec_priv_key).await
     }
 
     pub fn is_set_up(candidate: &candidate::Model) -> bool {
@@ -218,7 +172,6 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
-    use entity::candidate::Model;
     use sea_orm::{Database, DbConn};
 
     use crate::{
@@ -227,6 +180,10 @@ mod tests {
     };
 
     use super::EncryptedCandidateDetails;
+    use chrono::NaiveDate;
+    use entity::{parent, candidate};
+
+    use crate::services::application_service::ApplicationService;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -300,11 +257,9 @@ mod tests {
     }
 
     #[cfg(test)]
-    async fn put_user_data(db: &DbConn) -> Model {
-        use chrono::NaiveDate;
-
+    async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
         let plain_text_password = "test".to_string();
-        let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
+        let (candidate, parent) = ApplicationService::create_candidate_with_parent(&db, 103151, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
@@ -327,7 +282,7 @@ mod tests {
 
         };
 
-        CandidateService::add_candidate_details(&db, candidate, form)
+        ApplicationService::add_all_details(&db, candidate.application, form)
             .await
             .unwrap()
     }
@@ -335,16 +290,16 @@ mod tests {
     #[tokio::test]
     async fn test_put_user_data() {
         let db = get_memory_sqlite_connection().await;
-        let candidate = put_user_data(&db).await;
+        let (candidate, parent) = put_user_data(&db).await;
         assert!(candidate.name.is_some());
+        assert!(parent.name.is_some());
     }
 
     #[tokio::test]
     async fn test_encrypt_decrypt_user_data() {
         let password = "test".to_string();
         let db = get_memory_sqlite_connection().await;
-        let enc_candidate = put_user_data(&db).await;
-        let enc_parent = Query::find_parent_by_id(&db, enc_candidate.application).await.unwrap().unwrap();
+        let (enc_candidate, enc_parent) = put_user_data(&db).await;
 
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await

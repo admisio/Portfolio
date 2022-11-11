@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService},
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService},
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -75,7 +75,7 @@ pub async fn create_candidate(
 
     let plain_text_password = random_8_char_string();
 
-    CandidateService::create(
+    ApplicationService::create_candidate_with_parent(
         db,
         form.application_id,
         &plain_text_password,
