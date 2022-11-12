@@ -1,4 +1,4 @@
-use crate::{Mutation, candidate_details::{EncryptedApplicationDetails}};
+use crate::{Mutation, candidate_details::{EncryptedApplicationDetails}, error::ServiceError};
 
 use ::entity::candidate::{self};
 use sea_orm::{*};
@@ -11,7 +11,7 @@ impl Mutation {
         hashed_personal_id_number: String,
         pubkey: String,
         encrypted_priv_key: String
-    ) -> Result<candidate::Model, DbErr> {
+    ) -> Result<candidate::Model, ServiceError> {
         candidate::ActiveModel {
             application: Set(application_id),
             personal_identification_number_hash: Set(hashed_personal_id_number),
@@ -24,13 +24,17 @@ impl Mutation {
         }
             .insert(db)
             .await
+            .map_err(|e| {
+                eprintln!("Error creating candidate: {}", e);
+                ServiceError::DbError
+            })
     }
 
     pub async fn add_candidate_details(
         db: &DbConn,
         user: candidate::Model,
         enc_details: EncryptedApplicationDetails,
-    ) -> Result<candidate::Model, sea_orm::DbErr> {
+    ) -> Result<candidate::Model, ServiceError> {
         let mut user: candidate::ActiveModel = user.into();
         user.name = Set(Some(enc_details.name.into()));
         user.surname = Set(Some(enc_details.surname.into()));
@@ -45,6 +49,11 @@ impl Mutation {
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 
-        user.update(db).await
+        user.update(db)
+            .await
+            .map_err(|e| {
+                eprintln!("Error updating candidate: {}", e);
+                ServiceError::DbError
+            })
     }
 }

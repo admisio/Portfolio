@@ -1,7 +1,6 @@
 use std::cmp::min;
 
-use entity::{admin, candidate};
-use sea_orm::{prelude::Uuid, DatabaseConnection, ModelTrait};
+use sea_orm::{prelude::Uuid, DatabaseConnection};
 
 use crate::{
     crypto::{self},
@@ -43,73 +42,46 @@ impl SessionService {
     /// Authenticate user by application id and password and generate a new session
     pub async fn new_session(
         db: &DatabaseConnection,
-        user_id: Option<i32>,
-        admin_id: Option<i32>,
+        user_id_opt: Option<i32>,
+        admin_id_opt: Option<i32>,
         password: String,
         ip_addr: String,
     ) -> Result<String, ServiceError> {
-        if user_id.is_none() && admin_id.is_none() {
+        if user_id_opt.is_none() && admin_id_opt.is_none() {
             return Err(ServiceError::UserNotFoundBySessionId);
         }
 
-        if admin_id.is_none() {
-            // unwrap is safe here
-            let candidate = match Query::find_candidate_by_id(db, user_id.unwrap()).await {
-                Ok(candidate) => match candidate {
-                    Some(candidate) => candidate,
-                    None => return Err(ServiceError::CandidateNotFound),
-                },
-                Err(_) => return Err(ServiceError::DbError),
-            };
+        if let Some(user_id) = user_id_opt {
+            let candidate = Query::find_candidate_by_id(db, user_id).await?
+                .ok_or(ServiceError::UserNotFoundBySessionId)?;
 
             // compare passwords
-            match crypto::verify_password(password.clone(), candidate.code.clone()).await {
-                Ok(valid) => {
-                    if !valid {
-                        return Err(ServiceError::InvalidCredentials);
-                    }
-                }
-                Err(_) => return Err(ServiceError::InvalidCredentials),
+            match crypto::verify_password(password.clone(), candidate.code.clone()).await? {
+                true => {},
+                false => return Err(ServiceError::InvalidCredentials),
             }
         }
 
-        if user_id.is_none() {
+        if let Some(admin_id) = admin_id_opt {
             // unwrap is safe here
-            let admin = match Query::find_admin_by_id(db, admin_id.unwrap()).await {
-                Ok(admin) => match admin {
-                    Some(admin) => admin,
-                    None => return Err(ServiceError::CandidateNotFound),
-                },
-                Err(_) => return Err(ServiceError::DbError),
-            };
+            let admin = Query::find_admin_by_id(db, admin_id).await?
+                .ok_or(ServiceError::UserNotFoundBySessionId)?;
 
             // compare passwords
-            match crypto::verify_password(password.clone(), admin.password.clone()).await {
-                Ok(valid) => {
-                    if !valid {
-                        return Err(ServiceError::InvalidCredentials);
-                    }
-                }
-                Err(_) => return Err(ServiceError::InvalidCredentials),
+            match crypto::verify_password(password.clone(), admin.password.clone()).await? {
+                true => {},
+                false => return Err(ServiceError::InvalidCredentials),
             }
         }
 
         // user is authenticated, generate a new session
         let random_uuid: Uuid = Uuid::new_v4();
 
-        let session =
-            match Mutation::insert_session(db, user_id, admin_id, random_uuid, ip_addr).await {
-                Ok(session) => session,
-                Err(e) => {
-                    eprintln!("Error creating session: {}", e);
-                    return Err(ServiceError::DbError);
-                }
-            };
+        let session = Mutation::insert_session(db, user_id_opt, admin_id_opt, random_uuid, ip_addr).await?;
 
         // delete old sessions
-        SessionService::delete_old_sessions(db, user_id, admin_id, 3)
-            .await
-            .ok(); // TODO move to dotenv
+        SessionService::delete_old_sessions(db, user_id_opt, admin_id_opt, 3)
+            .await?;
 
         Ok(session.id.to_string())
     }
@@ -121,41 +93,28 @@ impl SessionService {
         db: &DatabaseConnection,
         uuid: Uuid,
     ) -> Result<AdminUser, ServiceError> {
-        let session = match Query::find_session_by_uuid(db, uuid).await {
-            Ok(session) => match session {
-                Some(session) => session,
-                None => return Err(ServiceError::UserNotFoundBySessionId),
-            },
-            Err(_) => return Err(ServiceError::DbError),
-        };
+        let session = Query::find_session_by_uuid(db, uuid).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
 
         let now = chrono::Utc::now().naive_utc();
         // check if session is expired
         if now > session.expires_at {
             // delete session
-            Mutation::delete_session(db, session.id).await.unwrap();
+            Mutation::delete_session(db, session.id.clone()).await.unwrap();
             return Err(ServiceError::ExpiredSession);
         }
 
-        let candidate = session.find_related(candidate::Entity).one(db).await;
-        let admin = session.find_related(admin::Entity).one(db).await;
+        let candidate = Query::find_candidate_related_to_session(db, &session).await?;
+        let admin = Query::find_admin_related_to_session(db, &session).await?;
 
-        if candidate.is_err() || admin.is_err() {
-            eprintln!("Kurva");
-            return Err(ServiceError::UserNotFoundBySessionId);
+        if let Some(candidate) = candidate {
+            return Ok(AdminUser::Candidate(candidate));
         }
 
-        if candidate.is_ok() {
-            if let Some(candidate) = candidate.unwrap() {
-                return Ok(AdminUser::Candidate(candidate));
-            }
+        if let Some(admin) = admin {
+            return Ok(AdminUser::Admin(admin));
         }
 
-        if admin.is_ok() {
-            if let Some(admin) = admin.unwrap() {
-                return Ok(AdminUser::Admin(admin));
-            }
-        }
         return Err(ServiceError::UserNotFoundBySessionId);
     }
 }

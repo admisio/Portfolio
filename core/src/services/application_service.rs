@@ -34,9 +34,7 @@ impl ApplicationService {
         form: ApplicationDetails,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, application)
-            .await
-            .map_err(|_| ServiceError::DbError)?
-            .ok_or(ServiceError::CandidateNotFound)?;
+            .await?.ok_or(ServiceError::CandidateNotFound)?;
         
         let parent = Query::find_parent_by_id(db, application)
             .await
@@ -68,19 +66,14 @@ impl ApplicationService {
         application_id: i32,
         password: String,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        let candidate = match Query::find_candidate_by_id(db, application_id).await {
-            Ok(candidate) => candidate.unwrap(),
-            Err(_) => return Err(ServiceError::DbError), // TODO: logging
-        };
+        let candidate = Query::find_candidate_by_id(db, application_id)
+            .await?.ok_or(ServiceError::CandidateNotFound)?;
+        
         let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
 
-        match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
-            Ok(valid) => {
-                if !valid {
-                    return Err(ServiceError::InvalidCredentials);
-                }
-            }
-            Err(_) => return Err(ServiceError::InvalidCredentials),
+        match crypto::verify_password((&password).to_string(), candidate.code.clone()).await? {
+            true => {},
+            false => return Err(ServiceError::InvalidCredentials),
         }
 
         let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)

@@ -2,7 +2,7 @@ use chrono::{Utc, Duration};
 use ::entity::session;
 use sea_orm::{*, prelude::Uuid};
 
-use crate::Mutation;
+use crate::{Mutation, error::ServiceError};
 
 
 impl Mutation {
@@ -12,7 +12,7 @@ impl Mutation {
         admin_id: Option<i32>,
         random_uuid: Uuid,
         ip_addr: String,
-    ) -> Result<session::Model, DbErr> {
+    ) -> Result<session::Model, ServiceError> {
         session::ActiveModel {
             id: Set(random_uuid),
             user_id: Set(user_id),
@@ -24,8 +24,12 @@ impl Mutation {
                 .checked_add_signed(Duration::days(1))
                 .unwrap()),
         }
-        .insert(db)
-        .await
+            .insert(db)
+            .await
+            .map_err(|e| {
+                eprintln!("Error inserting session: {}", e);
+                ServiceError::DbError
+            })
     }
 
     pub async fn delete_session(db: &DbConn, session_id: Uuid) -> Result<DeleteResult, DbErr> {

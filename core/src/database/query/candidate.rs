@@ -1,14 +1,29 @@
-use crate::Query;
+use crate::{Query, error::ServiceError};
 
-use ::entity::{candidate, candidate::Entity as Candidate};
+use ::entity::{candidate, candidate::Entity as Candidate, session};
 use sea_orm::*;
 
 impl Query {
     pub async fn find_candidate_by_id(
         db: &DbConn,
         id: i32,
-    ) -> Result<Option<candidate::Model>, DbErr> {
-        Candidate::find_by_id(id).one(db).await
+    ) -> Result<Option<candidate::Model>, ServiceError> {
+        Candidate::find_by_id(id).one(db)
+            .await
+            .map_err(|e| {
+                eprintln!("Error finding candidate: {}", e);
+                ServiceError::DbError
+            })
+    }
+
+    pub async fn find_candidate_related_to_session(db: &DbConn, session: &session::Model) -> Result<Option<candidate::Model>, ServiceError> {
+        session.find_related(candidate::Entity)
+            .one(db)
+            .await
+            .map_err(|e| {
+                eprintln!("Error while finding admin by id: {}", e);
+                ServiceError::DbError
+            })
     }
 }
 

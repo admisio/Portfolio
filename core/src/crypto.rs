@@ -62,11 +62,12 @@ pub async fn hash_password(
 pub async fn verify_password(
     password_plaint_text: String,
     hash: String,
-) -> Result<bool, Box<dyn std::error::Error>> {
+) -> Result<bool, ServiceError> {
     let argon_config = Argon2::new(
         argon2::Algorithm::Argon2i,
         argon2::Version::V0x13,
-        argon2::Params::new(6000, 3, 10, None)?,
+        argon2::Params::new(6000, 3, 10, None)
+            .map_err(|_| ServiceError::CryptoHashFailed)?,
     );
 
     let result: Result<bool, argon2::password_hash::Error> =
@@ -81,9 +82,13 @@ pub async fn verify_password(
                 Err(error) => return Err(error),
             }
         })
-        .await?;
+            .await
+            .map_err(|_| ServiceError::CryptoHashFailed)?;
 
-    Ok(result?)
+    Ok(
+        result
+            .map_err(|_| ServiceError::CryptoHashFailed)?,
+    )
 }
 
 fn convert_key_aes256(key: &str) -> Vec<u8> {

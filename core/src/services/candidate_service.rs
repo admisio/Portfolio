@@ -35,11 +35,7 @@ impl CandidateService {
         }
 
         // Check if user with that application id already exists
-        if Query::find_candidate_by_id(db, application_id)
-            .await
-            .unwrap()
-            .is_some()
-        {
+        if Query::find_candidate_by_id(db, application_id).await?.is_some() {
             return Err(ServiceError::UserAlreadyExists);
         }
 
@@ -78,7 +74,6 @@ impl CandidateService {
             encrypted_priv_key,
         )
             .await
-            .map_err(|_| ServiceError::DbError)
     }
 
     pub(in crate::services) async fn add_candidate_details(
@@ -88,7 +83,6 @@ impl CandidateService {
     ) -> Result<entity::candidate::Model, ServiceError> {
         Mutation::add_candidate_details(db, candidate, enc_details.clone())
             .await
-            .map_err(|_| ServiceError::DbError)
     }
 
     pub fn is_set_up(candidate: &candidate::Model) -> bool {
@@ -202,13 +196,8 @@ impl CandidateService {
             return Err(ServiceError::DbError);
         };
 
-        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
-            return Err(ServiceError::DbError);
-        };
-
-        let Some(candidate) = candidate else {
-            return Err(ServiceError::CandidateNotFound);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
 
         let candidate_public_key = candidate.public_key;
 
@@ -232,13 +221,8 @@ impl CandidateService {
     }
 
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
-        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
-            return Err(ServiceError::DbError);
-        };
-
-        let Some(candidate) = candidate else {
-            return Err(ServiceError::CandidateNotFound);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
 
         let candidate_public_key = candidate.public_key;
 
@@ -270,28 +254,26 @@ impl CandidateService {
         ip_addr: String,
     ) -> Result<(String, String), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await
-            .map_err(|_| ServiceError::DbError)?
+            .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
-        let session_id =
-            SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr).await;
-        match session_id {
-            Ok(session_id) => {
-                let private_key = Self::decrypt_private_key(candidate, password).await?;
-                Ok((session_id, private_key))
-            }
-            Err(e) => Err(e),
-        }
+        let session_id = SessionService::new_session(
+            db,
+            Some(candidate_id),
+            None,
+            password.clone(),
+            ip_addr
+        )
+            .await?;
+        
+        let private_key = Self::decrypt_private_key(candidate, password).await?;
+        Ok((session_id, private_key))
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
-        match SessionService::auth_user_session(db, session_uuid).await {
-            Ok(user) => match user {
-                AdminUser::Candidate(candidate) => Ok(candidate),
-                AdminUser::Admin(_) => Err(ServiceError::DbError),
-            },
-            Err(e) => Err(e),
+        match SessionService::auth_user_session(db, session_uuid).await? {
+            AdminUser::Candidate(candidate) => Ok(candidate),
+            AdminUser::Admin(_) => Err(ServiceError::DbError),
         }
     }
 

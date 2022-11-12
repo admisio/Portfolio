@@ -1,4 +1,5 @@
 use crate::Query;
+use crate::error::ServiceError;
 
 use ::entity::{session, session::Entity as Session};
 use sea_orm::prelude::Uuid;
@@ -8,8 +9,13 @@ impl Query {
     pub async fn find_session_by_uuid(
         db: &DbConn,
         uuid: Uuid,
-    ) -> Result<Option<session::Model>, DbErr> {
-        Session::find_by_id(uuid).one(db).await
+    ) -> Result<Option<session::Model>, ServiceError> {
+        Session::find_by_id(uuid).one(db)
+            .await
+            .map_err(|e| {
+                eprintln!("Error while finding session by id: {}", e);
+                ServiceError::DbError
+            })
     }
 
     // find session by user id
