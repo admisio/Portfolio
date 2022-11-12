@@ -15,10 +15,10 @@ impl ApplicationService {
         personal_id_number: String,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         Ok(
-            (
-                CandidateService::create(db, application_id, plain_text_password, personal_id_number).await?,
-                ParentService::create(db, application_id).await?
-            )
+            tokio::try_join!(
+                CandidateService::create(db, application_id, plain_text_password, personal_id_number),
+                ParentService::create(db, application_id)
+            )?
         )
     }
 
@@ -50,10 +50,10 @@ impl ApplicationService {
         let enc_details = EncryptedApplicationDetails::new(form, recipients).await?;
 
         Ok(
-            (
-                CandidateService::add_candidate_details(db, candidate, enc_details.clone()).await?,
-                ParentService::add_parent_details(db, parent, enc_details.clone()).await?
-            )
+            tokio::try_join!(
+                CandidateService::add_candidate_details(db, candidate, enc_details.clone()),
+                ParentService::add_parent_details(db, parent, enc_details.clone())
+            )?
         )
     }
 
