@@ -225,13 +225,14 @@ mod tests {
 
         let secret_message = "trnka".to_string();
 
-        Mutation::create_parent(&db, 1)
-        .await.unwrap();
-
+        
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
+
+        Mutation::create_parent(&db, 103151)
+            .await.unwrap();
 
         let encrypted_message =
             crypto::encrypt_password_with_recipients(&secret_message, &vec![&candidate.public_key])
