@@ -15,10 +15,16 @@ impl ApplicationService {
         personal_id_number: String,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         Ok(
-            tokio::try_join!(
+            /* tokio::try_join!( // TODO: try_join! is not working
                 CandidateService::create(db, application_id, plain_text_password, personal_id_number),
                 ParentService::create(db, application_id)
-            )?
+            )? */
+
+            
+            (
+                CandidateService::create(db, application_id, plain_text_password, personal_id_number).await?,
+                ParentService::create(db, application_id).await?
+            )
         )
     }
 

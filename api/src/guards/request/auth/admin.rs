@@ -51,7 +51,7 @@ impl<'r> FromRequest<'r> for AdminAuth {
         match session {
             Ok(model) => Outcome::Success(AdminAuth(model, private_key.to_string())),
             Err(e) => Outcome::Failure(
-                (Status::from_code(e.code()).unwrap_or(Status::InternalServerError), None)
+                (Status::from_code(e.code()).unwrap_or(Status::Unauthorized), None)
             ),
         }
 
