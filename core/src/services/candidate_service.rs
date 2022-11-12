@@ -111,11 +111,9 @@ impl CandidateService {
     ) -> Result<(), ServiceError> {
         let cache_path = Path::new(&candidate_id.to_string()).join("cache");
 
-        let file = tokio::fs::File::create(cache_path.join(filename)).await;
-
-        let Ok(mut file) = file else {
-            return Err(ServiceError::FileCreationError);
-        };
+        let mut file = tokio::fs::File::create(cache_path.join(filename))
+            .await
+            .map_err(|_| ServiceError::FileCreationError)?;
 
         let Ok(_) = file.write_all(&data).await else {
             return Err(ServiceError::FileWriteError);
