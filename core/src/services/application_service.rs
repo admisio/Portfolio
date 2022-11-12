@@ -69,12 +69,13 @@ impl ApplicationService {
         let candidate = Query::find_candidate_by_id(db, application_id)
             .await?.ok_or(ServiceError::CandidateNotFound)?;
         
-        let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
-
         match crypto::verify_password((&password).to_string(), candidate.code.clone()).await? {
             true => {},
             false => return Err(ServiceError::InvalidCredentials),
         }
+        
+        let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
+
 
         let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)
             .await
