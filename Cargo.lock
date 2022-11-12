@@ -479,12 +479,26 @@ dependencies = [
  "atty",
  "bitflags",
  "clap_derive",
- "clap_lex",
+ "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0eb41c13df48950b20eb4cd0eefa618819469df1bffc49d11e8487c4ba0037e5"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_lex 0.3.0",
+ "once_cell",
+ "strsim",
+ "termcolor",
 ]
 
 [[package]]
@@ -505,6 +519,15 @@ name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -1971,6 +1994,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "portfolio-cli"
+version = "0.1.0"
+dependencies = [
+ "clap 4.0.23",
+ "portfolio-core",
+ "portfolio-entity",
+ "sea-orm",
+ "tokio",
+ "url",
+]
+
+[[package]]
 name = "portfolio-core"
 version = "0.1.0"
 dependencies = [
@@ -2458,7 +2493,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "882af0d4cd3d6cc2f427d14a48e9f468b37c563b405ea486fd314ba18ca334d0"
 dependencies = [
  "chrono",
- "clap",
+ "clap 3.2.23",
  "dotenvy",
  "regex",
  "sea-schema",
@@ -2487,7 +2522,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86fe6e594b078712e1e797b951b9b56e55d3cfa04aac8ea76eb4bed7c94c5910"
 dependencies = [
  "async-trait",
- "clap",
+ "clap 3.2.23",
  "dotenvy",
  "sea-orm",
  "sea-orm-cli",

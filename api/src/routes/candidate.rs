@@ -1,6 +1,8 @@
 use std::net::SocketAddr;
 
-use portfolio_core::services::candidate_service::{CandidateService, UserDetails};
+use portfolio_core::candidate_details::ApplicationDetails;
+use portfolio_core::services::application_service::ApplicationService;
+use portfolio_core::services::candidate_service::{CandidateService};
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -59,18 +61,18 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
 #[post("/details", data = "<details>")]
 pub async fn fill_details(
     conn: Connection<'_, Db>,
-    details: Json<UserDetails>,
+    details: Json<ApplicationDetails>,
     session: CandidateAuth,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
-    let candidate: entity::candidate::Model = session.into();
+    let candidate: entity::candidate::Model = session.into(); // TODO: don't return candidate from session
 
-    let candidate = CandidateService::add_user_details(db, candidate, form).await;
+    let candidate_parent = ApplicationService::add_all_details(db, candidate.application, form).await;
 
-    if candidate.is_err() {
+    if candidate_parent.is_err() {
         // TODO cleanup
-        let e = candidate.err().unwrap();
+        let e = candidate_parent.err().unwrap();
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or_default(),
             e.message(),
@@ -85,13 +87,13 @@ pub async fn get_details(
     conn: Connection<'_, Db>,
     password_form: Json<PasswordRequest>,
     session: CandidateAuth,
-) -> Result<Json<UserDetails>, Custom<String>> {
+) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let candidate: entity::candidate::Model = session.into();
     let password = password_form.password.clone();
 
     // let handle = tokio::spawn(async move {
-    let details = CandidateService::decrypt_details(db, candidate.application, password)
+    let details = ApplicationService::decrypt_all_details(db, candidate.application, password)
         .await
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.message()));
 

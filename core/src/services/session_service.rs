@@ -11,7 +11,7 @@ use crate::{
 
 pub enum AdminUser {
     Admin(entity::admin::Model),
-    User(entity::candidate::Model),
+    Candidate(entity::candidate::Model),
 }
 
 pub(in crate::services) struct SessionService;
@@ -57,7 +57,7 @@ impl SessionService {
             let candidate = match Query::find_candidate_by_id(db, user_id.unwrap()).await {
                 Ok(candidate) => match candidate {
                     Some(candidate) => candidate,
-                    None => return Err(ServiceError::UserNotFound),
+                    None => return Err(ServiceError::CandidateNotFound),
                 },
                 Err(_) => return Err(ServiceError::DbError),
             };
@@ -78,7 +78,7 @@ impl SessionService {
             let admin = match Query::find_admin_by_id(db, admin_id.unwrap()).await {
                 Ok(admin) => match admin {
                     Some(admin) => admin,
-                    None => return Err(ServiceError::UserNotFound),
+                    None => return Err(ServiceError::CandidateNotFound),
                 },
                 Err(_) => return Err(ServiceError::DbError),
             };
@@ -147,7 +147,7 @@ impl SessionService {
 
         if candidate.is_ok() {
             if let Some(candidate) = candidate.unwrap() {
-                return Ok(AdminUser::User(candidate));
+                return Ok(AdminUser::Candidate(candidate));
             }
         }
 
@@ -162,7 +162,7 @@ impl SessionService {
 
 #[cfg(test)]
 mod tests {
-    use entity::{admin, candidate, session};
+    use entity::{admin, candidate, session, parent};
 
     use sea_orm::{
         prelude::Uuid, sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend,
@@ -171,7 +171,7 @@ mod tests {
 
     use crate::{
         crypto,
-        services::{candidate_service::CandidateService, session_service::SessionService},
+        services::{session_service::SessionService, application_service::ApplicationService},
     };
 
     #[cfg(test)]
@@ -183,6 +183,7 @@ mod tests {
         let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
         let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
         let stmt3: TableCreateStatement = schema.create_table_from_entity(session::Entity);
+        let stmt4: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
         db.execute(db.get_database_backend().build(&stmt))
             .await
             .unwrap();
@@ -190,6 +191,9 @@ mod tests {
             .await
             .unwrap();
         db.execute(db.get_database_backend().build(&stmt3))
+            .await
+            .unwrap();
+        db.execute(db.get_database_backend().build(&stmt4))
             .await
             .unwrap();
         db
@@ -201,10 +205,10 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = CandidateService::create(&db, 103151, &SECRET.to_string(), "".to_string())
+        let candidate = ApplicationService::create_candidate_with_parent(&db, 103151, &SECRET.to_string(), "".to_string())
             .await
             .ok()
-            .unwrap();
+            .unwrap().0;
 
         assert_eq!(candidate.application, 103151);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -218,10 +222,9 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        CandidateService::create(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
+        ApplicationService::create_candidate_with_parent(db, 103151, &"Tajny_kod".to_string(), "".to_string())
             .await
-            .ok()
-            .unwrap();
+            .unwrap().0;
 
         // correct password
         let session = SessionService::new_session(
@@ -231,9 +234,8 @@ mod tests {
             "Tajny_kod".to_string(),
             "127.0.0.1".to_string(),
         )
-        .await
-        .ok()
-        .unwrap();
+            .await
+            .unwrap();
         // println!("{}", session.err().unwrap().1);
         assert!(
             SessionService::auth_user_session(db, Uuid::parse_str(&session).unwrap())
@@ -247,10 +249,9 @@ mod tests {
         let db = &get_memory_sqlite_connection().await;
 
         let candidate_form =
-            CandidateService::create(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
+            ApplicationService::create_candidate_with_parent(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
                 .await
-                .ok()
-                .unwrap();
+                .unwrap().0;
 
         // incorrect password
         assert!(SessionService::new_session(
