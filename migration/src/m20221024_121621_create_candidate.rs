@@ -23,7 +23,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Surname).string())
                     .col(ColumnDef::new(Candidate::BirthSurname).string())
                     .col(ColumnDef::new(Candidate::Birthplace).string())
-                    .col(ColumnDef::new(Candidate::Birthdate).date())
+                    .col(ColumnDef::new(Candidate::Birthdate).string())
                     .col(ColumnDef::new(Candidate::Address).string())
                     .col(ColumnDef::new(Candidate::Telephone).string())
                     .col(ColumnDef::new(Candidate::Citizenship).string())

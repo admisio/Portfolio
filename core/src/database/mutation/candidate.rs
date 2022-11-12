@@ -1,4 +1,4 @@
-use crate::{Mutation, services::candidate_service::EncryptedUserDetails};
+use crate::{Mutation, candidate_details::{EncryptedApplicationDetails}};
 
 use ::entity::candidate::{self};
 use sea_orm::{*};
@@ -29,18 +29,19 @@ impl Mutation {
     pub async fn add_candidate_details(
         db: &DbConn,
         user: candidate::Model,
-        enc_details: EncryptedUserDetails,
+        enc_details: EncryptedApplicationDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let mut user: candidate::ActiveModel = user.into();
-        user.name = Set(Some(enc_details.name));
-        user.surname = Set(Some(enc_details.surname));
-        user.birthplace = Set(Some(enc_details.birthplace));
-        user.address = Set(Some(enc_details.address));
-        user.telephone = Set(Some(enc_details.telephone));
-        user.citizenship = Set(Some(enc_details.citizenship));
-        user.email = Set(Some(enc_details.email));
-        user.sex = Set(Some(enc_details.sex));
-        user.study = Set(Some(enc_details.study));
+        user.name = Set(Some(enc_details.name.into()));
+        user.surname = Set(Some(enc_details.surname.into()));
+        user.birthplace = Set(Some(enc_details.birthplace.into()));
+        user.birthdate = Set(Some(enc_details.birthdate.into()));
+        user.address = Set(Some(enc_details.address.into()));
+        user.telephone = Set(Some(enc_details.telephone.into()));
+        user.citizenship = Set(Some(enc_details.citizenship.into()));
+        user.email = Set(Some(enc_details.email.into()));
+        user.sex = Set(Some(enc_details.sex.into()));
+        user.study = Set(Some(enc_details.study.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 

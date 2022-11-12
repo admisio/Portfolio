@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService},
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService},
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -75,22 +75,14 @@ pub async fn create_candidate(
 
     let plain_text_password = random_8_char_string();
 
-    let candidate = CandidateService::create(
+    ApplicationService::create_candidate_with_parent(
         db,
         form.application_id,
         &plain_text_password,
         form.personal_id_number,
     )
-    .await;
-
-    if candidate.is_err() {
-        // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.message(),
-        ));
-    }
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
     Ok(plain_text_password)
 }
