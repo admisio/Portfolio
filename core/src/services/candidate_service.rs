@@ -39,19 +39,13 @@ impl CandidateService {
             return Err(ServiceError::UserAlreadyExists);
         }
 
-        let Ok(hashed_password) = hash_password(plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_password = hash_password(plain_text_password.to_string()).await?;
 
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
 
-        let Ok(encrypted_priv_key) = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoEncryptFailed);
-        };
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
 
-        let Ok(hashed_personal_id_number) = hash_password(personal_id_number).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_personal_id_number = hash_password(personal_id_number).await?;
 
         /* let encrypted_personal_id_number = crypto::encrypt_password_with_recipients(
             &personal_id_number, &vec![&pubkey]
@@ -208,14 +202,11 @@ impl CandidateService {
 
         recipients.append(&mut admin_public_keys_refrence);
 
-        let Ok(_) = crypto::encrypt_file_with_recipients(
+        crypto::encrypt_file_with_recipients(
             path.join("PORTFOLIO.zip"),
             path.join("PORTFOLIO.zip"),
             recipients,
-        )
-        .await else {
-            return Err(ServiceError::CryptoEncryptFailed);
-        };
+        ).await?;
 
         Ok(())
     }
@@ -240,10 +231,7 @@ impl CandidateService {
         password: String,
     ) -> Result<String, ServiceError> {
         let private_key_encrypted = candidate.private_key;
-        let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
-        let Ok(private_key) = private_key else {
-            return Err(ServiceError::CryptoDecryptFailed);
-        };
+        let private_key = crypto::decrypt_password(private_key_encrypted, password).await?;
         Ok(private_key)
     }
 

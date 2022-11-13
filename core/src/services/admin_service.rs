@@ -25,11 +25,7 @@ impl AdminService {
 
         let private_key_encrypted = admin.private_key;
 
-        let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
-
-        let Ok(private_key) = private_key else {
-            return Err(ServiceError::CryptoDecryptFailed);
-        };
+        let private_key = crypto::decrypt_password(private_key_encrypted, password).await?;
 
         Ok(private_key)
     }

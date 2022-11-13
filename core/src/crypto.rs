@@ -36,11 +36,12 @@ pub fn random_8_char_string() -> String {
 
 pub async fn hash_password(
     password_plain_text: String,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, ServiceError> {
     let argon_config = Argon2::new(
         argon2::Algorithm::Argon2i,
         argon2::Version::V0x13,
-        argon2::Params::new(6000, 3, 10, None)?,
+        argon2::Params::new(6000, 3, 10, None)
+            .map_err(|_| ServiceError::CryptoHashFailed)?,
     );
 
     let hash = tokio::task::spawn_blocking(move || {
@@ -54,7 +55,9 @@ pub async fn hash_password(
             .map(|x| x.serialize().to_string());
     });
 
-    let hash_string = hash.await??;
+    let hash_string = hash.await
+        .map_err(|_| ServiceError::CryptoHashFailed)?
+        .map_err(|_| ServiceError::CryptoHashFailed)?;
 
     return Ok(hash_string);
 }
@@ -111,7 +114,7 @@ fn convert_key_aes256(key: &str) -> Vec<u8> {
 pub async fn encrypt_password(
     password_plain_text: String,
     key: String,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, ServiceError> {
     let hash = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
@@ -124,7 +127,9 @@ pub async fn encrypt_password(
         let res = cipher.encrypt(nonce, password_plain_text.as_bytes());
         res
     })
-    .await??;
+        .await
+        .map_err(|_| ServiceError::CryptoEncryptFailed)?
+        .map_err(|_| ServiceError::CryptoEncryptFailed)?;
 
     Ok(base64::encode(hash))
 }
@@ -132,7 +137,7 @@ pub async fn encrypt_password(
 pub async fn decrypt_password(
     password_cipher_text: String,
     key: String,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, ServiceError> {
     let input = base64::decode(password_cipher_text).unwrap();
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
@@ -144,7 +149,9 @@ pub async fn decrypt_password(
 
         res
     })
-    .await??;
+        .await
+        .map_err(|_| ServiceError::CryptoDecryptFailed)?
+        .map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
     Ok(String::from_utf8(plain).unwrap())
 }
@@ -256,7 +263,7 @@ async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
 pub async fn encrypt_password_with_recipients(
     password_plain_text: &str,
     recipients: &Vec<&str>,
-) -> Result<String, age::EncryptError> {
+) -> Result<String, ServiceError> {
     let mut encrypt_buffer = Vec::new();
 
     age_encrypt_with_recipients(
@@ -264,7 +271,8 @@ pub async fn encrypt_password_with_recipients(
         &mut encrypt_buffer,
         recipients,
     )
-    .await?;
+        .await
+        .map_err(|_| ServiceError::CryptoEncryptFailed)?;
 
     Ok(base64::encode(encrypt_buffer))
 }
@@ -290,30 +298,32 @@ pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
     plain_file_path: P,
     cipher_file_path: P,
     recipients: Vec<&str>,
-) -> Result<(), age::EncryptError> {
-    let mut cipher_file = tokio::fs::File::create(cipher_file_path).await?;
-    let mut plain_file = tokio::fs::File::open(plain_file_path).await?;
+) -> Result<(), ServiceError> {
+    let mut cipher_file = tokio::fs::File::create(cipher_file_path).await.map_err(|_| ServiceError::CryptoEncryptFailed)?;
+    let mut plain_file = tokio::fs::File::open(plain_file_path).await.map_err(|_| ServiceError::CryptoEncryptFailed)?;
 
     let mut plain_file_contents = Vec::new();
 
-    tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
+    tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await.map_err(|_| ServiceError::CryptoEncryptFailed)?;
 
-    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, &recipients).await
+    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, &recipients)
+        .await
+        .map_err(|_| ServiceError::CryptoEncryptFailed)
 }
 
 pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
     cipher_file_path: P,
     plain_file_path: P,
     key: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
-    let mut plain_file = tokio::fs::File::create(plain_file_path).await?;
+) -> Result<(), ServiceError> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
+    let mut plain_file = tokio::fs::File::create(plain_file_path).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
     let mut plain_file_contents = Vec::new();
 
-    age_decrypt_with_private_key(cipher_file, &mut plain_file_contents, key).await?;
+    age_decrypt_with_private_key(cipher_file, &mut plain_file_contents, key).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
-    tokio::io::AsyncWriteExt::write_all(&mut plain_file, plain_file_contents.as_slice()).await?;
+    tokio::io::AsyncWriteExt::write_all(&mut plain_file, plain_file_contents.as_slice()).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
     Ok(())
 }
@@ -321,12 +331,12 @@ pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
 pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
     cipher_file_path: P,
     key: &str,
-) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
+) -> Result<Vec<u8>, ServiceError> {
+    let cipher_file = tokio::fs::File::open(cipher_file_path).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
     let mut plain_file = Vec::new();
 
-    age_decrypt_with_private_key(cipher_file, &mut plain_file, key).await?;
+    age_decrypt_with_private_key(cipher_file, &mut plain_file, key).await.map_err(|_| ServiceError::CryptoDecryptFailed)?;
 
     Ok(plain_file)
 }

@@ -77,10 +77,7 @@ impl ApplicationService {
         let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
 
 
-        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)
-            .await
-            .ok()
-            .unwrap();
+        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password).await?;
         let enc_details = EncryptedApplicationDetails::try_from((candidate, parent))?;
 
         enc_details.decrypt(dec_priv_key).await

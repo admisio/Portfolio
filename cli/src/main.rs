@@ -125,7 +125,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(("hash", sub_matches)) => {
             let input = sub_matches.get_one::<String>("input").unwrap();
 
-            let hash = portfolio_core::crypto::hash_password(input.to_string()).await?;
+            let hash = portfolio_core::crypto::hash_password(input.to_string()).await.map_err(|e| e.to_string())?;
 
             println!("{}", hash);
         }
@@ -135,9 +135,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let key = sub_matches.get_one::<String>("key").unwrap();
 
             let result = if !*decrypt {
-                portfolio_core::crypto::encrypt_password(input.to_string(), key.to_string()).await?
+                portfolio_core::crypto::encrypt_password(input.to_string(), key.to_string()).await.map_err(|e| e.to_string())?
             } else {
-                portfolio_core::crypto::decrypt_password(input.to_string(), key.to_string()).await?
+                portfolio_core::crypto::decrypt_password(input.to_string(), key.to_string()).await.map_err(|e| e.to_string())?
             };
 
             println!("{}", result);
@@ -148,7 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let key = sub_matches.get_one::<String>("key").unwrap();
 
             let result = if !*decrypt {
-                portfolio_core::crypto::encrypt_password_with_recipients(input, &vec![key]).await?
+                portfolio_core::crypto::encrypt_password_with_recipients(input, &vec![key]).await.map_err(|e| e.to_string())?
             } else {
                 portfolio_core::crypto::decrypt_password_with_private_key(input, key).await.map_err(|e| e.to_string())?
             };
