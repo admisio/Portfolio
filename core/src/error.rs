@@ -33,10 +33,30 @@ pub enum ServiceError {
     CryptoDecryptFailed,
     #[error("Candidate details not set, please contact technical support")]
     CandidateDetailsNotSet,
-    
+    #[error("Tokio join error")]
+    TokioJoinError(#[from] tokio::task::JoinError),
+    #[error("Age encrypt error")]
+    AgeEncryptError(#[from] age::EncryptError),
+    #[error("Age decrypt error")]
+    AgeDecryptError(#[from] age::DecryptError),
+    #[error("Age key error")]
+    AgeKeyError(String),
+    #[error("IO error")]
+    IOError(#[from] std::io::Error),
+    #[error("Base64 decode error")]
+    Base64DecodeError(#[from] base64::DecodeError),
+    #[error("UTF8 decode error")]
+    UTF8DecodeError(#[from] std::string::FromUtf8Error),
+    #[error("Argon config error")]
+    ArgonConfigError(#[from] argon2::Error),
+    #[error("Argon hash error")]
+    ArgonHashError(#[from] argon2::password_hash::Error),
+    #[error("AES error")]
+    AesError(#[from] aes_gcm_siv::Error),
 }
 
 impl ServiceError {
+    // TODO: Převod do thiserror
     fn code_and_message(&self) -> (u16, String) {
         match self {
             ServiceError::InvalidApplicationId => (400, "Invalid application id".to_string()),
@@ -54,6 +74,17 @@ impl ServiceError {
             ServiceError::CryptoEncryptFailed => (500, "Crypto encryption failed, please contact technical support".to_string()),
             ServiceError::CryptoDecryptFailed => (500, "Crypto decryption failed, please contact technical support".to_string()),
             ServiceError::CandidateDetailsNotSet => (500, "Candidate details not set, please contact technical support".to_string()),
+            // TODO: Dodělat hlášky
+            ServiceError::AgeEncryptError(_) => (500, "Age encrypt error".to_string()),
+            ServiceError::AgeDecryptError(_) => (500, "Age decrypt error".to_string()),
+            ServiceError::AgeKeyError(_) => (500, "Age key error".to_string()),
+            ServiceError::IOError(_) => (500, "IO error".to_string()),
+            ServiceError::Base64DecodeError(_) => (500, "Base64 decode error".to_string()),
+            ServiceError::UTF8DecodeError(_) => (500, "UTF8 decode error".to_string()),
+            ServiceError::ArgonHashError(_) => (500, "Argon hash error".to_string()),
+            ServiceError::TokioJoinError(_) => (500, "Tokio join error".to_string()),
+            ServiceError::AesError(_) => (500, "AES error".to_string()),
+            ServiceError::ArgonConfigError(_) => (500, "Argon config error".to_string()),
         }
     }
 
