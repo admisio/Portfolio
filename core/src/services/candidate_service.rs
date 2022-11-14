@@ -43,19 +43,13 @@ impl CandidateService {
             return Err(ServiceError::UserAlreadyExists);
         }
 
-        let Ok(hashed_password) = hash_password(plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_password = hash_password(plain_text_password.to_string()).await?;
 
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
 
-        let Ok(encrypted_priv_key) = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoEncryptFailed);
-        };
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
 
-        let Ok(hashed_personal_id_number) = hash_password(personal_id_number).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_personal_id_number = hash_password(personal_id_number).await?;
 
         // TODO: Specify root path in config?
         tokio::fs::create_dir_all(Path::new(&application_id.to_string()).join("cache")).await?;
@@ -181,12 +175,8 @@ impl CandidateService {
         let admin_public_keys = Query::get_all_admin_public_keys(db)
             .await?;
 
-        let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await?;
-
-        let Some(candidate) = candidate else {
-            return Err(ServiceError::CandidateNotFound);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
 
         let candidate_public_key = candidate.public_key;
 
@@ -210,20 +200,14 @@ impl CandidateService {
     }
 
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await?;
-
-        let Some(candidate) = candidate else {
-            return Err(ServiceError::CandidateNotFound);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
 
         let candidate_public_key = candidate.public_key;
 
         let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.zip");
 
-        let Ok(buffer) = crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await else {
-            return Err(ServiceError::CryptoDecryptFailed);
-        };
+        let buffer = crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await?;
 
         Ok(buffer)
     }
@@ -234,11 +218,7 @@ impl CandidateService {
     ) -> Result<String, ServiceError> {
         let private_key_encrypted = candidate.private_key;
 
-        let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
-
-        let Ok(private_key) = private_key else {
-            return Err(ServiceError::CryptoDecryptFailed);
-        };
+        let private_key = crypto::decrypt_password(private_key_encrypted, password).await?;
 
         Ok(private_key)
     }
