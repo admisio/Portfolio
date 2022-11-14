@@ -34,18 +34,14 @@ impl ApplicationService {
         form: ApplicationDetails,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, application)
-            .await
-            .map_err(|_| ServiceError::DbError)?
+            .await?
             .ok_or(ServiceError::CandidateNotFound)?;
         
         let parent = Query::find_parent_by_id(db, application)
-            .await
-            .map_err(|_| ServiceError::DbError)?
+            .await?
             .ok_or(ServiceError::ParentNotFound)?;
 
-        let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
-            return Err(ServiceError::DbError);
-        };
+        let admin_public_keys =  Query::get_all_admin_public_keys(db).await?;
 
         let mut admin_public_keys_refrence: Vec<&str> =
             admin_public_keys.iter().map(|s| &**s).collect();
@@ -70,9 +66,9 @@ impl ApplicationService {
     ) -> Result<ApplicationDetails, ServiceError>  {
         let candidate = match Query::find_candidate_by_id(db, application_id).await {
             Ok(candidate) => candidate.unwrap(),
-            Err(_) => return Err(ServiceError::DbError), // TODO: logging
+            Err(e) => return Err(ServiceError::DbError(e)), // TODO: logging
         };
-        let parent = Query::find_parent_by_id(db, application_id).await.unwrap().unwrap();
+        let parent = Query::find_parent_by_id(db, application_id).await?.unwrap();
 
         match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
             Ok(valid) => {

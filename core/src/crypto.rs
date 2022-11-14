@@ -34,9 +34,7 @@ pub fn random_8_char_string() -> String {
     s
 }
 
-pub async fn hash_password(
-    password_plain_text: String,
-) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn hash_password(password_plain_text: String) -> Result<String, ServiceError> {
     let argon_config = Argon2::new(
         argon2::Algorithm::Argon2i,
         argon2::Version::V0x13,
@@ -56,13 +54,13 @@ pub async fn hash_password(
 
     let hash_string = hash.await??;
 
-    return Ok(hash_string);
+    Ok(hash_string)
 }
 
 pub async fn verify_password(
     password_plaint_text: String,
     hash: String,
-) -> Result<bool, Box<dyn std::error::Error>> {
+) -> Result<bool, ServiceError> {
     let argon_config = Argon2::new(
         argon2::Algorithm::Argon2i,
         argon2::Version::V0x13,
@@ -106,7 +104,7 @@ fn convert_key_aes256(key: &str) -> Vec<u8> {
 pub async fn encrypt_password(
     password_plain_text: String,
     key: String,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, ServiceError> {
     let hash = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
@@ -127,8 +125,8 @@ pub async fn encrypt_password(
 pub async fn decrypt_password(
     password_cipher_text: String,
     key: String,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let input = base64::decode(password_cipher_text).unwrap();
+) -> Result<String, ServiceError> {
+    let input = base64::decode(password_cipher_text)?;
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
@@ -141,14 +139,14 @@ pub async fn decrypt_password(
     })
     .await??;
 
-    Ok(String::from_utf8(plain).unwrap())
+    Ok(String::from_utf8(plain)?)
 }
 
 #[deprecated(note = "Too slow, use AES instead")]
 pub async fn encrypt_password_age(
     password_plain_text: &str,
     key: &str,
-) -> Result<String, age::EncryptError> {
+) -> Result<String, ServiceError> {
     let encryptor = age::Encryptor::with_user_passphrase(age::secrecy::Secret::new(key.to_owned()));
 
     let mut encrypt_buffer = Vec::new();
@@ -169,7 +167,7 @@ pub async fn encrypt_password_age(
 pub async fn decrypt_password_age(
     password_encrypted: &str,
     key: &str,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, ServiceError> {
     let encrypted = base64::decode(password_encrypted)?;
 
     let decryptor = match age::Decryptor::new_async(&encrypted[..]).await? {
@@ -200,7 +198,7 @@ async fn age_encrypt_with_recipients<W: tokio::io::AsyncWrite + Unpin>(
     input_buffer: &[u8],
     output_buffer: &mut W,
     recipients: &Vec<&str>,
-) -> Result<(), age::EncryptError> {
+) -> Result<(), ServiceError> {
     let public_keys = recipients
         .into_iter()
         .map(|recipient| {
@@ -233,14 +231,15 @@ async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
     input_buffer: R,
     output_buffer: &mut Vec<u8>,
     key: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), ServiceError> {
     let decryptor = match age::Decryptor::new_async(input_buffer.compat()).await? {
         age::Decryptor::Recipients(d) => d,
         _ => unreachable!(),
     };
 
     let mut decrypt_writer = decryptor.decrypt_async(iter::once(
-        &age::x25519::Identity::from_str(key)? as &dyn age::Identity,
+        &age::x25519::Identity::from_str(key).map_err(|e| ServiceError::AgeKeyError(e.to_string()))?
+            as &dyn age::Identity,
     ))?;
 
     decrypt_writer.read_to_end(output_buffer).await?;
@@ -251,7 +250,7 @@ async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
 pub async fn encrypt_password_with_recipients(
     password_plain_text: &str,
     recipients: &Vec<&str>,
-) -> Result<String, age::EncryptError> {
+) -> Result<String, ServiceError> {
     let mut encrypt_buffer = Vec::new();
 
     age_encrypt_with_recipients(
@@ -267,25 +266,22 @@ pub async fn encrypt_password_with_recipients(
 pub async fn decrypt_password_with_private_key(
     password_encrypted: &str,
     key: &str,
-) -> Result<String, ServiceError> { // TODO More specific error handling
-    let Ok(encrypted) = base64::decode(password_encrypted) else {
-        return Err(ServiceError::CryptoEncryptFailed);
-    };
+) -> Result<String, ServiceError> {
+    let encrypted = base64::decode(password_encrypted)?;
 
     let mut decrypt_buffer = Vec::new();
 
-    if age_decrypt_with_private_key(encrypted.as_slice(), &mut decrypt_buffer, key).await.is_err() {
-        return Err(ServiceError::CryptoDecryptFailed);
-    };
+    age_decrypt_with_private_key(encrypted.as_slice(), &mut decrypt_buffer, key).await?;
 
-    String::from_utf8(decrypt_buffer).map_err(|_| ServiceError::CryptoDecryptFailed)
+    let string = String::from_utf8(decrypt_buffer)?;
+    Ok(string)
 }
 
 pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
     plain_file_path: P,
     cipher_file_path: P,
     recipients: Vec<&str>,
-) -> Result<(), age::EncryptError> {
+) -> Result<(), ServiceError> {
     let mut cipher_file = tokio::fs::File::create(cipher_file_path).await?;
     let mut plain_file = tokio::fs::File::open(plain_file_path).await?;
 
@@ -293,14 +289,19 @@ pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
 
     tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
 
-    age_encrypt_with_recipients(plain_file_contents.as_slice(), &mut cipher_file, &recipients).await
+    age_encrypt_with_recipients(
+        plain_file_contents.as_slice(),
+        &mut cipher_file,
+        &recipients,
+    )
+    .await
 }
 
 pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
     cipher_file_path: P,
     plain_file_path: P,
     key: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), ServiceError> {
     let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
     let mut plain_file = tokio::fs::File::create(plain_file_path).await?;
 
@@ -316,7 +317,7 @@ pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
 pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
     cipher_file_path: P,
     key: &str,
-) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+) -> Result<Vec<u8>, ServiceError> {
     let cipher_file = tokio::fs::File::open(cipher_file_path).await?;
 
     let mut plain_file = Vec::new();

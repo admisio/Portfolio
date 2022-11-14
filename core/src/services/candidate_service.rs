@@ -1,13 +1,14 @@
-use entity::{candidate};
+use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
+    candidate_details::EncryptedApplicationDetails,
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, candidate_details::{EncryptedApplicationDetails},
+    Mutation, Query,
 };
 
-use super::{session_service::{AdminUser, SessionService}};
+use super::session_service::{AdminUser, SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -53,7 +54,7 @@ impl CandidateService {
             return Err(ServiceError::CryptoHashFailed);
         };
 
-        Mutation::create_candidate(
+        let candidate = Mutation::create_candidate(
             db,
             application_id,
             hashed_password,
@@ -61,8 +62,8 @@ impl CandidateService {
             pubkey,
             encrypted_priv_key,
         )
-            .await
-            .map_err(|_| ServiceError::DbError)
+        .await?;
+        Ok(candidate)
     }
 
     pub(in crate::services) async fn add_candidate_details(
@@ -70,22 +71,21 @@ impl CandidateService {
         candidate: candidate::Model,
         enc_details: EncryptedApplicationDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        Mutation::add_candidate_details(db, candidate, enc_details.clone())
-            .await
-            .map_err(|_| ServiceError::DbError)
+        let model = Mutation::add_candidate_details(db, candidate, enc_details.clone()).await?;
+        Ok(model)
     }
 
     pub fn is_set_up(candidate: &candidate::Model) -> bool {
-        candidate.name.is_some() &&
-            candidate.surname.is_some() &&
-            candidate.birthplace.is_some() &&
-            candidate.birthdate.is_some() &&
-            candidate.address.is_some() &&
-            candidate.telephone.is_some() &&
-            candidate.citizenship.is_some() &&
-            candidate.email.is_some() &&
-            candidate.sex.is_some() &&
-            candidate.study.is_some()
+        candidate.name.is_some()
+            && candidate.surname.is_some()
+            && candidate.birthplace.is_some()
+            && candidate.birthdate.is_some()
+            && candidate.address.is_some()
+            && candidate.telephone.is_some()
+            && candidate.citizenship.is_some()
+            && candidate.email.is_some()
+            && candidate.sex.is_some()
+            && candidate.study.is_some()
     }
 
     pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
@@ -128,12 +128,12 @@ impl CandidateService {
         ip_addr: String,
     ) -> Result<(String, String), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await
-            .map_err(|_| ServiceError::DbError)?
+            .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
         let session_id =
-            SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr).await;
+            SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr)
+                .await;
         match session_id {
             Ok(session_id) => {
                 let private_key = Self::decrypt_private_key(candidate, password).await?;
@@ -147,7 +147,7 @@ impl CandidateService {
         match SessionService::auth_user_session(db, session_uuid).await {
             Ok(user) => match user {
                 AdminUser::Candidate(candidate) => Ok(candidate),
-                AdminUser::Admin(_) => Err(ServiceError::DbError),
+                AdminUser::Admin(_) => unreachable!(),
             },
             Err(e) => Err(e),
         }
@@ -168,17 +168,14 @@ impl CandidateService {
 mod tests {
     use sea_orm::{Database, DbConn};
 
-    use crate::{
-        crypto,
-        services::candidate_service::{CandidateService}, Mutation,
-    };
+    use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;
     use chrono::NaiveDate;
-    use entity::{parent, candidate};
+    use entity::{candidate, parent};
 
-    use crate::services::application_service::ApplicationService;
     use crate::candidate_details::ApplicationDetails;
+    use crate::services::application_service::ApplicationService;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -225,14 +222,12 @@ mod tests {
 
         let secret_message = "trnka".to_string();
 
-        
         let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
 
-        Mutation::create_parent(&db, 103151)
-            .await.unwrap();
+        Mutation::create_parent(&db, 103151).await.unwrap();
 
         let encrypted_message =
             crypto::encrypt_password_with_recipients(&secret_message, &vec![&candidate.public_key])
@@ -255,10 +250,15 @@ mod tests {
     #[cfg(test)]
     async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
         let plain_text_password = "test".to_string();
-        let (candidate, parent) = ApplicationService::create_candidate_with_parent(&db, 103151, &plain_text_password, "".to_string())
-            .await
-            .ok()
-            .unwrap();
+        let (candidate, parent) = ApplicationService::create_candidate_with_parent(
+            &db,
+            103151,
+            &plain_text_password,
+            "".to_string(),
+        )
+        .await
+        .ok()
+        .unwrap();
 
         let form = ApplicationDetails {
             name: "test".to_string(),
@@ -275,7 +275,6 @@ mod tests {
             parent_surname: "test".to_string(),
             parent_telephone: "test".to_string(),
             parent_email: "test".to_string(),
-
         };
 
         ApplicationService::add_all_details(&db, candidate.application, form)
@@ -300,7 +299,9 @@ mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let enc_details = EncryptedApplicationDetails::try_from((enc_candidate, enc_parent)).ok().unwrap();
+        let enc_details = EncryptedApplicationDetails::try_from((enc_candidate, enc_parent))
+            .ok()
+            .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
         assert_eq!(dec_details.name, "test"); // TODO: test every element

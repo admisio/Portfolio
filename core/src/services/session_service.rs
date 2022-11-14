@@ -59,7 +59,7 @@ impl SessionService {
                     Some(candidate) => candidate,
                     None => return Err(ServiceError::CandidateNotFound),
                 },
-                Err(_) => return Err(ServiceError::DbError),
+                Err(e) => return Err(ServiceError::DbError(e)),
             };
 
             // compare passwords
@@ -80,7 +80,7 @@ impl SessionService {
                     Some(admin) => admin,
                     None => return Err(ServiceError::CandidateNotFound),
                 },
-                Err(_) => return Err(ServiceError::DbError),
+                Err(e) => return Err(ServiceError::DbError(e)),
             };
 
             // compare passwords
@@ -102,7 +102,7 @@ impl SessionService {
                 Ok(session) => session,
                 Err(e) => {
                     eprintln!("Error creating session: {}", e);
-                    return Err(ServiceError::DbError);
+                    return Err(ServiceError::DbError(e));
                 }
             };
 
@@ -126,7 +126,7 @@ impl SessionService {
                 Some(session) => session,
                 None => return Err(ServiceError::UserNotFoundBySessionId),
             },
-            Err(_) => return Err(ServiceError::DbError),
+            Err(e) => return Err(ServiceError::DbError(e)),
         };
 
         let now = chrono::Utc::now().naive_utc();
