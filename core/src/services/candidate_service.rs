@@ -155,46 +155,46 @@ impl CandidateService {
         let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
 
         for entry in vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"] {
-            let entry_file = tokio::fs::File::open(cache_path.join(entry)).await;
-
-            let Ok(mut entry_file) = entry_file else {
-                return Err(ServiceError::FileOpenError);
-            };
+            let mut entry_file = tokio::fs::File::open(cache_path.join(entry))
+                .await
+                .map_err(|_| ServiceError::FileOpenError)?;
 
             let mut contents = vec![];
-            let read = entry_file.read_to_end(&mut contents).await;
 
-            let Ok(_) = read else {
-                return Err(ServiceError::FileReadError);
-            };
+            entry_file
+                .read_to_end(&mut contents)
+                .await
+                .map_err(|_| ServiceError::FileReadError)?;
 
             let builder =
                 async_zip::ZipEntryBuilder::new(entry.to_string(), async_zip::Compression::Deflate);
-            // TODO: Ne unwrap
-            let mut entry_writer = writer.write_entry_stream(builder).await.unwrap();
+
+            let mut entry_writer = writer
+                .write_entry_stream(builder)
+                .await
+                .map_err(|_| ServiceError::FileWriteError)?;
 
             // TODO: write_all_buf?
-            let write = entry_writer.write_all(&mut contents).await;
-
-            let Ok(_) = write else {
-                return Err(ServiceError::FileWriteError);
-            };
+            entry_writer
+                .write_all(&mut contents)
+                .await
+                .map_err(|_| ServiceError::FileWriteError)?;
         }
 
         // TODO: Ne unwrap
         writer.close().await.unwrap();
         archive.shutdown().await.unwrap();
 
-        let Ok(admin_public_keys) = Query::get_all_admin_public_keys(db).await else {
-            return Err(ServiceError::DbError);
-        };
+        let admin_public_keys = Query::get_all_admin_public_keys(db)
+            .await
+            .map_err(|_| ServiceError::DbError)?;
 
-        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
-            return Err(ServiceError::DbError);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id)
+            .await
+            .map_err(|_| ServiceError::DbError)?;
 
         let Some(candidate) = candidate else {
-            return Err(ServiceError::UserNotFound);
+            return Err(ServiceError::CandidateNotFound);
         };
 
         let candidate_public_key = candidate.public_key;
@@ -219,12 +219,12 @@ impl CandidateService {
     }
 
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
-        let Ok(candidate) = Query::find_candidate_by_id(db, candidate_id).await else {
-            return Err(ServiceError::DbError);
-        };
+        let candidate = Query::find_candidate_by_id(db, candidate_id)
+            .await
+            .map_err(|_| ServiceError::DbError)?;
 
         let Some(candidate) = candidate else {
-            return Err(ServiceError::UserNotFound);
+            return Err(ServiceError::CandidateNotFound);
         };
 
         let candidate_public_key = candidate.public_key;
