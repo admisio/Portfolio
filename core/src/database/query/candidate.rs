@@ -19,19 +19,7 @@ mod tests {
     use sea_orm::{ActiveModelTrait, DbConn, Set};
 
     use crate::Query;
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        db.execute(db.get_database_backend().build(&stmt))
-            .await
-            .unwrap();
-        db
-    }
+    use crate::util::get_memory_sqlite_connection;
 
     #[tokio::test]
     async fn test_find_candidate_by_id() {

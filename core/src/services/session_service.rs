@@ -171,33 +171,8 @@ mod tests {
 
     use crate::{
         crypto,
-        services::{session_service::SessionService, application_service::ApplicationService},
+        services::{session_service::SessionService, application_service::ApplicationService}, util::get_memory_sqlite_connection,
     };
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
-        let stmt3: TableCreateStatement = schema.create_table_from_entity(session::Entity);
-        let stmt4: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
-        db.execute(db.get_database_backend().build(&stmt))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt2))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt3))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt4))
-            .await
-            .unwrap();
-        db
-    }
 
     #[tokio::test]
     async fn test_create_candidate() {

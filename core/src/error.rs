@@ -54,6 +54,10 @@ pub enum ServiceError {
     ArgonHashError(#[from] argon2::password_hash::Error),
     #[error("AES error")]
     AesError(#[from] aes_gcm_siv::Error),
+    #[error("Portfolio is incomplete")]
+    IncompletePortfolio,
+    #[error("Zip error")]
+    ZipError(#[from] async_zip::error::ZipError)
 }
 
 impl ServiceError {
@@ -84,6 +88,9 @@ impl ServiceError {
             ServiceError::TokioJoinError(_) => 500,
             ServiceError::AesError(_) => 500,
             ServiceError::ArgonConfigError(_) => 500,
+            //TODO: Correct code
+            ServiceError::IncompletePortfolio => 500,
+            ServiceError::ZipError(_) => 500,
         }
     }
 }

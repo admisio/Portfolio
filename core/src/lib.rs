@@ -4,6 +4,7 @@ pub mod filetype;
 pub mod services;
 pub mod error;
 pub mod candidate_details;
+pub mod util;
 
 pub use database::mutation::*;
 pub use database::query::*;

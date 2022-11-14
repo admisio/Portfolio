@@ -1,5 +1,8 @@
+use std::path::Path;
+
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{
     candidate_details::EncryptedApplicationDetails,
@@ -40,19 +43,17 @@ impl CandidateService {
             return Err(ServiceError::UserAlreadyExists);
         }
 
-        let Ok(hashed_password) = hash_password(plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_password = hash_password(plain_text_password.to_string()).await?;
 
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
 
-        let Ok(encrypted_priv_key) = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await else {
-            return Err(ServiceError::CryptoEncryptFailed);
-        };
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
 
-        let Ok(hashed_personal_id_number) = hash_password(personal_id_number).await else {
-            return Err(ServiceError::CryptoHashFailed);
-        };
+        let hashed_personal_id_number = hash_password(personal_id_number).await?;
+
+        // TODO: Specify root path in config?
+        tokio::fs::create_dir_all(Path::new(&application_id.to_string()).join("cache")).await?;
+
 
         let candidate = Mutation::create_candidate(
             db,
@@ -88,22 +89,127 @@ impl CandidateService {
             && candidate.study.is_some()
     }
 
-    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
+    async fn write_portfolio_file(
+        candidate_id: i32,
+        data: Vec<u8>,
+        filename: &str,
+    ) -> Result<(), ServiceError> {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        let mut file = tokio::fs::File::create(cache_path.join(filename)).await?;
+
+        file.write_all(&data).await?;
+
         Ok(())
+    }
+
+    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+        Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
     pub async fn add_portfolio_letter(
         candidate_id: i32,
         letter: Vec<u8>,
     ) -> Result<(), ServiceError> {
-        // TODO
-        Ok(())
+        Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
     pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
-        // TODO
+        Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
+    }
+
+    pub async fn is_portfolio_complete(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join("MOTIVACNI_DOPIS.pdf"))
+            .await
+            .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.pdf"))
+                .await
+                .is_ok()
+            && tokio::fs::metadata(cache_path.join("PORTFOLIO.zip"))
+                .await
+                .is_ok()
+    }
+
+    pub async fn submit_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
+        let path = Path::new(&candidate_id.to_string()).to_path_buf();
+        let cache_path = path.join("cache");
+
+        if Self::is_portfolio_complete(candidate_id).await == false {
+            return Err(ServiceError::IncompletePortfolio);
+        }
+
+        let mut archive = tokio::fs::File::create(path.join("PORTFOLIO.zip")).await?;
+
+    
+        let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
+
+        for entry in vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"] {
+            let mut entry_file = tokio::fs::File::open(cache_path.join(entry))
+                .await?;
+
+            let mut contents = vec![];
+
+            entry_file
+                .read_to_end(&mut contents)
+                .await?;
+
+            let builder =
+                async_zip::ZipEntryBuilder::new(entry.to_string(), async_zip::Compression::Deflate);
+
+            let mut entry_writer = writer
+                .write_entry_stream(builder)
+                .await?;
+
+            // TODO: write_all_buf?
+            entry_writer
+                .write_all(&mut contents)
+                .await?;
+        }
+
+        // TODO: Ne unwrap
+        writer.close().await.unwrap();
+        archive.shutdown().await.unwrap();
+
+        let admin_public_keys = Query::get_all_admin_public_keys(db)
+            .await?;
+
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+        let candidate_public_key = candidate.public_key;
+
+        let mut admin_public_keys_refrence: Vec<&str> =
+            admin_public_keys.iter().map(|s| &**s).collect();
+
+        let mut recipients = vec![&*candidate_public_key];
+
+        recipients.append(&mut admin_public_keys_refrence);
+
+        let Ok(_) = crypto::encrypt_file_with_recipients(
+            path.join("PORTFOLIO.zip"),
+            path.join("PORTFOLIO.zip"),
+            recipients,
+        )
+        .await else {
+            return Err(ServiceError::CryptoEncryptFailed);
+        };
+
         Ok(())
+    }
+
+    pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+        let candidate_public_key = candidate.public_key;
+
+        let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.zip");
+
+        let buffer = crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await?;
+
+        Ok(buffer)
     }
 
     async fn decrypt_private_key(
@@ -112,11 +218,7 @@ impl CandidateService {
     ) -> Result<String, ServiceError> {
         let private_key_encrypted = candidate.private_key;
 
-        let private_key = crypto::decrypt_password(private_key_encrypted, password).await;
-
-        let Ok(private_key) = private_key else {
-            return Err(ServiceError::CryptoDecryptFailed);
-        };
+        let private_key = crypto::decrypt_password(private_key_encrypted, password).await?;
 
         Ok(private_key)
     }
@@ -168,6 +270,7 @@ impl CandidateService {
 mod tests {
     use sea_orm::{Database, DbConn};
 
+    use crate::util::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;
@@ -186,32 +289,6 @@ mod tests {
         assert!(!CandidateService::is_application_id_valid(100_109));
         assert!(!CandidateService::is_application_id_valid(201_109));
         assert!(!CandidateService::is_application_id_valid(101));
-    }
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        use entity::{admin, candidate, parent};
-        use sea_orm::Schema;
-        use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
-
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
-        let stmt3: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
-
-        db.execute(db.get_database_backend().build(&stmt))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt2))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt3))
-            .await
-            .unwrap();
-        db
     }
 
     #[tokio::test]
