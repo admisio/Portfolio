@@ -270,6 +270,7 @@ impl CandidateService {
 mod tests {
     use sea_orm::{Database, DbConn};
 
+    use crate::util::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;
@@ -288,32 +289,6 @@ mod tests {
         assert!(!CandidateService::is_application_id_valid(100_109));
         assert!(!CandidateService::is_application_id_valid(201_109));
         assert!(!CandidateService::is_application_id_valid(101));
-    }
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        use entity::{admin, candidate, parent};
-        use sea_orm::Schema;
-        use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
-
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
-        let stmt3: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
-
-        db.execute(db.get_database_backend().build(&stmt))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt2))
-            .await
-            .unwrap();
-        db.execute(db.get_database_backend().build(&stmt3))
-            .await
-            .unwrap();
-        db
     }
 
     #[tokio::test]

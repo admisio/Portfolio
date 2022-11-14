@@ -25,23 +25,3 @@ impl Query {
             .await
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use entity::candidate;
-    use sea_orm::DbConn;
-    use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend, Schema};
-
-    #[cfg(test)]
-    async fn get_memory_sqlite_connection() -> DbConn {
-        let base_url = "sqlite::memory:";
-        let db: DbConn = Database::connect(base_url).await.unwrap();
-
-        let schema = Schema::new(DbBackend::Sqlite);
-        let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-        db.execute(db.get_database_backend().build(&stmt))
-            .await
-            .unwrap();
-        db
-    }
-}
