@@ -146,39 +146,32 @@ impl CandidateService {
             return Err(ServiceError::IncompletePortfolio);
         }
 
-        let archive = tokio::fs::File::create(path.join("PORTFOLIO.zip")).await;
+        let mut archive = tokio::fs::File::create(path.join("PORTFOLIO.zip")).await?;
 
-        let Ok(mut archive) = archive else {
-            return Err(ServiceError::FileCreationError);
-        };
-
+    
         let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
 
         for entry in vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"] {
             let mut entry_file = tokio::fs::File::open(cache_path.join(entry))
-                .await
-                .map_err(|_| ServiceError::FileOpenError)?;
+                .await?;
 
             let mut contents = vec![];
 
             entry_file
                 .read_to_end(&mut contents)
-                .await
-                .map_err(|_| ServiceError::FileReadError)?;
+                .await?;
 
             let builder =
                 async_zip::ZipEntryBuilder::new(entry.to_string(), async_zip::Compression::Deflate);
 
             let mut entry_writer = writer
                 .write_entry_stream(builder)
-                .await
-                .map_err(|_| ServiceError::FileWriteError)?;
+                .await?;
 
             // TODO: write_all_buf?
             entry_writer
                 .write_all(&mut contents)
-                .await
-                .map_err(|_| ServiceError::FileWriteError)?;
+                .await?;
         }
 
         // TODO: Ne unwrap
@@ -186,12 +179,10 @@ impl CandidateService {
         archive.shutdown().await.unwrap();
 
         let admin_public_keys = Query::get_all_admin_public_keys(db)
-            .await
-            .map_err(|_| ServiceError::DbError)?;
+            .await?;
 
         let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await
-            .map_err(|_| ServiceError::DbError)?;
+            .await?;
 
         let Some(candidate) = candidate else {
             return Err(ServiceError::CandidateNotFound);
@@ -220,8 +211,7 @@ impl CandidateService {
 
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await
-            .map_err(|_| ServiceError::DbError)?;
+            .await?;
 
         let Some(candidate) = candidate else {
             return Err(ServiceError::CandidateNotFound);
