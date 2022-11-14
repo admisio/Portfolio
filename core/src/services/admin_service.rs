@@ -13,11 +13,7 @@ impl AdminService {
         admin_id: i32,
         password: String,
     ) -> Result<String, ServiceError> {
-        let admin = Query::find_admin_by_id(db, admin_id).await;
-
-        let Ok(admin) = admin else {
-            return Err(ServiceError::DbError);
-        };
+        let admin = Query::find_admin_by_id(db, admin_id).await?;
 
         let Some(admin) = admin else {
             return Err(ServiceError::CandidateNotFound);
@@ -55,7 +51,7 @@ impl AdminService {
         match SessionService::auth_user_session(db, session_uuid).await {
             Ok(user) => match user {
                 AdminUser::Admin(admin) => Ok(admin),
-                AdminUser::Candidate(_) => Err(ServiceError::DbError),
+                AdminUser::Candidate(_) => unreachable!(),
             },
             Err(e) => Err(e),
         }

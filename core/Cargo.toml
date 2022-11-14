@@ -12,6 +12,10 @@ portfolio-entity = { path = "../entity" }
 # serde
 serde = { version = "^1.0", features = ["derive"] }
 
+# error
+
+thiserror = "^1.0"
+
 # env
 dotenv = "^0.15"
 

@@ -1,19 +1,39 @@
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+
 pub enum ServiceError {
+    #[error("Invalid application id")]
     InvalidApplicationId,
+    #[error("Invalid credentials")]
     InvalidCredentials,
+    #[error("Forbidden")]
     Forbidden,
+    #[error("Session expired, please login agai")]
     ExpiredSession,
+    #[error("Error while encoding JWT")]
     JwtError,
+    #[error("User already exists")]
     UserAlreadyExists,
+    #[error("Candidate not found")]
     CandidateNotFound,
+    #[error("Parrent not found")]
     ParentNotFound,
-    DbError,
+    #[error("Database error")]
+    DbError(#[from] sea_orm::DbErr),
+    #[error("User not found, please contact technical support")]
     UserNotFoundByJwtId,
+    #[error("User not found, please contact technical support")]
     UserNotFoundBySessionId,
+    #[error("Crypto hash failed, please contact technical support")]
     CryptoHashFailed,
+    #[error("Crypto encryption failed, please contact technical support")]
     CryptoEncryptFailed,
+    #[error("Crypto decryption failed, please contact technical support")]
     CryptoDecryptFailed,
+    #[error("Candidate details not set, please contact technical support")]
     CandidateDetailsNotSet,
+    
 }
 
 impl ServiceError {
@@ -27,7 +47,7 @@ impl ServiceError {
             ServiceError::UserAlreadyExists => (409, "User already exists".to_string()),
             ServiceError::CandidateNotFound => (404, "User not found".to_string()),
             ServiceError::ParentNotFound => (500, "Parent not found".to_string()),
-            ServiceError::DbError => (500, "Database error".to_string()),
+            ServiceError::DbError(_) => (500, "Database error".to_string()),
             ServiceError::UserNotFoundByJwtId => (500, "User not found, please contact technical support".to_string()),
             ServiceError::UserNotFoundBySessionId => (500, "User not found, please contact technical support".to_string()),
             ServiceError::CryptoHashFailed => (500, "Crypto hash failed, please contact technical support".to_string()),
@@ -43,17 +63,5 @@ impl ServiceError {
 
     pub fn message(&self) -> String {
         self.code_and_message().1
-    }
-}
-
-impl std::fmt::Debug for ServiceError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ServiceError {{ code: {}, message: {} }}", self.code(), self.message())
-    }
-}
-
-impl std::fmt::Display for ServiceError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ServiceError {{ code: {}, message: {} }}", self.code(), self.message())
     }
 }
