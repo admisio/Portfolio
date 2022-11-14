@@ -126,7 +126,7 @@ pub async fn decrypt_password(
     password_cipher_text: String,
     key: String,
 ) -> Result<String, ServiceError> {
-    let input = base64::decode(password_cipher_text).unwrap();
+    let input = base64::decode(password_cipher_text)?;
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
@@ -139,7 +139,7 @@ pub async fn decrypt_password(
     })
     .await??;
 
-    Ok(String::from_utf8(plain).unwrap())
+    Ok(String::from_utf8(plain)?)
 }
 
 #[deprecated(note = "Too slow, use AES instead")]
