@@ -2,6 +2,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 
+// TODO: Lepší hlášky
 pub enum ServiceError {
     #[error("Invalid application id")]
     InvalidApplicationId,
@@ -56,43 +57,33 @@ pub enum ServiceError {
 }
 
 impl ServiceError {
-    // TODO: Převod do thiserror
-    fn code_and_message(&self) -> (u16, String) {
-        match self {
-            ServiceError::InvalidApplicationId => (400, "Invalid application id".to_string()),
-            ServiceError::InvalidCredentials => (401, "Invalid credentials".to_string()),
-            ServiceError::Forbidden => (403, "Forbidden".to_string()),
-            ServiceError::ExpiredSession => (401, "Session expired, please login again".to_string()),
-            ServiceError::JwtError => (500, "Error while encoding JWT".to_string()),
-            ServiceError::UserAlreadyExists => (409, "User already exists".to_string()),
-            ServiceError::CandidateNotFound => (404, "User not found".to_string()),
-            ServiceError::ParentNotFound => (500, "Parent not found".to_string()),
-            ServiceError::DbError(_) => (500, "Database error".to_string()),
-            ServiceError::UserNotFoundByJwtId => (500, "User not found, please contact technical support".to_string()),
-            ServiceError::UserNotFoundBySessionId => (500, "User not found, please contact technical support".to_string()),
-            ServiceError::CryptoHashFailed => (500, "Crypto hash failed, please contact technical support".to_string()),
-            ServiceError::CryptoEncryptFailed => (500, "Crypto encryption failed, please contact technical support".to_string()),
-            ServiceError::CryptoDecryptFailed => (500, "Crypto decryption failed, please contact technical support".to_string()),
-            ServiceError::CandidateDetailsNotSet => (500, "Candidate details not set, please contact technical support".to_string()),
-            // TODO: Dodělat hlášky
-            ServiceError::AgeEncryptError(_) => (500, "Age encrypt error".to_string()),
-            ServiceError::AgeDecryptError(_) => (500, "Age decrypt error".to_string()),
-            ServiceError::AgeKeyError(_) => (500, "Age key error".to_string()),
-            ServiceError::IOError(_) => (500, "IO error".to_string()),
-            ServiceError::Base64DecodeError(_) => (500, "Base64 decode error".to_string()),
-            ServiceError::UTF8DecodeError(_) => (500, "UTF8 decode error".to_string()),
-            ServiceError::ArgonHashError(_) => (500, "Argon hash error".to_string()),
-            ServiceError::TokioJoinError(_) => (500, "Tokio join error".to_string()),
-            ServiceError::AesError(_) => (500, "AES error".to_string()),
-            ServiceError::ArgonConfigError(_) => (500, "Argon config error".to_string()),
-        }
-    }
-
     pub fn code(&self) -> u16 {
-        self.code_and_message().0
-    }
-
-    pub fn message(&self) -> String {
-        self.code_and_message().1
+        match self {
+            ServiceError::InvalidApplicationId => 400,
+            ServiceError::InvalidCredentials => 401,
+            ServiceError::Forbidden => 403,
+            ServiceError::ExpiredSession => 401,
+            ServiceError::JwtError => 500,
+            ServiceError::UserAlreadyExists => 409,
+            ServiceError::CandidateNotFound => 404,
+            ServiceError::ParentNotFound => 500,
+            ServiceError::DbError(_) => 500,
+            ServiceError::UserNotFoundByJwtId => 500,
+            ServiceError::UserNotFoundBySessionId => 500,
+            ServiceError::CryptoHashFailed => 500,
+            ServiceError::CryptoEncryptFailed => 500,
+            ServiceError::CryptoDecryptFailed => 500,
+            ServiceError::CandidateDetailsNotSet => 500,
+            ServiceError::AgeEncryptError(_) => 500,
+            ServiceError::AgeDecryptError(_) => 500,
+            ServiceError::AgeKeyError(_) => 500,
+            ServiceError::IOError(_) => 500,
+            ServiceError::Base64DecodeError(_) => 500,
+            ServiceError::UTF8DecodeError(_) => 500,
+            ServiceError::ArgonHashError(_) => 500,
+            ServiceError::TokioJoinError(_) => 500,
+            ServiceError::AesError(_) => 500,
+            ServiceError::ArgonConfigError(_) => 500,
+        }
     }
 }
