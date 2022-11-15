@@ -5,13 +5,41 @@ use sea_orm::{prelude::Uuid, DbConn};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{
-    candidate_details::EncryptedApplicationDetails,
+    candidate_details::{EncryptedApplicationDetails},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query,
+    Mutation, Query, responses::CandidateResponse,
 };
 
 use super::session_service::{AdminUser, SessionService};
+
+// TODO
+
+/* pub struct FieldOfStudy {
+    pub short_name: String,
+    pub full_name: String,
+    pub code: i32,
+}
+
+impl FieldOfStudy {
+    pub fn new(short_name: String, full_name: String, code: i32) -> Self {
+        Self {
+            short_name,
+            full_name,
+            code,
+        }
+    }
+
+    pub fn code_str(&self) -> String {
+        format!("{:04}", self.code)
+    }
+}
+
+pub enum FieldsOfStudy {
+    KB(FieldOfStudy),
+    IT(FieldOfStudy),
+    G(FieldOfStudy),
+} */
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -79,6 +107,31 @@ impl CandidateService {
     ) -> Result<entity::candidate::Model, ServiceError> {
         let model = Mutation::add_candidate_details(db, candidate, enc_details.clone()).await?;
         Ok(model)
+    }
+
+    pub async fn list_candidates(
+        private_key: String,
+        db: &DbConn,
+        field_of_study: Option<String>,
+    ) -> Result<Vec<CandidateResponse>, ServiceError> {
+
+        let candidates = Query::list_candidates(db, None).await?;
+        let mut result: Vec<CandidateResponse> = vec![];
+
+        for candidate in candidates {
+            result.push(
+                CandidateResponse::from_encrypted(
+                    &private_key,
+                    candidate.application,
+                    candidate.name,
+                    candidate.surname, 
+                    candidate.study,
+                true
+                ).await?
+            )
+        }
+
+        Ok(result)
     }
 
     pub fn is_candidate_info(candidate: &candidate::Model) -> bool {
