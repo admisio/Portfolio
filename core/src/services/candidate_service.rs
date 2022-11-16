@@ -127,15 +127,15 @@ impl CandidateService {
     pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {
         let cache_path = Path::new(&candidate_id.to_string()).join("cache");
 
-        tokio::fs::metadata(cache_path.join("MOTIVACNI_DOPIS.pdf"))
-            .await
-            .is_ok()
-            && tokio::fs::metadata(cache_path.join("PORTFOLIO.pdf"))
-                .await
-                .is_ok()
-            && tokio::fs::metadata(cache_path.join("PORTFOLIO.zip"))
-                .await
-                .is_ok()
+        let filenames = vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"];
+
+        for filename in filenames {
+            if !tokio::fs::metadata(cache_path.join(filename)).await.is_ok() {
+                return false;
+            }
+        }
+
+        true
     }
 
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
