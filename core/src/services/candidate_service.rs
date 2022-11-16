@@ -191,6 +191,23 @@ impl CandidateService {
         Ok(())
     }
 
+    pub async fn delete_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
+        let path = Path::new(&candidate_id.to_string()).to_path_buf();
+
+        let portfolio_path = path.join("PORTFOLIO.zip");
+        let portfolio_age_path = portfolio_path.with_extension("age");
+
+        if tokio::fs::metadata(&portfolio_path).await.is_ok() {
+            tokio::fs::remove_file(&portfolio_path).await?;
+        }
+
+        if tokio::fs::metadata(&portfolio_age_path).await.is_ok() {
+            tokio::fs::remove_file(&portfolio_age_path).await?;
+        }
+
+        Ok(())
+    }
+
     pub async fn is_portfolio_submitted(candidate_id: i32) -> bool {
         let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.age");
 

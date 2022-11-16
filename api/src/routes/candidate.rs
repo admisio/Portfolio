@@ -182,9 +182,10 @@ pub async fn submit_portfolio(
     let submit = CandidateService::add_portfolio(candidate.application, &db).await;
 
     if submit.is_err() {
-        // TODO cleanup
+        // Cleanup
+        // TODO: unwrap pryč
+        CandidateService::delete_portfolio(candidate.application).await.unwrap();
         let e = submit.err().unwrap();
-        eprintln!("{}", e);
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or_default(),
             e.to_string(),
@@ -193,6 +194,7 @@ pub async fn submit_portfolio(
 
     Ok("Portfolio submitted".to_string())
 }
+
 #[get("/is_prepared")]
 pub async fn is_portfolio_prepared(
     session: CandidateAuth,
