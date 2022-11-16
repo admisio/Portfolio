@@ -343,6 +343,7 @@ impl CandidateService {
 #[cfg(test)]
 mod tests {
     use sea_orm::{Database, DbConn};
+    use serial_test::serial;
 
     use crate::util::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
@@ -484,47 +485,53 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_folder_creation() {
+        const APPLICATION_ID: i32 = 103151;
+
         let db = get_memory_sqlite_connection().await;
         let plain_text_password = "test".to_string();
 
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join("create_folder");
         std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
 
-        CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
+        eprintln!("{}", std::env::var("STORE_PATH").unwrap());
+        CandidateService::create(&db, APPLICATION_ID, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
 
-        assert!(tokio::fs::metadata(temp_dir.join("103151")).await.is_ok());
-        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache")).await.is_ok());
+            eprintln!("{}", std::env::var("STORE_PATH").unwrap());
+
+        assert!(tokio::fs::metadata(temp_dir.join(APPLICATION_ID.to_string())).await.is_ok());
+        assert!(tokio::fs::metadata(temp_dir.join(APPLICATION_ID.to_string()).join("cache")).await.is_ok());
+
+        eprintln!("{}", std::env::var("STORE_PATH").unwrap());
 
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_write_portfolio_file() {
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+        const APPLICATION_ID: i32 = 103151;
 
-        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
-            .await
-            .unwrap();
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
+        CandidateService::write_portfolio_file(APPLICATION_ID, vec![0], "test").await.unwrap();
         
-        CandidateService::write_portfolio_file(103151, vec![0], "test").await.unwrap();
-        
-        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("test")).await.is_ok());
+        assert!(tokio::fs::metadata(application_cache_dir.join("test")).await.is_ok());
 
-        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+        clear_data_store_temp_dir(temp_dir).await;
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_add_cover_letter_to_cache() {
         const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        CandidateService::add_cover_letter_to_cache(103151, vec![0]).await.unwrap();
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         
         assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_ok());
 
@@ -532,6 +539,20 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
+    async fn test_is_cover_letter() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        assert!(CandidateService::is_cover_letter(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
     async fn test_add_portfolio_letter_to_cache() {
         const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
@@ -544,6 +565,20 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
+    async fn test_is_portfolio_letter() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        assert!(CandidateService::is_portfolio_letter(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
     async fn test_add_portfolio_zip_to_cache() {
         const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
@@ -554,4 +589,141 @@ mod tests {
 
         clear_data_store_temp_dir(temp_dir).await;
     }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_is_portfolio_zip() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        assert!(CandidateService::is_portfolio_zip(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_is_portfolio_prepared() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        assert!(CandidateService::is_portfolio_prepared(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        //CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        assert!(!CandidateService::is_portfolio_prepared(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_delete_cache() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        assert!(CandidateService::is_portfolio_zip(APPLICATION_ID).await);
+
+        CandidateService::delete_cache(APPLICATION_ID).await.unwrap();
+
+        assert!(!CandidateService::is_portfolio_zip(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_add_portfolio() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, application_dir, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        let db = get_memory_sqlite_connection().await;
+        put_user_data(&db).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        CandidateService::add_portfolio(APPLICATION_ID, &db).await.unwrap();
+        
+        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_delete_portfolio() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, application_dir, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        let db = get_memory_sqlite_connection().await;
+        put_user_data(&db).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        CandidateService::add_portfolio(APPLICATION_ID, &db).await.unwrap();
+        
+        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
+
+        CandidateService::delete_portfolio(APPLICATION_ID).await.unwrap();
+
+        assert!(!tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_is_portfolio_submitted() {
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        let db = get_memory_sqlite_connection().await;
+        put_user_data(&db).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        CandidateService::add_portfolio(APPLICATION_ID, &db).await.unwrap();
+        
+        assert!(CandidateService::is_portfolio_submitted(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        let db = get_memory_sqlite_connection().await;
+        put_user_data(&db).await;
+
+        CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        //CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        CandidateService::add_portfolio(APPLICATION_ID, &db).await.unwrap();
+        
+        assert!(!CandidateService::is_portfolio_submitted(APPLICATION_ID).await);
+
+        clear_data_store_temp_dir(temp_dir).await;
+
+
+    }
+
 }
