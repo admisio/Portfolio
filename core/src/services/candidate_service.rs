@@ -76,7 +76,7 @@ impl CandidateService {
         Ok(model)
     }
 
-    pub fn is_set_up(candidate: &candidate::Model) -> bool {
+    pub fn are_candidate_details_complete(candidate: &candidate::Model) -> bool {
         candidate.name.is_some()
             && candidate.surname.is_some()
             && candidate.birthplace.is_some()
@@ -103,22 +103,22 @@ impl CandidateService {
         Ok(())
     }
 
-    pub async fn add_cover_letter(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+    pub async fn add_cover_letter_to_cache(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
-    pub async fn add_portfolio_letter(
+    pub async fn add_portfolio_letter_to_cache(
         candidate_id: i32,
         letter: Vec<u8>,
     ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
-    pub async fn add_portfolio_zip(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
+    pub async fn add_portfolio_zip_to_cache(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
     }
 
-    pub async fn is_portfolio_complete(candidate_id: i32) -> bool {
+    pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {
         let cache_path = Path::new(&candidate_id.to_string()).join("cache");
 
         tokio::fs::metadata(cache_path.join("MOTIVACNI_DOPIS.pdf"))
@@ -132,11 +132,11 @@ impl CandidateService {
                 .is_ok()
     }
 
-    pub async fn submit_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
+    pub async fn add_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
         let path = Path::new(&candidate_id.to_string()).to_path_buf();
         let cache_path = path.join("cache");
 
-        if Self::is_portfolio_complete(candidate_id).await == false {
+        if Self::is_portfolio_prepared(candidate_id).await == false {
             return Err(ServiceError::IncompletePortfolio);
         }
 

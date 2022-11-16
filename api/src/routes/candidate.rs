@@ -59,7 +59,7 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
 }
 
 #[post("/details", data = "<details>")]
-pub async fn fill_details(
+pub async fn add_details(
     conn: Connection<'_, Db>,
     details: Json<ApplicationDetails>,
     session: CandidateAuth,
@@ -105,14 +105,14 @@ pub async fn get_details(
 
     details.map(|d| Json(d))
 }
-#[post("/coverletter", data = "<letter>")]
+#[post("/cover_letter", data = "<letter>")]
 pub async fn upload_cover_letter(
     session: CandidateAuth,
     letter: Letter,
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate = CandidateService::add_cover_letter(candidate.application, letter.into()).await;
+    let candidate = CandidateService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -126,7 +126,7 @@ pub async fn upload_cover_letter(
     Ok("Letter added".to_string())
 }
 
-#[post("/portfolioletter", data = "<letter>")]
+#[post("/portfolio_letter", data = "<letter>")]
 pub async fn upload_portfolio_letter(
     session: CandidateAuth,
     letter: Letter,
@@ -134,7 +134,7 @@ pub async fn upload_portfolio_letter(
     let candidate: entity::candidate::Model = session.into();
 
     let candidate =
-        CandidateService::add_portfolio_letter(candidate.application, letter.into()).await;
+        CandidateService::add_portfolio_letter_to_cache(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -148,7 +148,7 @@ pub async fn upload_portfolio_letter(
     Ok("Letter added".to_string())
 }
 
-#[post("/portfolio", data = "<portfolio>")]
+#[post("/portfolio_zip", data = "<portfolio>")]
 pub async fn upload_portfolio_zip(
     session: CandidateAuth,
     portfolio: Portfolio,
@@ -156,7 +156,7 @@ pub async fn upload_portfolio_zip(
     let candidate: entity::candidate::Model = session.into();
 
     let candidate =
-        CandidateService::add_portfolio_zip(candidate.application, portfolio.into()).await;
+        CandidateService::add_portfolio_zip_to_cache(candidate.application, portfolio.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -167,7 +167,7 @@ pub async fn upload_portfolio_zip(
         ));
     }
 
-    Ok("Letter added".to_string())
+    Ok("Portfolio added".to_string())
 }
 
 #[post("/submit")]
@@ -179,7 +179,7 @@ pub async fn submit_portfolio(
 
     let candidate: entity::candidate::Model = session.into();
 
-    let submit = CandidateService::submit_portfolio(candidate.application, &db).await;
+    let submit = CandidateService::add_portfolio(candidate.application, &db).await;
 
     if submit.is_err() {
         // TODO cleanup
@@ -193,9 +193,27 @@ pub async fn submit_portfolio(
 
     Ok("Portfolio submitted".to_string())
 }
+#[get("/is_prepared")]
+pub async fn is_portfolio_prepared(
+    session: CandidateAuth,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let is_ok = CandidateService::is_portfolio_prepared(candidate.application).await;
+
+    if !is_ok {
+        // TODO: Correct error
+        return Err(Custom(
+            Status::from_code(404).unwrap_or_default(),
+            "Portfolio not prepared".to_string(),
+        ));
+    }
+
+    Ok("Portfolio ok".to_string())
+}
 
 #[get("/is_submitted")]
-pub async fn is_submitted(
+pub async fn is_portfolio_submitted(
     session: CandidateAuth,
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
