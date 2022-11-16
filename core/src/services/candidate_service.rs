@@ -458,4 +458,91 @@ mod tests {
         assert_eq!(dec_details.name, "test"); // TODO: test every element
         assert_eq!(dec_details.parent_surname, "test");
     }
+
+    #[tokio::test]
+    async fn test_folder_creation() {
+        let db = get_memory_sqlite_connection().await;
+        let plain_text_password = "test".to_string();
+
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
+            .await
+            .ok()
+            .unwrap();
+
+        assert!(tokio::fs::metadata(temp_dir.join("103151")).await.is_ok());
+        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache")).await.is_ok());
+
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_write_portfolio_file() {
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
+            .await
+            .unwrap();
+
+        
+        CandidateService::write_portfolio_file(103151, vec![0], "test").await.unwrap();
+        
+        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("test")).await.is_ok());
+
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_add_cover_letter_to_cache() {
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
+            .await
+            .unwrap();
+
+        
+        CandidateService::add_cover_letter_to_cache(103151, vec![0]).await.unwrap();
+        
+        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("MOTIVACNI_DOPIS.pdf")).await.is_ok());
+
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_add_portfolio_letter_to_cache() {
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
+            .await
+            .unwrap();
+
+        
+        CandidateService::add_portfolio_letter_to_cache(103151, vec![0]).await.unwrap();
+        
+        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("PORTFOLIO.pdf")).await.is_ok());
+
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_add_portfolio_zip_to_cache() {
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
+            .await
+            .unwrap();
+
+        
+        CandidateService::add_portfolio_zip_to_cache(103151, vec![0]).await.unwrap();
+        
+        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("PORTFOLIO.zip")).await.is_ok());
+
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
 }
