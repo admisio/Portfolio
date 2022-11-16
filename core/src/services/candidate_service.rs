@@ -110,6 +110,12 @@ impl CandidateService {
         Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
+    pub async fn is_cover_letter(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join(cache_path.join("MOTIVACNI_DOPIS.pdf"))).await.is_ok() 
+    }
+
     pub async fn add_portfolio_letter_to_cache(
         candidate_id: i32,
         letter: Vec<u8>,
@@ -117,11 +123,23 @@ impl CandidateService {
         Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
+    pub async fn is_portfolio_letter(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.pdf"))).await.is_ok() 
+    }
+
     pub async fn add_portfolio_zip_to_cache(
         candidate_id: i32,
         zip: Vec<u8>,
     ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
+    }
+
+    pub async fn is_portfolio_zip(candidate_id: i32) -> bool {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.zip"))).await.is_ok() 
     }
 
     pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {

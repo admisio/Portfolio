@@ -127,6 +127,16 @@ pub async fn upload_cover_letter(
     Ok("Letter added".to_string())
 }
 
+// TODO: JSON
+#[get["/is_cover_letter"]]
+pub async fn is_cover_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let exists = CandidateService::is_cover_letter(candidate.application).await;
+
+    Ok(exists.to_string())
+}
+
 #[post("/portfolio_letter", data = "<letter>")]
 pub async fn upload_portfolio_letter(
     session: CandidateAuth,
@@ -149,6 +159,16 @@ pub async fn upload_portfolio_letter(
     Ok("Letter added".to_string())
 }
 
+// TODO: JSON
+#[get["/is_portfolio_letter"]]
+pub async fn is_portfolio_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let exists = CandidateService::is_portfolio_letter(candidate.application).await;
+
+    Ok(exists.to_string())
+}
+
 #[post("/portfolio_zip", data = "<portfolio>")]
 pub async fn upload_portfolio_zip(
     session: CandidateAuth,
@@ -169,6 +189,16 @@ pub async fn upload_portfolio_zip(
     }
 
     Ok("Portfolio added".to_string())
+}
+
+// TODO: JSON
+#[get["/is_portfolio_zip"]]
+pub async fn is_portfolio_zip(session: CandidateAuth) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let exists = CandidateService::is_portfolio_zip(candidate.application).await;
+
+    Ok(exists.to_string())
 }
 
 #[post("/submit")]
