@@ -159,7 +159,9 @@ impl CandidateService {
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
         let cache_path = Path::new(&candidate_id.to_string()).join("cache");
 
-        tokio::fs::remove_dir_all(cache_path).await?;
+        tokio::fs::remove_dir_all(&cache_path).await?;
+        // Recreate blank cache directory
+        tokio::fs::create_dir_all(&cache_path).await?;
 
         Ok(())
     }
