@@ -202,9 +202,7 @@ pub async fn submit_portfolio(
 }
 
 #[get("/is_prepared")]
-pub async fn is_portfolio_prepared(
-    session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     let is_ok = CandidateService::is_portfolio_prepared(candidate.application).await;
@@ -221,9 +219,7 @@ pub async fn is_portfolio_prepared(
 }
 
 #[get("/is_submitted")]
-pub async fn is_portfolio_submitted(
-    session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+pub async fn is_portfolio_submitted(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     let is_ok = CandidateService::is_portfolio_submitted(candidate.application).await;

@@ -103,7 +103,10 @@ impl CandidateService {
         Ok(())
     }
 
-    pub async fn add_cover_letter_to_cache(candidate_id: i32, letter: Vec<u8>) -> Result<(), ServiceError> {
+    pub async fn add_cover_letter_to_cache(
+        candidate_id: i32,
+        letter: Vec<u8>,
+    ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, letter, "MOTIVACNI_DOPIS.pdf").await
     }
 
@@ -114,7 +117,10 @@ impl CandidateService {
         Self::write_portfolio_file(candidate_id, letter, "PORTFOLIO.pdf").await
     }
 
-    pub async fn add_portfolio_zip_to_cache(candidate_id: i32, zip: Vec<u8>) -> Result<(), ServiceError> {
+    pub async fn add_portfolio_zip_to_cache(
+        candidate_id: i32,
+        zip: Vec<u8>,
+    ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, zip, "PORTFOLIO.zip").await
     }
 
@@ -132,6 +138,14 @@ impl CandidateService {
                 .is_ok()
     }
 
+    pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
+        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::remove_dir_all(cache_path).await?;
+
+        Ok(())
+    }
+
     pub async fn add_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
         let path = Path::new(&candidate_id.to_string()).to_path_buf();
         let cache_path = path.join("cache");
@@ -144,17 +158,27 @@ impl CandidateService {
 
         let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
 
-        for entry in vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"] {
-            let mut entry_file = tokio::fs::File::open(cache_path.join(entry)).await?;
+        let mut buffer = vec![vec![], vec![], vec![]];
 
-            let mut contents_buffer = vec![];
+        let filenames = vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"];
 
-            entry_file.read_to_end(&mut contents_buffer).await?;
+        for (index, entry) in buffer.iter_mut().enumerate() {
+            let filename = filenames[index];
+            let mut entry_file = tokio::fs::File::open(cache_path.join(filename)).await?;
 
-            let builder =
-                async_zip::ZipEntryBuilder::new(entry.to_string(), async_zip::Compression::Deflate);
+            entry_file.read_to_end(entry).await?;
+        }
 
-            writer.write_entry_whole(builder, &contents_buffer).await?;
+        Self::delete_cache(candidate_id).await?;
+
+        for (index, entry) in buffer.iter_mut().enumerate() {
+            let filename = filenames[index];
+            let builder = async_zip::ZipEntryBuilder::new(
+                filename.to_string(),
+                async_zip::Compression::Deflate,
+            );
+
+            writer.write_entry_whole(builder, &entry).await?;
         }
 
         writer.close().await?;
