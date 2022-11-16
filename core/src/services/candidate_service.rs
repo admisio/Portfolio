@@ -192,6 +192,12 @@ impl CandidateService {
         Ok(())
     }
 
+    pub async fn is_portfolio_submitted(candidate_id: i32) -> bool {
+        let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.age");
+
+        tokio::fs::metadata(path).await.is_ok()
+    }
+
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, candidate_id)
             .await?

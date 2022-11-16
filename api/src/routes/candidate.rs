@@ -193,3 +193,22 @@ pub async fn submit_portfolio(
 
     Ok("Portfolio submitted".to_string())
 }
+
+#[get("/is_submitted")]
+pub async fn is_submitted(
+    session: CandidateAuth,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let is_ok = CandidateService::is_portfolio_submitted(candidate.application).await;
+
+    if !is_ok {
+        // TODO: Correct error
+        return Err(Custom(
+            Status::from_code(404).unwrap_or_default(),
+            "Portfolio not submitted".to_string(),
+        ));
+    }
+
+    Ok("Portfolio ok".to_string())
+}
