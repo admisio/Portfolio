@@ -89,7 +89,7 @@ impl ServiceError {
             ServiceError::AesError(_) => 500,
             ServiceError::ArgonConfigError(_) => 500,
             //TODO: Correct code
-            ServiceError::IncompletePortfolio => 500,
+            ServiceError::IncompletePortfolio => 406,
             ServiceError::ZipError(_) => 500,
         }
     }

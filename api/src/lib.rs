@@ -41,11 +41,24 @@ async fn start() -> Result<(), rocket::Error> {
             routes![
                 routes::candidate::login,
                 routes::candidate::whoami,
-                routes::candidate::fill_details,
                 routes::candidate::get_details,
-                routes::candidate::upload_cover_letter,
+            ],
+        )
+        .mount(
+            "/candidate/add",
+            routes![
+                routes::candidate::add_details,
                 routes::candidate::upload_portfolio_letter,
                 routes::candidate::upload_portfolio_zip,
+                routes::candidate::upload_cover_letter,
+            ],
+        )
+        .mount(
+            "/candidate/portfolio",
+            routes![
+                routes::candidate::submit_portfolio,
+                routes::candidate::is_portfolio_prepared,
+                routes::candidate::is_portfolio_submitted,
             ],
         )
         .mount(

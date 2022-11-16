@@ -238,8 +238,8 @@ async fn age_decrypt_with_private_key<R: tokio::io::AsyncRead + Unpin>(
     };
 
     let mut decrypt_writer = decryptor.decrypt_async(iter::once(
-        &age::x25519::Identity::from_str(key).map_err(|e| ServiceError::AgeKeyError(e.to_string()))?
-            as &dyn age::Identity,
+        &age::x25519::Identity::from_str(key)
+            .map_err(|e| ServiceError::AgeKeyError(e.to_string()))? as &dyn age::Identity,
     ))?;
 
     decrypt_writer.read_to_end(output_buffer).await?;
@@ -289,12 +289,18 @@ pub async fn encrypt_file_with_recipients<P: AsRef<Path>>(
 
     tokio::io::AsyncReadExt::read_to_end(&mut plain_file, &mut plain_file_contents).await?;
 
+    drop(plain_file);
+
     age_encrypt_with_recipients(
         plain_file_contents.as_slice(),
         &mut cipher_file,
         &recipients,
     )
-    .await
+    .await?;
+
+    tokio::io::AsyncWriteExt::shutdown(&mut cipher_file).await?;
+
+    Ok(())
 }
 
 pub async fn decrypt_file_with_private_key<P: AsRef<Path>>(
