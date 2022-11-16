@@ -162,16 +162,12 @@ impl SessionService {
 
 #[cfg(test)]
 mod tests {
-    use entity::{admin, candidate, session, parent};
-
-    use sea_orm::{
-        prelude::Uuid, sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend,
-        DbConn, Schema,
-    };
+    use sea_orm::prelude::Uuid;
 
     use crate::{
         crypto,
-        services::{session_service::SessionService, application_service::ApplicationService}, util::get_memory_sqlite_connection,
+        services::{application_service::ApplicationService, session_service::SessionService},
+        util::get_memory_sqlite_connection,
     };
 
     #[tokio::test]
@@ -180,10 +176,16 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = ApplicationService::create_candidate_with_parent(&db, 103151, &SECRET.to_string(), "".to_string())
-            .await
-            .ok()
-            .unwrap().0;
+        let candidate = ApplicationService::create_candidate_with_parent(
+            &db,
+            103151,
+            &SECRET.to_string(),
+            "".to_string(),
+        )
+        .await
+        .ok()
+        .unwrap()
+        .0;
 
         assert_eq!(candidate.application, 103151);
         assert_ne!(candidate.code, SECRET.to_string());
@@ -197,9 +199,15 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        ApplicationService::create_candidate_with_parent(db, 103151, &"Tajny_kod".to_string(), "".to_string())
-            .await
-            .unwrap().0;
+        ApplicationService::create_candidate_with_parent(
+            db,
+            103151,
+            &"Tajny_kod".to_string(),
+            "".to_string(),
+        )
+        .await
+        .unwrap()
+        .0;
 
         // correct password
         let session = SessionService::new_session(
@@ -209,8 +217,8 @@ mod tests {
             "Tajny_kod".to_string(),
             "127.0.0.1".to_string(),
         )
-            .await
-            .unwrap();
+        .await
+        .unwrap();
         // println!("{}", session.err().unwrap().1);
         assert!(
             SessionService::auth_user_session(db, Uuid::parse_str(&session).unwrap())
@@ -223,10 +231,15 @@ mod tests {
     async fn test_candidate_session_incorrect_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let candidate_form =
-            ApplicationService::create_candidate_with_parent(&db, 103151, &"Tajny_kod".to_string(), "".to_string())
-                .await
-                .unwrap().0;
+        let candidate_form = ApplicationService::create_candidate_with_parent(
+            &db,
+            103151,
+            &"Tajny_kod".to_string(),
+            "".to_string(),
+        )
+        .await
+        .unwrap()
+        .0;
 
         // incorrect password
         assert!(SessionService::new_session(

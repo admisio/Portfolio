@@ -342,7 +342,7 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
-    use sea_orm::{Database, DbConn};
+    use sea_orm::{DbConn};
     use serial_test::serial;
 
     use crate::util::get_memory_sqlite_connection;
