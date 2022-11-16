@@ -46,6 +46,7 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::candidate::upload_cover_letter,
                 routes::candidate::upload_portfolio_letter,
                 routes::candidate::upload_portfolio_zip,
+                routes::candidate::submit_portfolio,
             ],
         )
         .mount(

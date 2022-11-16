@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
-use portfolio_core::services::candidate_service::{CandidateService};
+use portfolio_core::services::candidate_service::CandidateService;
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -68,7 +68,8 @@ pub async fn fill_details(
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into(); // TODO: don't return candidate from session
 
-    let candidate_parent = ApplicationService::add_all_details(db, candidate.application, form).await;
+    let candidate_parent =
+        ApplicationService::add_all_details(db, candidate.application, form).await;
 
     if candidate_parent.is_err() {
         // TODO cleanup
@@ -95,7 +96,12 @@ pub async fn get_details(
     // let handle = tokio::spawn(async move {
     let details = ApplicationService::decrypt_all_details(db, candidate.application, password)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or_default(), e.to_string()));
+        .map_err(|e| {
+            Custom(
+                Status::from_code(e.code()).unwrap_or_default(),
+                e.to_string(),
+            )
+        });
 
     details.map(|d| Json(d))
 }
@@ -162,4 +168,28 @@ pub async fn upload_portfolio_zip(
     }
 
     Ok("Letter added".to_string())
+}
+
+#[post("/submit")]
+pub async fn submit_portfolio(
+    conn: Connection<'_, Db>,
+    session: CandidateAuth,
+) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+
+    let candidate: entity::candidate::Model = session.into();
+
+    let submit = CandidateService::submit_portfolio(candidate.application, &db).await;
+
+    if submit.is_err() {
+        // TODO cleanup
+        let e = submit.err().unwrap();
+        eprintln!("{}", e);
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.to_string(),
+        ));
+    }
+
+    Ok("Portfolio submitted".to_string())
 }
