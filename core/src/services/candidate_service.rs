@@ -76,7 +76,7 @@ impl CandidateService {
         Ok(model)
     }
 
-    pub fn are_candidate_details_complete(candidate: &candidate::Model) -> bool {
+    pub fn is_candidate_info(candidate: &candidate::Model) -> bool {
         candidate.name.is_some()
             && candidate.surname.is_some()
             && candidate.birthplace.is_some()
