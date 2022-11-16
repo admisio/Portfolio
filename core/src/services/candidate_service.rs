@@ -354,6 +354,9 @@ mod tests {
     use crate::candidate_details::ApplicationDetails;
     use crate::services::application_service::ApplicationService;
 
+    use std::path::{PathBuf};
+
+
     #[tokio::test]
     async fn test_application_id_validation() {
         assert!(CandidateService::is_application_id_valid(101_101));
@@ -459,6 +462,27 @@ mod tests {
         assert_eq!(dec_details.parent_surname, "test");
     }
 
+    #[cfg(test)]
+    async fn create_data_store_temp_dir(application_id: i32) -> (PathBuf, PathBuf, PathBuf) {
+
+        let random_number: u32 = rand::Rng::gen(&mut rand::thread_rng());
+        
+        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join(random_number.to_string());
+        let application_dir = temp_dir.join(application_id.to_string());
+        let application_cache_dir = application_dir.join("cache");
+
+        tokio::fs::create_dir_all(application_cache_dir.clone()).await.unwrap();
+
+        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+
+        (temp_dir, application_dir, application_cache_dir)
+    }
+
+    #[cfg(test)]
+    async fn clear_data_store_temp_dir(temp_dir: PathBuf) {
+        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+    }
+
     #[tokio::test]
     async fn test_folder_creation() {
         let db = get_memory_sqlite_connection().await;
@@ -497,52 +521,37 @@ mod tests {
 
     #[tokio::test]
     async fn test_add_cover_letter_to_cache() {
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
-            .await
-            .unwrap();
-
-        
         CandidateService::add_cover_letter_to_cache(103151, vec![0]).await.unwrap();
         
-        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("MOTIVACNI_DOPIS.pdf")).await.is_ok());
+        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_ok());
 
-        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+        clear_data_store_temp_dir(temp_dir).await;
     }
 
     #[tokio::test]
     async fn test_add_portfolio_letter_to_cache() {
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
-
-        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
-            .await
-            .unwrap();
-
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
         
         CandidateService::add_portfolio_letter_to_cache(103151, vec![0]).await.unwrap();
         
-        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("PORTFOLIO.pdf")).await.is_ok());
+        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_ok());
 
-        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+        clear_data_store_temp_dir(temp_dir).await;
     }
 
     #[tokio::test]
     async fn test_add_portfolio_zip_to_cache() {
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir");
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+        const APPLICATION_ID: i32 = 103151;
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        tokio::fs::create_dir_all(temp_dir.join("103151").join("cache"))
-            .await
-            .unwrap();
-
-        
         CandidateService::add_portfolio_zip_to_cache(103151, vec![0]).await.unwrap();
         
-        assert!(tokio::fs::metadata(temp_dir.join("103151").join("cache").join("PORTFOLIO.zip")).await.is_ok());
+        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_ok());
 
-        tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+        clear_data_store_temp_dir(temp_dir).await;
     }
 }
