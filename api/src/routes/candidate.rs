@@ -112,7 +112,8 @@ pub async fn upload_cover_letter(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate = CandidateService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
+    let candidate =
+        CandidateService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -182,10 +183,15 @@ pub async fn submit_portfolio(
     let submit = CandidateService::add_portfolio(candidate.application, &db).await;
 
     if submit.is_err() {
-        // Cleanup
-        // TODO: unwrap pryč
-        CandidateService::delete_portfolio(candidate.application).await.unwrap();
         let e = submit.err().unwrap();
+        // Delete on critical error
+        // TODO: Více kontrol?
+        if e.code() == 500 {
+            // Cleanup
+            CandidateService::delete_portfolio(candidate.application)
+                .await
+                .unwrap();
+        }
         return Err(Custom(
             Status::from_code(e.code()).unwrap_or_default(),
             e.to_string(),
