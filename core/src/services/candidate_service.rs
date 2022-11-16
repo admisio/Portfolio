@@ -357,6 +357,7 @@ mod tests {
 
     use std::path::{PathBuf};
 
+    const APPLICATION_ID: i32 = 103151;
 
     #[tokio::test]
     async fn test_application_id_validation() {
@@ -377,12 +378,12 @@ mod tests {
 
         let secret_message = "trnka".to_string();
 
-        let candidate = CandidateService::create(&db, 103151, &plain_text_password, "".to_string())
+        let candidate = CandidateService::create(&db, APPLICATION_ID, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
 
-        Mutation::create_parent(&db, 103151).await.unwrap();
+        Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
 
         let encrypted_message =
             crypto::encrypt_password_with_recipients(&secret_message, &vec![&candidate.public_key])
@@ -405,9 +406,9 @@ mod tests {
     #[cfg(test)]
     async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
         let plain_text_password = "test".to_string();
-        let (candidate, parent) = ApplicationService::create_candidate_with_parent(
+        let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
             &db,
-            103151,
+            APPLICATION_ID,
             &plain_text_password,
             "".to_string(),
         )
@@ -465,7 +466,6 @@ mod tests {
 
     #[cfg(test)]
     async fn create_data_store_temp_dir(application_id: i32) -> (PathBuf, PathBuf, PathBuf) {
-
         let random_number: u32 = rand::Rng::gen(&mut rand::thread_rng());
         
         let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join(random_number.to_string());
@@ -487,26 +487,19 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_folder_creation() {
-        const APPLICATION_ID: i32 = 103151;
-
         let db = get_memory_sqlite_connection().await;
         let plain_text_password = "test".to_string();
 
         let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join("create_folder");
         std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
 
-        eprintln!("{}", std::env::var("STORE_PATH").unwrap());
         CandidateService::create(&db, APPLICATION_ID, &plain_text_password, "".to_string())
             .await
             .ok()
             .unwrap();
 
-            eprintln!("{}", std::env::var("STORE_PATH").unwrap());
-
         assert!(tokio::fs::metadata(temp_dir.join(APPLICATION_ID.to_string())).await.is_ok());
         assert!(tokio::fs::metadata(temp_dir.join(APPLICATION_ID.to_string()).join("cache")).await.is_ok());
-
-        eprintln!("{}", std::env::var("STORE_PATH").unwrap());
 
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
     }
@@ -514,8 +507,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_write_portfolio_file() {
-        const APPLICATION_ID: i32 = 103151;
-
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::write_portfolio_file(APPLICATION_ID, vec![0], "test").await.unwrap();
@@ -528,7 +519,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_add_cover_letter_to_cache() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -541,7 +531,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_is_cover_letter() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -554,10 +543,9 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_add_portfolio_letter_to_cache() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
         
-        CandidateService::add_portfolio_letter_to_cache(103151, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         
         assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_ok());
 
@@ -567,7 +555,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_is_portfolio_letter() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -580,10 +567,9 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_add_portfolio_zip_to_cache() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        CandidateService::add_portfolio_zip_to_cache(103151, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         
         assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_ok());
 
@@ -593,7 +579,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_is_portfolio_zip() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -606,7 +591,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_is_portfolio_prepared() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -631,7 +615,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_delete_cache() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
@@ -648,7 +631,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_add_portfolio() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         let db = get_memory_sqlite_connection().await;
@@ -668,7 +650,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_delete_portfolio() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         let db = get_memory_sqlite_connection().await;
@@ -692,7 +673,6 @@ mod tests {
     #[tokio::test]
     #[serial]
     async fn test_is_portfolio_submitted() {
-        const APPLICATION_ID: i32 = 103151;
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         let db = get_memory_sqlite_connection().await;
@@ -708,16 +688,15 @@ mod tests {
 
         clear_data_store_temp_dir(temp_dir).await;
 
-        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
-
-        let db = get_memory_sqlite_connection().await;
-        put_user_data(&db).await;
+        let (temp_dir, application_dir, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
         CandidateService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        //CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        CandidateService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         CandidateService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
 
         CandidateService::add_portfolio(APPLICATION_ID, &db).await.unwrap();
+
+        tokio::fs::remove_file(application_dir.join("PORTFOLIO.age")).await.unwrap();
         
         assert!(!CandidateService::is_portfolio_submitted(APPLICATION_ID).await);
 
