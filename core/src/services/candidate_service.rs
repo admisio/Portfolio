@@ -157,9 +157,8 @@ impl CandidateService {
             writer.write_entry_whole(builder, &contents_buffer).await?;
         }
 
-        // TODO: Ne unwrap
-        writer.close().await.unwrap();
-        archive.shutdown().await.unwrap();
+        writer.close().await?;
+        archive.shutdown().await?;
 
         let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
 
