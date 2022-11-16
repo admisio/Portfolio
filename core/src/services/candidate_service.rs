@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
@@ -18,6 +18,12 @@ const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 pub struct CandidateService;
 
 impl CandidateService {
+    // Get root path or local directory
+    fn get_file_store_path() -> PathBuf {
+        dotenv::dotenv().ok();
+        Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
+    }
+
     /// Creates a new candidate with:
     /// Encrypted personal identification number
     /// Hashed password
@@ -52,8 +58,7 @@ impl CandidateService {
 
         let hashed_personal_id_number = hash_password(personal_id_number).await?;
 
-        // TODO: Specify root path in config?
-        tokio::fs::create_dir_all(Path::new(&application_id.to_string()).join("cache")).await?;
+        tokio::fs::create_dir_all(Self::get_file_store_path().join(&application_id.to_string()).join("cache")).await?;
 
         let candidate = Mutation::create_candidate(
             db,
@@ -94,7 +99,7 @@ impl CandidateService {
         data: Vec<u8>,
         filename: &str,
     ) -> Result<(), ServiceError> {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
         let mut file = tokio::fs::File::create(cache_path.join(filename)).await?;
 
@@ -111,9 +116,11 @@ impl CandidateService {
     }
 
     pub async fn is_cover_letter(candidate_id: i32) -> bool {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
-        tokio::fs::metadata(cache_path.join(cache_path.join("MOTIVACNI_DOPIS.pdf"))).await.is_ok() 
+        tokio::fs::metadata(cache_path.join(cache_path.join("MOTIVACNI_DOPIS.pdf")))
+            .await
+            .is_ok()
     }
 
     pub async fn add_portfolio_letter_to_cache(
@@ -124,9 +131,11 @@ impl CandidateService {
     }
 
     pub async fn is_portfolio_letter(candidate_id: i32) -> bool {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
-        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.pdf"))).await.is_ok() 
+        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.pdf")))
+            .await
+            .is_ok()
     }
 
     pub async fn add_portfolio_zip_to_cache(
@@ -137,13 +146,15 @@ impl CandidateService {
     }
 
     pub async fn is_portfolio_zip(candidate_id: i32) -> bool {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
-        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.zip"))).await.is_ok() 
+        tokio::fs::metadata(cache_path.join(cache_path.join("PORTFOLIO.zip")))
+            .await
+            .is_ok()
     }
 
     pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
         let filenames = vec!["MOTIVACNI_DOPIS.pdf", "PORTFOLIO.pdf", "PORTFOLIO.zip"];
 
@@ -157,7 +168,7 @@ impl CandidateService {
     }
 
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
-        let cache_path = Path::new(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
         tokio::fs::remove_dir_all(&cache_path).await?;
         // Recreate blank cache directory
@@ -167,7 +178,7 @@ impl CandidateService {
     }
 
     pub async fn add_portfolio(candidate_id: i32, db: &DbConn) -> Result<(), ServiceError> {
-        let path = Path::new(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
         let cache_path = path.join("cache");
 
         if Self::is_portfolio_prepared(candidate_id).await == false {
@@ -236,7 +247,7 @@ impl CandidateService {
     }
 
     pub async fn delete_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
-        let path = Path::new(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
         let portfolio_path = path.join("PORTFOLIO.zip");
         let portfolio_age_path = portfolio_path.with_extension("age");
@@ -253,19 +264,21 @@ impl CandidateService {
     }
 
     pub async fn is_portfolio_submitted(candidate_id: i32) -> bool {
-        let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.age");
+        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
-        tokio::fs::metadata(path).await.is_ok()
+        tokio::fs::metadata(path.join("PORTFOLIO.age")).await.is_ok()
     }
 
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
+        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+
         let candidate = Query::find_candidate_by_id(db, candidate_id)
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
         let candidate_public_key = candidate.public_key;
 
-        let path = Path::new(&candidate_id.to_string()).join("PORTFOLIO.age");
+        let path = path.join("PORTFOLIO.age");
 
         let buffer =
             crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await?;
