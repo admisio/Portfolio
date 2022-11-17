@@ -70,7 +70,7 @@ pub struct EncryptedApplicationDetails {
     pub citizenship: EncryptedString,
     pub email: EncryptedString,
     pub sex: EncryptedString,
-    pub study: EncryptedString,
+    pub study: String,
 
     // Parent
     pub parent_name: EncryptedString,
@@ -95,7 +95,7 @@ impl EncryptedApplicationDetails {
             EncryptedString::new(&form.citizenship, &recipients),
             EncryptedString::new(&form.email, &recipients),
             EncryptedString::new(&form.sex, &recipients),
-            EncryptedString::new(&form.study, &recipients),
+            
             EncryptedString::new(&form.parent_name, &recipients),
             EncryptedString::new(&form.parent_surname, &recipients),
             EncryptedString::new(&form.parent_telephone, &recipients),
@@ -112,12 +112,12 @@ impl EncryptedApplicationDetails {
             citizenship: d.6,
             email: d.7,
             sex: d.8,
-            study: d.9,
+            study: form.study,
 
-            parent_name: d.10,
-            parent_surname: d.11,
-            parent_telephone: d.12,
-            parent_email: d.13,
+            parent_name: d.9,
+            parent_surname: d.10,
+            parent_telephone: d.11,
+            parent_email: d.12,
         })
     }
 
@@ -132,7 +132,6 @@ impl EncryptedApplicationDetails {
             self.citizenship.decrypt(&priv_key), // 6
             self.email.decrypt(&priv_key),       // 7
             self.sex.decrypt(&priv_key),         // 8
-            self.study.decrypt(&priv_key),       // 9
             self.parent_name.decrypt(&priv_key),
             self.parent_surname.decrypt(&priv_key),
             self.parent_telephone.decrypt(&priv_key),
@@ -149,12 +148,12 @@ impl EncryptedApplicationDetails {
             citizenship: d.6,
             email: d.7,
             sex: d.8,
-            study: d.9,
+            study: self.study,
 
-            parent_name: d.10,
-            parent_surname: d.11,
-            parent_telephone: d.12,
-            parent_email: d.13,
+            parent_name: d.9,
+            parent_surname: d.10,
+            parent_telephone: d.11,
+            parent_email: d.12,
         })
     }
 }
@@ -175,7 +174,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
             citizenship: EncryptedString::try_from(candidate.citizenship)?,
             email: EncryptedString::try_from(candidate.email)?,
             sex: EncryptedString::try_from(candidate.sex)?,
-            study: EncryptedString::try_from(candidate.study)?,
+            study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
 
             parent_name: EncryptedString::try_from(parent.name)?,
             parent_surname: EncryptedString::try_from(parent.surname)?,

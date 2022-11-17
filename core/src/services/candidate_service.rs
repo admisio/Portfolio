@@ -147,7 +147,7 @@ impl CandidateService {
         field_of_study: Option<String>,
     ) -> Result<Vec<CandidateResponse>, ServiceError> {
 
-        let candidates = Query::list_candidates(db, None).await?;
+        let candidates = Query::list_candidates(db, field_of_study).await?;
         let mut result: Vec<CandidateResponse> = vec![];
 
         for candidate in candidates {

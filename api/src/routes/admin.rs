@@ -95,6 +95,12 @@ pub async fn list_candidates(
 ) -> Result<Json<Vec<CandidateResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
+    if let Some(field) = field.clone() {
+        if !(field == "KB".to_string() || field == "IT".to_string() || field == "G") {
+            return Err(Custom(Status::BadRequest, "Invalid field of study".to_string()));
+        }
+
+    }
 
     let candidates = CandidateService::list_candidates(private_key, db, field)
         .await

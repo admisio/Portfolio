@@ -29,9 +29,14 @@ impl Query {
 
     pub async fn list_candidates(
         db: &DbConn,
-        field_of_study: Option<String>,
+        field_of_study_opt: Option<String>,
     ) -> Result<Vec<ApplicationResult>, DbErr> {
-        Candidate::find()
+        let select = Candidate::find();
+        if let Some(study) = field_of_study_opt {
+           select.filter(candidate::Column::Study.eq(study)) 
+        } else {
+            select
+        }
             .join(JoinType::InnerJoin, candidate::Relation::Parent.def())
             .column_as(parent::Column::Name, "parent_name")
             .column_as(parent::Column::Surname, "parent_surname")

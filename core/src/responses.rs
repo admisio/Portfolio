@@ -22,13 +22,12 @@ impl CandidateResponse {
     ) -> Result<Self, ServiceError> {
         let name = decrypt_if_exists(private_key, name_opt).await?;
         let surname = decrypt_if_exists(private_key, surname_opt).await?;
-        let study = decrypt_if_exists(private_key, study_opt).await?;
         Ok(
             Self {
-                application_id,
                 name,
+                application_id,
                 surname,
-                study,
+                study: study_opt.unwrap_or("".to_string()),
                 submitted,
             }
         )
