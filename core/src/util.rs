@@ -26,3 +26,13 @@ pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
             .unwrap();
         db
 }
+
+#[cfg(test)]
+mod tests {
+    use super::get_memory_sqlite_connection;
+
+    #[tokio::test]
+    async fn test_get_memory_sqlite_connection() {
+        get_memory_sqlite_connection().await;  
+    }
+}
