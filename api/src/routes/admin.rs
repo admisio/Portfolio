@@ -126,12 +126,13 @@ pub async fn get_candidate(
 #[post("/candidate/<id>/reset_password")]
 pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,
-    _session: AdminAuth,
+    session: AdminAuth,
     id: i32,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
+    let private_key = session.get_private_key();
 
-    let new_password = CandidateService::reset_password(db, id)
+    let new_password = CandidateService::reset_password(private_key, db, id)
         .await
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 

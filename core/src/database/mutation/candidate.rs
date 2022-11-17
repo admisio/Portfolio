@@ -26,7 +26,7 @@ impl Mutation {
             .await
     }
 
-    pub async fn change_candidate_password(
+    pub async fn update_candidate_password_with_keys(
         db: &DbConn,
         candidate: candidate::Model,
         new_password_hash: String,
