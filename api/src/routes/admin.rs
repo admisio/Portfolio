@@ -122,3 +122,18 @@ pub async fn get_candidate(
 
     Ok(Json(details))
 }
+
+#[post("/candidate/<id>/reset_password")]
+pub async fn reset_candidate_password(
+    conn: Connection<'_, Db>,
+    _session: AdminAuth,
+    id: i32,
+) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+
+    let new_password = CandidateService::reset_password(db, id)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+
+    Ok(new_password)
+}

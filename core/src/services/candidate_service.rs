@@ -94,10 +94,30 @@ impl CandidateService {
             hashed_password,
             hashed_personal_id_number,
             pubkey,
-            encrypted_priv_key,
+            encrypted_priv_key, 
         )
         .await?;
         Ok(candidate)
+    }
+
+    pub async fn reset_password(
+        db: &DbConn,
+        id: i32,
+    ) -> Result<String, ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+            
+        let new_password_plain = crypto::random_8_char_string();
+        let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
+
+        let (pubkey, priv_key_plain_text) = crypto::create_identity();
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, 
+            new_password_plain.to_string()
+        ).await?;
+
+        Mutation::change_candidate_password(db, candidate, new_password_hash, pubkey, encrypted_priv_key).await?;
+
+        Ok(new_password_plain)
     }
 
     pub(in crate::services) async fn add_candidate_details(
@@ -421,6 +441,27 @@ mod tests {
         assert!(!CandidateService::is_application_id_valid(100_109));
         assert!(!CandidateService::is_application_id_valid(201_109));
         assert!(!CandidateService::is_application_id_valid(101));
+    }
+
+    #[tokio::test]
+    async fn test_password_reset() {
+        let db = get_memory_sqlite_connection().await;
+        let (candidate, _parent) = put_user_data(&db).await;
+
+        assert!(
+            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
+        );
+
+        let new_password = CandidateService::reset_password(&db, candidate.application).await.unwrap();
+
+        assert!(
+            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
+        );
+        
+        assert!(
+            CandidateService::login(&db, candidate.application, new_password, "127.0.0.1".to_string()).await.is_ok()
+        );
+
     }
 
     // TODO
