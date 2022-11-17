@@ -68,6 +68,7 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::admin::whoami,
                 routes::admin::hello,
                 routes::admin::create_candidate,
+                routes::admin::get_candidate,
             ],
         )
         .mount(

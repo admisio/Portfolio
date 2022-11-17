@@ -12,7 +12,6 @@ use sea_orm_rocket::Connection;
 
 use crate::guards::data::letter::Letter;
 use crate::guards::data::portfolio::Portfolio;
-use crate::requests::PasswordRequest;
 use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
@@ -83,18 +82,21 @@ pub async fn add_details(
     Ok("Details added".to_string())
 }
 
-#[post("/get_details", data = "<password_form>")]
+#[post("/get_details")]
 pub async fn get_details(
     conn: Connection<'_, Db>,
-    password_form: Json<PasswordRequest>,
-    session: CandidateAuth,
+    session: CandidateAuth
 ) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
+    let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
-    let password = password_form.password.clone();
+
 
     // let handle = tokio::spawn(async move {
-    let details = ApplicationService::decrypt_all_details(db, candidate.application, password)
+    let details = ApplicationService::decrypt_all_details(private_key, 
+        db,
+        candidate.application
+    )
         .await
         .map_err(|e| {
             Custom(

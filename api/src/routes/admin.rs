@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService}, responses::CandidateResponse,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService}, responses::CandidateResponse, candidate_details::ApplicationDetails,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -98,7 +98,27 @@ pub async fn list_candidates(
 
     let candidates = CandidateService::list_candidates(private_key, db, field)
         .await
-        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
     Ok(Json(candidates))
+}
+
+#[get("/candidate/<id>")]
+pub async fn get_candidate(
+    conn: Connection<'_, Db>,
+    session: AdminAuth,
+    id: i32,
+) -> Result<Json<ApplicationDetails>, Custom<String>> {
+    let db = conn.into_inner();
+    let private_key = session.get_private_key();
+
+    let details = ApplicationService::decrypt_all_details(
+        private_key,
+        db,
+        id
+    )
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+
+    Ok(Json(details))
 }
