@@ -162,7 +162,12 @@ impl SessionService {
 
 #[cfg(test)]
 mod tests {
-    use sea_orm::prelude::Uuid;
+    use entity::{admin, candidate, session, parent};
+
+    use sea_orm::{
+        prelude::Uuid, sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend,
+        DbConn, Schema,
+    };
 
     use crate::{
         crypto,

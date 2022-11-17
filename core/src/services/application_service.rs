@@ -60,32 +60,17 @@ impl ApplicationService {
     }
 
     pub async fn decrypt_all_details(
+        private_key: String,
         db: &DbConn,
         application_id: i32,
-        password: String,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        let candidate = match Query::find_candidate_by_id(db, application_id).await {
-            Ok(candidate) => candidate.unwrap(),
-            Err(e) => return Err(ServiceError::DbError(e)), // TODO: logging
-        };
-        let parent = Query::find_parent_by_id(db, application_id).await?.unwrap();
-
-        match crypto::verify_password((&password).to_string(), candidate.code.clone()).await {
-            Ok(valid) => {
-                if !valid {
-                    return Err(ServiceError::InvalidCredentials);
-                }
-            }
-            Err(_) => return Err(ServiceError::InvalidCredentials),
-        }
-
-        let dec_priv_key = crypto::decrypt_password(candidate.private_key.clone(), password)
-            .await
-            .ok()
-            .unwrap();
+        let candidate = Query::find_candidate_by_id(db, application_id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+        let parent = Query::find_parent_by_id(db, application_id).await?
+            .ok_or(ServiceError::ParentNotFound)?;
         let enc_details = EncryptedApplicationDetails::try_from((candidate, parent))?;
 
-        enc_details.decrypt(dec_priv_key).await
+        enc_details.decrypt(private_key).await
     }
     
 }
