@@ -1,11 +1,11 @@
 <script lang="ts">
-	let backgroundColor: 'white' | 'black' = 'white';
+	export let backgroundColor: 'light' | 'dark' = 'light';
 </script>
 
 <svg
 	xmlns="http://www.w3.org/2000/svg"
-	class:blue={backgroundColor === 'white'}
-	class:white={backgroundColor === 'black'}
+	class:blue={backgroundColor === 'light'}
+	class:white={backgroundColor === 'dark'}
 	viewBox="0 0 24 24"
 	stroke-width="2"
 	stroke-linecap="round"
@@ -30,6 +30,7 @@
     }
 	.blue {
 		@apply stroke-sspsBlue fill-sspsBlue;
+		@apply transition-colors duration-300 hover:fill-sspsBlueDark hover:stroke-sspsBlueDark; 
 	}
 	.white {
         @apply stroke-white fill-white;
