@@ -482,6 +482,8 @@ mod tests {
     #[cfg(test)]
     async fn clear_data_store_temp_dir(temp_dir: PathBuf) {
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+
+        std::env::remove_var("STORE_PATH");
     }
 
     #[tokio::test]
