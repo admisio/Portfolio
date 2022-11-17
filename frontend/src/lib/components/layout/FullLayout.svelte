@@ -48,5 +48,6 @@
 	}
 	.content {
 		@apply w-full h-full;
+		@apply flex items-center justify-center;
 	}
 </style>
