@@ -1,9 +1,7 @@
-use crate::sea_orm::DbConn;
-
 #[cfg(test)]
-pub async fn get_memory_sqlite_connection() -> DbConn {
+pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
     use entity::{admin, candidate, parent, session};
-    use sea_orm::{Schema, Database};
+    use sea_orm::{Schema, Database, DbConn};
     use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
 
     let base_url = "sqlite::memory:";
@@ -27,4 +25,14 @@ pub async fn get_memory_sqlite_connection() -> DbConn {
             .await
             .unwrap();
         db
+}
+
+#[cfg(test)]
+mod tests {
+    use super::get_memory_sqlite_connection;
+
+    #[tokio::test]
+    async fn test_get_memory_sqlite_connection() {
+        get_memory_sqlite_connection().await;  
+    }
 }

@@ -342,7 +342,7 @@ impl CandidateService {
 
 #[cfg(test)]
 mod tests {
-    use sea_orm::{Database, DbConn};
+    use sea_orm::{DbConn};
     use serial_test::serial;
 
     use crate::util::get_memory_sqlite_connection;
@@ -482,6 +482,8 @@ mod tests {
     #[cfg(test)]
     async fn clear_data_store_temp_dir(temp_dir: PathBuf) {
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
+
+        std::env::remove_var("STORE_PATH");
     }
 
     #[tokio::test]

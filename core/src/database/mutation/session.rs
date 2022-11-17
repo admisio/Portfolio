@@ -37,3 +37,8 @@ impl Mutation {
         .await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    // TODO: Testy
+}

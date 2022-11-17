@@ -15,8 +15,7 @@ impl Query {
 #[cfg(test)]
 mod tests {
     use entity::candidate;
-    use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend, Schema};
-    use sea_orm::{ActiveModelTrait, DbConn, Set};
+    use sea_orm::{ActiveModelTrait, Set};
 
     use crate::Query;
     use crate::util::get_memory_sqlite_connection;
