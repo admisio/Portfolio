@@ -94,3 +94,17 @@ impl ServiceError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ServiceError;
+
+    #[test]
+    fn test_service_error_code() {
+        let error = ServiceError::CryptoHashFailed;
+
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+        assert!(error.code() >= 100);
+        assert!(error.code() <= 599);
+    }
+}
