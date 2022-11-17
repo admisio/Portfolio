@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
+use portfolio_core::services::portfolio_service::PortfolioService;
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -115,7 +116,7 @@ pub async fn upload_cover_letter(
     let candidate: entity::candidate::Model = session.into();
 
     let candidate =
-        CandidateService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
+        PortfolioService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -134,7 +135,7 @@ pub async fn upload_cover_letter(
 pub async fn is_cover_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let exists = CandidateService::is_cover_letter(candidate.application).await;
+    let exists = PortfolioService::is_cover_letter(candidate.application).await;
 
     Ok(exists.to_string())
 }
@@ -147,7 +148,7 @@ pub async fn upload_portfolio_letter(
     let candidate: entity::candidate::Model = session.into();
 
     let candidate =
-        CandidateService::add_portfolio_letter_to_cache(candidate.application, letter.into()).await;
+        PortfolioService::add_portfolio_letter_to_cache(candidate.application, letter.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -166,7 +167,7 @@ pub async fn upload_portfolio_letter(
 pub async fn is_portfolio_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let exists = CandidateService::is_portfolio_letter(candidate.application).await;
+    let exists = PortfolioService::is_portfolio_letter(candidate.application).await;
 
     Ok(exists.to_string())
 }
@@ -179,7 +180,7 @@ pub async fn upload_portfolio_zip(
     let candidate: entity::candidate::Model = session.into();
 
     let candidate =
-        CandidateService::add_portfolio_zip_to_cache(candidate.application, portfolio.into()).await;
+        PortfolioService::add_portfolio_zip_to_cache(candidate.application, portfolio.into()).await;
 
     if candidate.is_err() {
         // TODO cleanup
@@ -198,7 +199,7 @@ pub async fn upload_portfolio_zip(
 pub async fn is_portfolio_zip(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let exists = CandidateService::is_portfolio_zip(candidate.application).await;
+    let exists = PortfolioService::is_portfolio_zip(candidate.application).await;
 
     Ok(exists.to_string())
 }
@@ -212,7 +213,7 @@ pub async fn submit_portfolio(
 
     let candidate: entity::candidate::Model = session.into();
 
-    let submit = CandidateService::add_portfolio(candidate.application, &db).await;
+    let submit = PortfolioService::submit(candidate.clone(), &db).await;
 
     if submit.is_err() {
         let e = submit.err().unwrap();
@@ -220,7 +221,7 @@ pub async fn submit_portfolio(
         // TODO: Více kontrol?
         if e.code() == 500 {
             // Cleanup
-            CandidateService::delete_portfolio(candidate.application)
+            PortfolioService::delete_portfolio(candidate.application)
                 .await
                 .unwrap();
         }
@@ -237,7 +238,7 @@ pub async fn submit_portfolio(
 pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let is_ok = CandidateService::is_portfolio_prepared(candidate.application).await;
+    let is_ok = PortfolioService::is_portfolio_prepared(candidate.application).await;
 
     if !is_ok {
         // TODO: Correct error
@@ -254,7 +255,7 @@ pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Cus
 pub async fn is_portfolio_submitted(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let is_ok = CandidateService::is_portfolio_submitted(candidate.application).await;
+    let is_ok = PortfolioService::is_portfolio_submitted(candidate.application).await;
 
     if !is_ok {
         // TODO: Correct error
