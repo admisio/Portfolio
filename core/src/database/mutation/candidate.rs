@@ -22,8 +22,23 @@ impl Mutation {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-        .insert(db)
-        .await
+            .insert(db)
+            .await
+    }
+
+    pub async fn update_candidate_password_with_keys(
+        db: &DbConn,
+        candidate: candidate::Model,
+        new_password_hash: String,
+        pub_key: String,
+        priv_key_enc: String,
+    ) -> Result<candidate::Model, DbErr> {
+        let mut candidate: candidate::ActiveModel = candidate.into();
+        candidate.code = Set(new_password_hash);
+        candidate.public_key = Set(pub_key);
+        candidate.private_key = Set(priv_key_enc);
+
+        candidate.update(db).await
     }
 
     pub async fn add_candidate_details(

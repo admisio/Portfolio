@@ -1,7 +1,7 @@
 use std::cmp::min;
 
 use entity::{admin, candidate};
-use sea_orm::{prelude::Uuid, DatabaseConnection, ModelTrait};
+use sea_orm::{prelude::Uuid, DatabaseConnection, ModelTrait, DbConn};
 
 use crate::{
     crypto::{self},
@@ -114,9 +114,12 @@ impl SessionService {
         Ok(session.id.to_string())
     }
 
+    pub async fn revoke_all_sessions(db: &DbConn, user_id: Option<i32>, admin_id: Option<i32>) -> Result<(), ServiceError> {
+        Self::delete_old_sessions(db, user_id, admin_id, 0).await
+    }
+
     /// Authenticate user by session id
     /// Return user model if session is valid
-
     pub async fn auth_user_session(
         db: &DatabaseConnection,
         uuid: Uuid,
@@ -162,11 +165,8 @@ impl SessionService {
 
 #[cfg(test)]
 mod tests {
-    use entity::{admin, candidate, session, parent};
-
     use sea_orm::{
-        prelude::Uuid, sea_query::TableCreateStatement, ConnectionTrait, Database, DbBackend,
-        DbConn, Schema,
+        prelude::Uuid,
     };
 
     use crate::{

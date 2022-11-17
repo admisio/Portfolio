@@ -11,7 +11,7 @@ use crate::{
     Mutation, Query, responses::CandidateResponse,
 };
 
-use super::session_service::{AdminUser, SessionService};
+use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
 
 // TODO
 
@@ -94,10 +94,42 @@ impl CandidateService {
             hashed_password,
             hashed_personal_id_number,
             pubkey,
-            encrypted_priv_key,
+            encrypted_priv_key, 
         )
         .await?;
         Ok(candidate)
+    }
+
+    pub async fn reset_password(
+        admin_private_key: String,
+        db: &DbConn,
+        id: i32,
+    ) -> Result<String, ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+        let parent = Query::find_parent_by_id(db, id).await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+            
+            let new_password_plain = crypto::random_8_char_string();
+        let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
+
+        let (pubkey, priv_key_plain_text) = crypto::create_identity();
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, 
+            new_password_plain.to_string()
+        ).await?;
+
+
+        SessionService::revoke_all_sessions(db, Some(id), None).await?;
+        Mutation::update_candidate_password_with_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
+        
+        let enc_details_opt = EncryptedApplicationDetails::try_from((candidate, parent));
+        if let Ok(enc_details) = enc_details_opt {
+            let application_details = enc_details.decrypt(admin_private_key).await?;
+            ApplicationService::add_all_details(db, id, application_details).await?;
+        }
+
+        Ok(new_password_plain)
     }
 
     pub(in crate::services) async fn add_candidate_details(
@@ -115,7 +147,7 @@ impl CandidateService {
         field_of_study: Option<String>,
     ) -> Result<Vec<CandidateResponse>, ServiceError> {
 
-        let candidates = Query::list_candidates(db, None).await?;
+        let candidates = Query::list_candidates(db, field_of_study).await?;
         let mut result: Vec<CandidateResponse> = vec![];
 
         for candidate in candidates {
@@ -403,9 +435,9 @@ mod tests {
 
     use super::EncryptedApplicationDetails;
     use chrono::NaiveDate;
-    use entity::{candidate, parent};
+    use entity::{candidate, parent, admin};
 
-    use crate::candidate_details::ApplicationDetails;
+    use crate::candidate_details::{ApplicationDetails};
     use crate::services::application_service::ApplicationService;
 
     use std::path::{PathBuf};
@@ -423,18 +455,43 @@ mod tests {
         assert!(!CandidateService::is_application_id_valid(101));
     }
 
-    // TODO
-    /* #[tokio::test]
+    #[tokio::test]
+    async fn test_password_reset() {
+        let db = get_memory_sqlite_connection().await;
+        let admin = create_admin(&db).await;
+        let (candidate, _parent) = put_user_data(&db).await;
+
+        let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
+
+        assert!(
+            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
+        );
+
+        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap();
+
+        assert!(
+            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
+        );
+        
+        assert!(
+            CandidateService::login(&db, candidate.application, new_password, "127.0.0.1".to_string()).await.is_ok()
+        );
+
+    }
+
+    #[tokio::test]
     async fn test_list_candidates() {
         let db = get_memory_sqlite_connection().await;
-        let candidates = CandidateService::list_candidates(&db, None).await.unwrap();
+        let admin = create_admin(&db).await;
+        let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
+        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None).await.unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = CandidateService::list_candidates(&db, None).await.unwrap();
+        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None).await.unwrap();
         assert_eq!(candidates.len(), 1);
-    } */
+    }
 
     #[tokio::test]
     async fn test_encrypt_decrypt_private_key_with_passphrase() {
@@ -470,6 +527,31 @@ mod tests {
     }
 
     #[cfg(test)]
+    async fn create_admin(db: &DbConn) -> admin::Model {
+        use chrono::Utc;
+        use sea_orm::{Set, ActiveModelTrait};
+
+        let password = "admin".to_string();
+        let (pubkey, priv_key) = crypto::create_identity();
+        let enc_priv_key = crypto::encrypt_password(priv_key, password).await.unwrap();
+
+        let admin = admin::ActiveModel {
+            name: Set("admin".to_string()),
+            public_key: Set(pubkey),
+            private_key: Set(enc_priv_key),
+            password: Set("admin".to_string()),
+            created_at: Set(Utc::now().naive_utc()),
+            updated_at: Set(Utc::now().naive_utc()),
+            ..Default::default()
+        }
+            .insert(db)
+            .await
+            .unwrap();
+
+        admin
+    }
+
+    #[cfg(test)]
     async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
@@ -483,20 +565,20 @@ mod tests {
         .unwrap();
 
         let form = ApplicationDetails {
-            name: "test".to_string(),
-            surname: "aaa".to_string(),
-            birthplace: "b".to_string(),
-            birthdate: NaiveDate::from_ymd(1999, 1, 1),
-            address: "test".to_string(),
-            telephone: "test".to_string(),
-            citizenship: "test".to_string(),
-            email: "test".to_string(),
-            sex: "test".to_string(),
+            name: "name".to_string(),
+            surname: "surname".to_string(),
+            birthplace: "birthplace".to_string(),
+            birthdate: NaiveDate::from_ymd(2000, 1, 1),
+            address: "address".to_string(),
+            telephone: "telephone".to_string(),
+            citizenship: "citizenship".to_string(),
+            email: "email".to_string(),
+            sex: "sex".to_string(),
             study: "KB".to_string(),
-            parent_name: "test".to_string(),
-            parent_surname: "test".to_string(),
-            parent_telephone: "test".to_string(),
-            parent_email: "test".to_string(),
+            parent_name: "parent_name".to_string(),
+            parent_surname: "parent_surname".to_string(),
+            parent_telephone: "parent_telephone".to_string(),
+            parent_email: "parent_email".to_string(),
         };
 
         ApplicationService::add_all_details(&db, candidate.application, form)
@@ -526,8 +608,20 @@ mod tests {
             .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
-        assert_eq!(dec_details.name, "test"); // TODO: test every element
-        assert_eq!(dec_details.parent_surname, "test");
+        assert_eq!(dec_details.name, "name");
+        assert_eq!(dec_details.surname, "surname");
+        assert_eq!(dec_details.birthplace, "birthplace");
+        assert_eq!(dec_details.birthdate, NaiveDate::from_ymd(2000, 1, 1));
+        assert_eq!(dec_details.address, "address");
+        assert_eq!(dec_details.telephone, "telephone");
+        assert_eq!(dec_details.citizenship, "citizenship");
+        assert_eq!(dec_details.email, "email");
+        assert_eq!(dec_details.sex, "sex");
+        assert_eq!(dec_details.study, "KB");
+        assert_eq!(dec_details.parent_name, "parent_name");
+        assert_eq!(dec_details.parent_surname, "parent_surname");
+        assert_eq!(dec_details.parent_telephone, "parent_telephone");
+        assert_eq!(dec_details.parent_email, "parent_email");
     }
 
     #[cfg(test)]

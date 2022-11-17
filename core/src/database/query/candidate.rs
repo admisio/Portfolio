@@ -8,7 +8,7 @@ use serde::Serialize;
 pub const PAGE_SIZE: u64 = 20;
 
 #[derive(FromQueryResult, Serialize)]
-pub struct ApplicationResult {
+pub struct CandidateParentResult {
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
@@ -29,13 +29,18 @@ impl Query {
 
     pub async fn list_candidates(
         db: &DbConn,
-        field_of_study: Option<String>,
-    ) -> Result<Vec<ApplicationResult>, DbErr> {
-        Candidate::find()
+        field_of_study_opt: Option<String>,
+    ) -> Result<Vec<CandidateParentResult>, DbErr> {
+        let select = Candidate::find();
+        if let Some(study) = field_of_study_opt {
+           select.filter(candidate::Column::Study.eq(study)) 
+        } else {
+            select
+        }
             .join(JoinType::InnerJoin, candidate::Relation::Parent.def())
             .column_as(parent::Column::Name, "parent_name")
             .column_as(parent::Column::Surname, "parent_surname")
-            .into_model::<ApplicationResult>()
+            .into_model::<CandidateParentResult>()
             .paginate(db, PAGE_SIZE)
             .fetch()
             .await

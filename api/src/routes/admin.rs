@@ -95,6 +95,12 @@ pub async fn list_candidates(
 ) -> Result<Json<Vec<CandidateResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
+    if let Some(field) = field.clone() {
+        if !(field == "KB".to_string() || field == "IT".to_string() || field == "G") {
+            return Err(Custom(Status::BadRequest, "Invalid field of study".to_string()));
+        }
+
+    }
 
     let candidates = CandidateService::list_candidates(private_key, db, field)
         .await
@@ -121,4 +127,20 @@ pub async fn get_candidate(
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
     Ok(Json(details))
+}
+
+#[post("/candidate/<id>/reset_password")]
+pub async fn reset_candidate_password(
+    conn: Connection<'_, Db>,
+    session: AdminAuth,
+    id: i32,
+) -> Result<String, Custom<String>> {
+    let db = conn.into_inner();
+    let private_key = session.get_private_key();
+
+    let new_password = CandidateService::reset_password(private_key, db, id)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+
+    Ok(new_password)
 }
