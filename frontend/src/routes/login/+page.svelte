@@ -6,7 +6,7 @@
 <SplitLayout>
 	<div class="form">
 		<div
-			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-lg flex items-center justify-center"
+			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
 		>
 			<img class="object-cover" src={lev} alt="" />
 		</div>
