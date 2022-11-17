@@ -40,7 +40,7 @@ impl PortfolioService {
         Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
     }
 
-
+    /// Writes file to desired location
     async fn write_portfolio_file(
         candidate_id: i32,
         data: Vec<u8>,
@@ -55,23 +55,13 @@ impl PortfolioService {
         Ok(())
     }
 
-
+    
     pub async fn add_cover_letter_to_cache(
         candidate_id: i32,
         letter: Vec<u8>,
     ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, letter, FileType::CoverLetterPdf).await
     }
-
-
-    pub async fn is_cover_letter(candidate_id: i32) -> bool {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
-
-        tokio::fs::metadata(cache_path.join(cache_path.join(FileType::CoverLetterPdf.as_str())))
-            .await
-            .is_ok()
-    }
-
 
     pub async fn add_portfolio_letter_to_cache(
         candidate_id: i32,
@@ -80,6 +70,21 @@ impl PortfolioService {
         Self::write_portfolio_file(candidate_id, letter, FileType::PortfolioLetterPdf).await
     }
 
+    pub async fn add_portfolio_zip_to_cache(
+        candidate_id: i32,
+        zip: Vec<u8>,
+    ) -> Result<(), ServiceError> {
+        Self::write_portfolio_file(candidate_id, zip, FileType::PortfolioZip).await
+    }
+    
+    
+    pub async fn is_cover_letter(candidate_id: i32) -> bool {
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+        
+        tokio::fs::metadata(cache_path.join(cache_path.join(FileType::CoverLetterPdf.as_str())))
+        .await
+        .is_ok()
+    }
 
     pub async fn is_portfolio_letter(candidate_id: i32) -> bool {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
@@ -92,15 +97,6 @@ impl PortfolioService {
             .await
             .is_ok()
     }
-
-
-    pub async fn add_portfolio_zip_to_cache(
-        candidate_id: i32,
-        zip: Vec<u8>,
-    ) -> Result<(), ServiceError> {
-        Self::write_portfolio_file(candidate_id, zip, FileType::PortfolioZip).await
-    }
-
 
     pub async fn is_portfolio_zip(candidate_id: i32) -> bool {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
@@ -115,6 +111,7 @@ impl PortfolioService {
     }
 
 
+    /// Returns true if portfolio is ready to be moved to the final directory
     pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
@@ -129,6 +126,7 @@ impl PortfolioService {
         true
     }
 
+    /// Removes all files from cache
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
         tokio::fs::remove_dir_all(&cache_path).await?;
@@ -139,6 +137,7 @@ impl PortfolioService {
     }
 
 
+    /// Move files from cache to final directory and delete cache afterwards
     pub async fn submit(candidate: candidate::Model, db: &DbConn) -> Result<(), ServiceError> {
         let candidate_id = candidate.application;
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
@@ -193,6 +192,7 @@ impl PortfolioService {
         Ok(())
     }
 
+    /// Delete PORTFOLIO.age file
     pub async fn delete_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
@@ -210,12 +210,14 @@ impl PortfolioService {
         Ok(())
     }
 
+    /// Returns true if portfolio is submitted
     pub async fn is_portfolio_submitted(candidate_id: i32) -> bool {
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
         tokio::fs::metadata(path.join(FileType::Age.as_str())).await.is_ok()
     }
 
+    /// Returns decrypted portfolio as bytes
     pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
