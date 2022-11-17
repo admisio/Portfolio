@@ -423,6 +423,19 @@ mod tests {
         assert!(!CandidateService::is_application_id_valid(101));
     }
 
+    // TODO
+    /* #[tokio::test]
+    async fn test_list_candidates() {
+        let db = get_memory_sqlite_connection().await;
+        let candidates = CandidateService::list_candidates(&db, None).await.unwrap();
+        assert_eq!(candidates.len(), 0);
+
+        put_user_data(&db).await;
+
+        let candidates = CandidateService::list_candidates(&db, None).await.unwrap();
+        assert_eq!(candidates.len(), 1);
+    } */
+
     #[tokio::test]
     async fn test_encrypt_decrypt_private_key_with_passphrase() {
         let db = get_memory_sqlite_connection().await;
@@ -479,7 +492,7 @@ mod tests {
             citizenship: "test".to_string(),
             email: "test".to_string(),
             sex: "test".to_string(),
-            study: "test".to_string(),
+            study: "KB".to_string(),
             parent_name: "test".to_string(),
             parent_surname: "test".to_string(),
             parent_telephone: "test".to_string(),

@@ -70,6 +70,11 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::admin::create_candidate,
             ],
         )
+        .mount(
+            "/admin/list",
+            routes![
+                routes::admin::list_candidates,
+            ])
         .register("/", catchers![])
         .launch()
         .await

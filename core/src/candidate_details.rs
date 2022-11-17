@@ -185,6 +185,33 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
     }
 }
 
+// TODO: use this for ApplicationResult???
+/* impl TryFrom<ApplicationResult> for EncryptedApplicationDetails {
+    type Error = ServiceError;
+
+    fn try_from(value: ApplicationResult) -> Result<Self, Self::Error> {
+        Ok(EncryptedApplicationDetails {
+            name: EncryptedString::try_from(value.name)?,
+            surname: EncryptedString::try_from(value.surname)?,
+            birthplace: todo!(),
+            birthdate: todo!(),
+            address: todo!(),
+            telephone: todo!(),
+            citizenship: todo!(),
+            email: todo!(),
+            sex: todo!(),
+            study: todo!(),
+            parent_name: todo!(),
+            parent_surname: todo!(),
+            parent_telephone: todo!(),
+            parent_email: todo!(),
+
+        })
+    }
+
+    
+} */
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApplicationDetails {
     // Candidate
