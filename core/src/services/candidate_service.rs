@@ -118,7 +118,9 @@ impl CandidateService {
         let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, 
             new_password_plain.to_string()
         ).await?;
-        
+
+
+        SessionService::revoke_all_sessions(db, Some(id), None).await?;
         Mutation::update_candidate_password_with_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
         let enc_details_opt = EncryptedApplicationDetails::try_from((candidate, parent));
