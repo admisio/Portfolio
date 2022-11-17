@@ -11,6 +11,9 @@
 	<div style={`background-image: url(${backgroundImage});`} class="bgImage" />
 </div>
 <div class="view">
+    <div class="darkModeToggle">
+        <DarkModeToggle/>
+    </div>
 	<div class="content">
 		<slot />
 	</div>
@@ -33,7 +36,7 @@
 		@apply h-auto max-w-56 p-7;
 	}
 	.darkModeToggle {
-		@apply w-full;
+		@apply absolute right-0;
 		@apply hidden md:inline-block;
 		@apply p-7;
 	}
