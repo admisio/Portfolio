@@ -24,6 +24,11 @@ jobs:
           override: true
           default: true
 
+      - name: Install latest stable Mold linker 🦠
+        uses: rui314/setup-mold@v1
+        with:
+          make-default: true
+
       - name: Set up cargo cache 📦
         uses: actions/cache@v3
         continue-on-error: false
