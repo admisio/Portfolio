@@ -91,7 +91,7 @@ impl PortfolioService {
 
         tokio::fs::metadata(
             cache_path.join(
-                cache_path.join(FileType::PortfolioZip.as_str())
+                cache_path.join(FileType::PortfolioLetterPdf.as_str())
             )
         )
             .await
@@ -217,7 +217,7 @@ impl PortfolioService {
         tokio::fs::metadata(path.join(FileType::Age.as_str())).await.is_ok()
     }
 
-    /// Returns decrypted portfolio zip as bytes
+    /// Returns decrypted portfolio zip as Vec of bytes
     pub async fn get_portfolio(candidate_id: i32, private_key: String) -> Result<Vec<u8>, ServiceError> {
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
@@ -234,7 +234,7 @@ impl PortfolioService {
 mod tests {
     use serial_test::serial;
 
-    use crate::{services::{portfolio_service::PortfolioService, candidate_service::{CandidateService, tests::put_user_data}}, util::get_memory_sqlite_connection};
+    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, util::get_memory_sqlite_connection};
     use std::path::PathBuf;
 
     const APPLICATION_ID: i32 = 103151;
@@ -288,7 +288,7 @@ mod tests {
 
         PortfolioService::write_portfolio_file(APPLICATION_ID, vec![0], crate::services::portfolio_service::FileType::PortfolioLetterPdf).await.unwrap();
         
-        assert!(tokio::fs::metadata(application_cache_dir.join("test")).await.is_ok());
+        assert!(tokio::fs::metadata(application_cache_dir.join(FileType::PortfolioLetterPdf.as_str())).await.is_ok());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
