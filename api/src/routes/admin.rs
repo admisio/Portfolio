@@ -21,8 +21,6 @@ pub async fn login(
     cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
-    println!("{} {}", login_form.admin_id, login_form.password);
-
     let session_token_key = AdminService::login(
         db,
         login_form.admin_id,

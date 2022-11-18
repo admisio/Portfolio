@@ -23,8 +23,6 @@ pub async fn login(
     cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
-    println!("{} {}", login_form.application_id, login_form.password);
-
     let session_token_key = CandidateService::login(
         db,
         login_form.application_id,
@@ -266,4 +264,22 @@ pub async fn is_portfolio_submitted(session: CandidateAuth) -> Result<String, Cu
     }
 
     Ok("Portfolio ok".to_string())
+}
+
+#[get("/download")]
+pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custom<String>> {
+    let private_key = session.get_private_key();
+    let candidate: entity::candidate::Model = session.into();
+
+    let file = PortfolioService::get_portfolio(candidate.application, private_key).await;
+
+    if file.is_err() {
+        let e = file.err().unwrap();
+        return Err(Custom(
+            Status::from_code(e.code()).unwrap_or_default(),
+            e.to_string(),
+        ));
+    }
+
+    Ok(file.unwrap())
 }
