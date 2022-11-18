@@ -217,20 +217,14 @@ impl PortfolioService {
         tokio::fs::metadata(path.join(FileType::Age.as_str())).await.is_ok()
     }
 
-    /// Returns decrypted portfolio as bytes
-    pub async fn get_portfolio(candidate_id: i32, db: &DbConn) -> Result<Vec<u8>, ServiceError> {
+    /// Returns decrypted portfolio zip as bytes
+    pub async fn get_portfolio(candidate_id: i32, private_key: String) -> Result<Vec<u8>, ServiceError> {
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
-
-        let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-
-        let candidate_public_key = candidate.public_key;
 
         let path = path.join(FileType::Age.as_str());
 
         let buffer =
-            crypto::decrypt_file_with_private_key_as_buffer(path, &candidate_public_key).await?;
+            crypto::decrypt_file_with_private_key_as_buffer(path, &private_key).await?;
 
         Ok(buffer)
     }
