@@ -59,6 +59,7 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::candidate::submit_portfolio,
                 routes::candidate::is_portfolio_prepared,
                 routes::candidate::is_portfolio_submitted,
+                routes::candidate::download_portfolio,
             ],
         )
         .mount(
@@ -70,6 +71,7 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::admin::create_candidate,
                 routes::admin::get_candidate,
                 routes::admin::reset_candidate_password,
+                routes::admin::get_candidate_portfolio,
             ],
         )
         .mount(
