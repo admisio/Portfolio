@@ -234,7 +234,7 @@ impl PortfolioService {
 mod tests {
     use serial_test::serial;
 
-    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, util::get_memory_sqlite_connection};
+    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, util::get_memory_sqlite_connection, crypto};
     use std::path::PathBuf;
 
     const APPLICATION_ID: i32 = 103151;
@@ -478,7 +478,38 @@ mod tests {
         assert!(!PortfolioService::is_portfolio_submitted(APPLICATION_ID).await);
 
         clear_data_store_temp_dir(temp_dir).await;
+    }
 
+    #[tokio::test]
+    #[serial]
+    async fn test_get_portfolio() {
+        let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
+        let db = get_memory_sqlite_connection().await;
+        let (candidate, _parent) = put_user_data(&db).await;
+
+        let private_key = crypto::decrypt_password(candidate.private_key.clone(), "test".to_string())
+            .await
+            .unwrap();
+
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
+        PortfolioService::submit(candidate, &db)
+            .await
+            .unwrap();
+
+        PortfolioService::get_portfolio(APPLICATION_ID, private_key)
+            .await
+            .unwrap();
+
+        clear_data_store_temp_dir(temp_dir).await;
     }
 }
