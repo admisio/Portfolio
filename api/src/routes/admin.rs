@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService}, responses::CandidateResponse, candidate_details::ApplicationDetails,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::CandidateResponse, candidate_details::ApplicationDetails,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -141,4 +141,18 @@ pub async fn reset_candidate_password(
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
     Ok(new_password)
+}
+
+#[get("/candidate/<id>/portfolio")]
+pub async fn get_candidate_portfolio(
+    session: AdminAuth, 
+    id: i32,
+) -> Result<Vec<u8>, Custom<String>> {
+    let private_key = session.get_private_key();
+
+    let portfolio = PortfolioService::get_portfolio(id, private_key)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+
+    Ok(portfolio)
 }
