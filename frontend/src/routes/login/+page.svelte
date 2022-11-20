@@ -1,6 +1,17 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	import lev from '$lib/assets/logo/lev.png';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+
+	let applicationValue = '';
+
+	const redirectToCode = () => {
+		// TODO: Validation
+		if (applicationValue) {
+			goto(`/login/${applicationValue}`);
+		}
+	};
 </script>
 
 <SplitLayout>
@@ -15,11 +26,13 @@
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 		</p>
 		<input
+			bind:value={applicationValue}
 			class="bg-[#f8fafb] mt-8 w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-			type="password"
+			type="number"
 			placeholder="Ev. číslo"
 		/>
 		<input
+			on:click={redirectToCode}
 			class="mt-8 w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
 			type="submit"
 			value="Odeslat"
@@ -29,7 +42,6 @@
 
 <style>
 	.form {
-
 		@apply flex flex-col;
 		@apply mx-auto w-[90%] h-full;
 		@apply items-center justify-center;
