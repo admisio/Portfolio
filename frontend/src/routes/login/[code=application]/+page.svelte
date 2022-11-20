@@ -98,6 +98,6 @@
 	.codeInputDesktop {
 		@apply hidden;
 		@apply mr-1 md:mr-2;
-		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20;
+		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-5xl xl:w-18 xl:h-22;
 	}
 </style>
