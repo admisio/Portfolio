@@ -1,3 +1,9 @@
+<script lang="ts">
+	import PageTransition from '$lib/components/PageTransition.svelte';
+
+	export let data: { url: string };
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" />
 <link
@@ -5,7 +11,9 @@
 	rel="stylesheet"
 />
 
-<slot />
+<PageTransition url={data.url}>
+	<slot />
+</PageTransition>
 
 <style windi:preflights:global windi:safelist:global>
 	:global(html) {
