@@ -22,7 +22,7 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
 
     async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
         dotenv::dotenv().ok();
-        if std::env::var("TEST").is_ok() {
+        if std::env::var("TEST_API").is_ok() {
             let conn = get_memory_sqlite_connection().await;
             crate::test::run_test_migrations(&conn).await;
             return Ok(Self { conn });
