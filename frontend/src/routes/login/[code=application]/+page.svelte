@@ -8,7 +8,7 @@
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
 
-	const inputMobileOnKeyDown = (event: KeyboardEvent) => {
+	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
 		let input = event.target as HTMLInputElement;
 		if (input.value.length > 8) {
 			input.value = input.value.slice(0, 8);
@@ -50,7 +50,7 @@
 				bind:value={codeValueMobile}
 				type="text"
 				class="codeInputMobile"
-				on:keydown={inputMobileOnKeyDown}
+				on:keyup={inputMobileOnKeyUp}
 			/>
 			{#each [1, 2, 3, 4] as value}
 				<input
