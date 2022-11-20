@@ -7,9 +7,9 @@
 <div class="bg">
 	<div class="bgOverlay">
 		<!-- <img class="logo" src={logo} alt="SSPŠ logo" /> -->
-		<div class="darkModeToggle">
+		<!-- <div class="darkModeToggle">
 			<DarkModeToggle backgroundColor="dark" />
-		</div>
+		</div> -->
 	</div>
 	<div style={`background-image: url(${backgroundImage});`} class="bgImage" />
 </div>
