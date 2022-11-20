@@ -185,7 +185,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
 }
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ApplicationDetails {
     // Candidate
     pub name: String,
