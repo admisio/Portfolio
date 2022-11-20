@@ -37,7 +37,6 @@
 						codeValueArray[value - 1] = val;
 					}}
 					on:keydown|preventDefault={(e) => inputOnKeyDown(value - 1, e)}
-					class="caret-transparent mr-2 text-center text-4xl font-semibold text-sspsBlue bg-[#f8fafb] w-16 h-20 shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2"
 					type="text"
 				/>
 			{/each}
@@ -52,7 +51,6 @@
 						codeValueArray[value - 1] = val;
 					}}
 					on:keydown|preventDefault={(e) => inputOnKeyDown(value - 1, e)}
-					class="caret-transparent mr-2 text-center text-4xl font-semibold text-sspsBlue bg-[#f8fafb] w-16 h-20 shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2"
 					type="text"
 				/>
 			{/each}
@@ -68,8 +66,14 @@
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
-		@apply w-3/5 h-3/5;
+		@apply w-4/5 md:w-3/5 h-3/5;
 		@apply rounded-3xl;
 		@apply bg-white;
+	}
+	input {
+		@apply text-center;
+		@apply mr-1 md:mr-2;
+		@apply text-xl w-12 h-15 md:text-4xl md:w-16 md:h-20
+		@apply caret-transparent text-centerfont-semibold text-sspsBlue bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
 	}
 </style>
