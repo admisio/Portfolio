@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
@@ -19,9 +19,10 @@ use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 pub async fn login(
     conn: Connection<'_, Db>,
     login_form: Json<LoginRequest>,
-    ip_addr: SocketAddr,
+    // ip_addr: SocketAddr, // TODO uncomment in production
     cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
+    let ip_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
     let db = conn.into_inner();
     let session_token_key = CandidateService::login(
         db,
