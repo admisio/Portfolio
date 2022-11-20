@@ -8,6 +8,8 @@ pub enum ServiceError {
     InvalidApplicationId,
     #[error("Invalid credentials")]
     InvalidCredentials,
+    #[error("Unauthorized")]
+    Unauthorized,
     #[error("Forbidden")]
     Forbidden,
     #[error("Session expired, please login agai")]
@@ -65,6 +67,7 @@ impl ServiceError {
         match self {
             ServiceError::InvalidApplicationId => 400,
             ServiceError::InvalidCredentials => 401,
+            ServiceError::Unauthorized => 401,
             ServiceError::Forbidden => 403,
             ServiceError::ExpiredSession => 401,
             ServiceError::JwtError => 500,
