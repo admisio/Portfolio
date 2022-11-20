@@ -41,7 +41,7 @@ impl AdminService {
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<admin::Model, ServiceError> {
         match SessionService::auth_user_session(db, session_uuid).await? {
             AdminUser::Admin(admin) => Ok(admin),
-            AdminUser::Candidate(_) => unreachable!(),
+            AdminUser::Candidate(_) => Err(ServiceError::Unauthorized),
         }
     }
 }
