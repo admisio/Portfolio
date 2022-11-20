@@ -88,8 +88,8 @@
 		@apply bg-white;
 	}
 	input {
-		@apply text-center;
-		@apply caret-transparent text-centerfont-semibold text-sspsBlue bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
+		@apply text-center font-semibold text-sspsBlue;
+		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
 	}
 	.codeInputMobile {
 		@apply sm:hidden;
@@ -98,6 +98,6 @@
 	.codeInputDesktop {
 		@apply hidden;
 		@apply mr-1 md:mr-2;
-		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-5xl xl:w-18 xl:h-22;
+		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-4xl xl:w-18 xl:h-22 xl:p-0;
 	}
 </style>
