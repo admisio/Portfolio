@@ -12,6 +12,7 @@ mod guards;
 mod pool;
 mod requests;
 mod routes;
+pub mod test;
 
 use pool::Db;
 
@@ -29,8 +30,7 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     Ok(rocket)
 }
 
-#[tokio::main]
-async fn start() -> Result<(), rocket::Error> {
+pub fn rocket() -> Rocket<Build>{
     rocket::build()
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
@@ -80,6 +80,11 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::admin::list_candidates,
             ])
         .register("/", catchers![])
+}
+
+#[tokio::main]
+async fn start() -> Result<(), rocket::Error> {
+    rocket()
         .launch()
         .await
         .map(|_| ())
