@@ -14,7 +14,7 @@
 		}
 	};
 
-	let pageIndex = 3;
+	let pageIndex = 0;
 </script>
 
 <SplitLayout>
@@ -31,7 +31,10 @@
 			</p>
 			<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
 				<TextField type="text" placeholder="Jméno a příjmení" />
-				<TextField type="e-mail" placeholder="Email" />
+				<TextField type="e-mail" placeholder="Email" icon>
+					<div slot="icon" class="flex items-center justify-centertext-center text-2xl text-sspsBlue pb-1" 
+					>@</div>
+				</TextField>
 			</div>
 			<div class="w-full md:w-3/5">
 				<TextField type="tel" placeholder="Telefon" />
@@ -89,7 +92,11 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Občanství" />
+				<TextField type="text" placeholder="Občanství"  icon>
+					<div slot="icon">
+						ssj
+					</div>
+				</TextField>
 			</div>
 			<div class="flex items-center justify-center w-full md:w-3/5">
 				<TextField type="text" placeholder="Rodné číslo" />
