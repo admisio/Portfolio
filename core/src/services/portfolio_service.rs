@@ -1,20 +1,66 @@
 use std::{path::{PathBuf, Path}};
 
 use entity::candidate;
-use sea_orm::DbConn;
+use sea_orm::{DbConn};
+use serde::{Serialize, ser::{SerializeStruct}};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{error::ServiceError, Query, crypto};
 
+pub enum SubmissionProgress {
+    NoneInCache,
+    SomeInCache(Vec<FileType>),
+    AllInCache,
+    Submitted,
+}
+
+impl SubmissionProgress {
+    pub fn index(&self) -> usize {
+        match self {
+            SubmissionProgress::NoneInCache => 1,
+            SubmissionProgress::SomeInCache(_) => 2,
+            SubmissionProgress::AllInCache => 3,
+            SubmissionProgress::Submitted => 4,
+        }
+    }
+}
+
+// Serialize the enum so that the JSON contains status field and a list of files present in cache
+impl Serialize for SubmissionProgress {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut progress = serializer.serialize_struct("SubmissionProgress", 2)?;
+        progress.serialize_field("status", &self.index())?;
+
+        match self {
+            SubmissionProgress::SomeInCache(files) => {
+                progress.serialize_field("files", files)?;
+            }
+            _ => {
+                progress.serialize_field("files", &Vec::<FileType>::new())?;
+            }
+        };
+
+        progress.end()
+    }
+}
+
+
 #[derive(Copy, Clone)]
-enum FileType {
-    CoverLetterPdf,
-    PortfolioLetterPdf,
-    PortfolioZip,
-    Age,
+pub enum FileType {
+    CoverLetterPdf = 1,
+    PortfolioLetterPdf = 2,
+    PortfolioZip = 3,
+    Age = 4,
 }
 
 impl FileType {
+    pub fn index(&self) -> usize {
+        *self as usize
+    }
+
     pub fn as_str(&self) -> &'static str {
         match self {
             FileType::CoverLetterPdf => "MOTIVACNI_DOPIS.pdf",
@@ -22,6 +68,16 @@ impl FileType {
             FileType::PortfolioZip => "PORTFOLIO.zip",
             FileType::Age => "PORTFOLIO.age",
         }
+    }
+
+    pub fn iter_cache() -> impl Iterator<Item = Self> {
+        [
+            FileType::CoverLetterPdf,
+            FileType::PortfolioLetterPdf,
+            FileType::PortfolioZip,
+        ]
+        .iter()
+        .copied()
     }
 }
 
@@ -31,9 +87,43 @@ impl ToString for FileType {
     }
 }
 
+impl Serialize for FileType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_u32(self.index() as u32)
+    }
+}
+
 
 pub struct PortfolioService;
 impl PortfolioService {
+    pub async fn get_submission_progress(candidate_id: i32) -> Result<SubmissionProgress, ServiceError> {
+        let path = Self::get_file_store_path().join(&candidate_id.to_string());
+        if !path.exists() {
+            return Err(ServiceError::CandidateNotFound);
+        }
+        let cache_path = path.join("cache");
+
+        if path.join(FileType::Age.as_str()).exists() {
+            return Ok(SubmissionProgress::Submitted);
+        }
+
+        let mut files = Vec::new();
+        for file in FileType::iter_cache() {
+            if cache_path.join(file.as_str()).exists() {
+                files.push(file);
+            }
+        }
+        match files.len() {
+            0 => Ok(SubmissionProgress::NoneInCache),
+            3 => Ok(SubmissionProgress::AllInCache),
+            _ => Ok(SubmissionProgress::SomeInCache(files)),
+        }
+    }
+
+
     // Get root path or local directory
     fn get_file_store_path() -> PathBuf {
         dotenv::dotenv().ok();

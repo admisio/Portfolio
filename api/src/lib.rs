@@ -59,6 +59,7 @@ async fn start() -> Result<(), rocket::Error> {
                 routes::candidate::submit_portfolio,
                 routes::candidate::is_portfolio_prepared,
                 routes::candidate::is_portfolio_submitted,
+                routes::candidate::submission_progress,
                 routes::candidate::download_portfolio,
             ],
         )

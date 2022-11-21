@@ -3,7 +3,7 @@ use std::net::SocketAddr;
 use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
-use portfolio_core::services::portfolio_service::PortfolioService;
+use portfolio_core::services::portfolio_service::{PortfolioService, SubmissionProgress};
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -128,6 +128,26 @@ pub async fn upload_cover_letter(
     Ok("Letter added".to_string())
 }
 
+#[get("/submission_progress")]
+pub async fn submission_progress(
+    conn: Connection<'_, Db>,
+    session: CandidateAuth
+) -> Result<Json<SubmissionProgress>, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let progress = PortfolioService::get_submission_progress(candidate.application)
+        .await
+        .map_err(|e| {
+            Custom(
+                Status::from_code(e.code()).unwrap_or_default(),
+                e.to_string(),
+            )
+        })?;
+
+    Ok(
+        Json(progress)
+    )
+}
 // TODO: JSON
 #[get["/is_cover_letter"]]
 pub async fn is_cover_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
