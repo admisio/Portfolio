@@ -86,11 +86,12 @@ pub async fn create_candidate(
     Ok(plain_text_password)
 }
 
-#[get("/candidates?<field>")]
+#[get("/candidates?<field>&<page>")]
 pub async fn list_candidates(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     field: Option<String>,
+    page: Option<u64>,
 ) -> Result<Json<Vec<CandidateResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
@@ -101,7 +102,7 @@ pub async fn list_candidates(
 
     }
 
-    let candidates = CandidateService::list_candidates(private_key, db, field)
+    let candidates = CandidateService::list_candidates(private_key, db, field, page)
         .await
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
