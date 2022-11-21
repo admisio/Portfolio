@@ -59,7 +59,9 @@ pub enum ServiceError {
     #[error("Portfolio is incomplete")]
     IncompletePortfolio,
     #[error("Zip error")]
-    ZipError(#[from] async_zip::error::ZipError)
+    ZipError(#[from] async_zip::error::ZipError),
+    #[error("PDF error")]
+    PdfError,
 }
 
 impl ServiceError {
@@ -94,6 +96,7 @@ impl ServiceError {
             //TODO: Correct code
             ServiceError::IncompletePortfolio => 406,
             ServiceError::ZipError(_) => 500,
+            ServiceError::PdfError => 500,
         }
     }
 }

@@ -6,6 +6,7 @@ pub mod error;
 pub mod candidate_details;
 pub mod util;
 pub mod responses;
+pub mod utils;
 
 pub use database::mutation::*;
 pub use database::query::*;
