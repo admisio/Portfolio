@@ -24,26 +24,34 @@ impl Query {
         db: &DbConn,
         id: i32,
     ) -> Result<Option<candidate::Model>, DbErr> {
-        Candidate::find_by_id(id).one(db).await
+        Candidate::find_by_id(id)
+            .one(db)
+            .await
     }
 
     pub async fn list_candidates(
         db: &DbConn,
         field_of_study_opt: Option<String>,
+        page: Option<u64>,
     ) -> Result<Vec<CandidateParentResult>, DbErr> {
         let select = Candidate::find();
-        if let Some(study) = field_of_study_opt {
+        let query = if let Some(study) = field_of_study_opt {
            select.filter(candidate::Column::Study.eq(study)) 
         } else {
             select
         }
+            .order_by(candidate::Column::Application, Order::Asc)
             .join(JoinType::InnerJoin, candidate::Relation::Parent.def())
             .column_as(parent::Column::Name, "parent_name")
             .column_as(parent::Column::Surname, "parent_surname")
             .into_model::<CandidateParentResult>()
-            .paginate(db, PAGE_SIZE)
-            .fetch()
-            .await
+            .paginate(db, PAGE_SIZE);
+
+        if let Some(page) = page {
+            query.fetch_page(page).await
+        } else {
+            query.fetch().await
+        }
     }
     
 }

@@ -144,9 +144,15 @@ impl CandidateService {
         private_key: String,
         db: &DbConn,
         field_of_study: Option<String>,
+        page: Option<u64>,
     ) -> Result<Vec<CandidateResponse>, ServiceError> {
 
-        let candidates = Query::list_candidates(db, field_of_study).await?;
+        let candidates = Query::list_candidates(
+            db,
+            field_of_study,
+            page
+        ).await?;
+
         let mut result: Vec<CandidateResponse> = vec![];
 
         for candidate in candidates {
@@ -288,12 +294,12 @@ pub mod tests {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
         let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
-        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None).await.unwrap();
+        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None).await.unwrap();
+        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 1);
     }
 
