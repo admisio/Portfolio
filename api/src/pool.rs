@@ -1,8 +1,9 @@
-use portfolio_core::{sea_orm::{self}, util::get_memory_sqlite_connection};
-
+use portfolio_core::{sea_orm::{self}};
 use async_trait::async_trait;
+#[cfg(not(test))]
 use sea_orm::ConnectOptions;
 use sea_orm_rocket::{rocket::figment::Figment, Database};
+#[cfg(not(test))]
 use std::time::Duration;
 
 #[derive(Database, Debug)]
@@ -22,7 +23,7 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
 
     #[cfg(test)]
     async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
-        let conn = get_memory_sqlite_connection().await;
+        let conn = portfolio_core::util::get_memory_sqlite_connection().await;
         crate::test::tests::run_test_migrations(&conn).await;
         return Ok(Self { conn });
     }
