@@ -70,6 +70,7 @@ pub fn rocket() -> Rocket<Build>{
                 routes::admin::whoami,
                 routes::admin::hello,
                 routes::admin::create_candidate,
+                routes::admin::create_candidate_pdf,
                 routes::admin::get_candidate,
                 routes::admin::reset_candidate_password,
                 routes::admin::get_candidate_portfolio,

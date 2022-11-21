@@ -77,13 +77,43 @@ pub async fn create_candidate(
     ApplicationService::create_candidate_with_parent(
         db,
         form.application_id,
-        &plain_text_password,
         form.personal_id_number,
+        &plain_text_password,
     )
         .await
         .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
     Ok(plain_text_password)
+}
+
+#[post("/create_pdf", data = "<post_form>")]
+pub async fn create_candidate_pdf(
+    conn: Connection<'_, Db>,
+    _session: AdminAuth,
+    post_form: Json<RegisterRequest>,
+) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
+    let form = post_form.into_inner();
+
+    let plain_text_password = random_8_char_string();
+
+    ApplicationService::create_candidate_with_parent(
+        db,
+        form.application_id,
+        form.personal_id_number.to_string(),
+        &plain_text_password,
+    )
+        .await
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+
+    let pdf = portfolio_core::utils::generate_pdf::LoginDocument::generate(
+        form.application_id,
+        &form.personal_id_number, 
+        &plain_text_password
+    )
+        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+    
+    Ok(pdf)
 }
 
 #[get("/candidates?<field>")]

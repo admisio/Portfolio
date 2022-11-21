@@ -361,8 +361,8 @@ pub mod tests {
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
             &db,
             APPLICATION_ID,
+            "0202020000".to_string(),
             &plain_text_password,
-            "".to_string(),
         )
         .await
         .ok()

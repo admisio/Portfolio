@@ -11,8 +11,8 @@ impl ApplicationService {
     pub async fn create_candidate_with_parent( // uchazeč s maminkou 👩‍🍼
         db: &DbConn,
         application_id: i32,
-        plain_text_password: &String,
         personal_id_number: String,
+        plain_text_password: &String,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         Ok(
             /* tokio::try_join!( // TODO: try_join! is not working

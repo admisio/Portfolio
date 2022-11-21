@@ -184,8 +184,8 @@ mod tests {
         let candidate = ApplicationService::create_candidate_with_parent(
             &db,
             103151,
+            "0202020000".to_string(),
             &SECRET.to_string(),
-            "".to_string(),
         )
         .await
         .ok()
@@ -207,8 +207,8 @@ mod tests {
         ApplicationService::create_candidate_with_parent(
             db,
             103151,
+            "0202020000".to_string(),
             &"Tajny_kod".to_string(),
-            "".to_string(),
         )
         .await
         .unwrap()
@@ -239,8 +239,8 @@ mod tests {
         let candidate_form = ApplicationService::create_candidate_with_parent(
             &db,
             103151,
+            "0202020000".to_string(),
             &"Tajny_kod".to_string(),
-            "".to_string(),
         )
         .await
         .unwrap()

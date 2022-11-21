@@ -32,8 +32,8 @@ pub async fn run_test_migrations(db: &DbConn) {
     ApplicationService::create_candidate_with_parent(
         db,
         APPLICATION_ID,
-        &CANDIDATE_PASSWORD.to_string(),
-        PERSONAL_ID_NUMBER.to_string()
+        PERSONAL_ID_NUMBER.to_string(),
+        &CANDIDATE_PASSWORD.to_string()
     )
         .await
         .unwrap();
