@@ -14,6 +14,7 @@
 		}
 	};
 
+	const pageCount = 3;
 	let pageIndex = 0;
 </script>
 
@@ -61,13 +62,6 @@
 					</div>
 				</TextField>
 			</div>
-
-			<input
-				on:click={redirectToCode}
-				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
-				type="submit"
-				value="Odeslat"
-			/>
 		{/if}
 		{#if pageIndex === 1}
 			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Něco o tobě</h1>
@@ -100,12 +94,6 @@
 				<TextField type="text" placeholder="Datum narození" />
 				<TextField type="text" placeholder="Pohlaví" />
 			</div>
-			<input
-				on:click={redirectToCode}
-				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
-				type="submit"
-				value="Odeslat"
-			/>
 		{/if}
 		{#if pageIndex === 2}
 			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Už jen kousek!</h1>
@@ -117,13 +105,6 @@
 				<TextField type="e-mail" placeholder="E-mail zákonného zástupce" />
 				<TextField type="tel" placeholder="Telefon zákonného zástupce" />
 			</div>
-
-			<input
-				on:click={redirectToCode}
-				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
-				type="submit"
-				value="Odeslat"
-			/>
 		{/if}
 		{#if pageIndex === 3}
 			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Poslední krok</h1>
@@ -131,10 +112,8 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Občanství"  icon>
-					<div slot="icon">
-						ssj
-					</div>
+				<TextField type="text" placeholder="Občanství" icon>
+					<div slot="icon">ssj</div>
 				</TextField>
 			</div>
 			<div class="flex items-center justify-center w-full md:w-3/5">
@@ -144,19 +123,24 @@
 			<div class="flex flex-col w-full md:w-3/5">
 				<TextField type="text" placeholder="Evidenční číslo přihlášky" />
 			</div>
-			<input
-				on:click={redirectToCode}
-				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
-				type="submit"
-				value="Odeslat"
-			/>
 		{/if}
+		<input
+			on:click={() => {
+				if (pageIndex === pageCount) {
+					//TODO: Submit
+				} else {
+					pageIndex++;
+				}
+			}}
+			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
+			type="submit"
+			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
+		/>
 
 		<div class="mt-8 flex flex-row justify-center">
-			<span class="w-3 h-3 rounded-full bg-sspsBlue" />
-			<span class="w-3 h-3 ml-2 rounded-full bg-sspsGray" />
-			<span class="w-3 h-3 ml-2 rounded-full bg-sspsGray" />
-			<span class="w-3 h-3 ml-2 rounded-full bg-sspsGray" />
+			{#each Array(pageCount + 1) as _, i}
+				<span class:dotActive={i === pageIndex} class="ml-2 w-3 h-3 rounded-full bg-sspsGray" />
+			{/each}
 		</div>
 	</div>
 </SplitLayout>
@@ -166,5 +150,8 @@
 		@apply flex flex-col;
 		@apply mx-auto w-[90%] h-full;
 		@apply items-center justify-center;
+	}
+	.dotActive {
+		@apply bg-sspsBlue;
 	}
 </style>
