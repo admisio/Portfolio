@@ -29,6 +29,10 @@ infer = "^0.11"
 
 async_zip = "0.0.9"
 
+pdfium-render = "0.7.25"
+qrcode-generator = "4.1.6"
+image = "0.24.5"
+
 # crypto
 rand = "^0.8"
 aes-gcm-siv = { version = "^0.11", features = ["std"] }
