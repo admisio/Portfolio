@@ -3,6 +3,7 @@
 
 	import lev from '$lib/assets/logo/lev.png';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import TextField from '$lib/components/textfield/TextField.svelte';
 
 	let applicationValue = '';
 
@@ -13,7 +14,7 @@
 		}
 	};
 
-	let pageIndex = 1;
+	let pageIndex = 3;
 </script>
 
 <SplitLayout>
@@ -29,23 +30,13 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
-				<input
-					class="bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="text"
-					placeholder="Jméno a příjmení"
-				/>
-				<input
-					class="ml-2 md:ml-0 bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="email"
-					placeholder="E-mail"
-				/>
+				<TextField type="text" placeholder="Jméno a příjmení" />
+				<TextField type="e-mail" placeholder="Email" />
+			</div>
+			<div class="w-full md:w-3/5">
+				<TextField type="tel" placeholder="Telefon" />
 			</div>
 
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="tel"
-				placeholder="Telefon"
-			/>
 			<input
 				on:click={redirectToCode}
 				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
@@ -58,27 +49,14 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="text"
-				placeholder="Rodné přijmení"
-			/>
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="text"
-				placeholder="Místo narození"
-			/>
+			<div class="flex flex-col w-full md:w-3/5">
+				<TextField type="text" placeholder="Rodné příjmení" />
+				<TextField type="text" placeholder="Místo narození" />
+			</div>
+
 			<div class="flex items-center justify-center w-full md:w-3/5">
-				<input
-					class="bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="text"
-					placeholder="Datum narození"
-				/>
-				<input
-					class="ml-2 bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="text"
-					placeholder="Polaví"
-				/>
+				<TextField type="text" placeholder="Datum narození" />
+				<TextField type="text" placeholder="Pohlaví" />
 			</div>
 			<input
 				on:click={redirectToCode}
@@ -92,23 +70,12 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="text"
-				placeholder="Adresa trvalého bydliště"
-			/>
+			<div class="flex flex-col w-full md:w-3/5">
+				<TextField type="text" placeholder="Adresa trvalého bydliště" />
+				<TextField type="e-mail" placeholder="E-mail zákonného zástupce" />
+				<TextField type="tel" placeholder="Telefon zákonného zástupce" />
+			</div>
 
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="email"
-				placeholder="E-mail zákonného zástupce"
-			/>
-
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="tel"
-				placeholder="Telefon zákonného zástupce"
-			/>
 			<input
 				on:click={redirectToCode}
 				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
@@ -121,28 +88,16 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="text"
-				placeholder="Občanství"
-			/>
-			<div class="flex items-center justify-center w-full md:w-3/5">
-				<input
-					class="bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="text"
-					placeholder="Rodné číslo"
-				/>
-				<input
-					class="ml-2 bg-[#f8fafb] mt-8 w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-					type="text"
-					placeholder="Obor"
-				/>
+			<div class="flex flex-col w-full md:w-3/5">
+				<TextField type="text" placeholder="Občanství" />
 			</div>
-			<input
-				class="w-full bg-[#f8fafb] mt-8 md:w-3/5 shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
-				type="text"
-				placeholder="Evidenční číslo přihlášky"
-			/>
+			<div class="flex items-center justify-center w-full md:w-3/5">
+				<TextField type="text" placeholder="Rodné číslo" />
+				<TextField type="text" placeholder="Obor" />
+			</div>
+			<div class="flex flex-col w-full md:w-3/5">
+				<TextField type="text" placeholder="Evidenční číslo přihlášky" />
+			</div>
 			<input
 				on:click={redirectToCode}
 				class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
