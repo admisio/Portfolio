@@ -1,4 +1,4 @@
-use std::net::{SocketAddr, IpAddr, Ipv4Addr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use portfolio_core::candidate_details::ApplicationDetails;
 use portfolio_core::services::application_service::ApplicationService;
@@ -85,18 +85,14 @@ pub async fn add_details(
 #[post("/get_details")]
 pub async fn get_details(
     conn: Connection<'_, Db>,
-    session: CandidateAuth
+    session: CandidateAuth,
 ) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
 
-
     // let handle = tokio::spawn(async move {
-    let details = ApplicationService::decrypt_all_details(private_key, 
-        db,
-        candidate.application
-    )
+    let details = ApplicationService::decrypt_all_details(private_key, db, candidate.application)
         .await
         .map_err(|e| {
             Custom(
@@ -287,10 +283,50 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{candidate_details::ApplicationDetails, sea_orm::prelude::Uuid, crypto};
-    use rocket::http::{Status, Cookie};
+    use portfolio_core::{candidate_details::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
+    use rocket::{
+        http::{Cookie, Status},
+        local::blocking::Client,
+    };
 
-    use crate::test::tests::{create_candidate, admin_login, test_client, candidate_login, APPLICATION_ID};
+    use crate::test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD, ADMIN_PASSWORD, ADMIN_ID};
+
+    fn candidate_login(client: &Client) -> (Cookie, Cookie) {
+        let response = client
+            .post("/candidate/login")
+            .body(format!(
+                "{{
+            \"application_id\": {},
+            \"password\": \"{}\"
+        }}",
+                APPLICATION_ID, CANDIDATE_PASSWORD
+            ))
+            .dispatch();
+
+        (
+            response.cookies().get("id").unwrap().to_owned(),
+            response.cookies().get("key").unwrap().to_owned(),
+        )
+    }
+
+    fn admin_login(client: &Client) -> (Cookie, Cookie) {
+        let response = client
+            .post("/admin/login")
+            .body(format!(
+                "{{
+            \"admin_id\": {},
+            \"password\": \"{}\"
+        }}",
+                ADMIN_ID, ADMIN_PASSWORD
+            ))
+            .dispatch();
+
+        println!("{:?}", response);
+        (
+            response.cookies().get("id").unwrap().to_owned(),
+            response.cookies().get("key").unwrap().to_owned(),
+        )
+    }
 
     const CANDIDATE_DETAILS: &'static str = "{
         \"name\": \"idk\",
@@ -308,22 +344,13 @@ mod tests {
         \"parent_telephone\": \"420111222333\",
         \"parent_email\": \"maminka@centrum.cz\"
     }";
-    
+
     #[test]
     fn test_login_valid_credentials() {
         let client = test_client().lock().unwrap();
         let _response = candidate_login(&client);
     }
-    
-    #[test]
-    fn test_create_candidate() {
-        let client = test_client().lock().unwrap();
-        let cookies = admin_login(&client);
-        let password = create_candidate(&client, cookies, 1031511, "0".to_string());
-    
-        assert_eq!(password.len(), 8);
-    }
-    
+
     #[test]
     fn test_auth_candidate() {
         let client = test_client().lock().unwrap();
@@ -333,47 +360,48 @@ mod tests {
             .cookie(cookies.0)
             .cookie(cookies.1)
             .dispatch();
-    
+
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(response.into_string().unwrap(), APPLICATION_ID.to_string());
     }
-    
+
     #[test]
     fn test_add_get_candidate_details() {
         let client = test_client().lock().unwrap();
         let cookies = candidate_login(&client);
-    
+
         let details_orig: ApplicationDetails = serde_json::from_str(CANDIDATE_DETAILS).unwrap();
-    
+
         let response = client
             .post("/candidate/add/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .body(CANDIDATE_DETAILS.to_string())
             .dispatch();
-    
+
         assert_eq!(response.status(), Status::Ok);
-        
+
         let response = client
             .post("/candidate/get_details")
             .cookie(cookies.0)
             .cookie(cookies.1)
             .dispatch();
-    
+
         assert_eq!(response.status(), Status::Ok);
-        
-        let details_resp: ApplicationDetails = serde_json::from_str(&response.into_string().unwrap()).unwrap();
+
+        let details_resp: ApplicationDetails =
+            serde_json::from_str(&response.into_string().unwrap()).unwrap();
         assert_eq!(details_orig, details_resp);
     }
-    
+
     #[test]
     fn test_invalid_token_every_secured_endpoint() {
         let client = test_client().lock().unwrap();
-    
+
         let id = Cookie::new("id", Uuid::new_v4().to_string());
         let (private_key, _) = crypto::create_identity();
         let key = Cookie::new("key", private_key);
-    
+
         let response = client
             .post("/candidate/add/details")
             .cookie(id.clone())
@@ -381,14 +409,14 @@ mod tests {
             .body(CANDIDATE_DETAILS.to_string())
             .dispatch();
         assert_eq!(response.status(), Status::Unauthorized);
-    
+
         let response = client
             .post("/candidate/get_details")
             .cookie(id.clone())
             .cookie(key.clone())
             .dispatch();
         assert_eq!(response.status(), Status::Unauthorized);
-    
+
         let response = client
             .get("/candidate/whoami")
             .cookie(id.clone())
@@ -396,12 +424,12 @@ mod tests {
             .dispatch();
         assert_eq!(response.status(), Status::Unauthorized);
     }
-    
+
     #[test]
     fn test_admin_token_on_secured_candidate_endpoints() {
         let client = test_client().lock().unwrap();
         let cookies = admin_login(&client);
-    
+
         let response = client
             .post("/candidate/add/details")
             .cookie(cookies.0.clone())
@@ -409,14 +437,14 @@ mod tests {
             .body(CANDIDATE_DETAILS.to_string())
             .dispatch();
         assert_eq!(response.status(), Status::Unauthorized);
-    
+
         let response = client
             .post("/candidate/get_details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .dispatch();
         assert_eq!(response.status(), Status::Unauthorized);
-    
+
         let response = client
             .get("/candidate/whoami")
             .cookie(cookies.0.clone())

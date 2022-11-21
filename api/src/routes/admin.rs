@@ -157,3 +157,62 @@ pub async fn get_candidate_portfolio(
 
     Ok(portfolio)
 }
+
+#[cfg(test)]
+mod tests {
+    use rocket::{local::blocking::Client, http::{Cookie, Status}};
+
+    use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
+
+    fn admin_login(client: &Client) -> (Cookie, Cookie) {
+        let response = client
+            .post("/admin/login")
+            .body(format!(
+                "{{
+            \"admin_id\": {},
+            \"password\": \"{}\"
+        }}",
+                ADMIN_ID, ADMIN_PASSWORD
+            ))
+            .dispatch();
+
+        println!("{:?}", response);
+        (
+            response.cookies().get("id").unwrap().to_owned(),
+            response.cookies().get("key").unwrap().to_owned(),
+        )
+    }
+
+    fn create_candidate(
+        client: &Client,
+        cookies: (Cookie, Cookie),
+        id: i32,
+        pid: String,
+    ) -> String {
+        let response = client
+            .post("/admin/create")
+            .body(format!(
+                "{{
+            \"application_id\": {},
+            \"personal_id_number\": \"{}\"
+        }}",
+                id, pid
+            ))
+            .cookie(cookies.0)
+            .cookie(cookies.1)
+            .dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+
+        response.into_string().unwrap()
+    }
+
+    #[test]
+    fn test_create_candidate() {
+        let client = test_client().lock().unwrap();
+        let cookies = admin_login(&client);
+        let password = create_candidate(&client, cookies, 1031511, "0".to_string());
+    
+        assert_eq!(password.len(), 8);
+    }
+}
