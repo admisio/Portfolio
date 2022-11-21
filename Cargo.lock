@@ -1981,9 +1981,11 @@ version = "0.1.0"
 dependencies = [
  "async-stream",
  "async-trait",
+ "chrono",
  "dotenv",
  "futures",
  "futures-util",
+ "once_cell",
  "portfolio-core",
  "portfolio-entity",
  "portfolio-migration",

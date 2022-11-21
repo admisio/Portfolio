@@ -215,7 +215,7 @@ impl CandidateService {
         match SessionService::auth_user_session(db, session_uuid).await {
             Ok(user) => match user {
                 AdminUser::Candidate(candidate) => Ok(candidate),
-                AdminUser::Admin(_) => unreachable!(),
+                AdminUser::Admin(_) => Err(ServiceError::Unauthorized),
             },
             Err(e) => Err(e),
         }

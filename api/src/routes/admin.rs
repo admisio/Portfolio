@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
@@ -17,9 +17,10 @@ use crate::{guards::request::auth::AdminAuth, pool::Db, requests};
 pub async fn login(
     conn: Connection<'_, Db>,
     login_form: Json<AdminLoginRequest>,
-    ip_addr: SocketAddr,
+    // ip_addr: SocketAddr, // TODO uncomment in production
     cookies: &CookieJar<'_>,
 ) -> Result<String, Custom<String>> {
+    let ip_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
     let db = conn.into_inner();
     let session_token_key = AdminService::login(
         db,
@@ -155,4 +156,63 @@ pub async fn get_candidate_portfolio(
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
     Ok(portfolio)
+}
+
+#[cfg(test)]
+pub mod tests {
+    use rocket::{local::blocking::Client, http::{Cookie, Status}};
+
+    use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
+
+    pub fn admin_login(client: &Client) -> (Cookie, Cookie) {
+        let response = client
+            .post("/admin/login")
+            .body(format!(
+                "{{
+            \"admin_id\": {},
+            \"password\": \"{}\"
+        }}",
+                ADMIN_ID, ADMIN_PASSWORD
+            ))
+            .dispatch();
+
+        println!("{:?}", response);
+        (
+            response.cookies().get("id").unwrap().to_owned(),
+            response.cookies().get("key").unwrap().to_owned(),
+        )
+    }
+
+    fn create_candidate(
+        client: &Client,
+        cookies: (Cookie, Cookie),
+        id: i32,
+        pid: String,
+    ) -> String {
+        let response = client
+            .post("/admin/create")
+            .body(format!(
+                "{{
+            \"application_id\": {},
+            \"personal_id_number\": \"{}\"
+        }}",
+                id, pid
+            ))
+            .cookie(cookies.0)
+            .cookie(cookies.1)
+            .dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+
+        response.into_string().unwrap()
+    }
+
+    #[test]
+    fn test_create_candidate() {
+        let client = test_client().lock().unwrap();
+        let cookies = admin_login(&client);
+        let password = create_candidate(&client, cookies, 1031511, "0".to_string());
+    
+        assert_eq!(password.len(), 8);
+    }
 }
