@@ -159,12 +159,12 @@ pub async fn get_candidate_portfolio(
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use rocket::{local::blocking::Client, http::{Cookie, Status}};
 
     use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
 
-    fn admin_login(client: &Client) -> (Cookie, Cookie) {
+    pub fn admin_login(client: &Client) -> (Cookie, Cookie) {
         let response = client
             .post("/admin/login")
             .body(format!(

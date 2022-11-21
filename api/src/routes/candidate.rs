@@ -289,7 +289,7 @@ mod tests {
         local::blocking::Client,
     };
 
-    use crate::test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD, ADMIN_PASSWORD, ADMIN_ID};
+    use crate::{test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD}, routes::admin::tests::admin_login};
 
     fn candidate_login(client: &Client) -> (Cookie, Cookie) {
         let response = client
@@ -303,25 +303,6 @@ mod tests {
             ))
             .dispatch();
 
-        (
-            response.cookies().get("id").unwrap().to_owned(),
-            response.cookies().get("key").unwrap().to_owned(),
-        )
-    }
-
-    fn admin_login(client: &Client) -> (Cookie, Cookie) {
-        let response = client
-            .post("/admin/login")
-            .body(format!(
-                "{{
-            \"admin_id\": {},
-            \"password\": \"{}\"
-        }}",
-                ADMIN_ID, ADMIN_PASSWORD
-            ))
-            .dispatch();
-
-        println!("{:?}", response);
         (
             response.cookies().get("id").unwrap().to_owned(),
             response.cookies().get("key").unwrap().to_owned(),
