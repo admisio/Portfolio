@@ -20,14 +20,16 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
 
     type Connection = sea_orm::DatabaseConnection;
 
+    #[cfg(test)]
+    async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
+        let conn = get_memory_sqlite_connection().await;
+        crate::test::tests::run_test_migrations(&conn).await;
+        return Ok(Self { conn });
+    }
+
+    #[cfg(not(test))]
     async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
         dotenv::dotenv().ok();
-        if std::env::var("TEST_API").is_ok() {
-            let conn = get_memory_sqlite_connection().await;
-            crate::test::run_test_migrations(&conn).await;
-            return Ok(Self { conn });
-        }
-
 
         let database_url = std::env::var("DATABASE_URL").unwrap();
         let mut options: ConnectOptions = database_url.into();
