@@ -3,22 +3,15 @@
 
 	import { Swiper, SwiperSlide } from 'swiper/svelte';
 	import 'swiper/css';
+	import Circles from '$lib/components/icon/Circles.svelte';
 </script>
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="card name col-span-2 relative">
-			<div class="circles relative -left-16 -top-20">
-				<span
-					class="shadow-md left-20 top-10 absolute p-1 w-20 h-20 rounded-full bg-black bg-[#f8fbfc] opacity-100"
-				/>
-				<span
-					class="shadow-md left-14 -top-6 absolute p-1 w-24 h-24 rounded-full bg-black bg-[#558cbd] opacity-50"
-				/>
-				<span
-					class="shadow-md absolute p-1 w-28 h-28 rounded-full bg-black bg-[#55b1bd] opacity-60"
-				/>
-			</div>
+			<span class="absolute -left-8 -top-8">
+				<Circles />
+			</span>
 			<div class="mt-[50%] flex flex-col">
 				<h3>Damián</h3>
 				<span class="mt-3 text-sspsBlue truncate">damina.vysin@example.com</span>
@@ -70,17 +63,9 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="mt-10 card name relative mb-10">
-			<div class="circles relative -left-10 -top-13">
-				<span
-					class="shadow-md left-20 top-10 absolute p-1 w-20 h-20 rounded-full bg-black bg-[#f8fbfc] opacity-100"
-				/>
-				<span
-					class="shadow-md left-14 -top-6 absolute p-1 w-24 h-24 rounded-full bg-black bg-[#558cbd] opacity-50"
-				/>
-				<span
-					class="shadow-md absolute p-1 w-28 h-28 rounded-full bg-black bg-[#55b1bd] opacity-60"
-				/>
-			</div>
+			<span class="absolute -left-6 -top-6">
+				<Circles />
+			</span>
 			<div class="mt-24 flex flex-col">
 				<h3 class="!text-3xl">Damián</h3>
 				<span class="mt-3 text-sspsBlue truncate">damina.vysin@example.com</span>
