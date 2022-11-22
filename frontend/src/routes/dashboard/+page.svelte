@@ -27,16 +27,18 @@
 		</div>
 	</div>
 	<div class="dashboard dashboardMobile">
-		<div class="my-10 name">
+		<div class="my-10 name w-[90%] mx-auto">
 			<DashboardInfoCard title="Damián">
 				<span class="mt-3 text-sspsBlue truncate">damina.vysin@example.com</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<Swiper slidesPerView={1} spaceBetween={20} >
+		<Swiper slidesPerView={1} spaceBetween={20}>
 			{#each [0, 0, 0] as _}
 				<SwiperSlide>
-					<DashboardUploadCard title="Motivační dopis" filetype="PDF" filesize="10 MB" />
+					<div class="w-[90%] mx-auto">
+						<DashboardUploadCard title="Motivační dopis" filetype="PDF" filesize="10 MB" />
+					</div>
 				</SwiperSlide>
 			{/each}
 		</Swiper>
@@ -50,7 +52,7 @@
 	}
 
 	.dashboardMobile {
-		@apply w-[90vw] h-[90vh];
+		@apply w-[100vw] h-[90vh];
 		@apply md:hidden;
 	}
 
