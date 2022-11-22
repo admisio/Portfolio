@@ -10,9 +10,21 @@
 </div>
 
 <style>
-    div {
-        @apply flex items-center justify-between;
-        @apply py-1 px-4;
-        @apply bg-white rounded-xl shadow-md;
-    }
+	div {
+		@apply flex items-center justify-between;
+		@apply py-1 px-4;
+		@apply bg-white rounded-xl shadow-md;
+
+		@apply hover:bg-sspsBlue;
+        @apply hover:cursor-pointer;
+	}
+
+	div,
+	span {
+		@apply transition-all duration-300;
+	}
+
+	div:hover span {
+		@apply text-white;
+	}
 </style>
