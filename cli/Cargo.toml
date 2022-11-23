@@ -14,6 +14,7 @@ portfolio-core = { path = "../core" }
 [dependencies.tokio]
 version = "^1.21"
 features = [
+    "process",
     "macros",
 ]
 

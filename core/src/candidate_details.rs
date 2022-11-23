@@ -1,8 +1,9 @@
 use chrono::NaiveDate;
-use entity::{candidate, parent};
 use serde::{Deserialize, Serialize};
 
-use crate::{crypto, error::ServiceError};
+use entity::{candidate, parent};
+
+use crate::{crypto, database::query::candidate::CandidateWithParent, error::ServiceError};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -183,6 +184,33 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
         })
     }
 }
+
+impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
+    type Error = ServiceError;
+
+    fn try_from(
+        cp: CandidateWithParent,
+    ) -> Result<Self, Self::Error> {
+        Ok(EncryptedApplicationDetails {
+            name: EncryptedString::try_from(cp.name)?,
+            surname: EncryptedString::try_from(cp.surname)?,
+            birthplace: EncryptedString::try_from(cp.birthplace)?,
+            birthdate: EncryptedString::try_from(cp.birthdate)?,
+            address: EncryptedString::try_from(cp.address)?,
+            telephone: EncryptedString::try_from(cp.telephone)?,
+            citizenship: EncryptedString::try_from(cp.citizenship)?,
+            email: EncryptedString::try_from(cp.email)?,
+            sex: EncryptedString::try_from(cp.sex)?,
+            study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
+
+            parent_name: EncryptedString::try_from(cp.parent_name)?,
+            parent_surname: EncryptedString::try_from(cp.parent_surname)?,
+            parent_telephone: EncryptedString::try_from(cp.parent_telephone)?,
+            parent_email: EncryptedString::try_from(cp.parent_email)?,
+        })
+    }
+}
+
 
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]

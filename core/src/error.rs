@@ -59,7 +59,11 @@ pub enum ServiceError {
     #[error("Portfolio is incomplete")]
     IncompletePortfolio,
     #[error("Zip error")]
-    ZipError(#[from] async_zip::error::ZipError)
+    ZipError(#[from] async_zip::error::ZipError),
+    #[error("Csv error")]
+    CsvError(#[from] csv::Error),
+    #[error("Csv into inner error")]
+    CsvIntoInnerError,
 }
 
 impl ServiceError {
@@ -94,6 +98,8 @@ impl ServiceError {
             //TODO: Correct code
             ServiceError::IncompletePortfolio => 406,
             ServiceError::ZipError(_) => 500,
+            ServiceError::CsvError(_) => 500,
+            ServiceError::CsvIntoInnerError => 500,
         }
     }
 }
