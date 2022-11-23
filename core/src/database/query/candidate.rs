@@ -40,6 +40,17 @@ pub struct CandidateWithParent { // TODO: use this instead of (Candidate, Parent
     pub parent_email: Option<String>,
 }
 
+#[derive(FromQueryResult)]
+pub struct ApplicationId {
+    application: i32,
+}
+
+impl ApplicationId {
+    pub fn to_i32(&self) -> i32 {
+        self.application
+    }
+}
+
 impl Query {
     pub async fn find_candidate_by_id(
         db: &DbConn,
@@ -87,6 +98,17 @@ impl Query {
             .column_as(parent::Column::Telephone, "parent_telephone")
             .column_as(parent::Column::Email, "parent_email")
             .into_model::<CandidateWithParent>()
+            .all(db)
+            .await
+    }
+
+    pub async fn list_all_candidate_ids(
+        db: &DbConn,
+    ) -> Result<Vec<ApplicationId>, DbErr> {
+        Candidate::find()
+            .order_by(candidate::Column::Application, Order::Asc)
+            .column(candidate::Column::Application)
+            .into_model::<ApplicationId>()
             .all(db)
             .await
     }
