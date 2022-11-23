@@ -2040,7 +2040,6 @@ name = "portfolio-cli"
 version = "0.1.0"
 dependencies = [
  "clap 4.0.23",
- "csv",
  "portfolio-core",
  "portfolio-entity",
  "sea-orm",
@@ -2060,6 +2059,7 @@ dependencies = [
  "async_zip",
  "base64",
  "chrono",
+ "csv",
  "dotenv",
  "futures",
  "infer",

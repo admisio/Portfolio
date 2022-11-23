@@ -19,12 +19,11 @@ pub struct CandidateParentResult {
     pub parent_surname: Option<String>,
 }
 
-#[derive(FromQueryResult, Serialize)]
+#[derive(FromQueryResult, Serialize, Default)]
 pub struct CandidateWithParent { // TODO: use this instead of (Candidate, Parent)???
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
-    pub birth_surname: Option<String>,
     pub birthplace: Option<String>,
     pub birthdate: Option<String>,
     pub address: Option<String>,

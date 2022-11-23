@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::path::PathBuf;
 
 use clap::{arg, ArgAction, command, Command, value_parser};
@@ -138,10 +139,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     key.to_string()
                 },
                 (_, Some(password)) => {
-                    let admin_id = sub_matches.get_one::<String>("id").unwrap().parse::<i32>().unwrap();
+                    let admin_id = if let Some(s) = sub_matches.get_one::<String>("admin_id") {
+                        s.parse::<i32>().unwrap()
+                    } else {
+                        return Err("Admin ID required")?;
+                    };
                     let admin = Query::find_admin_by_id(&db, admin_id)
                         .await
-                        .map_err(|e| format!("Admin {} not found", admin_id))?
+                        .map_err(|e| format!("Admin {} not found: {}", admin_id, e))?
                         .ok_or("Admin not found")?;
                     crypto::decrypt_password(
                         admin.private_key,
@@ -150,25 +155,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 },
                 _ => {
-                    unreachable!("Either key or password must be provided");
+                    return Err("Either key or password must be provided")?;
                 }
             };
-            
+
             let output = sub_matches.get_one::<PathBuf>("output").unwrap();
-            let mut csv = csv::Writer::from_path(output)?;
-
-            let candidates_with_parents = Query::list_all_candidates_with_parents(&db).await?;
-            for candidate in candidates_with_parents {
-                let application = candidate.application;
-
-                if let Ok(enc_details) = EncryptedApplicationDetails::try_from(candidate) {
-                    let details = enc_details.decrypt(key.to_string()).await?;
-                    csv.serialize(details)?;
-                } else {
-                    println!("Failed to decrypt candidate {} (Candidate data not set)", application);
-                }
-            }
-            csv.flush()?;
+            let csv = portfolio_core::utils::csv::export(&db, key).await?;
+            tokio::fs::write(output, csv).await?;
         },
         Some(("portfolio", sub_matches)) => {
             todo!()
