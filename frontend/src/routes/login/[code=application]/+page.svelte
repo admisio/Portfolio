@@ -6,12 +6,15 @@
 	import axios from 'axios';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-
+	
+	
 	let applicationId = Number($page.params.code);
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
-
+			
+	let loginFailed = false;
+			
 	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
 		let input = event.target as HTMLInputElement;
 		if (input.value.length > 8) {
@@ -54,8 +57,11 @@
 			console.log(res);
 			if (res.status === 200) {
 				goto('/dashboard'); // TODO: Redirect to fill details first
+			} else {
+				loginFailed = true;
 			}
 		}).catch((err) => {
+			loginFailed = true;
 			// console.error(err);
 		});
 		console.log(codeValueMobile);
@@ -79,6 +85,7 @@
 			{#each [1, 2, 3, 4] as value}
 				<input
 					class="codeInputDesktop"
+					class:codeInputDesktopLoginFailed={loginFailed}
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
 					on:keydown|preventDefault={(e) => inputDesktopOnKeyDown(value - 1, e)}
@@ -89,6 +96,7 @@
 			{#each [5, 6, 7, 8] as value}
 				<input
 					class="codeInputDesktop"
+					class:codeInputDesktopLoginFailed={loginFailed}
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
 					on:keydown|preventDefault={(e) => inputDesktopOnKeyDown(value - 1, e)}
@@ -123,5 +131,8 @@
 		@apply hidden;
 		@apply mr-1 md:mr-2;
 		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-4xl xl:w-18 xl:h-22 xl:p-0;
+	}
+	.codeInputDesktopLoginFailed {
+		@apply border-red-700 border-4;
 	}
 </style>
