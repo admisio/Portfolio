@@ -16,6 +16,10 @@
 
 	const pageCount = 3;
 	let pageIndex = 0;
+
+	const dotClicked = (i: number) => {
+		pageIndex = i;
+	};
 </script>
 
 <SplitLayout>
@@ -132,14 +136,14 @@
 					pageIndex++;
 				}
 			}}
-			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
+			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
 			type="submit"
 			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
 		/>
 
 		<div class="mt-8 flex flex-row justify-center">
 			{#each Array(pageCount + 1) as _, i}
-				<span class:dotActive={i === pageIndex} class="ml-2 w-3 h-3 rounded-full bg-sspsGray" />
+				<span class:dotActive={i === pageIndex} on:click={(e) => dotClicked(i)} class="dot" />
 			{/each}
 		</div>
 	</div>
@@ -150,6 +154,11 @@
 		@apply flex flex-col;
 		@apply mx-auto w-[90%] h-full;
 		@apply items-center justify-center;
+	}
+	.dot {
+		@apply ml-2 w-4 h-4 
+		@apply hover:cursor-pointer hover:bg-sspsBlue
+		@apply rounded-full bg-sspsGray;
 	}
 	.dotActive {
 		@apply bg-sspsBlue;
