@@ -3,20 +3,23 @@
 
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
+	import axios from 'axios';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
+	const applicationId = 103100; // TODO: Get from store
 
 	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
 		let input = event.target as HTMLInputElement;
 		if (input.value.length > 8) {
 			input.value = input.value.slice(0, 8);
 		}
-
 		let splittedInput = input.value.split('');
 
-		codeValueArray = splittedInput;
+		codeValueArray = splittedInput;	
 	};
 
 	const inputDesktopOnKeyDown = (index: number, e: KeyboardEvent) => {
@@ -35,6 +38,27 @@
 			}
 		}
 		codeValueMobile = codeValueArray.join('');
+	};
+
+	
+	$: if (codeValueArray.length === 8) {
+		axios({
+			method: 'post',
+			url: 'http://localhost:8000/candidate/login',
+			data: {
+				application_id: Number(applicationId),
+				password: codeValueMobile
+			},
+			withCredentials: true
+		}).then((res) => {
+			console.log(res);
+			if (res.status === 200) {
+				goto('/dashboard'); // TODO: Redirect to fill details first
+			}
+		}).catch((err) => {
+			// console.error(err);
+		});
+		console.log(codeValueMobile);
 	};
 
 	onMount(() => {
