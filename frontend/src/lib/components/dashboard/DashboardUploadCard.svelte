@@ -11,7 +11,7 @@
     const dashAnimationStart = () => {
         dashAnimationInterval = setInterval(() => {
             dashAnimationProgress += 1;
-            if (dashAnimationProgress == 100) {
+            if (dashAnimationProgress == 20) {
                 dashAnimationProgress = 0;
             }
         }, 30);
