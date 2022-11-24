@@ -131,6 +131,11 @@ impl CandidateService {
         Ok(new_password_plain)
     }
 
+    pub async fn logout(db: &DbConn, id: i32) -> Result<(), ServiceError> {
+        SessionService::revoke_all_sessions(db, Some(id), None).await?;
+        Ok(())
+    }
+
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,

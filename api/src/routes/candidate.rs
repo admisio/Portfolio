@@ -51,6 +51,19 @@ pub async fn login(
     return Ok(response);
 }
 
+#[post("/logout")]
+pub async fn logout(conn: Connection<'_, Db>, session: CandidateAuth, cookies: &CookieJar<'_>,) -> Result<(), Custom<String>> {
+    let db = conn.into_inner();
+    let candidate: entity::candidate::Model = session.into();
+
+    cookies.remove_private(Cookie::named("id"));
+    cookies.remove_private(Cookie::named("key"));
+
+    CandidateService::logout(db, candidate.application)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or(Status::InternalServerError), e.to_string()))
+}
+
 #[get("/whoami")]
 pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
