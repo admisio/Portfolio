@@ -1,9 +1,10 @@
 #[macro_use]
 extern crate rocket;
 
-use rocket::fairing::{self, AdHoc};
+use rocket::fairing::{self, AdHoc, Fairing, Kind, Info};
 
-use rocket::{Build, Rocket};
+use rocket::http::Header;
+use rocket::{Build, Rocket, Request, Response};
 
 use migration::MigratorTrait;
 use sea_orm_rocket::Database;
@@ -19,6 +20,30 @@ use pool::Db;
 pub use entity::candidate;
 pub use entity::candidate::Entity as Candidate;
 
+struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "http://localhost:5173"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
+
+#[options("/<_..>")]
+fn all_options() {
+    /* Intentionally left empty */
+}
+
 #[get("/hello")]
 async fn hello() -> &'static str {
     "Hello, world!"
@@ -32,10 +57,11 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 
 pub fn rocket() -> Rocket<Build>{
     rocket::build()
+        .attach(CORS)
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         //.mount("/", FileServer::from(relative!("/static")))
-        .mount("/", routes![hello])
+        .mount("/", routes![hello, all_options])
         .mount(
             "/candidate/",
             routes![
