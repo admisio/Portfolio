@@ -4,13 +4,13 @@
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
 	import axios from 'axios';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
+	let applicationId = Number($page.params.code);
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
-	const applicationId = 103100; // TODO: Get from store
 
 	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
 		let input = event.target as HTMLInputElement;
@@ -32,12 +32,12 @@
 			if (e.key.length > 1) {
 				return;
 			}
-			codeValueArray[index] = e.key;
+			codeValueArray[index] = e.key.toUpperCase();
 			if (codeElementArray[index + 1]) {
 				codeElementArray[index + 1].focus();
 			}
 		}
-		codeValueMobile = codeValueArray.join('');
+		codeValueMobile = codeValueArray.join('')
 	};
 
 	
@@ -46,7 +46,7 @@
 			method: 'post',
 			url: 'http://localhost:8000/candidate/login',
 			data: {
-				application_id: Number(applicationId),
+				application_id: applicationId,
 				password: codeValueMobile
 			},
 			withCredentials: true
