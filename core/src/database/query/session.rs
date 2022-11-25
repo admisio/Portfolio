@@ -18,9 +18,13 @@ impl Query {
         user_id: Option<i32>,
         admin_id: Option<i32>,
     ) -> Result<Vec<session::Model>, DbErr> {
-        Session::find()
-            .filter(session::Column::UserId.eq(user_id))
-            .filter(session::Column::AdminId.eq(admin_id))
+        if user_id.is_some() {
+            Session::find()
+                .filter(session::Column::UserId.eq(user_id))
+        } else {
+            Session::find()
+                .filter(session::Column::AdminId.eq(admin_id))
+        }
             .all(db)
             .await
     }

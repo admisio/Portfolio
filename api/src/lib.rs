@@ -40,6 +40,7 @@ pub fn rocket() -> Rocket<Build>{
             "/candidate/",
             routes![
                 routes::candidate::login,
+                routes::candidate::logout,
                 routes::candidate::whoami,
                 routes::candidate::get_details,
             ],
@@ -67,6 +68,7 @@ pub fn rocket() -> Rocket<Build>{
             "/admin/",
             routes![
                 routes::admin::login,
+                routes::admin::logout,
                 routes::admin::whoami,
                 routes::admin::hello,
                 routes::admin::create_candidate,

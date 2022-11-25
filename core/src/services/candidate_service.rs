@@ -131,6 +131,11 @@ impl CandidateService {
         Ok(new_password_plain)
     }
 
+    pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session_id).await?;
+        Ok(())
+    }
+
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
