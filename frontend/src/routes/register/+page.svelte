@@ -8,6 +8,9 @@
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 
+	import { createForm } from 'svelte-forms-lib';
+	import * as yup from 'yup';
+
 	let applicationValue = '';
 
 	const redirectToCode = () => {
@@ -18,7 +21,47 @@
 	};
 
 	const pageCount = 3;
-	let pageIndex = 0;
+	let pageIndex = 3;
+
+	const formInitialValues = {
+		name: '',
+		email: '',
+		telephone: '',
+		birthSurname: '',
+		birthPlace: '',
+		birthDate: '',
+		sex: '',
+		home: '',
+		parentEmail: '',
+		parentTelephone: '',
+		citizenship: '',
+		personalId: '',
+		study: '',
+		applicationId: ''
+	};
+
+	const { form, errors, state, handleChange, handleSubmit } = createForm({
+		initialValues: formInitialValues,
+		validationSchema: yup.object().shape({
+			name: yup.string().required(),
+			email: yup.string().email().required(),
+			telephone: yup.string().required(),
+			birthSurname: yup.string().required(),
+			birthPlace: yup.string().required(),
+			birthDate: yup.string().required(),
+			sex: yup.string().required(),
+			home: yup.string().required(),
+			parentEmail: yup.string().email().required(),
+			parentTelephone: yup.string().required(),
+			citizenship: yup.string().required(),
+			personalId: yup.string().required(),
+			study: yup.string().required(),
+			applicationId: yup.string().required()
+		}),
+		onSubmit: (values) => {
+			alert(JSON.stringify(values));
+		}
+	});
 </script>
 
 <SplitLayout>
@@ -29,25 +72,52 @@
 			<img class="object-cover" src={lev} alt="" />
 		</div>
 		{#if pageIndex === 0}
-			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Registrace</h1>
-			<p class="block mt-8 font-light text-sspsGray text-center">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
-			</p>
-			<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
-				<TextField type="text" placeholder="Jméno a příjmení" />
-				<TextField type="e-mail" placeholder="Email" icon>
-					<div slot="icon" class="flex items-center justify-center">
-						<Email />
-					</div>
-				</TextField>
-			</div>
-			<div class="w-full md:w-3/5">
-				<TextField type="tel" placeholder="Telefon" icon>
-					<div slot="icon" class="flex items-center justify-center">
-						<Telephone />
-					</div>
-				</TextField>
-			</div>
+			<form on:submit={handleSubmit}>
+				<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Registrace</h1>
+				<p class="block mt-8 font-light text-sspsGray text-center">
+					Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget
+					elit.
+				</p>
+				<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
+					<span class="w-full mt-8">
+						<TextField
+							error={$errors.name}
+							on:change={handleChange}
+							bind:value={$form.name}
+							type="text"
+							placeholder="Jméno a příjmení"
+						/>
+					</span>
+					<span class="w-full mt-8">
+						<TextField
+							error={$errors.email}
+							on:change={handleChange}
+							bind:value={$form.email}
+							type="e-mail"
+							placeholder="Email"
+							icon
+						>
+							<div slot="icon" class="flex items-center justify-center">
+								<Email />
+							</div>
+						</TextField>
+					</span>
+				</div>
+				<div class="mt-8 w-full md:w-3/5">
+					<TextField
+						error={$errors.telephone}
+						on:change={handleChange}
+						bind:value={$form.telephone}
+						type="tel"
+						placeholder="Telefon"
+						icon
+					>
+						<div slot="icon" class="flex items-center justify-center">
+							<Telephone />
+						</div>
+					</TextField>
+				</div>
+			</form>
 		{/if}
 		{#if pageIndex === 1}
 			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Něco o tobě</h1>
@@ -55,17 +125,46 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Rodné příjmení" />
-				<TextField type="text" placeholder="Místo narození" icon>
-					<div slot="icon" class="flex items-center justify-center">
-						<Home />
-					</div>
-				</TextField>
+				<span class="w-full mt-8">
+					<TextField
+						type="text"
+						placeholder="Rodné příjmení"
+						error={$errors.birthSurname}
+						on:change={handleChange}
+						bind:value={$form.birthSurname}
+					/>
+				</span>
+				<span class="w-full mt-8">
+					<TextField
+						error={$errors.birthPlace}
+						on:change={handleChange}
+						bind:value={$form.birthPlace}
+						type="text"
+						placeholder="Místo narození"
+						icon
+					>
+						<div slot="icon" class="flex items-center justify-center">
+							<Home />
+						</div>
+					</TextField>
+				</span>
 			</div>
 
-			<div class="flex items-center justify-center w-full md:w-3/5">
-				<TextField type="text" placeholder="Datum narození" />
-				<TextField type="text" placeholder="Pohlaví" />
+			<div class="mt-8 flex items-center justify-center w-full md:w-3/5">
+				<TextField
+					error={$errors.birthDate}
+					on:change={handleChange}
+					bind:value={$form.birthDate}
+					type="text"
+					placeholder="Datum narození"
+				/>
+				<TextField
+					error={$errors.sex}
+					on:change={handleChange}
+					bind:value={$form.sex}
+					type="text"
+					placeholder="Pohlaví"
+				/>
 			</div>
 		{/if}
 		{#if pageIndex === 2}
@@ -74,9 +173,33 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Adresa trvalého bydliště" />
-				<TextField type="e-mail" placeholder="E-mail zákonného zástupce" />
-				<TextField type="tel" placeholder="Telefon zákonného zástupce" />
+				<span class="w-full mt-8">
+					<TextField
+						error={$errors.home}
+						on:change={handleChange}
+						bind:value={$form.home}
+						type="text"
+						placeholder="Adresa trvalého bydliště"
+					/>
+				</span>
+				<span class="w-full mt-8">
+					<TextField
+						error={$errors.parentEmail}
+						on:change={handleChange}
+						bind:value={$form.parentEmail}
+						type="e-mail"
+						placeholder="E-mail zákonného zástupce"
+					/>
+				</span>
+				<span class="w-full mt-8">
+					<TextField
+						error={$errors.parentTelephone}
+						on:change={handleChange}
+						bind:value={$form.parentTelephone}
+						type="tel"
+						placeholder="Telefon zákonného zástupce"
+					/>
+				</span>
 			</div>
 		{/if}
 		{#if pageIndex === 3}
@@ -85,25 +208,78 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Občanství" icon>
-					<div slot="icon">ssj</div>
-				</TextField>
+				<span class="w-full mt-8">
+					<TextField
+						error={$errors.citizenship}
+						on:change={handleChange}
+						bind:value={$form.citizenship}
+						type="text"
+						placeholder="Občanství"
+					/>
+				</span>
 			</div>
-			<div class="flex items-center justify-center w-full md:w-3/5">
-				<TextField type="text" placeholder="Rodné číslo" />
-				<TextField type="text" placeholder="Obor" />
+			<div class="mt-8 flex items-center justify-center w-full md:w-3/5">
+				<TextField
+					error={$errors.personalId}
+					on:change={handleChange}
+					bind:value={$form.personalId}
+					type="text"
+					placeholder="Rodné číslo"
+				/>
+				<TextField
+					error={$errors.study}
+					on:change={handleChange}
+					bind:value={$form.study}
+					type="text"
+					placeholder="Obor"
+				/>
 			</div>
-			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Evidenční číslo přihlášky" />
+			<div class="mt-8 flex flex-col w-full md:w-3/5">
+				<TextField
+					error={$errors.applicationId}
+					on:change={handleChange}
+					bind:value={$form.applicationId}
+					type="text"
+					placeholder="Evidenční číslo přihlášky"
+				/>
 			</div>
 		{/if}
 		<input
-			on:click={() => {
-				if (pageIndex === pageCount) {
-					//TODO: Submit
-				} else {
-					pageIndex++;
+			on:click={async (e) => {
+				await handleSubmit(e);
+				switch (pageIndex) {
+					case 0:
+						if ($errors.name || $errors.email || $errors.telephone) {
+							return;
+						}
+						break;
+
+					case 1:
+						if ($errors.birthSurname || $errors.birthPlace || $errors.birthDate || $errors.sex) {
+							return;
+						}
+						break;
+					case 2:
+						if ($errors.home || $errors.parentEmail || $errors.parentTelephone) {
+							return;
+						}
+						break;
+					case 3:
+						if (
+							$errors.citizenship ||
+							$errors.personalId ||
+							$errors.study ||
+							$errors.applicationId
+						) {
+							return;
+						}
+						break;
+					default:
+						break;
 				}
+
+				pageIndex++;
+				errors.set(formInitialValues);
 			}}
 			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
 			type="submit"
@@ -122,6 +298,11 @@
 	.form {
 		@apply flex flex-col;
 		@apply mx-auto w-[90%] h-full;
+		@apply items-center justify-center;
+	}
+	.form > form {
+		@apply flex flex-col;
+		@apply w-full;
 		@apply items-center justify-center;
 	}
 	.dotActive {
