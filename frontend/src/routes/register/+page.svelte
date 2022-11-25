@@ -13,15 +13,9 @@
 
 	let applicationValue = '';
 
-	const redirectToCode = () => {
-		// TODO: Validation
-		if (applicationValue) {
-			goto(`/login/${applicationValue}`);
-		}
-	};
-
 	const pageCount = 3;
 	let pageIndex = 0;
+	let pagesFilled = 0;
 
 	const formInitialValues = {
 		name: '',
@@ -31,7 +25,7 @@
 		birthPlace: '',
 		birthDate: '',
 		sex: '',
-		home: '',
+		address: '',
 		parentEmail: '',
 		parentTelephone: '',
 		citizenship: '',
@@ -45,12 +39,12 @@
 		validationSchema: yup.object().shape({
 			name: yup.string().required(),
 			email: yup.string().email().required(),
-			telephone: yup.string().required(),
+			telephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			birthSurname: yup.string().required(),
 			birthPlace: yup.string().required(),
 			birthDate: yup.string().required(),
 			sex: yup.string().required(),
-			home: yup.string().required(),
+			address: yup.string().required(),
 			parentEmail: yup.string().email().required(),
 			parentTelephone: yup.string().required(),
 			citizenship: yup.string().required(),
@@ -62,6 +56,40 @@
 			alert(JSON.stringify(values));
 		}
 	});
+
+	const isPageInvalid = (): boolean => {
+		switch (pageIndex) {
+			case 0:
+				if ($errors.name || $errors.email || $errors.telephone) {
+					return true;
+				}
+				break;
+
+			case 1:
+				if ($errors.birthSurname || $errors.birthPlace || $errors.birthDate || $errors.sex) {
+					return true;
+				}
+				break;
+			case 2:
+				if ($errors.address || $errors.parentEmail || $errors.parentTelephone) {
+					return true;
+				}
+				break;
+			case 3:
+				if (
+					$errors.citizenship ||
+					$errors.personalId ||
+					$errors.study ||
+					$errors.applicationId
+				) {
+					return true;
+				}
+				break;
+			default:
+				return false;
+		}
+		return false;
+	}
 </script>
 
 <SplitLayout>
@@ -109,6 +137,7 @@
 						on:change={handleChange}
 						bind:value={$form.telephone}
 						type="tel"
+						format="tel"
 						placeholder="Telefon"
 						icon
 					>
@@ -156,6 +185,7 @@
 					on:change={handleChange}
 					bind:value={$form.birthDate}
 					type="text"
+					format="birthdate"
 					placeholder="Datum narození"
 				/>
 				<TextField
@@ -175,9 +205,9 @@
 			<div class="flex flex-col w-full md:w-3/5">
 				<span class="w-full mt-8">
 					<TextField
-						error={$errors.home}
+						error={$errors.address}
 						on:change={handleChange}
-						bind:value={$form.home}
+						bind:value={$form.address}
 						type="text"
 						placeholder="Adresa trvalého bydliště"
 					/>
@@ -224,6 +254,7 @@
 					on:change={handleChange}
 					bind:value={$form.personalId}
 					type="text"
+					format="personalIdNumber"
 					placeholder="Rodné číslo"
 				/>
 				<TextField
@@ -247,48 +278,34 @@
 		<input
 			on:click={async (e) => {
 				await handleSubmit(e);
-				switch (pageIndex) {
-					case 0:
-						if ($errors.name || $errors.email || $errors.telephone) {
-							return;
-						}
-						break;
-
-					case 1:
-						if ($errors.birthSurname || $errors.birthPlace || $errors.birthDate || $errors.sex) {
-							return;
-						}
-						break;
-					case 2:
-						if ($errors.home || $errors.parentEmail || $errors.parentTelephone) {
-							return;
-						}
-						break;
-					case 3:
-						if (
-							$errors.citizenship ||
-							$errors.personalId ||
-							$errors.study ||
-							$errors.applicationId
-						) {
-							return;
-						}
-						break;
-					default:
-						break;
+				if (isPageInvalid()) return;
+				if (pageIndex === pageCount) {
+					alert('should submit');
+				} else {
+					pagesFilled++;
+					pageIndex++;
 				}
-
-				pageIndex++;
 				errors.set(formInitialValues);
 			}}
-			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
+			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
 			type="submit"
 			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
 		/>
 
 		<div class="mt-8 flex flex-row justify-center">
 			{#each Array(pageCount + 1) as _, i}
-				<span class:dotActive={i === pageIndex} class="ml-2 w-3 h-3 rounded-full bg-sspsGray" />
+				<button class:dotActive={i === pageIndex} on:click={async (e) => {
+					if (i <= pagesFilled) { // never skip unfilled or invalid pages
+						pageIndex = i;
+					} else if (i == pagesFilled + 1) { // if next page is clicked, validate current page
+						await handleSubmit(e);
+						if (isPageInvalid()) return;
+						pagesFilled++;
+						pageIndex++;
+						errors.set(formInitialValues);
+					}
+				}
+			 } class="dot" />
 			{/each}
 		</div>
 	</div>
@@ -304,6 +321,11 @@
 		@apply flex flex-col;
 		@apply w-full;
 		@apply items-center justify-center;
+	}
+	.dot {
+		@apply ml-2 w-4 h-4 
+		@apply hover:cursor-pointer hover:bg-sspsBlue
+		@apply rounded-full bg-sspsGray;
 	}
 	.dotActive {
 		@apply bg-sspsBlue;
