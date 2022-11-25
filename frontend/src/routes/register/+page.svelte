@@ -108,6 +108,7 @@
 						on:change={handleChange}
 						bind:value={$form.telephone}
 						type="tel"
+						format="tel"
 						placeholder="Telefon"
 						icon
 					>
@@ -155,6 +156,7 @@
 					on:change={handleChange}
 					bind:value={$form.birthDate}
 					type="text"
+					format="birthdate"
 					placeholder="Datum narození"
 				/>
 				<TextField
@@ -223,6 +225,7 @@
 					on:change={handleChange}
 					bind:value={$form.personalId}
 					type="text"
+					format="personalIdNumber"
 					placeholder="Rodné číslo"
 				/>
 				<TextField
