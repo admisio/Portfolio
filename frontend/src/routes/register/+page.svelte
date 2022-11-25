@@ -27,7 +27,7 @@
 		birthPlace: '',
 		birthDate: '',
 		sex: '',
-		home: '',
+		address: '',
 		parentEmail: '',
 		parentTelephone: '',
 		citizenship: '',
@@ -35,6 +35,40 @@
 		study: '',
 		applicationId: ''
 	};
+
+	const submitForm = () => {
+		axios({
+			method: 'post',
+			url: 'http://localhost:8000/candidate/add/details',
+			data: {
+				name: $form.name,
+				surname: $form.name, // TODO: spli
+				birthplace: $form.birthPlace,
+				birthdate: '2017-01-01', // TODO:
+				address: $form.address,
+				telephone: $form.telephone,
+				citizenship: $form.citizenship,
+				email: $form.email,
+				sex: 'MALE',
+				study: $form.study,
+				parent_name: $form.parentEmail, // TODO: put their name
+				parent_surname: $form.parentEmail,
+				parent_telephone: $form.parentTelephone,
+				parent_email: $form.parentEmail,
+			},
+			withCredentials: true,
+		}).then((res) => {
+			console.log(res);
+			if (res.status === 200) {
+				goto('/dashboard'); // TODO: Redirect to fill details first
+			} else {
+				console.error("failed");
+			}
+		}).catch((err) => {
+			console.error("failed");
+			// console.error(err);
+		});
+	}
 
 	const { form, errors, state, handleChange, handleSubmit } = createForm({
 		initialValues: formInitialValues,
@@ -46,7 +80,7 @@
 			birthPlace: yup.string().required(),
 			birthDate: yup.string().required(),
 			sex: yup.string().required(),
-			home: yup.string().required(),
+			address: yup.string().required(),
 			parentEmail: yup.string().email().required(),
 			parentTelephone: yup.string().required(),
 			citizenship: yup.string().required(),
@@ -55,7 +89,7 @@
 			applicationId: yup.string().required()
 		}),
 		onSubmit: (values) => {
-			alert(JSON.stringify(values));
+			submitForm();
 		}
 	});
 
@@ -73,7 +107,7 @@
 				}
 				break;
 			case 2:
-				if ($errors.home || $errors.parentEmail || $errors.parentTelephone) {
+				if ($errors.address || $errors.parentEmail || $errors.parentTelephone) {
 					return true;
 				}
 				break;
@@ -207,9 +241,9 @@
 			<div class="flex flex-col w-full md:w-3/5">
 				<span class="w-full mt-8">
 					<TextField
-						error={$errors.home}
+						error={$errors.address}
 						on:change={handleChange}
-						bind:value={$form.home}
+						bind:value={$form.address}
 						type="text"
 						placeholder="Adresa trvalého bydliště"
 					/>
@@ -281,8 +315,12 @@
 			on:click={async (e) => {
 				await handleSubmit(e);
 				if (isPageInvalid()) return;
-				pagesFilled++;
-				pageIndex++;
+				if (pageIndex === pageCount) {
+					submitForm();
+				} else {
+					pagesFilled++;
+					pageIndex++;
+				}
 				errors.set(formInitialValues);
 			}}
 			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
