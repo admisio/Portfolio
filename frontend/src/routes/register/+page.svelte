@@ -34,7 +34,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
+			<div class="w-full md:w-3/5">
 				<TextField type="text" placeholder="Jméno a příjmení" />
 				<TextField type="e-mail" placeholder="Email" icon>
 					<div
@@ -44,8 +44,7 @@
 						@
 					</div>
 				</TextField>
-			</div>
-			<div class="w-full md:w-3/5">
+			<div class="<!-- w-full md:w-3/5 -->">
 				<TextField type="tel" placeholder="Telefon" icon>
 					<div slot="icon" class="flex items-center justify-center">
 						<svg
@@ -65,6 +64,7 @@
 						>
 					</div>
 				</TextField>
+			</div>
 			</div>
 		{/if}
 		{#if pageIndex === 1}

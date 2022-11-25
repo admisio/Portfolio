@@ -52,7 +52,7 @@
 	}
 	@media (max-width: 680px) {
 		.view {
-			@apply w-full h-full rounded-none overflow-hidden;
+			@apply w-full h-full rounded-none;
 		}
 		.bgImage {
 			@apply hidden;
