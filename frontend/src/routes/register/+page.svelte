@@ -21,7 +21,7 @@
 	};
 
 	const pageCount = 3;
-	let pageIndex = 3;
+	let pageIndex = 0;
 
 	const formInitialValues = {
 		name: '',
