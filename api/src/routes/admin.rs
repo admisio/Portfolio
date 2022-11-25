@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::CandidateResponse, candidate_details::ApplicationDetails,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::CandidateResponse, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -49,6 +49,25 @@ pub async fn login(
     let response = format!("{} {}", session_token, private_key);
 
     return Ok(response);
+}
+
+#[post("/logout")]
+pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &CookieJar<'_>,) -> Result<(), Custom<String>> {
+    let db = conn.into_inner();
+
+    let cookie = cookies.get_private("id") // unwrap would be safe here because of the auth guard
+        .ok_or(Custom(Status::Unauthorized, "No session cookie".to_string()))?;
+    let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
+        .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
+    
+    let res = AdminService::logout(db, session_id)
+        .await
+        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or(Status::InternalServerError), e.to_string()))?;
+
+    cookies.remove_private(Cookie::named("id"));
+    cookies.remove_private(Cookie::named("key"));
+
+    Ok(res)
 }
 
 

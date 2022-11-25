@@ -1,7 +1,7 @@
 use entity::admin;
 use sea_orm::{prelude::Uuid, DbConn};
 
-use crate::{crypto, error::ServiceError, Query};
+use crate::{crypto, error::ServiceError, Query, Mutation};
 
 use super::session_service::{AdminUser, SessionService};
 
@@ -36,6 +36,11 @@ impl AdminService {
         
         let private_key = Self::decrypt_private_key(db, admin_id, password).await?;
         Ok((session_id, private_key))
+    }
+
+    pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session_id).await?;
+        Ok(())
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<admin::Model, ServiceError> {

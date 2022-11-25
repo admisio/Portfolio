@@ -68,6 +68,7 @@ pub fn rocket() -> Rocket<Build>{
             "/admin/",
             routes![
                 routes::admin::login,
+                routes::admin::logout,
                 routes::admin::whoami,
                 routes::admin::hello,
                 routes::admin::create_candidate,

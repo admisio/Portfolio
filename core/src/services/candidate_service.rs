@@ -131,8 +131,8 @@ impl CandidateService {
         Ok(new_password_plain)
     }
 
-    pub async fn logout(db: &DbConn, id: i32) -> Result<(), ServiceError> {
-        SessionService::revoke_all_sessions(db, Some(id), None).await?;
+    pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session_id).await?;
         Ok(())
     }
 
