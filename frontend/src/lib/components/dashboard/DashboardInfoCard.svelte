@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Circles from '../icon/Circles.svelte';
+	import Circles from "$lib/components/icons/Circles.svelte";
 
 	export let title: string;
 </script>
