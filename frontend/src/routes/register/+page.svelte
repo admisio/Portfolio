@@ -6,9 +6,7 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
-	import Input from '$lib/components/textfield/input';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import axios from 'axios';
 
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
@@ -36,40 +34,6 @@
 		applicationId: ''
 	};
 
-	const submitForm = () => {
-		axios({
-			method: 'post',
-			url: 'http://localhost:8000/candidate/add/details',
-			data: {
-				name: $form.name,
-				surname: $form.name, // TODO: spli
-				birthplace: $form.birthPlace,
-				birthdate: '2017-01-01', // TODO:
-				address: $form.address,
-				telephone: $form.telephone,
-				citizenship: $form.citizenship,
-				email: $form.email,
-				sex: 'MALE',
-				study: $form.study,
-				parent_name: $form.parentEmail, // TODO: put their name
-				parent_surname: $form.parentEmail,
-				parent_telephone: $form.parentTelephone,
-				parent_email: $form.parentEmail,
-			},
-			withCredentials: true,
-		}).then((res) => {
-			console.log(res);
-			if (res.status === 200) {
-				goto('/dashboard'); // TODO: Redirect to fill details first
-			} else {
-				console.error("failed");
-			}
-		}).catch((err) => {
-			console.error("failed");
-			// console.error(err);
-		});
-	}
-
 	const { form, errors, state, handleChange, handleSubmit } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: yup.object().shape({
@@ -89,7 +53,7 @@
 			applicationId: yup.string().required()
 		}),
 		onSubmit: (values) => {
-			submitForm();
+			alert(JSON.stringify(values));
 		}
 	});
 
@@ -316,7 +280,7 @@
 				await handleSubmit(e);
 				if (isPageInvalid()) return;
 				if (pageIndex === pageCount) {
-					submitForm();
+					alert('should submit');
 				} else {
 					pagesFilled++;
 					pageIndex++;

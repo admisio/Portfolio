@@ -26,7 +26,7 @@
 	export let error: string = "";
 </script>
 
-<div class="mt-8 <md:mt-4 relative flex justify-center items-center">
+<div class="relative flex justify-center items-center">
 	<input
 		class:error={error}
 		bind:value

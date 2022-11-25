@@ -39,32 +39,9 @@
 		}
 		codeValueMobile = codeValueArray.join('')
 	};
-
-	const post = () => {
-		axios({
-			method: 'post',
-			url: 'http://localhost:8000/candidate/login',
-			data: {
-				application_id: applicationId,
-				password: codeValueMobile
-			},
-			withCredentials: true
-		}).then((res) => {
-			console.log(res);
-			if (res.status === 200) {
-				goto('/dashboard'); // TODO: Redirect to fill details first
-			} else {
-				loginFailed = true;
-			}
-		}).catch((err) => {
-			loginFailed = true;
-			// console.error(err);
-		});
-		console.log(codeValueMobile);
-	}
 	
 	$: if (codeValueArray.length === 8) {
-		post();
+		alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 	};
 
 	onMount(() => {
@@ -115,7 +92,7 @@
 		<p class="mt-8 mx-8 text-sspsGray text-center">Nevíte si rady? Klikněte <u>zde</u></p>
 		<input
 			on:click={() => {
-				post();
+				alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 			}}
 			class="w-full mt-8 md:hidden p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
 			type="submit"
@@ -134,8 +111,7 @@
 	}
 	input {
 		@apply text-center font-semibold text-sspsBlue;
-		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2;
-		@apply <md:caret-current
+		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
 	}
 	.codeInputMobile {
 		@apply sm:hidden;
@@ -145,8 +121,5 @@
 		@apply hidden;
 		@apply mr-1 md:mr-2;
 		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-4xl xl:w-18 xl:h-22 xl:p-0;
-	}
-	.codeInputDesktopLoginFailed {
-		@apply border-red-700 border-4;
 	}
 </style>
