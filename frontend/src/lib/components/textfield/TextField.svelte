@@ -7,14 +7,17 @@
 	export let value: string = '';
 
 	export let icon: boolean = false;
+	export let error: string = "";
 </script>
 
-<div class="mt-8 relative flex justify-center items-center">
+<div class="relative flex justify-center items-center">
 	<input
+		class:error={error}
 		bind:value
 		on:click
 		on:keydown
 		on:keyup
+		on:change
 		class:withIcon={icon}
 		class="bg-[#f8fafb] w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
 		use:typeAction
@@ -28,7 +31,13 @@
 </div>
 
 <style>
+	div, input {
+		@apply w-full;
+	}
 	.withIcon {
 		@apply pr-14;
+	}
+	.error {
+		@apply border-red-700;
 	}
 </style>
