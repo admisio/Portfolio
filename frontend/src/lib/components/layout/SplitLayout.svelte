@@ -50,7 +50,7 @@
 		@apply md:my-auto;
 		@apply bg-white;
 	}
-	@media (max-width: 680px) {
+	@media (max-width: 767.9px) {
 		.view {
 			@apply w-full h-full rounded-none;
 		}

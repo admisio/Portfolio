@@ -14,16 +14,13 @@
 	let codeElementArray: Array<HTMLInputElement> = [];
 			
 	let loginFailed = false;
-			
-	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
-		let input = event.target as HTMLInputElement;
-		if (input.value.length > 8) {
-			input.value = input.value.slice(0, 8);
-		}
-		let splittedInput = input.value.split('');
 
-		codeValueArray = splittedInput;	
-	};
+	
+	$: {
+		codeValueMobile = codeValueMobile.toUpperCase();
+		codeValueArray = codeValueMobile.split('');
+		console.log(codeValueArray);
+	}
 
 	const inputDesktopOnKeyDown = (index: number, e: KeyboardEvent) => {
 		if (e.key === 'Backspace') {
@@ -43,8 +40,7 @@
 		codeValueMobile = codeValueArray.join('')
 	};
 
-	
-	$: if (codeValueArray.length === 8) {
+	const post = () => {
 		axios({
 			method: 'post',
 			url: 'http://localhost:8000/candidate/login',
@@ -65,6 +61,10 @@
 			// console.error(err);
 		});
 		console.log(codeValueMobile);
+	}
+	
+	$: if (codeValueArray.length === 8) {
+		post();
 	};
 
 	onMount(() => {
@@ -81,9 +81,11 @@
 		<div class="flex justify-center items-center">
 			<input
 				bind:value={codeValueMobile}
+				class:codeInputDesktopLoginFailed={loginFailed}
+				class:focus:border-sspsBlue={!loginFailed}
 				type="text"
 				class="codeInputMobile"
-				on:keyup={inputMobileOnKeyUp}
+				
 			/>
 			{#each [1, 2, 3, 4] as value}
 				<input
@@ -111,6 +113,14 @@
 			Zadejte 8místný kód pro aktivaci účtu
 		</h3>
 		<p class="mt-8 mx-8 text-sspsGray text-center">Nevíte si rady? Klikněte <u>zde</u></p>
+		<input
+			on:click={() => {
+				post();
+			}}
+			class="w-full mt-8 md:hidden p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
+			type="submit"
+			value={'Přilásit'}
+		/>
 	</div>
 </FullLayout>
 
@@ -124,7 +134,8 @@
 	}
 	input {
 		@apply text-center font-semibold text-sspsBlue;
-		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
+		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2;
+		@apply <md:caret-current
 	}
 	.codeInputMobile {
 		@apply sm:hidden;
