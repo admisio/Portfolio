@@ -3,22 +3,123 @@
 
 	import lev from '$lib/assets/logo/lev.png';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import Input from '$lib/components/textfield/input';
 	import TextField from '$lib/components/textfield/TextField.svelte';
+	import axios from 'axios';
 
 	let applicationValue = '';
 
-	const redirectToCode = () => {
-		// TODO: Validation
-		if (applicationValue) {
-			goto(`/login/${applicationValue}`);
+	let data = {
+		// page 1
+		name: new Input(),
+		email: new Input(),
+		tel: new Input(),
+
+		// page 2
+		birthSurname: new Input(),
+		birthplace: new Input(),
+		birthdate: new Input(),
+		sex: new Input(),
+
+		// page 3
+		address: new Input(),
+		parentEmail: new Input(),
+		parentTel: new Input(),
+
+		// page 4
+		citizenship: new Input(),
+		personalIdNumber: new Input(),
+		studyField: new Input(),
+
+	}
+
+	const isPageValid = (): boolean => {
+		if (pageIndex === 0 && 
+				data.name.isValid && 
+				data.email.isValid &&
+				data.tel.isValid
+			) {
+			return true;
+		} else if (pageIndex === 1 &&
+				data.birthSurname.isValid &&
+				data.birthplace.isValid &&
+				data.birthdate.isValid// &&
+				// data.sex.isValid
+			) {
+			return true;
+		} else if (pageIndex === 2 &&
+				data.address.isValid &&
+				data.parentEmail.isValid &&
+				data.parentTel.isValid
+			) {
+			return true;
+		} else if (pageIndex === 3 &&
+				data.citizenship.isValid &&
+				data.personalIdNumber.isValid &&
+				data.studyField.isValid
+			) {
+			return true;
+		} else {
+			return false;
 		}
-	};
+	}
+
+	const nextPage = () => {
+		if (pageIndex === pageCount) {
+			submit();
+		} else {
+			if (isPageValid()) {
+				pageIndex++;
+			}
+		}
+	}
+
+	const submit = () => {
+		if (!isPageValid()) {
+			return;
+		}
+		console.log("submitting");
+		axios({
+			method: 'post',
+			url: 'http://localhost:8000/candidate/add/details',
+			data: {
+				name: data.name.value,
+				surname: data.name.value, // TODO: spli.valuet
+				birthplace: data.birthplace.value,
+				birthdate: '2017-01-01', // TODO: reformat birthdate
+				address: data.address.value,
+				telephone: data.tel.value,
+				citizenship: data.citizenship.value,
+				email: data.email.value,
+				sex: 'MALE',
+				study: data.studyField.value,
+				parent_name: data.parentEmail.value, // TODO: put name
+				parent_surname: data.parentEmail.value,
+				parent_telephone: data.parentTel.value,
+				parent_email: data.parentEmail.value,
+			},
+			withCredentials: true,
+		}).then((res) => {
+			console.log(res);
+			if (res.status === 200) {
+				goto('/dashboard'); // TODO: Redirect to fill details first
+			} else {
+				console.error("failed");
+			}
+		}).catch((err) => {
+			console.error("failed");
+			// console.error(err);
+		});
+		console.log(data);
+	}
 
 	const pageCount = 3;
 	let pageIndex = 0;
 
 	const dotClicked = (i: number) => {
-		pageIndex = i;
+		if (i < pageIndex || isPageValid()) {
+			pageIndex = i;
+		}
 	};
 </script>
 
@@ -35,8 +136,8 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="w-full md:w-3/5">
-				<TextField type="text" placeholder="Jméno a příjmení" />
-				<TextField type="e-mail" placeholder="Email" icon>
+				<TextField bind:input={data.name} type="text" validatorType="name" placeholder="Jméno a příjmení" />
+				<TextField bind:input={data.email} type="e-mail" validatorType="email" placeholder="Email" icon>
 					<div
 						slot="icon"
 						class="flex items-center justify-center text-center text-2xl text-sspsBlue pb-1"
@@ -45,7 +146,7 @@
 					</div>
 				</TextField>
 			<div class="<!-- w-full md:w-3/5 -->">
-				<TextField type="tel" placeholder="Telefon" icon>
+				<TextField bind:input={data.tel} type="tel" validatorType="tel" placeholder="Telefon" value="+420" icon>
 					<div slot="icon" class="flex items-center justify-center">
 						<svg
 							class="fill-transparent stroke-sspsBlue"
@@ -73,8 +174,8 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Rodné příjmení" />
-				<TextField type="text" placeholder="Místo narození" icon>
+				<TextField bind:input={data.birthSurname} type="text" placeholder="Rodné příjmení" />
+				<TextField bind:input={data.birthplace} type="text" placeholder="Místo narození" icon>
 					<div slot="icon" class="flex items-center justify-center">
 						<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg"
 							><path
@@ -92,11 +193,11 @@
 						>
 					</div>
 				</TextField>
+				<TextField bind:input={data.birthdate} validatorType="birthdate" type="text" placeholder="Datum narození" />
 			</div>
 
 			<div class="flex items-center justify-center w-full md:w-3/5">
-				<TextField type="text" placeholder="Datum narození" />
-				<TextField type="text" placeholder="Pohlaví" />
+				<!-- <TextField bind:input={data.sex} type="text" placeholder="Pohlaví" /> -->
 			</div>
 		{/if}
 		{#if pageIndex === 2}
@@ -105,9 +206,9 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Adresa trvalého bydliště" />
-				<TextField type="e-mail" placeholder="E-mail zákonného zástupce" />
-				<TextField type="tel" placeholder="Telefon zákonného zástupce" />
+				<TextField bind:input={data.address} type="text" placeholder="Adresa trvalého bydliště" />
+				<TextField bind:input={data.parentEmail} validatorType="email" type="e-mail" placeholder="E-mail zákonného zástupce" />
+				<TextField bind:input={data.parentTel} validatorType="tel" type="tel" placeholder="Telefon zákonného zástupce" value="+420" />
 			</div>
 		{/if}
 		{#if pageIndex === 3}
@@ -116,26 +217,20 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex flex-col w-full md:w-3/5">
-				<TextField type="text" placeholder="Občanství" icon>
+				<TextField bind:input={data.citizenship} type="text" placeholder="Občanství" icon>
 					<div slot="icon">ssj</div>
 				</TextField>
 			</div>
 			<div class="flex items-center justify-center w-full md:w-3/5">
-				<TextField type="text" placeholder="Rodné číslo" />
+				<TextField bind:input={data.personalIdNumber} validatorType="personalIdNumber" type="text" placeholder="Rodné číslo" />
 				<TextField type="text" placeholder="Obor" />
 			</div>
-			<div class="flex flex-col w-full md:w-3/5">
+			<!-- <div class="flex flex-col w-full md:w-3/5">
 				<TextField type="text" placeholder="Evidenční číslo přihlášky" />
-			</div>
+			</div> -->
 		{/if}
 		<input
-			on:click={() => {
-				if (pageIndex === pageCount) {
-					//TODO: Submit
-				} else {
-					pageIndex++;
-				}
-			}}
+			on:click={nextPage}
 			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
 			type="submit"
 			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
