@@ -15,7 +15,7 @@
 			
 	let loginFailed = false;
 
-	
+
 	$: {
 		codeValueMobile = codeValueMobile.toUpperCase();
 		codeValueArray = codeValueMobile.split('');

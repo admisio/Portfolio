@@ -6,19 +6,14 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import Input from '$lib/components/textfield/input';
 	import TextField from '$lib/components/textfield/TextField.svelte';
+	import axios from 'axios';
 
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 
 	let applicationValue = '';
-
-	const redirectToCode = () => {
-		// TODO: Validation
-		if (applicationValue) {
-			goto(`/login/${applicationValue}`);
-		}
-	};
 
 	const pageCount = 3;
 	let pageIndex = 0;
