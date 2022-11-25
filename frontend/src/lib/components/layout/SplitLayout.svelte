@@ -50,6 +50,17 @@
 		@apply md:my-auto;
 		@apply bg-white;
 	}
+	@media (max-width: 680px) {
+		.view {
+			@apply w-full h-full rounded-none overflow-hidden;
+		}
+		.bgImage {
+			@apply hidden;
+		}
+		.bgOverlay {
+			@apply hidden;
+		}
+	}
     .content {
         @apply w-full h-full;
     }

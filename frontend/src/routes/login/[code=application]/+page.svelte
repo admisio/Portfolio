@@ -74,6 +74,9 @@
 
 <FullLayout>
 	<div class="modal">
+		<h2 class="mt-1 mx-8 fg-sspsBlueDark text-3xl text-center mb-8">
+			Ev. č. přihlášky: <span class="font-bold"> {applicationId} </span>
+		</h2>
 		<img class="mx-auto" src={woman} alt="" />
 		<div class="flex justify-center items-center">
 			<input
