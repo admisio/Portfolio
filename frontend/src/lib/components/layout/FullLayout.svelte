@@ -46,6 +46,17 @@
 		@apply z-10 overflow-scroll;
 		@apply w-screen h-screen top-0 right-0 bottom-0 left-0 m-auto;
 	}
+	@media (max-width: 767.9px) {
+		.view {
+			@apply w-full h-full rounded-none;
+		}
+		.bgImage {
+			@apply hidden;
+		}
+		.bgOverlay {
+			@apply hidden;
+		}
+	}
 	.content {
 		@apply w-full h-full;
 		@apply flex items-center justify-center;
