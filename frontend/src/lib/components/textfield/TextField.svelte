@@ -22,24 +22,6 @@
 		}
 	}
 
-	const validate = (): boolean => {
-		if (format === 'email') {
-			return (/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
-				.test(value);
-		} else if (format === 'tel') {
-			return (/^\+?\d{1,3} ?\d{3} ?\d{3} ?\d{3}$/)
-				.test(value);
-		} else if (format === 'name') {
-			return (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u)
-				.test(value);
-		} else if (format === 'number') {
-			return (/^[0-9]+$/)
-				.test(value);
-		} else {
-			return true;
-		}
-	};
-
 	export let icon: boolean = false;
 	export let error: string = "";
 </script>
