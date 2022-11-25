@@ -1,14 +1,17 @@
 <script lang="ts">
-	import backgroundImage from '$lib/assets/background.jpg';
+	import defaultBg from '$lib/assets/background.jpg';
 	import logo from '$lib/assets/logo/ssps.svg';
 	import DarkModeToggle from '../DarkModeToggle.svelte';
+
+	export let backgroundImage: string = defaultBg;
+	export let backgroundPosition: string = "55%";
 </script>
 
 <div class="bg">
 	<div class="bgOverlay">
 		<img class="logo" src={logo} alt="SSPŠ logo" />
 	</div>
-	<div style={`background-image: url(${backgroundImage});`} class="bgImage" />
+	<div style={`background-image: url(${backgroundImage}); background-position: ${backgroundPosition}`} class="bgImage" />
 </div>
 <div class="view">
     <div class="darkModeToggle">
@@ -24,7 +27,6 @@
 		@apply -z-20;
 		@apply absolute min-w-screen md:min-w-[50vw] min-h-screen;
 		@apply bg-no-repeat;
-		background-position: 55%;
 	}
 	.bgOverlay {
 		@apply -z-10 absolute min-w-screen md:min-w-[50vw] min-h-screen;
