@@ -3,21 +3,20 @@
 
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
-
+	import { page } from '$app/stores';
+	
+	
+	let applicationId = Number($page.params.code);
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
 
-	const inputMobileOnKeyUp = (event: KeyboardEvent) => {
-		let input = event.target as HTMLInputElement;
-		if (input.value.length > 8) {
-			input.value = input.value.slice(0, 8);
-		}
 
-		let splittedInput = input.value.split('');
-
-		codeValueArray = splittedInput;
-	};
+	$: {
+		codeValueMobile = codeValueMobile.toUpperCase();
+		codeValueArray = codeValueMobile.split('');
+		console.log(codeValueArray);
+	}
 
 	const inputDesktopOnKeyDown = (index: number, e: KeyboardEvent) => {
 		if (e.key === 'Backspace') {
@@ -29,12 +28,16 @@
 			if (e.key.length > 1) {
 				return;
 			}
-			codeValueArray[index] = e.key;
+			codeValueArray[index] = e.key.toUpperCase();
 			if (codeElementArray[index + 1]) {
 				codeElementArray[index + 1].focus();
 			}
 		}
-		codeValueMobile = codeValueArray.join('');
+		codeValueMobile = codeValueArray.join('')
+	};
+	
+	$: if (codeValueArray.length === 8) {
+		alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 	};
 
 	onMount(() => {
@@ -50,7 +53,7 @@
 				bind:value={codeValueMobile}
 				type="text"
 				class="codeInputMobile"
-				on:keyup={inputMobileOnKeyUp}
+				
 			/>
 			{#each [1, 2, 3, 4] as value}
 				<input
