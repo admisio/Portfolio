@@ -4,6 +4,7 @@
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { login } from '../../../stores/candidate';
 	
 	
 	let applicationId = Number($page.params.code);
@@ -37,7 +38,8 @@
 	};
 	
 	$: if (codeValueArray.length === 8) {
-		alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
+		login({application_id: applicationId, password: codeValueMobile});
+		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 	};
 
 	onMount(() => {
