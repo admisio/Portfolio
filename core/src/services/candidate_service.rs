@@ -247,14 +247,13 @@ impl CandidateService {
 pub mod tests {
     use sea_orm::{DbConn};
 
+    use crate::candidate_details::tests::assert_all_application_details;
     use crate::util::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;
-    use chrono::NaiveDate;
     use entity::{candidate, parent, admin};
 
-    use crate::candidate_details::{ApplicationDetails};
     use crate::services::application_service::ApplicationService;
 
     const APPLICATION_ID: i32 = 103151;
@@ -368,6 +367,8 @@ pub mod tests {
 
     #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
+        use crate::candidate_details::tests::APPLICATION_DETAILS;
+
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
             &db,
@@ -379,22 +380,7 @@ pub mod tests {
         .ok()
         .unwrap();
 
-        let form = ApplicationDetails {
-            name: "name".to_string(),
-            surname: "surname".to_string(),
-            birthplace: "birthplace".to_string(),
-            birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address: "address".to_string(),
-            telephone: "telephone".to_string(),
-            citizenship: "citizenship".to_string(),
-            email: "email".to_string(),
-            sex: "sex".to_string(),
-            study: "KB".to_string(),
-            parent_name: "parent_name".to_string(),
-            parent_surname: "parent_surname".to_string(),
-            parent_telephone: "parent_telephone".to_string(),
-            parent_email: "parent_email".to_string(),
-        };
+        let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
         ApplicationService::add_all_details(&db, candidate.application, form)
             .await
@@ -423,19 +409,6 @@ pub mod tests {
             .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
-        assert_eq!(dec_details.name, "name");
-        assert_eq!(dec_details.surname, "surname");
-        assert_eq!(dec_details.birthplace, "birthplace");
-        assert_eq!(dec_details.birthdate, NaiveDate::from_ymd(2000, 1, 1));
-        assert_eq!(dec_details.address, "address");
-        assert_eq!(dec_details.telephone, "telephone");
-        assert_eq!(dec_details.citizenship, "citizenship");
-        assert_eq!(dec_details.email, "email");
-        assert_eq!(dec_details.sex, "sex");
-        assert_eq!(dec_details.study, "KB");
-        assert_eq!(dec_details.parent_name, "parent_name");
-        assert_eq!(dec_details.parent_surname, "parent_surname");
-        assert_eq!(dec_details.parent_telephone, "parent_telephone");
-        assert_eq!(dec_details.parent_email, "parent_email");
+        assert_all_application_details(&dec_details);
     }
 }

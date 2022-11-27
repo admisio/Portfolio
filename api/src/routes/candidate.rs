@@ -359,6 +359,7 @@ mod tests {
         \"citizenship\": \"Czech Republic\",
         \"email\": \"magor@magor.cz\",
         \"sex\": \"MALE\",
+        \"personal_id_number\": \"0000000000\",
         \"study\": \"KB\",
         \"parent_name\": \"maminka\",
         \"parent_surname\": \"chad\",

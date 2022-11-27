@@ -71,6 +71,7 @@ pub struct EncryptedApplicationDetails {
     pub citizenship: EncryptedString,
     pub email: EncryptedString,
     pub sex: EncryptedString,
+    pub personal_id_number: EncryptedString,
     pub study: String,
 
     // Parent
@@ -96,6 +97,7 @@ impl EncryptedApplicationDetails {
             EncryptedString::new(&form.citizenship, &recipients),
             EncryptedString::new(&form.email, &recipients),
             EncryptedString::new(&form.sex, &recipients),
+            EncryptedString::new(&form.personal_id_number, &recipients),
             
             EncryptedString::new(&form.parent_name, &recipients),
             EncryptedString::new(&form.parent_surname, &recipients),
@@ -113,30 +115,32 @@ impl EncryptedApplicationDetails {
             citizenship: d.6,
             email: d.7,
             sex: d.8,
+            personal_id_number: d.9,
             study: form.study,
 
-            parent_name: d.9,
-            parent_surname: d.10,
-            parent_telephone: d.11,
-            parent_email: d.12,
+            parent_name: d.10,
+            parent_surname: d.11,
+            parent_telephone: d.12,
+            parent_email: d.13,
         })
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
         let d = tokio::try_join!(
-            self.name.decrypt(&priv_key),        // 0
-            self.surname.decrypt(&priv_key),     // 1
-            self.birthplace.decrypt(&priv_key),  // 2
-            self.birthdate.decrypt(&priv_key),   // 3
-            self.address.decrypt(&priv_key),     // 4
-            self.telephone.decrypt(&priv_key),   // 5
-            self.citizenship.decrypt(&priv_key), // 6
-            self.email.decrypt(&priv_key),       // 7
-            self.sex.decrypt(&priv_key),         // 8
-            self.parent_name.decrypt(&priv_key),
-            self.parent_surname.decrypt(&priv_key),
-            self.parent_telephone.decrypt(&priv_key),
-            self.parent_email.decrypt(&priv_key),
+            self.name.decrypt(&priv_key),              // 0
+            self.surname.decrypt(&priv_key),           // 1
+            self.birthplace.decrypt(&priv_key),        // 2
+            self.birthdate.decrypt(&priv_key),         // 3
+            self.address.decrypt(&priv_key),           // 4
+            self.telephone.decrypt(&priv_key),         // 5
+            self.citizenship.decrypt(&priv_key),       // 6
+            self.email.decrypt(&priv_key),             // 7
+            self.sex.decrypt(&priv_key),               // 8
+            self.personal_id_number.decrypt(&priv_key),// 9
+            self.parent_name.decrypt(&priv_key),       // 10
+            self.parent_surname.decrypt(&priv_key),    // 11
+            self.parent_telephone.decrypt(&priv_key),  // 12 
+            self.parent_email.decrypt(&priv_key),      // 13
         )?;
 
         Ok(ApplicationDetails {
@@ -149,12 +153,13 @@ impl EncryptedApplicationDetails {
             citizenship: d.6,
             email: d.7,
             sex: d.8,
+            personal_id_number: d.9,
             study: self.study,
 
-            parent_name: d.9,
-            parent_surname: d.10,
-            parent_telephone: d.11,
-            parent_email: d.12,
+            parent_name: d.10,
+            parent_surname: d.11,
+            parent_telephone: d.12,
+            parent_email: d.13,
         })
     }
 }
@@ -175,6 +180,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
             citizenship: EncryptedString::try_from(candidate.citizenship)?,
             email: EncryptedString::try_from(candidate.email)?,
             sex: EncryptedString::try_from(candidate.sex)?,
+            personal_id_number: EncryptedString::try_from(candidate.personal_identification_number)?,
             study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
 
             parent_name: EncryptedString::try_from(parent.name)?,
@@ -201,6 +207,7 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
             citizenship: EncryptedString::try_from(cp.citizenship)?,
             email: EncryptedString::try_from(cp.email)?,
             sex: EncryptedString::try_from(cp.sex)?,
+            personal_id_number: EncryptedString::try_from(cp.personal_identification_number)?,
             study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
 
             parent_name: EncryptedString::try_from(cp.parent_name)?,
@@ -213,7 +220,7 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
 
 
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ApplicationDetails {
     // Candidate
     pub name: String,
@@ -226,7 +233,7 @@ pub struct ApplicationDetails {
     pub email: String,
     pub sex: String,
     pub study: String,
-
+    pub personal_id_number: String,
     // Parent
     pub parent_name: String,
     pub parent_surname: String,
@@ -235,10 +242,53 @@ pub struct ApplicationDetails {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
+    use std::sync::Mutex;
+
+    use chrono::NaiveDate;
+    use once_cell::sync::Lazy;
+
     use crate::crypto;
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
+
+    pub static APPLICATION_DETAILS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
+        Mutex::new(ApplicationDetails {
+            name: "name".to_string(),
+            surname: "surname".to_string(),
+            birthplace: "birthplace".to_string(),
+            birthdate: chrono::NaiveDate::from_ymd(2000, 1, 1),
+            address: "address".to_string(),
+            telephone: "telephone".to_string(),
+            citizenship: "citizenship".to_string(),
+            email: "email".to_string(),
+            sex: "sex".to_string(),
+            personal_id_number: "personal_id_number".to_string(),
+            study: "study".to_string(),
+            parent_email: "parent_email".to_string(),
+            parent_name: "parent_name".to_string(),
+            parent_surname: "parent_surname".to_string(),
+            parent_telephone: "parent_telephone".to_string()
+        })
+    );
+
+    pub fn assert_all_application_details(details: &ApplicationDetails) {
+        assert_eq!(details.name, "name");
+        assert_eq!(details.surname, "surname");
+        assert_eq!(details.birthplace, "birthplace");
+        assert_eq!(details.birthdate, chrono::NaiveDate::from_ymd(2000, 1, 1));
+        assert_eq!(details.address, "address");
+        assert_eq!(details.telephone, "telephone");
+        assert_eq!(details.citizenship, "citizenship");
+        assert_eq!(details.email, "email");
+        assert_eq!(details.sex, "sex");
+        assert_eq!(details.study, "study");
+        assert_eq!(details.personal_id_number, "personal_id_number");
+        assert_eq!(details.parent_name, "parent_name");
+        assert_eq!(details.parent_surname, "parent_surname");
+        assert_eq!(details.parent_telephone, "parent_telephone");
+        assert_eq!(details.parent_email, "parent_email");
+    }
 
     #[tokio::test]
     async fn test_encrypted_application_details_new() {
@@ -246,22 +296,7 @@ mod tests {
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
         let encrypted_details = EncryptedApplicationDetails::new(
-            ApplicationDetails {
-                name: "test".to_string(),
-                surname: "test".to_string(),
-                birthplace: "test".to_string(),
-                birthdate: chrono::offset::Local::now().date_naive(),
-                address: "test".to_string(),
-                telephone: "test".to_string(),
-                citizenship: "test".to_string(),
-                email: "test".to_string(),
-                parent_email: "test".to_string(),
-                parent_name: "test".to_string(),
-                parent_surname: "test".to_string(),
-                parent_telephone: "test".to_string(),
-                sex: "test".to_string(),
-                study: "test".to_string(),
-            },
+            APPLICATION_DETAILS.lock().unwrap().clone(),
             vec![PUBLIC_KEY],
         )
         .await
@@ -271,19 +306,19 @@ mod tests {
             crypto::decrypt_password_with_private_key(&encrypted_details.name.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
-            "test"
+            "name"
         );
         assert_eq!(
             crypto::decrypt_password_with_private_key(&encrypted_details.email.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
-            "test"
+            "email"
         );
         assert_eq!(
             crypto::decrypt_password_with_private_key(&encrypted_details.sex.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
-            "test"
+            "sex"
         );
     }
 
@@ -292,23 +327,9 @@ mod tests {
         const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
+
         let encrypted_details = EncryptedApplicationDetails::new(
-            ApplicationDetails {
-                name: "test".to_string(),
-                surname: "test".to_string(),
-                birthplace: "test".to_string(),
-                birthdate: chrono::offset::Local::now().date_naive(),
-                address: "test".to_string(),
-                telephone: "test".to_string(),
-                citizenship: "test".to_string(),
-                email: "test".to_string(),
-                parent_email: "test".to_string(),
-                parent_name: "test".to_string(),
-                parent_surname: "test".to_string(),
-                parent_telephone: "test".to_string(),
-                sex: "test".to_string(),
-                study: "test".to_string(),
-            },
+            APPLICATION_DETAILS.lock().unwrap().clone(),
             vec![PUBLIC_KEY],
         )
         .await
@@ -319,10 +340,31 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(application_details.name, "test");
-        assert_eq!(application_details.email, "test");
-        assert_eq!(application_details.sex, "test");
+        assert_all_application_details(&application_details);
     }
+
+    // TODO
+    /* #[tokio::test]
+    async fn test_encrypted_application_details_from_candidate_parent() {
+        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
+        const PRIVATE_KEY: &str =
+            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
+
+        const birthdate: NaiveDate = chrono::offset::Local::now().date_naive();
+        let encrypted_details = EncryptedApplicationDetails::try_from(
+            ,
+            vec![PUBLIC_KEY],
+        )
+        .await
+        .unwrap();
+
+        let application_details = encrypted_details
+            .decrypt(PRIVATE_KEY.to_string())
+            .await
+            .unwrap();
+
+        assert_all_application_details(&application_details);
+    } */
 
     #[tokio::test]
     async fn test_encrypted_string_new() {

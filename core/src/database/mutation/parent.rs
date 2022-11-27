@@ -34,7 +34,8 @@ impl Mutation {
 
 #[cfg(test)]
 mod tests {
-    use crate::candidate_details::{ApplicationDetails, EncryptedApplicationDetails};
+    use crate::candidate_details::tests::APPLICATION_DETAILS;
+    use crate::candidate_details::{EncryptedApplicationDetails};
     use crate::util::get_memory_sqlite_connection;
     use crate::{Mutation, Query};
 
@@ -81,22 +82,7 @@ mod tests {
         let parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
-            ApplicationDetails {
-                name: "test".to_string(),
-                surname: "test".to_string(),
-                birthplace: "test".to_string(),
-                birthdate: chrono::offset::Local::now().date_naive(),
-                address: "test".to_string(),
-                telephone: "test".to_string(),
-                citizenship: "test".to_string(),
-                email: "test".to_string(),
-                parent_email: "test".to_string(),
-                parent_name: "test".to_string(),
-                parent_surname: "test".to_string(),
-                parent_telephone: "test".to_string(),
-                sex: "test".to_string(),
-                study: "test".to_string(),
-            },
+            APPLICATION_DETAILS.lock().unwrap().clone(),
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5"],
         )
         .await
