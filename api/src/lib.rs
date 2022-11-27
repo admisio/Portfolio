@@ -43,12 +43,12 @@ pub fn rocket() -> Rocket<Build>{
                 routes::candidate::logout,
                 routes::candidate::whoami,
                 routes::candidate::get_details,
+                routes::candidate::post_details,
             ],
         )
         .mount(
             "/candidate/add",
             routes![
-                routes::candidate::add_details,
                 routes::candidate::upload_portfolio_letter,
                 routes::candidate::upload_portfolio_zip,
                 routes::candidate::upload_cover_letter,

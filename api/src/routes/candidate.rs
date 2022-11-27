@@ -77,8 +77,9 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
     Ok(candidate.application.to_string())
 }
 
+// TODO: use put instead of post???
 #[post("/details", data = "<details>")]
-pub async fn add_details(
+pub async fn post_details(
     conn: Connection<'_, Db>,
     details: Json<ApplicationDetails>,
     session: CandidateAuth,
@@ -397,7 +398,7 @@ mod tests {
         let details_orig: ApplicationDetails = serde_json::from_str(CANDIDATE_DETAILS).unwrap();
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .body(CANDIDATE_DETAILS.to_string())
@@ -427,7 +428,7 @@ mod tests {
         let key = Cookie::new("key", private_key);
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(id.clone())
             .cookie(key.clone())
             .body(CANDIDATE_DETAILS.to_string())
@@ -455,7 +456,7 @@ mod tests {
         let cookies = admin_login(&client);
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .body(CANDIDATE_DETAILS.to_string())
