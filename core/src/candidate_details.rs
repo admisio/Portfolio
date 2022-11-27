@@ -83,7 +83,7 @@ pub struct EncryptedApplicationDetails {
 
 impl EncryptedApplicationDetails {
     pub async fn new(
-        form: ApplicationDetails,
+        form: &ApplicationDetails,
         recipients: Vec<&str>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
@@ -116,7 +116,7 @@ impl EncryptedApplicationDetails {
             email: d.7,
             sex: d.8,
             personal_id_number: d.9,
-            study: form.study,
+            study: form.study.clone(),
 
             parent_name: d.10,
             parent_surname: d.11,
@@ -296,7 +296,7 @@ pub mod tests {
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
         let encrypted_details = EncryptedApplicationDetails::new(
-            APPLICATION_DETAILS.lock().unwrap().clone(),
+            &APPLICATION_DETAILS.lock().unwrap().clone(),
             vec![PUBLIC_KEY],
         )
         .await
@@ -329,7 +329,7 @@ pub mod tests {
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
 
         let encrypted_details = EncryptedApplicationDetails::new(
-            APPLICATION_DETAILS.lock().unwrap().clone(),
+            &APPLICATION_DETAILS.lock().unwrap().clone(),
             vec![PUBLIC_KEY],
         )
         .await

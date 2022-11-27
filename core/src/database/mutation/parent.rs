@@ -82,7 +82,7 @@ mod tests {
         let parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
-            APPLICATION_DETAILS.lock().unwrap().clone(),
+            &APPLICATION_DETAILS.lock().unwrap().clone(),
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5"],
         )
         .await

@@ -125,7 +125,7 @@ impl CandidateService {
         let enc_details_opt = EncryptedApplicationDetails::try_from((candidate, parent));
         if let Ok(enc_details) = enc_details_opt {
             let application_details = enc_details.decrypt(admin_private_key).await?;
-            ApplicationService::add_all_details(db, id, application_details).await?;
+            ApplicationService::add_all_details(db, id, &application_details).await?;
         }
 
         Ok(new_password_plain)
@@ -382,7 +382,7 @@ pub mod tests {
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        ApplicationService::add_all_details(&db, candidate.application, form)
+        ApplicationService::add_all_details(&db, candidate.application, &form)
             .await
             .unwrap()
     }

@@ -31,7 +31,7 @@ impl ApplicationService {
     pub async fn add_all_details(
         db: &DbConn,
         application: i32,
-        form: ApplicationDetails,
+        form: &ApplicationDetails,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, application)
             .await?
