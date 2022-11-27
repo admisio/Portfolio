@@ -145,6 +145,14 @@ impl PortfolioService {
         Ok(())
     }
 
+    pub async fn create_user_dir(application_id: i32) -> tokio::io::Result<()> {
+        tokio::fs::create_dir_all(
+            Self::get_file_store_path()
+            .join(&application_id.to_string())
+            .join("cache"))
+            .await
+    }
+
     
     pub async fn add_cover_letter_to_cache(
         candidate_id: i32,

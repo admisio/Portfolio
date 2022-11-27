@@ -1,5 +1,3 @@
-use std::path::{Path, PathBuf};
-
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
@@ -10,7 +8,7 @@ use crate::{
     Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, util::get_recipients,
 };
 
-use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
+use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
 
 // TODO
 
@@ -45,12 +43,6 @@ const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 pub struct CandidateService;
 
 impl CandidateService {
-    // Get root path or local directory
-    fn get_file_store_path() -> PathBuf {
-        dotenv::dotenv().ok();
-        Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
-    }
-
     /// Creates a new candidate with:
     /// Encrypted personal identification number
     /// Hashed password
@@ -74,24 +66,21 @@ impl CandidateService {
         {
             return Err(ServiceError::UserAlreadyExists);
         }
+        PortfolioService::create_user_dir(application_id).await?;
 
         
         let hashed_password = hash_password(plain_text_password.to_string()).await?;
-        
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
-
-        let encrypted_priv_key =
-            crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
-
+        let encrypted_priv_key = crypto::encrypt_password(
+            priv_key_plain_text,
+            plain_text_password.to_string()
+        ).await?;
 
         let recipients = get_recipients(db, &pubkey).await?;
-
         let enc_personal_id_number = EncryptedString::new(
             &personal_id_number,
             &recipients,
         ).await?;
-
-        tokio::fs::create_dir_all(Self::get_file_store_path().join(&application_id.to_string()).join("cache")).await?;
 
         let candidate = Mutation::create_candidate(
             db,
@@ -101,7 +90,8 @@ impl CandidateService {
             pubkey,
             encrypted_priv_key, 
         )
-        .await?;
+            .await?;
+            
         Ok(candidate)
     }
 
