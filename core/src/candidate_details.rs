@@ -46,6 +46,11 @@ impl TryFrom<Option<String>> for EncryptedString {
         }
     }
 }
+impl From<String> for EncryptedString {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
 
 impl TryFrom<Option<NaiveDate>> for EncryptedString {
     // TODO: take a look at this
@@ -180,7 +185,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
             citizenship: EncryptedString::try_from(candidate.citizenship)?,
             email: EncryptedString::try_from(candidate.email)?,
             sex: EncryptedString::try_from(candidate.sex)?,
-            personal_id_number: EncryptedString::try_from(candidate.personal_identification_number)?,
+            personal_id_number: EncryptedString::from(candidate.personal_identification_number),
             study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
 
             parent_name: EncryptedString::try_from(parent.name)?,

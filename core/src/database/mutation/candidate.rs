@@ -8,13 +8,13 @@ impl Mutation {
         db: &DbConn,
         application_id: i32,
         hashed_password: String,
-        hashed_personal_id_number: String,
+        enc_personal_id_number: String,
         pubkey: String,
         encrypted_priv_key: String,
     ) -> Result<candidate::Model, DbErr> {
         candidate::ActiveModel {
             application: Set(application_id),
-            personal_identification_number_hash: Set(hashed_personal_id_number),
+            personal_identification_number: Set(enc_personal_id_number),
             code: Set(hashed_password),
             public_key: Set(pubkey),
             private_key: Set(encrypted_priv_key),
@@ -26,7 +26,7 @@ impl Mutation {
             .await
     }
 
-    pub async fn update_candidate_password_with_keys(
+    pub async fn update_candidate_password_and_keys(
         db: &DbConn,
         candidate: candidate::Model,
         new_password_hash: String,
@@ -56,7 +56,7 @@ impl Mutation {
         user.citizenship = Set(Some(enc_details.citizenship.into()));
         user.email = Set(Some(enc_details.email.into()));
         user.sex = Set(Some(enc_details.sex.into()));
-        user.personal_identification_number = Set(Some(enc_details.personal_id_number.into()));
+        user.personal_identification_number = Set(enc_details.personal_id_number.into()); // TODO: do not set this here, it is already set in the create_candidate mutation???
         user.study = Set(Some(enc_details.study.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());

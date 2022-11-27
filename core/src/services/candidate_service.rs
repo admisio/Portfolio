@@ -76,14 +76,24 @@ impl CandidateService {
             return Err(ServiceError::UserAlreadyExists);
         }
 
+        
         let hashed_password = hash_password(plain_text_password.to_string()).await?;
-
+        
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
 
         let encrypted_priv_key =
             crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
 
-        let hashed_personal_id_number = hash_password(personal_id_number).await?;
+
+        let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
+        let mut admin_public_keys_ref = admin_public_keys.iter().map(|s| &**s).collect();
+        let mut recipients = vec![&*pubkey];
+        recipients.append(&mut admin_public_keys_ref);
+
+        let enc_personal_id_number = EncryptedString::new(
+            &personal_id_number,
+            &recipients,
+        ).await?;
 
         tokio::fs::create_dir_all(Self::get_file_store_path().join(&application_id.to_string()).join("cache")).await?;
 
@@ -91,7 +101,7 @@ impl CandidateService {
             db,
             application_id,
             hashed_password,
-            hashed_personal_id_number,
+            enc_personal_id_number.to_string(),
             pubkey,
             encrypted_priv_key, 
         )
@@ -120,11 +130,11 @@ impl CandidateService {
 
 
         SessionService::revoke_all_sessions(db, Some(id), None).await?;
-        Mutation::update_candidate_password_with_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
+        Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
         // TODO: make personal id number required
-        let personal_id_number = EncryptedString::try_from(candidate.personal_identification_number.clone())?
+        let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
             .decrypt(&admin_private_key)
             .await?;
         
