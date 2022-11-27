@@ -7,7 +7,7 @@ use crate::{
     candidate_details::{EncryptedApplicationDetails},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::CandidateResponse,
+    Mutation, Query, responses::BaseCandidateResponse,
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
@@ -150,7 +150,7 @@ impl CandidateService {
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
-    ) -> Result<Vec<CandidateResponse>, ServiceError> {
+    ) -> Result<Vec<BaseCandidateResponse>, ServiceError> {
 
         let candidates = Query::list_candidates(
             db,
@@ -158,11 +158,11 @@ impl CandidateService {
             page
         ).await?;
 
-        let mut result: Vec<CandidateResponse> = vec![];
+        let mut result: Vec<BaseCandidateResponse> = vec![];
 
         for candidate in candidates {
             result.push(
-                CandidateResponse::from_encrypted(
+                BaseCandidateResponse::from_encrypted(
                     &private_key,
                     candidate.application,
                     candidate.name,

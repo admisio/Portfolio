@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::CandidateResponse, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::BaseCandidateResponse, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -11,7 +11,7 @@ use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
-use crate::{guards::request::auth::AdminAuth, pool::Db, requests};
+use crate::{guards::request::{auth::AdminAuth, self}, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
 pub async fn login(
@@ -82,14 +82,14 @@ pub async fn hello(_session: AdminAuth) -> Result<String, Custom<String>> {
     Ok("Hello admin".to_string())
 }
 
-#[post("/create", data = "<post_form>")]
+#[post("/create", data = "<request>")]
 pub async fn create_candidate(
     conn: Connection<'_, Db>,
     _session: AdminAuth,
-    post_form: Json<RegisterRequest>,
+    request: Json<RegisterRequest>,
 ) -> Result<String, Custom<String>> {
     let db = conn.into_inner();
-    let form = post_form.into_inner();
+    let form = request.into_inner();
 
     let plain_text_password = random_8_char_string();
 
@@ -111,7 +111,7 @@ pub async fn list_candidates(
     session: AdminAuth,
     field: Option<String>,
     page: Option<u64>,
-) -> Result<Json<Vec<CandidateResponse>>, Custom<String>> {
+) -> Result<Json<Vec<BaseCandidateResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     if let Some(field) = field.clone() {
