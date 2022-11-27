@@ -11,7 +11,7 @@ use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
-use crate::{guards::request::{auth::AdminAuth, self}, pool::Db, requests};
+use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
 
 #[post("/login", data = "<login_form>")]
 pub async fn login(
@@ -161,15 +161,17 @@ pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     id: i32,
-) -> Result<String, Custom<String>> {
+) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let new_password = CandidateService::reset_password(private_key, db, id)
+    let response = CandidateService::reset_password(private_key, db, id)
         .await
         .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
 
-    Ok(new_password)
+    Ok(
+        Json(response)
+    )
 }
 
 #[get("/candidate/<id>/portfolio")]
@@ -188,6 +190,7 @@ pub async fn get_candidate_portfolio(
 
 #[cfg(test)]
 pub mod tests {
+    use portfolio_core::responses::CreateCandidateResponse;
     use rocket::{local::blocking::Client, http::{Cookie, Status}};
 
     use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
@@ -216,7 +219,7 @@ pub mod tests {
         cookies: (Cookie, Cookie),
         id: i32,
         pid: String,
-    ) -> String {
+    ) -> CreateCandidateResponse {
         let response = client
             .post("/admin/create")
             .body(format!(
@@ -232,15 +235,15 @@ pub mod tests {
 
         assert_eq!(response.status(), Status::Ok);
 
-        response.into_string().unwrap()
+        response.into_json::<CreateCandidateResponse>().unwrap()
     }
 
     #[test]
     fn test_create_candidate() {
         let client = test_client().lock().unwrap();
         let cookies = admin_login(&client);
-        let password = create_candidate(&client, cookies, 1031511, "0".to_string());
+        let response = create_candidate(&client, cookies, 1031511, "0".to_string());
     
-        assert_eq!(password.len(), 8);
+        assert_eq!(response.password.len(), 8);
     }
 }

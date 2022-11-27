@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::{candidate_details::EncryptedString, error::ServiceError};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateCandidateResponse {
     pub application_id: i32,
     pub personal_id_number: String,

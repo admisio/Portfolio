@@ -4,10 +4,10 @@ use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
-    candidate_details::{EncryptedApplicationDetails},
+    candidate_details::{EncryptedApplicationDetails, EncryptedString},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::BaseCandidateResponse,
+    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse},
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
@@ -103,7 +103,7 @@ impl CandidateService {
         admin_private_key: String,
         db: &DbConn,
         id: i32,
-    ) -> Result<String, ServiceError> {
+    ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
         let parent = Query::find_parent_by_id(db, id).await?
@@ -122,13 +122,28 @@ impl CandidateService {
         SessionService::revoke_all_sessions(db, Some(id), None).await?;
         Mutation::update_candidate_password_with_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
-        let enc_details_opt = EncryptedApplicationDetails::try_from((candidate, parent));
+        // user might no have filled his details yet, but personal id number is filled from beginning
+        // TODO: make personal id number required
+        let personal_id_number = EncryptedString::try_from(candidate.personal_identification_number.clone())?
+            .decrypt(&admin_private_key)
+            .await?;
+        
+        let enc_details_opt = EncryptedApplicationDetails::try_from(
+            (candidate, parent)
+        );
+        
         if let Ok(enc_details) = enc_details_opt {
             let application_details = enc_details.decrypt(admin_private_key).await?;
             ApplicationService::add_all_details(db, id, &application_details).await?;
         }
 
-        Ok(new_password_plain)
+        Ok(
+            CreateCandidateResponse {
+                application_id: id,
+                personal_id_number: personal_id_number,
+                password: new_password_plain,
+            }
+        )
     }
 
     pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
@@ -281,7 +296,7 @@ pub mod tests {
             CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
         );
 
-        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap();
+        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap().password;
 
         assert!(
             CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
