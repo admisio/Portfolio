@@ -82,13 +82,13 @@ pub async fn add_details(
     conn: Connection<'_, Db>,
     details: Json<ApplicationDetails>,
     session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into(); // TODO: don't return candidate from session
 
     let candidate_parent =
-        ApplicationService::add_all_details(db, candidate.application, form).await;
+        ApplicationService::add_all_details(db, candidate.application, &form).await;
 
     if candidate_parent.is_err() {
         // TODO cleanup
@@ -99,10 +99,12 @@ pub async fn add_details(
         ));
     }
 
-    Ok("Details added".to_string())
+    Ok(
+        Json(form)
+    )
 }
 
-#[post("/get_details")]
+#[get("/details")]
 pub async fn get_details(
     conn: Connection<'_, Db>,
     session: CandidateAuth,
@@ -404,7 +406,7 @@ mod tests {
         assert_eq!(response.status(), Status::Ok);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(cookies.0)
             .cookie(cookies.1)
             .dispatch();
@@ -433,7 +435,7 @@ mod tests {
         assert_eq!(response.status(), Status::Unauthorized);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(id.clone())
             .cookie(key.clone())
             .dispatch();
@@ -461,7 +463,7 @@ mod tests {
         assert_eq!(response.status(), Status::Unauthorized);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .dispatch();
