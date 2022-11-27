@@ -7,7 +7,7 @@ use crate::{
     candidate_details::{EncryptedApplicationDetails, EncryptedString},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse},
+    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, util::get_recipients,
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
@@ -69,8 +69,7 @@ impl CandidateService {
 
         // Check if user with that application id already exists
         if Query::find_candidate_by_id(db, application_id)
-            .await
-            .unwrap()
+            .await?
             .is_some()
         {
             return Err(ServiceError::UserAlreadyExists);
@@ -85,10 +84,7 @@ impl CandidateService {
             crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
 
 
-        let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
-        let mut admin_public_keys_ref = admin_public_keys.iter().map(|s| &**s).collect();
-        let mut recipients = vec![&*pubkey];
-        recipients.append(&mut admin_public_keys_ref);
+        let recipients = get_recipients(db, &pubkey).await?;
 
         let enc_personal_id_number = EncryptedString::new(
             &personal_id_number,
@@ -237,14 +233,10 @@ impl CandidateService {
 
         let session_id =
             SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr)
-                .await;
-        match session_id {
-            Ok(session_id) => {
-                let private_key = Self::decrypt_private_key(candidate, password).await?;
-                Ok((session_id, private_key))
-            }
-            Err(e) => Err(e),
-        }
+                .await?;
+
+        let private_key = Self::decrypt_private_key(candidate, password).await?;
+        Ok((session_id, private_key))
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {

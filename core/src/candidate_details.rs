@@ -11,7 +11,8 @@ pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 pub struct EncryptedString(String);
 
 impl EncryptedString {
-    pub async fn new(s: &str, recipients: &Vec<&str>) -> Result<Self, ServiceError> {
+    pub async fn new(s: &str, recipients: &Vec<String>) -> Result<Self, ServiceError> {
+        let recipients = recipients.iter().map(|s| &**s).collect();
         match crypto::encrypt_password_with_recipients(&s, &recipients).await {
             Ok(encrypted) => Ok(Self(encrypted)),
             Err(_) => Err(ServiceError::CryptoEncryptFailed),
@@ -89,7 +90,7 @@ pub struct EncryptedApplicationDetails {
 impl EncryptedApplicationDetails {
     pub async fn new(
         form: &ApplicationDetails,
-        recipients: Vec<&str>,
+        recipients: Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d = tokio::try_join!(
@@ -250,12 +251,14 @@ pub struct ApplicationDetails {
 pub mod tests {
     use std::sync::Mutex;
 
-    use chrono::NaiveDate;
     use once_cell::sync::Lazy;
 
     use crate::crypto;
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
+
+    const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
+    const PRIVATE_KEY: &str = "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
 
     pub static APPLICATION_DETAILS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {
@@ -297,12 +300,9 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_encrypted_application_details_new() {
-        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
-        const PRIVATE_KEY: &str =
-            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
         let encrypted_details = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
-            vec![PUBLIC_KEY],
+            vec![PUBLIC_KEY.to_string()],
         )
         .await
         .unwrap();
@@ -329,13 +329,9 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_encrypted_application_details_decrypt() {
-        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
-        const PRIVATE_KEY: &str =
-            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
-
         let encrypted_details = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
-            vec![PUBLIC_KEY],
+            vec![PUBLIC_KEY.to_string()],
         )
         .await
         .unwrap();
@@ -377,7 +373,7 @@ pub mod tests {
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
 
-        let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY])
+        let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY.to_string()])
             .await
             .unwrap();
 
@@ -395,7 +391,7 @@ pub mod tests {
         const PRIVATE_KEY: &str =
             "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
 
-        let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY])
+        let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY.to_string()])
             .await
             .unwrap();
 

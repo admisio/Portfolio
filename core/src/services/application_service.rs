@@ -1,7 +1,7 @@
 use entity::{candidate, parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, candidate_details::{ApplicationDetails, EncryptedApplicationDetails}, Query};
+use crate::{error::ServiceError, candidate_details::{ApplicationDetails, EncryptedApplicationDetails}, Query, util::get_recipients};
 
 use super::{parent_service::ParentService, candidate_service::CandidateService};
 
@@ -41,13 +41,7 @@ impl ApplicationService {
             .await?
             .ok_or(ServiceError::ParentNotFound)?;
 
-        let admin_public_keys =  Query::get_all_admin_public_keys(db).await?;
-
-        let mut admin_public_keys_refrence: Vec<&str> =
-            admin_public_keys.iter().map(|s| &**s).collect();
-
-        let mut recipients = vec![&*candidate.public_key];
-        recipients.append(&mut admin_public_keys_refrence);
+        let recipients = get_recipients(db, &candidate.public_key).await?;
 
         let enc_details = EncryptedApplicationDetails::new(form, recipients).await?;
 

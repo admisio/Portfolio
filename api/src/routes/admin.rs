@@ -13,6 +13,8 @@ use sea_orm_rocket::Connection;
 
 use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
 
+use super::to_custom_error;
+
 #[post("/login", data = "<login_form>")]
 pub async fn login(
     conn: Connection<'_, Db>,
@@ -100,7 +102,7 @@ pub async fn create_candidate(
         form.personal_id_number.clone(),
     )
         .await
-        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(
         Json(
@@ -131,7 +133,7 @@ pub async fn list_candidates(
 
     let candidates = CandidateService::list_candidates(private_key, db, field, page)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(Json(candidates))
 }
@@ -151,7 +153,7 @@ pub async fn get_candidate(
         id
     )
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(Json(details))
 }
@@ -167,7 +169,7 @@ pub async fn reset_candidate_password(
 
     let response = CandidateService::reset_password(private_key, db, id)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(
         Json(response)
@@ -183,7 +185,7 @@ pub async fn get_candidate_portfolio(
 
     let portfolio = PortfolioService::get_portfolio(id, private_key)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(portfolio)
 }
