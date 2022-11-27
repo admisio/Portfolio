@@ -57,7 +57,7 @@ mod admin_tests {
     use entity::admin;
     use sea_orm::{Set, ActiveModelTrait};
 
-    use crate::{util::get_memory_sqlite_connection, error::ServiceError};
+    use crate::{utils::db::get_memory_sqlite_connection, error::ServiceError};
 
     use super::*;
 

@@ -35,7 +35,7 @@ mod tests {
     use entity::{session};
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
     use crate::Query;
 
     #[tokio::test]

@@ -5,7 +5,7 @@ use crate::{
     candidate_details::{EncryptedApplicationDetails, EncryptedString},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, util::get_recipients,
+    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
@@ -255,7 +255,7 @@ pub mod tests {
     use sea_orm::{DbConn};
 
     use crate::candidate_details::tests::assert_all_application_details;
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;

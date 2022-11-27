@@ -69,7 +69,7 @@ impl Mutation {
 mod tests {
     use crate::candidate_details::tests::APPLICATION_DETAILS;
     use crate::candidate_details::{EncryptedApplicationDetails};
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
     use crate::{Mutation, Query};
 
     #[tokio::test]

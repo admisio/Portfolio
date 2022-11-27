@@ -1,7 +1,7 @@
 use entity::{candidate, parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, candidate_details::{ApplicationDetails, EncryptedApplicationDetails}, Query, util::get_recipients};
+use crate::{error::ServiceError, candidate_details::{ApplicationDetails, EncryptedApplicationDetails}, Query, utils::db::get_recipients};
 
 use super::{parent_service::ParentService, candidate_service::CandidateService};
 

@@ -332,7 +332,7 @@ impl PortfolioService {
 mod tests {
     use serial_test::serial;
 
-    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, util::get_memory_sqlite_connection, crypto};
+    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, utils::db::get_memory_sqlite_connection, crypto};
     use std::path::PathBuf;
 
     const APPLICATION_ID: i32 = 103151;

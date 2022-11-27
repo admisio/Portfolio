@@ -122,7 +122,7 @@ mod tests {
     use entity::candidate;
 
     use crate::Query;
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
 
     #[tokio::test]
     async fn test_find_candidate_by_id() {
