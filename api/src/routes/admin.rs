@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::BaseCandidateResponse, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::{BaseCandidateResponse, CreateCandidateResponse}, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -87,7 +87,7 @@ pub async fn create_candidate(
     conn: Connection<'_, Db>,
     _session: AdminAuth,
     request: Json<RegisterRequest>,
-) -> Result<String, Custom<String>> {
+) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
     let form = request.into_inner();
 
@@ -97,12 +97,20 @@ pub async fn create_candidate(
         db,
         form.application_id,
         &plain_text_password,
-        form.personal_id_number,
+        form.personal_id_number.clone(),
     )
         .await
         .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
 
-    Ok(plain_text_password)
+    Ok(
+        Json(
+            CreateCandidateResponse {
+                application_id: form.application_id,
+                personal_id_number: form.personal_id_number,
+                password: plain_text_password,
+            }
+        )
+    )
 }
 
 #[get("/candidates?<field>&<page>")]

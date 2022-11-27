@@ -3,6 +3,13 @@ use serde::Serialize;
 use crate::{candidate_details::EncryptedString, error::ServiceError};
 
 #[derive(Debug, Serialize)]
+pub struct CreateCandidateResponse {
+    pub application_id: i32,
+    pub personal_id_number: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize)]
 pub struct BaseCandidateResponse {
     pub application_id: i32,
     pub name: String,
