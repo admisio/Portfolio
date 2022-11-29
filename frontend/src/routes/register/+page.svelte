@@ -232,7 +232,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full">
+			<div class="flex flex-row md:flex-col w-full">
 				<span class="w-full mt-8">
 					<TextField
 						error={$errors.citizenship}
@@ -240,6 +240,15 @@
 						bind:value={$form.citizenship}
 						type="text"
 						placeholder="Občanství"
+					/>
+				</span>
+				<span class="w-full mt-8 ml-2 md:m-0">
+					<TextField
+						error={$errors.applicationId}
+						on:change={handleChange}
+						bind:value={$form.applicationId}
+						type="text"
+						placeholder="Evidenční číslo přihlášky"
 					/>
 				</span>
 			</div>
@@ -250,22 +259,15 @@
 					bind:value={$form.personalId}
 					placeholder="Rodné číslo"
 				/>
-				<TextField
-					error={$errors.study}
-					on:change={handleChange}
-					bind:value={$form.study}
-					type="text"
-					placeholder="Obor"
-				/>
-			</div>
-			<div class="mt-8 flex flex-col w-full">
-				<TextField
-					error={$errors.applicationId}
-					on:change={handleChange}
-					bind:value={$form.applicationId}
-					type="text"
-					placeholder="Evidenční číslo přihlášky"
-				/>
+				<span class="ml-2 md:ml-0">
+					<TextField
+						error={$errors.study}
+						on:change={handleChange}
+						bind:value={$form.study}
+						type="text"
+						placeholder="Obor"
+					/>
+				</span>
 			</div>
 		{/if}
 		<input
