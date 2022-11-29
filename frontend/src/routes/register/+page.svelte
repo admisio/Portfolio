@@ -6,6 +6,7 @@
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import EmailField from '$lib/components/textfield/EmailField.svelte';
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
@@ -115,18 +116,12 @@
 						/>
 					</span>
 					<span class="w-full mt-8 ml-2 md:ml-0">
-						<TextField
+						<EmailField
 							error={$errors.email}
 							on:change={handleChange}
 							bind:value={$form.email}
-							type="e-mail"
-							placeholder="Email"
-							icon
-						>
-							<div slot="icon" class="flex items-center justify-center">
-								<Email />
-							</div>
-						</TextField>
+							placeholder="E-mail"
+						/>
 					</span>
 				</div>
 				<div class="mt-8 w-full">
@@ -206,11 +201,10 @@
 				</span>
 				<div class="mt-8 flex flex-row items-center md:flex-col">
 					<span class="w-full">
-						<TextField
+						<EmailField
 							error={$errors.parentEmail}
 							on:change={handleChange}
 							bind:value={$form.parentEmail}
-							type="e-mail"
 							placeholder="E-mail zákonného zástupce"
 						/>
 					</span>
