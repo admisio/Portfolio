@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Telephone from '../icons/Telephone.svelte';
+	import Person from '../icons/Person.svelte';
 	import TextField from './TextField.svelte';
 
 	export let placeholder: string = '';
@@ -13,17 +13,11 @@
 	}
 </script>
 
-<TextField
-	bind:error
-	bind:value
-	on:keydown
-	on:keyup
-	on:change
-	type="text"
-	{placeholder}
-	icon
->
+<TextField bind:error bind:value on:keydown on:keyup on:change type="text" {placeholder} icon>
 	<div slot="icon" class="flex items-center justify-center">
-		<Telephone />
+		<Person />
 	</div>
 </TextField>
+
+<style>
+</style>
