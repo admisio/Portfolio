@@ -259,7 +259,7 @@
 					bind:value={$form.personalId}
 					placeholder="Rodné číslo"
 				/>
-				<span class="ml-2 md:ml-0">
+				<span class="ml-2">
 					<TextField
 						error={$errors.study}
 						on:change={handleChange}
