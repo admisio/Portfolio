@@ -19,9 +19,9 @@ pub struct Model {
     pub email: Option<String>,
     pub sex: Option<String>,
     pub study: Option<String>,
-    pub personal_identification_number: Option<String>,
-    #[sea_orm(column_type = "Text")]
-    pub personal_identification_number_hash: String,
+    pub personal_identification_number: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub personal_identification_number_hash: Option<String>,
     pub public_key: String,
     pub private_key: String,
     pub created_at: DateTime,
@@ -30,21 +30,21 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::parent::Entity")]
-    Parent,
     #[sea_orm(has_many = "super::session::Entity")]
     Session,
-}
-
-impl Related<super::parent::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Parent.def()
-    }
+    #[sea_orm(has_many = "super::parent::Entity")]
+    Parent,
 }
 
 impl Related<super::session::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Session.def()
+    }
+}
+
+impl Related<super::parent::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Parent.def()
     }
 }
 

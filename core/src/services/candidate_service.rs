@@ -1,16 +1,14 @@
-use std::path::{Path, PathBuf};
-
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
-    candidate_details::{EncryptedApplicationDetails},
+    candidate_details::{EncryptedApplicationDetails, EncryptedString},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::CandidateResponse,
+    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
 };
 
-use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService};
+use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
 
 // TODO
 
@@ -45,12 +43,6 @@ const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 pub struct CandidateService;
 
 impl CandidateService {
-    // Get root path or local directory
-    fn get_file_store_path() -> PathBuf {
-        dotenv::dotenv().ok();
-        Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
-    }
-
     /// Creates a new candidate with:
     /// Encrypted personal identification number
     /// Hashed password
@@ -69,33 +61,37 @@ impl CandidateService {
 
         // Check if user with that application id already exists
         if Query::find_candidate_by_id(db, application_id)
-            .await
-            .unwrap()
+            .await?
             .is_some()
         {
             return Err(ServiceError::UserAlreadyExists);
         }
+        PortfolioService::create_user_dir(application_id).await?;
 
+        
         let hashed_password = hash_password(plain_text_password.to_string()).await?;
-
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
+        let encrypted_priv_key = crypto::encrypt_password(
+            priv_key_plain_text,
+            plain_text_password.to_string()
+        ).await?;
 
-        let encrypted_priv_key =
-            crypto::encrypt_password(priv_key_plain_text, plain_text_password.to_string()).await?;
-
-        let hashed_personal_id_number = hash_password(personal_id_number).await?;
-
-        tokio::fs::create_dir_all(Self::get_file_store_path().join(&application_id.to_string()).join("cache")).await?;
+        let recipients = get_recipients(db, &pubkey).await?;
+        let enc_personal_id_number = EncryptedString::new(
+            &personal_id_number,
+            &recipients,
+        ).await?;
 
         let candidate = Mutation::create_candidate(
             db,
             application_id,
             hashed_password,
-            hashed_personal_id_number,
+            enc_personal_id_number.to_string(),
             pubkey,
             encrypted_priv_key, 
         )
-        .await?;
+            .await?;
+            
         Ok(candidate)
     }
 
@@ -103,7 +99,7 @@ impl CandidateService {
         admin_private_key: String,
         db: &DbConn,
         id: i32,
-    ) -> Result<String, ServiceError> {
+    ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
         let parent = Query::find_parent_by_id(db, id).await?
@@ -120,15 +116,30 @@ impl CandidateService {
 
 
         SessionService::revoke_all_sessions(db, Some(id), None).await?;
-        Mutation::update_candidate_password_with_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
+        Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
-        let enc_details_opt = EncryptedApplicationDetails::try_from((candidate, parent));
+        // user might no have filled his details yet, but personal id number is filled from beginning
+        // TODO: make personal id number required
+        let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
+            .decrypt(&admin_private_key)
+            .await?;
+        
+        let enc_details_opt = EncryptedApplicationDetails::try_from(
+            (candidate, parent)
+        );
+        
         if let Ok(enc_details) = enc_details_opt {
             let application_details = enc_details.decrypt(admin_private_key).await?;
-            ApplicationService::add_all_details(db, id, application_details).await?;
+            ApplicationService::add_all_details(db, id, &application_details).await?;
         }
 
-        Ok(new_password_plain)
+        Ok(
+            CreateCandidateResponse {
+                application_id: id,
+                personal_id_number: personal_id_number,
+                password: new_password_plain,
+            }
+        )
     }
 
     pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
@@ -150,7 +161,7 @@ impl CandidateService {
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
-    ) -> Result<Vec<CandidateResponse>, ServiceError> {
+    ) -> Result<Vec<BaseCandidateResponse>, ServiceError> {
 
         let candidates = Query::list_candidates(
             db,
@@ -158,11 +169,11 @@ impl CandidateService {
             page
         ).await?;
 
-        let mut result: Vec<CandidateResponse> = vec![];
+        let mut result: Vec<BaseCandidateResponse> = vec![];
 
         for candidate in candidates {
             result.push(
-                CandidateResponse::from_encrypted(
+                BaseCandidateResponse::from_encrypted(
                     &private_key,
                     candidate.application,
                     candidate.name,
@@ -212,14 +223,10 @@ impl CandidateService {
 
         let session_id =
             SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr)
-                .await;
-        match session_id {
-            Ok(session_id) => {
-                let private_key = Self::decrypt_private_key(candidate, password).await?;
-                Ok((session_id, private_key))
-            }
-            Err(e) => Err(e),
-        }
+                .await?;
+
+        let private_key = Self::decrypt_private_key(candidate, password).await?;
+        Ok((session_id, private_key))
     }
 
     pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
@@ -247,14 +254,13 @@ impl CandidateService {
 pub mod tests {
     use sea_orm::{DbConn};
 
-    use crate::util::get_memory_sqlite_connection;
+    use crate::candidate_details::tests::assert_all_application_details;
+    use crate::utils::db::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
     use super::EncryptedApplicationDetails;
-    use chrono::NaiveDate;
     use entity::{candidate, parent, admin};
 
-    use crate::candidate_details::{ApplicationDetails};
     use crate::services::application_service::ApplicationService;
 
     const APPLICATION_ID: i32 = 103151;
@@ -282,7 +288,7 @@ pub mod tests {
             CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
         );
 
-        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap();
+        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap().password;
 
         assert!(
             CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
@@ -368,6 +374,8 @@ pub mod tests {
 
     #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
+        use crate::candidate_details::tests::APPLICATION_DETAILS;
+
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
             &db,
@@ -379,24 +387,9 @@ pub mod tests {
         .ok()
         .unwrap();
 
-        let form = ApplicationDetails {
-            name: "name".to_string(),
-            surname: "surname".to_string(),
-            birthplace: "birthplace".to_string(),
-            birthdate: NaiveDate::from_ymd(2000, 1, 1),
-            address: "address".to_string(),
-            telephone: "telephone".to_string(),
-            citizenship: "citizenship".to_string(),
-            email: "email".to_string(),
-            sex: "sex".to_string(),
-            study: "KB".to_string(),
-            parent_name: "parent_name".to_string(),
-            parent_surname: "parent_surname".to_string(),
-            parent_telephone: "parent_telephone".to_string(),
-            parent_email: "parent_email".to_string(),
-        };
+        let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        ApplicationService::add_all_details(&db, candidate.application, form)
+        ApplicationService::add_all_details(&db, candidate.application, &form)
             .await
             .unwrap()
     }
@@ -423,19 +416,6 @@ pub mod tests {
             .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
 
-        assert_eq!(dec_details.name, "name");
-        assert_eq!(dec_details.surname, "surname");
-        assert_eq!(dec_details.birthplace, "birthplace");
-        assert_eq!(dec_details.birthdate, NaiveDate::from_ymd(2000, 1, 1));
-        assert_eq!(dec_details.address, "address");
-        assert_eq!(dec_details.telephone, "telephone");
-        assert_eq!(dec_details.citizenship, "citizenship");
-        assert_eq!(dec_details.email, "email");
-        assert_eq!(dec_details.sex, "sex");
-        assert_eq!(dec_details.study, "KB");
-        assert_eq!(dec_details.parent_name, "parent_name");
-        assert_eq!(dec_details.parent_surname, "parent_surname");
-        assert_eq!(dec_details.parent_telephone, "parent_telephone");
-        assert_eq!(dec_details.parent_email, "parent_email");
+        assert_all_application_details(&dec_details);
     }
 }

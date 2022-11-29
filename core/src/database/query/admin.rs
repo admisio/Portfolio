@@ -25,7 +25,7 @@ mod tests {
     use entity::admin;
     use sea_orm::{ActiveModelTrait, Set};
 
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
     use crate::Query;
 
     #[tokio::test]

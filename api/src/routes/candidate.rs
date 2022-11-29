@@ -16,6 +16,8 @@ use crate::guards::data::letter::Letter;
 use crate::guards::data::portfolio::Portfolio;
 use crate::{guards::request::auth::CandidateAuth, pool::Db, requests};
 
+use super::to_custom_error;
+
 #[post("/login", data = "<login_form>")]
 pub async fn login(
     conn: Connection<'_, Db>,
@@ -25,31 +27,19 @@ pub async fn login(
 ) -> Result<String, Custom<String>> {
     let ip_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
     let db = conn.into_inner();
-    let session_token_key = CandidateService::login(
+    let (session_token, private_key) = CandidateService::login(
         db,
         login_form.application_id,
         login_form.password.to_string(),
         ip_addr.ip().to_string(),
     )
-    .await;
-
-    let Ok(session_token_key) = session_token_key else {
-        let e = session_token_key.unwrap_err();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
-            e.to_string(),
-        ));
-    };
-
-    let session_token = session_token_key.0;
-    let private_key = session_token_key.1;
+        .await
+        .map_err(to_custom_error)?;
 
     cookies.add_private(Cookie::new("id", session_token.clone()));
     cookies.add_private(Cookie::new("key", private_key.clone()));
 
-    let response = format!("{} {}", session_token, private_key);
-
-    return Ok(response);
+    return Ok("".to_string());
 }
 
 #[post("/logout")]
@@ -61,14 +51,14 @@ pub async fn logout(conn: Connection<'_, Db>, _session: CandidateAuth, cookies: 
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
     
-    let res = CandidateService::logout(db, session_id)
+    CandidateService::logout(db, session_id)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or(Status::InternalServerError), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     cookies.remove_private(Cookie::named("id"));
     cookies.remove_private(Cookie::named("key"));
 
-    Ok(res)
+    Ok(())
 }
 
 #[get("/whoami")]
@@ -77,32 +67,27 @@ pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
     Ok(candidate.application.to_string())
 }
 
+// TODO: use put instead of post???
 #[post("/details", data = "<details>")]
-pub async fn add_details(
+pub async fn post_details(
     conn: Connection<'_, Db>,
     details: Json<ApplicationDetails>,
     session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
-    let candidate: entity::candidate::Model = session.into(); // TODO: don't return candidate from session
+    let candidate: entity::candidate::Model = session.into();
 
-    let candidate_parent =
-        ApplicationService::add_all_details(db, candidate.application, form).await;
+    let _candidate_parent = ApplicationService::add_all_details(db, candidate.application, &form)
+        .await
+        .map_err(to_custom_error)?;
 
-    if candidate_parent.is_err() {
-        // TODO cleanup
-        let e = candidate_parent.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
-    }
-
-    Ok("Details added".to_string())
+    Ok(
+        Json(form)
+    )
 }
 
-#[post("/get_details")]
+#[get("/details")]
 pub async fn get_details(
     conn: Connection<'_, Db>,
     session: CandidateAuth,
@@ -114,14 +99,10 @@ pub async fn get_details(
     // let handle = tokio::spawn(async move {
     let details = ApplicationService::decrypt_all_details(private_key, db, candidate.application)
         .await
-        .map_err(|e| {
-            Custom(
-                Status::from_code(e.code()).unwrap_or_default(),
-                e.to_string(),
-            )
-        });
+        .map(|x| Json(x))
+        .map_err(to_custom_error);
 
-    details.map(|d| Json(d))
+    details
 }
 #[post("/cover_letter", data = "<letter>")]
 pub async fn upload_cover_letter(
@@ -130,40 +111,25 @@ pub async fn upload_cover_letter(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate =
-        PortfolioService::add_cover_letter_to_cache(candidate.application, letter.into()).await;
-
-    if candidate.is_err() {
-        // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
-    }
+    PortfolioService::add_cover_letter_to_cache(candidate.application, letter.into())
+        .await
+        .map_err(to_custom_error)?;
 
     Ok("Letter added".to_string())
 }
 
 #[get("/submission_progress")]
 pub async fn submission_progress(
-    conn: Connection<'_, Db>,
     session: CandidateAuth
 ) -> Result<Json<SubmissionProgress>, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     let progress = PortfolioService::get_submission_progress(candidate.application)
         .await
-        .map_err(|e| {
-            Custom(
-                Status::from_code(e.code()).unwrap_or_default(),
-                e.to_string(),
-            )
-        })?;
+        .map(|x| Json(x))
+        .map_err(to_custom_error);
 
-    Ok(
-        Json(progress)
-    )
+    progress
 }
 // TODO: JSON
 #[get["/is_cover_letter"]]
@@ -182,17 +148,9 @@ pub async fn upload_portfolio_letter(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate =
-        PortfolioService::add_portfolio_letter_to_cache(candidate.application, letter.into()).await;
-
-    if candidate.is_err() {
-        // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
-    }
+    PortfolioService::add_portfolio_letter_to_cache(candidate.application, letter.into())
+        .await
+        .map_err(to_custom_error)?;
 
     Ok("Letter added".to_string())
 }
@@ -214,17 +172,9 @@ pub async fn upload_portfolio_zip(
 ) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let candidate =
-        PortfolioService::add_portfolio_zip_to_cache(candidate.application, portfolio.into()).await;
-
-    if candidate.is_err() {
-        // TODO cleanup
-        let e = candidate.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
-    }
+    PortfolioService::add_portfolio_zip_to_cache(candidate.application, portfolio.into())
+        .await
+        .map_err(to_custom_error)?;
 
     Ok("Portfolio added".to_string())
 }
@@ -256,19 +206,15 @@ pub async fn submit_portfolio(
         // TODO: Více kontrol?
         if e.code() == 500 {
             // Cleanup
-            PortfolioService::delete_portfolio(candidate.application)
-                .await
-                .unwrap();
+            PortfolioService::delete_portfolio(candidate.application).await.unwrap();
         }
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
+        return Err(to_custom_error(e));
     }
 
     Ok("Portfolio submitted".to_string())
 }
 
+#[deprecated = "Use /submission_progress instead"]
 #[get("/is_prepared")]
 pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
@@ -286,6 +232,7 @@ pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Cus
     Ok("Portfolio ok".to_string())
 }
 
+#[deprecated = "Use /submission_progress instead"]
 #[get("/is_submitted")]
 pub async fn is_portfolio_submitted(session: CandidateAuth) -> Result<String, Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
@@ -308,17 +255,11 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
     let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
 
-    let file = PortfolioService::get_portfolio(candidate.application, private_key).await;
+    let file = PortfolioService::get_portfolio(candidate.application, private_key)
+        .await
+        .map_err(to_custom_error);
 
-    if file.is_err() {
-        let e = file.err().unwrap();
-        return Err(Custom(
-            Status::from_code(e.code()).unwrap_or_default(),
-            e.to_string(),
-        ));
-    }
-
-    Ok(file.unwrap())
+    file
 }
 
 #[cfg(test)]
@@ -359,6 +300,7 @@ mod tests {
         \"citizenship\": \"Czech Republic\",
         \"email\": \"magor@magor.cz\",
         \"sex\": \"MALE\",
+        \"personal_id_number\": \"0000000000\",
         \"study\": \"KB\",
         \"parent_name\": \"maminka\",
         \"parent_surname\": \"chad\",
@@ -394,7 +336,7 @@ mod tests {
         let details_orig: ApplicationDetails = serde_json::from_str(CANDIDATE_DETAILS).unwrap();
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .body(CANDIDATE_DETAILS.to_string())
@@ -403,7 +345,7 @@ mod tests {
         assert_eq!(response.status(), Status::Ok);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(cookies.0)
             .cookie(cookies.1)
             .dispatch();
@@ -424,7 +366,7 @@ mod tests {
         let key = Cookie::new("key", private_key);
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(id.clone())
             .cookie(key.clone())
             .body(CANDIDATE_DETAILS.to_string())
@@ -432,7 +374,7 @@ mod tests {
         assert_eq!(response.status(), Status::Unauthorized);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(id.clone())
             .cookie(key.clone())
             .dispatch();
@@ -452,7 +394,7 @@ mod tests {
         let cookies = admin_login(&client);
 
         let response = client
-            .post("/candidate/add/details")
+            .post("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .body(CANDIDATE_DETAILS.to_string())
@@ -460,7 +402,7 @@ mod tests {
         assert_eq!(response.status(), Status::Unauthorized);
 
         let response = client
-            .post("/candidate/get_details")
+            .get("/candidate/details")
             .cookie(cookies.0.clone())
             .cookie(cookies.1.clone())
             .dispatch();

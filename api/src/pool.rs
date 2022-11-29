@@ -23,7 +23,7 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
 
     #[cfg(test)]
     async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
-        let conn = portfolio_core::util::get_memory_sqlite_connection().await;
+        let conn = portfolio_core::utils::db::get_memory_sqlite_connection().await;
         crate::test::tests::run_test_migrations(&conn).await;
         return Ok(Self { conn });
     }

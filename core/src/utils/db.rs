@@ -2,6 +2,16 @@ use entity::{admin, candidate, parent, session};
 use sea_orm::{Schema, Database, DbConn};
 use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
 
+use crate::Query;
+use crate::error::ServiceError;
+
+pub async fn get_recipients(db: &DbConn, candidate_pubkey: &str) -> Result<Vec<String>, ServiceError> {
+    let mut admin_public_keys = Query::get_all_admin_public_keys(db).await?;
+    let mut recipients = vec![candidate_pubkey.to_string()];
+    recipients.append(&mut admin_public_keys);
+    Ok(recipients)
+}
+
 
 pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
     let base_url = "sqlite::memory:";

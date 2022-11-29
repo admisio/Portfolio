@@ -172,7 +172,7 @@ mod tests {
     use crate::{
         crypto,
         services::{application_service::ApplicationService, session_service::SessionService},
-        util::get_memory_sqlite_connection,
+        utils::db::get_memory_sqlite_connection,
     };
 
     #[tokio::test]

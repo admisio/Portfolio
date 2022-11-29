@@ -31,7 +31,7 @@ impl<'r> FromData<'r> for Letter {
 
         let data_bytes = data_bytes.into_inner();
 
-        let is_pdf = portfolio_core::filetype::filetype_is_pdf(&data_bytes);
+        let is_pdf = portfolio_core::utils::filetype::filetype_is_pdf(&data_bytes);
 
         if !is_pdf {
             // TODO: Not PDF

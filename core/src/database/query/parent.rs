@@ -22,7 +22,7 @@ mod tests {
     use sea_orm::{ActiveModelTrait, Set};
 
     use crate::Query;
-    use crate::util::get_memory_sqlite_connection;
+    use crate::utils::db::get_memory_sqlite_connection;
 
     #[tokio::test]
     async fn test_find_parent_by_id() {
@@ -35,7 +35,7 @@ mod tests {
             code: Set("test".to_string()),
             public_key: Set("test".to_string()),
             private_key: Set("test".to_string()),
-            personal_identification_number_hash: Set("test".to_string()),
+            personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()

@@ -31,7 +31,7 @@ impl<'r> FromData<'r> for Portfolio {
 
         let data_bytes = data_bytes.into_inner();
 
-        let is_zip = portfolio_core::filetype::filetype_is_zip(&data_bytes);
+        let is_zip = portfolio_core::utils::filetype::filetype_is_zip(&data_bytes);
 
         if !is_zip {
             // TODO: Not ZIP

@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::CandidateResponse, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::{BaseCandidateResponse, CreateCandidateResponse}, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -11,7 +11,9 @@ use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
-use crate::{guards::request::auth::AdminAuth, pool::Db, requests};
+use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
+
+use super::to_custom_error;
 
 #[post("/login", data = "<login_form>")]
 pub async fn login(
@@ -82,14 +84,14 @@ pub async fn hello(_session: AdminAuth) -> Result<String, Custom<String>> {
     Ok("Hello admin".to_string())
 }
 
-#[post("/create", data = "<post_form>")]
+#[post("/create", data = "<request>")]
 pub async fn create_candidate(
     conn: Connection<'_, Db>,
     _session: AdminAuth,
-    post_form: Json<RegisterRequest>,
-) -> Result<String, Custom<String>> {
+    request: Json<RegisterRequest>,
+) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
-    let form = post_form.into_inner();
+    let form = request.into_inner();
 
     let plain_text_password = random_8_char_string();
 
@@ -97,12 +99,20 @@ pub async fn create_candidate(
         db,
         form.application_id,
         &plain_text_password,
-        form.personal_id_number,
+        form.personal_id_number.clone(),
     )
         .await
-        .map_err(|e| Custom(Status::InternalServerError, e.to_string()))?;
+        .map_err(to_custom_error)?;
 
-    Ok(plain_text_password)
+    Ok(
+        Json(
+            CreateCandidateResponse {
+                application_id: form.application_id,
+                personal_id_number: form.personal_id_number,
+                password: plain_text_password,
+            }
+        )
+    )
 }
 
 #[get("/candidates?<field>&<page>")]
@@ -111,7 +121,7 @@ pub async fn list_candidates(
     session: AdminAuth,
     field: Option<String>,
     page: Option<u64>,
-) -> Result<Json<Vec<CandidateResponse>>, Custom<String>> {
+) -> Result<Json<Vec<BaseCandidateResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     if let Some(field) = field.clone() {
@@ -123,7 +133,7 @@ pub async fn list_candidates(
 
     let candidates = CandidateService::list_candidates(private_key, db, field, page)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(Json(candidates))
 }
@@ -143,7 +153,7 @@ pub async fn get_candidate(
         id
     )
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(Json(details))
 }
@@ -153,15 +163,17 @@ pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     id: i32,
-) -> Result<String, Custom<String>> {
+) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let new_password = CandidateService::reset_password(private_key, db, id)
+    let response = CandidateService::reset_password(private_key, db, id)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
-    Ok(new_password)
+    Ok(
+        Json(response)
+    )
 }
 
 #[get("/candidate/<id>/portfolio")]
@@ -173,13 +185,14 @@ pub async fn get_candidate_portfolio(
 
     let portfolio = PortfolioService::get_portfolio(id, private_key)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap(), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     Ok(portfolio)
 }
 
 #[cfg(test)]
 pub mod tests {
+    use portfolio_core::responses::CreateCandidateResponse;
     use rocket::{local::blocking::Client, http::{Cookie, Status}};
 
     use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
@@ -208,7 +221,7 @@ pub mod tests {
         cookies: (Cookie, Cookie),
         id: i32,
         pid: String,
-    ) -> String {
+    ) -> CreateCandidateResponse {
         let response = client
             .post("/admin/create")
             .body(format!(
@@ -224,15 +237,15 @@ pub mod tests {
 
         assert_eq!(response.status(), Status::Ok);
 
-        response.into_string().unwrap()
+        response.into_json::<CreateCandidateResponse>().unwrap()
     }
 
     #[test]
     fn test_create_candidate() {
         let client = test_client().lock().unwrap();
         let cookies = admin_login(&client);
-        let password = create_candidate(&client, cookies, 1031511, "0".to_string());
+        let response = create_candidate(&client, cookies, 1031511, "0".to_string());
     
-        assert_eq!(password.len(), 8);
+        assert_eq!(response.password.len(), 8);
     }
 }
