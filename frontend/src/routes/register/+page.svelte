@@ -242,7 +242,7 @@
 						placeholder="Občanství"
 					/>
 				</span>
-				<span class="w-full mt-8 ml-2 md:m-0">
+				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
 						error={$errors.applicationId}
 						on:change={handleChange}
