@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let type: 'text' | 'number' | 'tel' | 'e-mail' | 'password' = 'text';
+	export let type: 'text' | 'number' | 'tel' | 'email' | 'password' = 'text';
 	const typeAction = (node: HTMLInputElement) => {
 		node.type = type;
 	};
