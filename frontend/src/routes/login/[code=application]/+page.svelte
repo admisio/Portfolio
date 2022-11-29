@@ -86,7 +86,7 @@
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
-		@apply w-[90vw] h-[85vh] md:w-4/5 md:h-4/5;
+		@apply w-[90vw] h-[90vh] md:w-4/5 md:h-4/5;
 		@apply rounded-3xl;
 		@apply bg-white;
 	}
