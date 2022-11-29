@@ -139,7 +139,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full">
+			<div class="flex flex-row md:flex-col w-full">
 				<span class="w-full mt-8">
 					<TextField
 						type="text"
@@ -149,7 +149,7 @@
 						bind:value={$form.birthSurname}
 					/>
 				</span>
-				<span class="w-full mt-8">
+				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
 						error={$errors.birthPlace}
 						on:change={handleChange}
