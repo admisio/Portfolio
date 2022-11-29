@@ -23,7 +23,7 @@
 			<img class="object-cover" src={lev} alt="" />
 		</div>
 		<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Přihlášení</h1>
-		<p class="mt-8 font-light text-sspsGray text-center">
+		<p class="my-8 font-light text-sspsGray text-center">
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 		</p>
 		<div class="w-3/5">
