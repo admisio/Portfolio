@@ -8,4 +8,7 @@
 
         @apply select-none;
 	}
+	span:hover {
+		@apply cursor-pointer;
+	}
 </style>
