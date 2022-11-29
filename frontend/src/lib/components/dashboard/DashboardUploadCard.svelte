@@ -47,6 +47,9 @@
 </div>
 
 <style>
+	:global([type='file']) {
+		@apply hidden;
+	}
 	.card {
 		@apply h-full;
 		@apply flex flex-col justify-between;
