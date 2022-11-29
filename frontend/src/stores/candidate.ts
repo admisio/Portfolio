@@ -2,22 +2,21 @@ import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../api/can
 import { writable } from "svelte/store";
 
 export interface CandidateData {
-    // id?: string;
-    name: string;
-    surname: string;
-    birthplace: string;
-    birthdate: string;
-    address: string;
-    telephone: string;
-    citizenship: string;
-    email: string;
-    sex: string;
-    study: string;
-    personalIdNumber: string;
-    parentName: string;
-    parentSurname: string;
-    parentTelephone: string;
-    parentEmail: string;
+    name?: string;
+    surname?: string;
+    birthplace?: string;
+    birthdate?: string;
+    address?: string;
+    telephone?: string;
+    citizenship?: string;
+    email?: string;
+    sex?: string;
+    study?: string;
+    personalIdNumber?: string;
+    parentName?: string;
+    parentSurname?: string;
+    parentTelephone?: string;
+    parentEmail?: string;
 }
 
 export interface CandidateLogin {
@@ -42,23 +41,7 @@ export async function logout() {
     // TOOD: handle errors
     try {
         await apiLogout();
-        candidateData.set({
-            name: "",
-            surname: "",
-            birthplace: "",
-            birthdate: "",
-            address: "",
-            telephone: "",
-            citizenship: "",
-            email: "",
-            sex: "",
-            study: "",
-            personalIdNumber: "",
-            parentName: "",
-            parentSurname: "",
-            parentTelephone: "",
-            parentEmail: ""
-        });
+        candidateData.set({});
     } catch (e) {
         console.error(e);
     }
