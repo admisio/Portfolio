@@ -95,7 +95,7 @@
 <SplitLayout>
 	<div class="form">
 		<div
-			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
+			class="w-24 h-24 md:w-auto md:h-auto py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
 		>
 			<img class="object-cover" src={lev} alt="" />
 		</div>
