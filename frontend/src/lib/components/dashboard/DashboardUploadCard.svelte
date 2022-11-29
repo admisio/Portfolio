@@ -32,7 +32,11 @@
 		</div>
 	</div>
 	<div class="flex-1 mt-6">
-		<FileDrop on:filedrop={null} on:filedragenter={dashAnimationStart} on:filedragleave={dashAnimationStop}>
+		<FileDrop
+			on:filedrop={null}
+			on:filedragenter={dashAnimationStart}
+			on:filedragleave={dashAnimationStop}
+		>
 			<div
 				class="drag group"
 				on:mouseenter={dashAnimationStart}
@@ -70,6 +74,8 @@
 		@apply min-h-full;
 		@apply flex flex-col items-center justify-center;
 		border-radius: 9px;
+
+		@apply hover:cursor-pointer;
 
 		/* TODO: Fix this hack */
 		@apply p-10 sm:p-20 md:p-0;
