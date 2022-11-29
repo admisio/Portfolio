@@ -6,6 +6,8 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import IdField from '$lib/components/textfield/IdField.svelte';
+	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 
 	import { createForm } from 'svelte-forms-lib';
@@ -14,7 +16,7 @@
 	let applicationValue = '';
 
 	const pageCount = 3;
-	let pageIndex = 0;
+	let pageIndex = 2;
 	let pagesFilled = 0;
 
 	const formInitialValues = {
@@ -39,7 +41,10 @@
 		validationSchema: yup.object().shape({
 			name: yup.string().required(),
 			email: yup.string().email().required(),
-			telephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			telephone: yup
+				.string()
+				.required()
+				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			birthSurname: yup.string().required(),
 			birthPlace: yup.string().required(),
 			birthDate: yup.string().required(),
@@ -76,12 +81,7 @@
 				}
 				break;
 			case 3:
-				if (
-					$errors.citizenship ||
-					$errors.personalId ||
-					$errors.study ||
-					$errors.applicationId
-				) {
+				if ($errors.citizenship || $errors.personalId || $errors.study || $errors.applicationId) {
 					return true;
 				}
 				break;
@@ -89,7 +89,7 @@
 				return false;
 		}
 		return false;
-	}
+	};
 </script>
 
 <SplitLayout>
@@ -106,7 +106,7 @@
 					Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget
 					elit.
 				</p>
-				<div class="flex md:flex-col items-center justify-center w-full md:w-3/5">
+				<div class="flex md:flex-col items-center justify-center w-full">
 					<span class="w-full mt-8">
 						<TextField
 							error={$errors.name}
@@ -116,7 +116,7 @@
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
-					<span class="w-full mt-8">
+					<span class="w-full mt-8 ml-2 md:ml-0">
 						<TextField
 							error={$errors.email}
 							on:change={handleChange}
@@ -131,20 +131,13 @@
 						</TextField>
 					</span>
 				</div>
-				<div class="mt-8 w-full md:w-3/5">
-					<TextField
+				<div class="mt-8 w-full">
+					<TelephoneField
 						error={$errors.telephone}
 						on:change={handleChange}
 						bind:value={$form.telephone}
-						type="tel"
-						format="tel"
 						placeholder="Telefon"
-						icon
-					>
-						<div slot="icon" class="flex items-center justify-center">
-							<Telephone />
-						</div>
-					</TextField>
+					/>
 				</div>
 			</form>
 		{/if}
@@ -153,7 +146,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full md:w-3/5">
+			<div class="flex flex-col w-full">
 				<span class="w-full mt-8">
 					<TextField
 						type="text"
@@ -179,22 +172,23 @@
 				</span>
 			</div>
 
-			<div class="mt-8 flex items-center justify-center w-full md:w-3/5">
+			<div class="mt-8 flex items-center w-full">
 				<TextField
 					error={$errors.birthDate}
 					on:change={handleChange}
 					bind:value={$form.birthDate}
 					type="text"
-					format="birthdate"
 					placeholder="Datum narození"
 				/>
-				<TextField
-					error={$errors.sex}
-					on:change={handleChange}
-					bind:value={$form.sex}
-					type="text"
-					placeholder="Pohlaví"
-				/>
+				<div class="ml-2">
+					<TextField
+						error={$errors.sex}
+						on:change={handleChange}
+						bind:value={$form.sex}
+						type="text"
+						placeholder="Pohlaví"
+					/>
+				</div>
 			</div>
 		{/if}
 		{#if pageIndex === 2}
@@ -202,7 +196,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full md:w-3/5">
+			<div class="flex flex-col w-full">
 				<span class="w-full mt-8">
 					<TextField
 						error={$errors.address}
@@ -212,24 +206,25 @@
 						placeholder="Adresa trvalého bydliště"
 					/>
 				</span>
-				<span class="w-full mt-8">
-					<TextField
-						error={$errors.parentEmail}
-						on:change={handleChange}
-						bind:value={$form.parentEmail}
-						type="e-mail"
-						placeholder="E-mail zákonného zástupce"
-					/>
-				</span>
-				<span class="w-full mt-8">
-					<TextField
-						error={$errors.parentTelephone}
-						on:change={handleChange}
-						bind:value={$form.parentTelephone}
-						type="tel"
-						placeholder="Telefon zákonného zástupce"
-					/>
-				</span>
+				<div class="mt-8 flex flex-row items-center md:flex-col">
+					<span class="w-full">
+						<TextField
+							error={$errors.parentEmail}
+							on:change={handleChange}
+							bind:value={$form.parentEmail}
+							type="e-mail"
+							placeholder="E-mail zákonného zástupce"
+						/>
+					</span>
+					<span class="w-full ml-2 md:ml-0 md:mt-8">
+						<TelephoneField
+							error={$errors.parentTelephone}
+							on:change={handleChange}
+							bind:value={$form.parentTelephone}
+							placeholder="Telefon zákonného zástupce"
+						/>
+					</span>
+				</div>
 			</div>
 		{/if}
 		{#if pageIndex === 3}
@@ -237,7 +232,7 @@
 			<p class="block mt-8 font-light text-sspsGray text-center">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full md:w-3/5">
+			<div class="flex flex-col w-full">
 				<span class="w-full mt-8">
 					<TextField
 						error={$errors.citizenship}
@@ -248,13 +243,11 @@
 					/>
 				</span>
 			</div>
-			<div class="mt-8 flex items-center justify-center w-full md:w-3/5">
-				<TextField
+			<div class="mt-8 flex items-center justify-center w-full">
+				<IdField
 					error={$errors.personalId}
 					on:change={handleChange}
 					bind:value={$form.personalId}
-					type="text"
-					format="personalIdNumber"
 					placeholder="Rodné číslo"
 				/>
 				<TextField
@@ -265,7 +258,7 @@
 					placeholder="Obor"
 				/>
 			</div>
-			<div class="mt-8 flex flex-col w-full md:w-3/5">
+			<div class="mt-8 flex flex-col w-full">
 				<TextField
 					error={$errors.applicationId}
 					on:change={handleChange}
@@ -287,25 +280,30 @@
 				}
 				errors.set(formInitialValues);
 			}}
-			class="w-full mt-8 md:w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
+			class="w-full mt-8 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
 			type="submit"
 			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
 		/>
 
 		<div class="mt-8 flex flex-row justify-center">
 			{#each Array(pageCount + 1) as _, i}
-				<button class:dotActive={i === pageIndex} on:click={async (e) => {
-					if (i <= pagesFilled) { // never skip unfilled or invalid pages
-						pageIndex = i;
-					} else if (i == pagesFilled + 1) { // if next page is clicked, validate current page
-						await handleSubmit(e);
-						if (isPageInvalid()) return;
-						pagesFilled++;
-						pageIndex++;
-						errors.set(formInitialValues);
-					}
-				}
-			 } class="dot" />
+				<button
+					class:dotActive={i === pageIndex}
+					on:click={async (e) => {
+						if (i <= pagesFilled) {
+							// never skip unfilled or invalid pages
+							pageIndex = i;
+						} else if (i == pagesFilled + 1) {
+							// if next page is clicked, validate current page
+							await handleSubmit(e);
+							if (isPageInvalid()) return;
+							pagesFilled++;
+							pageIndex++;
+							errors.set(formInitialValues);
+						}
+					}}
+					class="dot"
+				/>
 			{/each}
 		</div>
 	</div>
