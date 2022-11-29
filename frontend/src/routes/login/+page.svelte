@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 
 	import lev from '$lib/assets/logo/lev.png';
+	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 
@@ -17,11 +18,7 @@
 
 <SplitLayout>
 	<div class="form">
-		<div
-			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
-		>
-			<img class="object-cover" src={lev} alt="" />
-		</div>
+		<SchoolBadge />
 		<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Přihlášení</h1>
 		<p class="my-8 font-light text-sspsGray text-center">
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.

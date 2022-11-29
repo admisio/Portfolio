@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import lev from '$lib/assets/logo/lev.png';
 	import Email from '$lib/components/icons/Email.svelte';
 	import Home from '$lib/components/icons/Home.svelte';
+	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import IdField from '$lib/components/textfield/IdField.svelte';
@@ -16,7 +16,7 @@
 	let applicationValue = '';
 
 	const pageCount = 3;
-	let pageIndex = 2;
+	let pageIndex = 0;
 	let pagesFilled = 0;
 
 	const formInitialValues = {
@@ -94,10 +94,8 @@
 
 <SplitLayout>
 	<div class="form">
-		<div
-			class="w-24 h-24 md:w-auto md:h-auto py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
-		>
-			<img class="object-cover" src={lev} alt="" />
+		<div class="w-24 h-24 md:w-auto md:h-auto">
+			<SchoolBadge />
 		</div>
 		{#if pageIndex === 0}
 			<form on:submit={handleSubmit}>
