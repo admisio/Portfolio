@@ -61,14 +61,18 @@
 		}),
 
 		onSubmit: async (values) => {
-			console.log("submit")
-			// @ts-ignore // love javascript
-			delete values.undefined;
-
-			values.birthdate = '2000-01-01' // TODO: reformat user typed date
-
-			await fillDetails(values);
-			goto("/dashboard");
+			if (pageIndex === pageCount) {
+				try {
+					console.log("submit")
+					// @ts-ignore // love javascript
+					delete values.undefined;
+					values.birthdate = '2000-01-01' // TODO: reformat user typed date
+					await fillDetails(values);
+					goto("/dashboard");
+				} catch (e) {
+					console.error("error while submitting data: " + e);
+				}
+			}
 		},
 	});
 
@@ -157,13 +161,11 @@
 			</p>
 			<div class="flex flex-row md:flex-col w-full">
 				<span class="w-full mt-8">
-					<!-- <TextField
+					<TextField
 						type="text"
 						placeholder="Rodné příjmení"
-						error={$errors.birthSurname}
 						on:change={handleChange}
-						bind:value={$form.birthSurname}
-					/> -->
+					/>
 				</span>
 				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
@@ -189,7 +191,7 @@
 					type="text"
 					placeholder="Datum narození"
 				/>
-				<!-- <div class="ml-2">
+				<div class="ml-2">
 					<TextField
 						error={$errors.sex}
 						on:change={handleChange}
@@ -197,7 +199,7 @@
 						type="text"
 						placeholder="Pohlaví"
 					/>
-				</div> -->
+				</div>
 			</div>
 		{/if}
 		{#if pageIndex === 2}
@@ -250,15 +252,13 @@
 						placeholder="Občanství"
 					/>
 				</span>
-				<!-- <span class="w-full mt-8 ml-2 md:ml-0">
+				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
-						error={$errors.applicationId}
 						on:change={handleChange}
-						bind:value={$form.applicationId}
 						type="text"
 						placeholder="Evidenční číslo přihlášky"
 					/>
-				</span> -->
+				</span>
 			</div>
 			<div class="mt-8 flex items-center justify-center w-full">
 				<IdField
@@ -280,9 +280,10 @@
 		{/if}
 		<input
 			on:click={async (e) => {
+				await handleSubmit(e);
+				console.log("clicked " + isPageInvalid());
 				if (isPageInvalid()) return;
 				if (pageIndex === pageCount) {
-					await handleSubmit(e);
 				} else {
 					pagesFilled++;
 					pageIndex++;
