@@ -30,3 +30,12 @@ export async function apiFillDetails(data: CandidateData): Promise<CandidateData
         throw errorHandler(e, "Failed to fill details");
     }
 }
+
+export async function apiFetchDetails(): Promise<CandidateData> {
+    try {
+        let res = await axios.get(API_URL + '/candidate/details', {withCredentials: true});
+        return res.data;
+    } catch (e: any) {
+        throw errorHandler(e, "Failed to fill details");
+    }
+}

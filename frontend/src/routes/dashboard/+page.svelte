@@ -6,13 +6,35 @@
 
 	import DashboardUploadCard from '$lib/components/dashboard/DashboardUploadCard.svelte';
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
+	import { candidateData, fetchDetails } from '../../stores/candidate';
+
+	
+	let name = "";
+	let email = "";
+
+	$: if ($candidateData === undefined) {
+		fetch();
+	} else {
+		name = $candidateData.name + " " + $candidateData.surname;
+		email = $candidateData.email;
+	}
+
+	const fetch = async () => {
+		try {
+			await fetchDetails();
+			name = $candidateData.name + " " + $candidateData.surname;
+			email = $candidateData.email;
+		} catch {
+			console.error("error");
+		}
+	}
 </script>
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title="Damián">
-				<span class="mt-3 text-sspsBlue truncate">damina.vysin@example.com</span>
+			<DashboardInfoCard title={name}>
+				<span class="mt-3 text-sspsBlue truncate">{email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
@@ -28,8 +50,8 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="my-10 name w-[90%] mx-auto">
-			<DashboardInfoCard title="Damián">
-				<span class="mt-3 text-sspsBlue truncate">damina.vysin@example.com</span>
+			<DashboardInfoCard title={name}>
+				<span class="mt-3 text-sspsBlue truncate">{name}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
