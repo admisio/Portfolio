@@ -1,4 +1,4 @@
-import { apiFillDetails, apiLogin, apiLogout } from "../api/candidate";
+import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../api/candidate";
 import { writable } from "svelte/store";
 
 export interface CandidateData {
@@ -67,6 +67,16 @@ export async function logout() {
 export async function fillDetails(data: CandidateData) {
     try {
         let res = await apiFillDetails(data);
+        candidateData.set(res);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+}
+
+export async function fetchDetails() {
+    try {
+        let res = await apiFetchDetails();
         candidateData.set(res);
     } catch (e) {
         console.error(e);

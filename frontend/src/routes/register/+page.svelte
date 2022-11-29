@@ -10,9 +10,11 @@
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
+	import { fillDetails, candidateData, type CandidateData } from '../../stores/candidate';
 
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
+	import { writable } from 'svelte/store';
 
 	let applicationValue = '';
 
@@ -20,48 +22,57 @@
 	let pageIndex = 0;
 	let pagesFilled = 0;
 
-	const formInitialValues = {
+	const formInitialValues: CandidateData = {
 		name: '',
+		surname: '',
 		email: '',
 		telephone: '',
-		birthSurname: '',
-		birthPlace: '',
-		birthDate: '',
+		birthplace: '',
+		birthdate: '',
 		sex: '',
 		address: '',
-		parentEmail: '',
-		parentTelephone: '',
 		citizenship: '',
-		personalId: '',
+		personalIdNumber: '',
 		study: '',
-		applicationId: ''
+		parentName: 'TODO name',
+		parentSurname: 'TODO',
+		parentTelephone: '',
+		parentEmail: ''
 	};
 
-	const { form, errors, state, handleChange, handleSubmit } = createForm({
+	const { form, errors, handleSubmit, handleChange } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: yup.object().shape({
 			name: yup.string().required(),
+			surname: yup.string(),
 			email: yup.string().email().required(),
-			telephone: yup
-				.string()
-				.required()
-				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
-			birthSurname: yup.string().required(),
-			birthPlace: yup.string().required(),
-			birthDate: yup.string().required(),
-			sex: yup.string().required(),
+			telephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			birthplace: yup.string().required(),
+			birthdate: yup.string().required(),
+			sex: yup.string(),
 			address: yup.string().required(),
-			parentEmail: yup.string().email().required(),
-			parentTelephone: yup.string().required(),
 			citizenship: yup.string().required(),
-			personalId: yup.string().required(),
+			personalIdNumber: yup.string().required(),
 			study: yup.string().required(),
-			applicationId: yup.string().required()
+			parentName: yup.string(),
+			parentSurname: yup.string(),
+			parentTelephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			parentEmail: yup.string().email().required()
 		}),
-		onSubmit: (values) => {
-			alert(JSON.stringify(values));
-		}
+
+		onSubmit: async (values) => {
+			console.log("submit")
+			// @ts-ignore // love javascript
+			delete values.undefined;
+
+			values.birthdate = '2000-01-01' // TODO: reformat user typed date
+
+			await fillDetails(values);
+			goto("/dashboard");
+		},
 	});
+
+	$: console.log($errors);
 
 	const isPageInvalid = (): boolean => {
 		switch (pageIndex) {
@@ -72,7 +83,7 @@
 				break;
 
 			case 1:
-				if ($errors.birthSurname || $errors.birthPlace || $errors.birthDate || $errors.sex) {
+				if (/* $errors.birthdurname || */ $errors.birthplace || $errors.birthdate /* || $errors.sex */) {
 					return true;
 				}
 				break;
@@ -82,7 +93,12 @@
 				}
 				break;
 			case 3:
-				if ($errors.citizenship || $errors.personalId || $errors.study || $errors.applicationId) {
+				if (
+					$errors.citizenship ||
+					$errors.personalIdNumber ||
+					$errors.study //||
+					// $errors.applicationId
+				) {
 					return true;
 				}
 				break;
@@ -141,19 +157,19 @@
 			</p>
 			<div class="flex flex-row md:flex-col w-full">
 				<span class="w-full mt-8">
-					<TextField
+					<!-- <TextField
 						type="text"
 						placeholder="Rodné příjmení"
 						error={$errors.birthSurname}
 						on:change={handleChange}
 						bind:value={$form.birthSurname}
-					/>
+					/> -->
 				</span>
 				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
-						error={$errors.birthPlace}
+						error={$errors.birthplace}
 						on:change={handleChange}
-						bind:value={$form.birthPlace}
+						bind:value={$form.birthplace}
 						type="text"
 						placeholder="Místo narození"
 						icon
@@ -167,13 +183,13 @@
 
 			<div class="mt-8 flex items-center w-full">
 				<TextField
-					error={$errors.birthDate}
+					error={$errors.birthdate}
 					on:change={handleChange}
-					bind:value={$form.birthDate}
+					bind:value={$form.birthdate}
 					type="text"
 					placeholder="Datum narození"
 				/>
-				<div class="ml-2">
+				<!-- <div class="ml-2">
 					<TextField
 						error={$errors.sex}
 						on:change={handleChange}
@@ -181,7 +197,7 @@
 						type="text"
 						placeholder="Pohlaví"
 					/>
-				</div>
+				</div> -->
 			</div>
 		{/if}
 		{#if pageIndex === 2}
@@ -234,7 +250,7 @@
 						placeholder="Občanství"
 					/>
 				</span>
-				<span class="w-full mt-8 ml-2 md:ml-0">
+				<!-- <span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
 						error={$errors.applicationId}
 						on:change={handleChange}
@@ -242,13 +258,13 @@
 						type="text"
 						placeholder="Evidenční číslo přihlášky"
 					/>
-				</span>
+				</span> -->
 			</div>
 			<div class="mt-8 flex items-center justify-center w-full">
 				<IdField
-					error={$errors.personalId}
+					error={$errors.personalIdNumber}
 					on:change={handleChange}
-					bind:value={$form.personalId}
+					bind:value={$form.personalIdNumber}
 					placeholder="Rodné číslo"
 				/>
 				<span class="ml-2">
@@ -264,10 +280,9 @@
 		{/if}
 		<input
 			on:click={async (e) => {
-				await handleSubmit(e);
 				if (isPageInvalid()) return;
 				if (pageIndex === pageCount) {
-					alert('should submit');
+					await handleSubmit(e);
 				} else {
 					pagesFilled++;
 					pageIndex++;
