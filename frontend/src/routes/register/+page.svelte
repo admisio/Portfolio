@@ -22,7 +22,7 @@
 	let pageIndex = 0;
 	let pagesFilled = 0;
 
-	const formInitialValues: CandidateData = {
+	const formInitialValues = {
 		name: '',
 		surname: '',
 		email: '',
