@@ -5,22 +5,23 @@
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: string;
 
-    let dashAnimationProgress = 0;
-    let dashAnimationInterval: NodeJS.Timer;
+	import FileDrop from 'filedrop-svelte';
 
-    const dashAnimationStart = () => {
-        dashAnimationInterval = setInterval(() => {
-            dashAnimationProgress += 1;
-            if (dashAnimationProgress == 20) {
-                dashAnimationProgress = 0;
-            }
-        }, 30);
-    };
+	let dashAnimationProgress = 0;
+	let dashAnimationInterval: NodeJS.Timer;
 
-    const dashAnimationStop = () => {
-        clearInterval(dashAnimationInterval);
-    };
+	const dashAnimationStart = () => {
+		dashAnimationInterval = setInterval(() => {
+			dashAnimationProgress += 1;
+			if (dashAnimationProgress == 20) {
+				dashAnimationProgress = 0;
+			}
+		}, 30);
+	};
 
+	const dashAnimationStop = () => {
+		clearInterval(dashAnimationInterval);
+	};
 </script>
 
 <div class="card uploadCard">
@@ -30,14 +31,18 @@
 			<FileType {filetype} {filesize} />
 		</div>
 	</div>
-	<div
-		class="drag group"
-        on:mouseenter={dashAnimationStart}
-        on:mouseleave={dashAnimationStop}
-		style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
-	>
-		<span class="text-[#406280]">Sem přetáhněte,</span>
-		<span class="text-sspsGray">nebo nahrajte svůj motivační dopis</span>
+	<div class="flex-1 mt-6">
+		<FileDrop on:filedrop={null} on:filedragenter={dashAnimationStart} on:filedragleave={dashAnimationStop}>
+			<div
+				class="drag group"
+				on:mouseenter={dashAnimationStart}
+				on:mouseleave={dashAnimationStop}
+				style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
+			>
+				<span class="text-[#406280]">Sem přetáhněte,</span>
+				<span class="text-sspsGray">nebo nahrajte svůj motivační dopis</span>
+			</div>
+		</FileDrop>
 	</div>
 </div>
 
@@ -48,24 +53,25 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply px-7 py-10;
+		@apply px-7 py-7;
 	}
 	.card h3 {
 		@apply text-sspsBlue text-2xl xl:text-4xl font-semibold;
 	}
 	.card span {
 		@apply opacity-60 text-sm;
-        @apply transition-all duration-300
+		@apply transition-all duration-300;
 	}
 	.card .drag {
-        @apply transition duration-200;
-		@apply flex-grow;
+		@apply transition duration-200;
+		@apply min-h-full;
 		@apply flex flex-col items-center justify-center;
-		@apply mt-10;
-
 		border-radius: 9px;
+
+		/* TODO: Fix this hack */
+		@apply p-10 sm:p-20 md:p-0;
 	}
-    .card .drag:hover span{
-        @apply opacity-100;
-    }
+	.card .drag:hover span {
+		@apply opacity-100;
+	}
 </style>
