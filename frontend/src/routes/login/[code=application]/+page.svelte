@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { login } from '../../../stores/candidate';
+	import { goto } from '$app/navigation';
 	
 	
 	let applicationId = Number($page.params.code);
@@ -38,9 +39,18 @@
 	};
 	
 	$: if (codeValueArray.length === 8) {
-		login({application_id: applicationId, password: codeValueMobile});
-		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
+		submit();
 	};
+
+	async function submit() {
+		try {
+			await login({application_id: applicationId, password: codeValueMobile});
+			goto("/register");
+	 	} catch (e) {
+			console.error(e);
+		}
+		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
+	}
 
 	onMount(() => {
 		codeElementArray[0].focus();
