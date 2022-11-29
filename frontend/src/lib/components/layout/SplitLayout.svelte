@@ -47,7 +47,7 @@
 	.view {
 		@apply z-10 overflow-scroll;
 		@apply rounded-3xl md:rounded-none;
-		@apply absolute w-[90vw] h-[85vh] top-0 md:top-auto right-0 bottom-0 md:bottom-auto left-0 md:left-auto m-auto md:m-0;
+		@apply absolute w-[90vw] h-[90vh] top-0 md:top-auto right-0 bottom-0 md:bottom-auto left-0 md:left-auto m-auto md:m-0;
 		@apply md:w-[50vw] md:h-screen;
 		@apply md:my-auto;
 		@apply bg-white;
