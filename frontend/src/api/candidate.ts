@@ -6,7 +6,7 @@ import { API_URL, errorHandler } from ".";
 export async function apiLogin(data: CandidateLogin): Promise<number> {
     try {
         let res = await axios.post(API_URL + '/candidate/login', data, {withCredentials: true});
-        return data.application_id;
+        return data.applicationId;
     } catch (e: any) {
         throw errorHandler(e, "Login failed");
     }
