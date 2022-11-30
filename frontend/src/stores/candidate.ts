@@ -1,5 +1,6 @@
 import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../api/candidate";
 import { writable } from "svelte/store";
+import type { ApiError } from "src/api";
 
 export interface CandidateData {
     name?: string;
