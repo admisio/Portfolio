@@ -7,6 +7,5 @@ pub mod database;
 pub mod crypto;
 pub mod services;
 pub mod error;
-pub mod responses;
 pub mod utils;
 pub mod models;
