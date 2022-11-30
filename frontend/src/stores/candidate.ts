@@ -21,7 +21,7 @@ export interface CandidateData {
 }
 
 export interface CandidateLogin {
-    application_id: number;
+    applicationId: number;
     password: string;
 }
 
