@@ -1,5 +1,5 @@
 use sea_orm::{DbConn};
-use crate::{error::ServiceError, candidate_details::{EncryptedApplicationDetails, ApplicationDetails}, Query, database::query::candidate::CandidateWithParent};
+use crate::{error::ServiceError, models::candidate_details::{EncryptedApplicationDetails}, Query, models::candidate::{CandidateWithParent, ApplicationDetails}};
 
 
 type Row = CandidateWithParent;

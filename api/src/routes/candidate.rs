@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use portfolio_core::candidate_details::ApplicationDetails;
+use portfolio_core::models::candidate::ApplicationDetails;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
@@ -264,7 +264,7 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{candidate_details::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
+    use portfolio_core::{models::candidate::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
     use rocket::{
         http::{Cookie, Status},
         local::blocking::Client,

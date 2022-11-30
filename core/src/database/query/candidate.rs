@@ -1,44 +1,10 @@
 use sea_orm::*;
-use serde::Serialize;
 
 use ::entity::{candidate, candidate::Entity as Candidate, parent};
 
-use crate::Query;
+use crate::{Query, models::candidate::CandidateWithParent};
 
 pub const PAGE_SIZE: u64 = 20;
-
-#[derive(FromQueryResult, Serialize)]
-pub struct CandidateParentResult {
-    pub application: i32,
-    pub name: Option<String>,
-    pub surname: Option<String>,
-    pub study: Option<String>,    
-    pub citizenship: Option<String>,
-
-    pub parent_name: Option<String>,
-    pub parent_surname: Option<String>,
-}
-
-#[derive(FromQueryResult, Serialize, Default)]
-pub struct CandidateWithParent { // TODO: use this instead of (Candidate, Parent)???
-    pub application: i32,
-    pub name: Option<String>,
-    pub surname: Option<String>,
-    pub birthplace: Option<String>,
-    pub birthdate: Option<String>,
-    pub address: Option<String>,
-    pub telephone: Option<String>,
-    pub citizenship: Option<String>,
-    pub email: Option<String>,
-    pub sex: Option<String>,
-    pub study: Option<String>,
-    pub personal_identification_number: Option<String>,
-
-    pub parent_name: Option<String>,
-    pub parent_surname: Option<String>,
-    pub parent_telephone: Option<String>,
-    pub parent_email: Option<String>,
-}
 
 #[derive(FromQueryResult)]
 pub struct ApplicationId {
@@ -49,6 +15,18 @@ impl ApplicationId {
     pub fn to_i32(&self) -> i32 {
         self.application
     }
+}
+
+#[derive(FromQueryResult)]
+pub struct CandidateParentResult {
+    pub application: i32,
+    pub name: Option<String>,
+    pub surname: Option<String>,
+    pub study: Option<String>,    
+    pub citizenship: Option<String>,
+
+    pub parent_name: Option<String>,
+    pub parent_surname: Option<String>,
 }
 
 impl Query {

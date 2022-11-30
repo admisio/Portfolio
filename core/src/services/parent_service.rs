@@ -1,7 +1,7 @@
 use entity::{parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, Mutation, candidate_details::EncryptedApplicationDetails};
+use crate::{error::ServiceError, Mutation, models::candidate_details::EncryptedApplicationDetails};
 
 pub struct ParentService;
 

@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, responses::{BaseCandidateResponse, CreateCandidateResponse}, candidate_details::ApplicationDetails, sea_orm::prelude::Uuid,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -192,7 +192,7 @@ pub async fn get_candidate_portfolio(
 
 #[cfg(test)]
 pub mod tests {
-    use portfolio_core::responses::CreateCandidateResponse;
+    use portfolio_core::models::candidate::CreateCandidateResponse;
     use rocket::{local::blocking::Client, http::{Cookie, Status}};
 
     use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};

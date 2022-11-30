@@ -1,14 +1,35 @@
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
 
 use entity::{candidate, parent};
 
-use crate::{crypto, database::query::candidate::CandidateWithParent, error::ServiceError};
+use crate::{crypto, models::candidate::{CandidateWithParent, ApplicationDetails}, error::ServiceError};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
 #[derive(Clone)]
 pub struct EncryptedString(String);
+
+#[derive(Clone)]
+pub struct EncryptedApplicationDetails {
+    // Candidate
+    pub name: EncryptedString,
+    pub surname: EncryptedString,
+    pub birthplace: EncryptedString,
+    pub birthdate: EncryptedString,
+    pub address: EncryptedString,
+    pub telephone: EncryptedString,
+    pub citizenship: EncryptedString,
+    pub email: EncryptedString,
+    pub sex: EncryptedString,
+    pub personal_id_number: EncryptedString,
+    pub study: String,
+
+    // Parent
+    pub parent_name: EncryptedString,
+    pub parent_surname: EncryptedString,
+    pub parent_telephone: EncryptedString,
+    pub parent_email: EncryptedString,
+}
 
 impl EncryptedString {
     pub async fn new(s: &str, recipients: &Vec<String>) -> Result<Self, ServiceError> {
@@ -63,28 +84,6 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString {
             None => Err(ServiceError::CandidateDetailsNotSet),
         }
     }
-}
-
-#[derive(Clone)]
-pub struct EncryptedApplicationDetails {
-    // Candidate
-    pub name: EncryptedString,
-    pub surname: EncryptedString,
-    pub birthplace: EncryptedString,
-    pub birthdate: EncryptedString,
-    pub address: EncryptedString,
-    pub telephone: EncryptedString,
-    pub citizenship: EncryptedString,
-    pub email: EncryptedString,
-    pub sex: EncryptedString,
-    pub personal_id_number: EncryptedString,
-    pub study: String,
-
-    // Parent
-    pub parent_name: EncryptedString,
-    pub parent_surname: EncryptedString,
-    pub parent_telephone: EncryptedString,
-    pub parent_email: EncryptedString,
 }
 
 impl EncryptedApplicationDetails {
@@ -224,27 +223,15 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
     }
 }
 
-
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct ApplicationDetails {
-    // Candidate
-    pub name: String,
-    pub surname: String,
-    pub birthplace: String,
-    pub birthdate: NaiveDate, // TODO: User NaiveDate or String?
-    pub address: String,
-    pub telephone: String,
-    pub citizenship: String,
-    pub email: String,
-    pub sex: String,
-    pub study: String,
-    pub personal_id_number: String,
-    // Parent
-    pub parent_name: String,
-    pub parent_surname: String,
-    pub parent_telephone: String,
-    pub parent_email: String,
+// TODO: use this more???
+pub async fn decrypt_if_exists(
+    private_key: &String,
+    encrypted_string: Option<String>,
+) -> Result<String, ServiceError> {
+    match EncryptedString::try_from(encrypted_string) {
+        Ok(encrypted_string) => Ok(encrypted_string.decrypt(private_key).await?),
+        Err(_) => Ok(String::from("")),
+    }
 }
 
 #[cfg(test)]

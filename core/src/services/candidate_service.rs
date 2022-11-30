@@ -2,10 +2,10 @@ use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
-    candidate_details::{EncryptedApplicationDetails, EncryptedString},
+    models::candidate_details::{EncryptedApplicationDetails, EncryptedString},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, responses::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
+    Mutation, Query, models::candidate::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
@@ -254,11 +254,11 @@ impl CandidateService {
 pub mod tests {
     use sea_orm::{DbConn};
 
-    use crate::candidate_details::tests::assert_all_application_details;
+    use crate::models::candidate_details::tests::assert_all_application_details;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};
 
-    use super::EncryptedApplicationDetails;
+    use crate::models::candidate_details::EncryptedApplicationDetails;
     use entity::{candidate, parent, admin};
 
     use crate::services::application_service::ApplicationService;
@@ -374,7 +374,7 @@ pub mod tests {
 
     #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
-        use crate::candidate_details::tests::APPLICATION_DETAILS;
+        use crate::models::candidate_details::tests::APPLICATION_DETAILS;
 
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
