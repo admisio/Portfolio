@@ -9,31 +9,34 @@
 	import { candidateData, fetchDetails } from '../../stores/candidate';
 
 	
-	let name = "";
+	let fullName = "";
 	let email = "";
 
 	$: if ($candidateData === undefined) {
 		fetch();
 	} else {
-		name = $candidateData.name + " " + $candidateData.surname;
-		email = $candidateData.email;
+		setNameEmail();
 	}
 
 	const fetch = async () => {
 		try {
 			await fetchDetails();
-			name = $candidateData.name + " " + $candidateData.surname;
-			email = $candidateData.email;
+			setNameEmail();
 		} catch {
 			console.error("error");
 		}
+	}
+
+	const setNameEmail = async () => {
+		fullName = $candidateData.name + " " + $candidateData.surname;
+		email = $candidateData.email ?? "!Nevyplněné údaje!";
 	}
 </script>
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title={name}>
+			<DashboardInfoCard title={fullName}>
 				<span class="mt-3 text-sspsBlue truncate">{email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
@@ -50,8 +53,8 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="my-10 name w-[90%] mx-auto">
-			<DashboardInfoCard title={name}>
-				<span class="mt-3 text-sspsBlue truncate">{name}</span>
+			<DashboardInfoCard title={fullName}>
+				<span class="mt-3 text-sspsBlue truncate">{fullName}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
