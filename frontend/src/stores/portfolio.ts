@@ -1,12 +1,19 @@
 import { apiFetchSubmissionProgress } from "../@api/candidate";
 import { writable } from "svelte/store";
 
+export enum UploadStatus {
+    None = 1,
+    Some = 2,
+    All = 3,
+    Submitted = 4,
+}
+
 export interface SubmissionProgress {
-    status?: number;
+    status?: UploadStatus;
     files?: [number];
 }
 
-export const submissionProgress = writable<SubmissionProgress>();
+export const submissionProgress = writable<SubmissionProgress>({});
 
 export async function fetchSubmProgress() {
     try {

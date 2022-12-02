@@ -10,6 +10,7 @@
 	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
+	import { fetchSubmProgress } from '../../stores/portfolio';
 
 	
 	let fullName = "";
@@ -19,6 +20,8 @@
 		fullName = ($candidateData.name ?? "") + " " + ($candidateData.surname ?? "");
 		email = $candidateData.email ?? "";
 	}
+
+	fetchSubmProgress(); // TODO: move to a better place
 
 	$: if ($candidateData.name === undefined) {
 		fetch();

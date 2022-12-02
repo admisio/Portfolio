@@ -1,14 +1,34 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
+	import FileDrop from 'filedrop-svelte';
+	import FileMissingNotification from './StatusNotification.svelte';
+	import { submissionProgress, UploadStatus } from '../../../stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
+	import StatusNotification from './StatusNotification.svelte';
 
 	const dispatch = createEventDispatcher();
 
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: string;
+	export let fileType: number = 0;
 
-	import FileDrop from 'filedrop-svelte';
+	let missing = false;
+
+	$: if ($submissionProgress) {
+		missing = isMissing();
+	}
+
+	const isMissing = (): boolean => {
+		switch ($submissionProgress.status) {
+			case UploadStatus.None:
+				return true;
+			case UploadStatus.Some:
+				return !$submissionProgress.files!.some(code => code === fileType);
+			default:
+				return false;
+		}
+	}
 
 	let dashAnimationProgress = 0;
 	let dashAnimationInterval: NodeJS.Timer;
@@ -41,8 +61,19 @@
 
 <div class="card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
+		<!-- <div class="grid grid-cols-8">
+			<h3 class="col-start-1 col-end-5">{title}</h3>
+			<div class="mt-1 col-start-5 col-end-8">
+				<FileMissingNotification title="File Missing" />
+			</div>
+		</div> -->
+		<!-- <div class="flex flex-col justify-between">
+		</div> -->
 		<h3>{title}</h3>
-		<div class="mt-3 sm:mt-0">
+		{#if missing}
+			<StatusNotification type="missing" />
+		{/if}
+		<div class="mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
 		</div>
 	</div>
@@ -51,6 +82,7 @@
 			multiple={false}
 			maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
 			accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
+			
 			on:filedrop={(e) => onFileDrop(e.detail.files)}
 			on:filedragenter={dashAnimationStart}
 			on:filedragleave={dashAnimationStop}

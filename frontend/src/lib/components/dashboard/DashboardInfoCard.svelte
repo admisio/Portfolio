@@ -1,12 +1,7 @@
 <script lang="ts">
 	import Circles from "$lib/components/icons/Circles.svelte";
-	import { fetchSubmProgress, submissionProgress } from "../../../stores/portfolio";
 
 	export let title: string;
-
-	fetchSubmProgress();
-	
-	$: if ($submissionProgress) {console.log($submissionProgress.status);}
 </script>
 
 <div class="card infoCard relative">
