@@ -33,6 +33,9 @@
 	</div>
 	<div class="flex-1 mt-6">
 		<FileDrop
+			multiple={false}
+			maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
+			accept={filetype == 'PDF' ? 'application/pdf' : 'application/octet-stream'}
 			on:filedrop={null}
 			on:filedragenter={dashAnimationStart}
 			on:filedragleave={dashAnimationStop}
