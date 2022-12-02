@@ -12,24 +12,21 @@
 	let fullName = "";
 	let email = "";
 
-	$: if ($candidateData === undefined) {
+	$: if ($candidateData) {
+		fullName = ($candidateData.name ?? "") + " " + ($candidateData.surname ?? "");
+		email = $candidateData.email ?? "";
+	}
+
+	$: if ($candidateData.name === undefined) {
 		fetch();
-	} else {
-		setNameEmail();
 	}
 
 	const fetch = async () => {
 		try {
 			await fetchDetails();
-			setNameEmail();
 		} catch {
 			console.error("error");
 		}
-	}
-
-	const setNameEmail = async () => {
-		fullName = $candidateData.name + " " + $candidateData.surname;
-		email = $candidateData.email ?? "!Nevyplněné údaje!";
 	}
 </script>
 
