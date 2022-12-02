@@ -1,8 +1,7 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
 	import FileDrop from 'filedrop-svelte';
-	import FileMissingNotification from './StatusNotification.svelte';
-	import { submissionProgress, UploadStatus } from '../../../stores/portfolio';
+	import { submissionProgress, UploadStatus, type Status } from '../../../stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
 	import StatusNotification from './StatusNotification.svelte';
 
@@ -13,20 +12,26 @@
 	export let filesize: string;
 	export let fileType: number = 0;
 
-	let missing = false;
+	let status: Status = "missing";
 
 	$: if ($submissionProgress) {
-		missing = isMissing();
+		status = getStatus();
 	}
 
-	const isMissing = (): boolean => {
+	const getStatus = (): Status => {
 		switch ($submissionProgress.status) {
 			case UploadStatus.None:
-				return true;
+				return 'missing';
 			case UploadStatus.Some:
-				return !$submissionProgress.files!.some(code => code === fileType);
+				if (!$submissionProgress.files!.some(code => code === fileType)) {
+					return 'uploaded';
+				}
+			case UploadStatus.All:
+				return 'uploaded';
+			case UploadStatus.Submitted:
+				return 'submitted';
 			default:
-				return false;
+				return 'missing';
 		}
 	}
 
@@ -70,9 +75,7 @@
 		<!-- <div class="flex flex-col justify-between">
 		</div> -->
 		<h3>{title}</h3>
-		{#if missing}
-			<StatusNotification type="missing" />
-		{/if}
+		<StatusNotification {status} />
 		<div class="mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
 		</div>

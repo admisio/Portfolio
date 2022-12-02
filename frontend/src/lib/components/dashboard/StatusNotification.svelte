@@ -1,7 +1,11 @@
 <script lang="ts">
-    export let type: "submitted" | "uploaded" | "missing";
+	import type { Status } from "../../../stores/portfolio";
+
+
+    export let status: Status;
     let title: string;
-    switch (type) {
+
+    $: switch (status) {
         case "submitted":
             title = "Odeslané";
             break;
@@ -16,7 +20,7 @@
 
 <!-- make red dot -->
 <div class="flex flex-col justify-between">
-    <span class="mt-1 w-5 h-5 rounded-full {type}" />
+    <span class="mt-1 w-5 h-5 rounded-full {status}" />
     <h3 class="ml-8 font-bold text-xl">{title}</h3>
 </div>
 
