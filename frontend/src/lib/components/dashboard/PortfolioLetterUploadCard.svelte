@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { AxiosProgressEvent } from "axios";
+	import { fetchSubmProgress } from "../../../stores/portfolio";
 	import { apiUploadPortfolioLetter } from "../../../@api/candidate";
 	import DashboardUploadCard from "./DashboardUploadCard.svelte";
 
@@ -7,6 +8,7 @@
         await apiUploadPortfolioLetter(file, (progressEvent: AxiosProgressEvent) => {
             console.log(progressEvent.loaded)
         });
+        await fetchSubmProgress();
     }
 
 </script>
@@ -16,5 +18,6 @@
     on:filedrop={e => onFileDrop(e.detail)} 
     title="Portfolio"
     filetype="PDF"
-    filesize="10 MB">
+    filesize="10 MB"
+    fileType={2}>
 </DashboardUploadCard>
