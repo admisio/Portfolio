@@ -6,7 +6,7 @@ export async function apiWhoami(): Promise<string> {
 	try {
 		const res = await axios.get(`${API_URL}/whoami`);
 		return res.data;
-	} catch (e) {
+	} catch (e: any) {
 		throw errorHandler(e, 'Whoami failed');
 	}
 }
