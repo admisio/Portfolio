@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import lev from '$lib/assets/logo/lev.png';
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
