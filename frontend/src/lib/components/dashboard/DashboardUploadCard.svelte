@@ -12,7 +12,7 @@
 	export let filesize: string;
 	export let fileType: number = 0;
 
-	let status: Status = "missing";
+	let status: Status;
 
 	$: if ($submissionProgress) {
 		status = getStatus();
@@ -66,14 +66,6 @@
 
 <div class="card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
-		<!-- <div class="grid grid-cols-8">
-			<h3 class="col-start-1 col-end-5">{title}</h3>
-			<div class="mt-1 col-start-5 col-end-8">
-				<FileMissingNotification title="File Missing" />
-			</div>
-		</div> -->
-		<!-- <div class="flex flex-col justify-between">
-		</div> -->
 		<h3>{title}</h3>
 		<StatusNotification {status} />
 		<div class="mt-1 sm:mt-0">
