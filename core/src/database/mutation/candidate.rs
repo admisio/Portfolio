@@ -1,4 +1,4 @@
-use crate::{candidate_details::EncryptedApplicationDetails, Mutation};
+use crate::{Mutation, models::candidate_details::EncryptedApplicationDetails};
 
 use ::entity::candidate::{self};
 use sea_orm::*;
@@ -67,8 +67,8 @@ impl Mutation {
 
 #[cfg(test)]
 mod tests {
-    use crate::candidate_details::tests::APPLICATION_DETAILS;
-    use crate::candidate_details::{EncryptedApplicationDetails};
+    use crate::models::candidate_details::EncryptedApplicationDetails;
+    use crate::models::candidate_details::tests::APPLICATION_DETAILS;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{Mutation, Query};
 

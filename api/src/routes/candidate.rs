@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use portfolio_core::candidate_details::ApplicationDetails;
+use portfolio_core::models::candidate::ApplicationDetails;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
@@ -264,7 +264,7 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{candidate_details::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
+    use portfolio_core::{models::candidate::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
     use rocket::{
         http::{Cookie, Status},
         local::blocking::Client,
@@ -277,7 +277,7 @@ mod tests {
             .post("/candidate/login")
             .body(format!(
                 "{{
-            \"application_id\": {},
+            \"applicationId\": {},
             \"password\": \"{}\"
         }}",
                 APPLICATION_ID, CANDIDATE_PASSWORD
@@ -300,12 +300,12 @@ mod tests {
         \"citizenship\": \"Czech Republic\",
         \"email\": \"magor@magor.cz\",
         \"sex\": \"MALE\",
-        \"personal_id_number\": \"0000000000\",
+        \"personalIdNumber\": \"0000000000\",
         \"study\": \"KB\",
-        \"parent_name\": \"maminka\",
-        \"parent_surname\": \"chad\",
-        \"parent_telephone\": \"420111222333\",
-        \"parent_email\": \"maminka@centrum.cz\"
+        \"parentName\": \"maminka\",
+        \"parentSurname\": \"chad\",
+        \"parentTelephone\": \"420111222333\",
+        \"parentEmail\": \"maminka@centrum.cz\"
     }";
 
     #[test]
