@@ -1,4 +1,4 @@
-import { apiFetchSubmissionProgress } from "../api/candidate";
+import { apiFetchSubmissionProgress } from "../@api/candidate";
 import { writable } from "svelte/store";
 
 export interface SubmissionProgress {
