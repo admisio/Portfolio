@@ -202,7 +202,7 @@ pub mod tests {
             .post("/admin/login")
             .body(format!(
                 "{{
-            \"admin_id\": {},
+            \"adminId\": {},
             \"password\": \"{}\"
         }}",
                 ADMIN_ID, ADMIN_PASSWORD
@@ -226,8 +226,8 @@ pub mod tests {
             .post("/admin/create")
             .body(format!(
                 "{{
-            \"application_id\": {},
-            \"personal_id_number\": \"{}\"
+            \"applicationId\": {},
+            \"personalIdNumber\": \"{}\"
         }}",
                 id, pid
             ))

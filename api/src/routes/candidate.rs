@@ -277,7 +277,7 @@ mod tests {
             .post("/candidate/login")
             .body(format!(
                 "{{
-            \"application_id\": {},
+            \"applicationId\": {},
             \"password\": \"{}\"
         }}",
                 APPLICATION_ID, CANDIDATE_PASSWORD
@@ -300,12 +300,12 @@ mod tests {
         \"citizenship\": \"Czech Republic\",
         \"email\": \"magor@magor.cz\",
         \"sex\": \"MALE\",
-        \"personal_id_number\": \"0000000000\",
+        \"personalIdNumber\": \"0000000000\",
         \"study\": \"KB\",
-        \"parent_name\": \"maminka\",
-        \"parent_surname\": \"chad\",
-        \"parent_telephone\": \"420111222333\",
-        \"parent_email\": \"maminka@centrum.cz\"
+        \"parentName\": \"maminka\",
+        \"parentSurname\": \"chad\",
+        \"parentTelephone\": \"420111222333\",
+        \"parentEmail\": \"maminka@centrum.cz\"
     }";
 
     #[test]
