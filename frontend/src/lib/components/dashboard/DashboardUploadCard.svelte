@@ -22,6 +22,15 @@
 	const dashAnimationStop = () => {
 		clearInterval(dashAnimationInterval);
 	};
+
+	type Dropped = {
+		accepted: Array<File>;
+		rejected: Array<File>;
+	};
+	
+	const onFileDrop = (dropped: Dropped) => {
+		console.log(dropped);
+	};
 </script>
 
 <div class="card uploadCard">
@@ -36,7 +45,7 @@
 			multiple={false}
 			maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
 			accept={filetype == 'PDF' ? 'application/pdf' : 'application/octet-stream'}
-			on:filedrop={null}
+			on:filedrop={(e) => onFileDrop(e.detail.files)}
 			on:filedragenter={dashAnimationStart}
 			on:filedragleave={dashAnimationStop}
 		>
