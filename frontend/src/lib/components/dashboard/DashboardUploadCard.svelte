@@ -1,5 +1,8 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
@@ -30,6 +33,9 @@
 	
 	const onFileDrop = (dropped: Dropped) => {
 		console.log(dropped);
+		if (dropped.accepted.length > 0) {
+			dispatch('filedrop', dropped.accepted[0]);
+		}
 	};
 </script>
 
@@ -44,7 +50,7 @@
 		<FileDrop
 			multiple={false}
 			maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
-			accept={filetype == 'PDF' ? 'application/pdf' : 'application/octet-stream'}
+			accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
 			on:filedrop={(e) => onFileDrop(e.detail.files)}
 			on:filedragenter={dashAnimationStart}
 			on:filedragleave={dashAnimationStop}
