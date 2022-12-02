@@ -1,6 +1,6 @@
-import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../api/candidate";
+import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../@api/candidate";
 import { writable } from "svelte/store";
-import type { ApiError } from "src/api";
+import type { ApiError } from "src/@api";
 
 export interface CandidateData {
     name?: string;
@@ -30,7 +30,7 @@ export const candidateData = writable<CandidateData>();
 export async function login(data: CandidateLogin) {
     // TODO: handle errors
     try {
-        let applicationId = await apiLogin(data); // TODO: set candidate data from response to store
+        const applicationId = await apiLogin(data); // TODO: set candidate data from response to store
         console.log("login result: " + applicationId);
     } catch (e) {
         console.error("login failed");
@@ -50,7 +50,7 @@ export async function logout() {
 
 export async function fillDetails(data: CandidateData) {
     try {
-        let res = await apiFillDetails(data);
+        const res = await apiFillDetails(data);
         candidateData.set(res);
     } catch (e) {
         console.error(e);
@@ -60,7 +60,7 @@ export async function fillDetails(data: CandidateData) {
 
 export async function fetchDetails() {
     try {
-        let res = await apiFetchDetails();
+        const res = await apiFetchDetails();
         candidateData.set(res);
     } catch (e) {
         console.error(e);
