@@ -1,7 +1,7 @@
 import { goto } from "$app/navigation";
 import type { AxiosError } from "axios";
 
-export const API_URL = "http://localhost:8000";
+export const API_URL = "http://localhost:9000";
 
 export interface ApiError {
 	error: AxiosError,

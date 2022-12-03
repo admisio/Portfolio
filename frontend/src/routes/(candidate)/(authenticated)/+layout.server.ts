@@ -5,6 +5,6 @@ import { redirect } from '@sveltejs/kit';
 export const load: LayoutServerLoad = ({ cookies }) => {
 	const isAuthenticated = cookies.get('id');
 	if (!isAuthenticated) {
-		throw redirect(302, '/login');
+		throw redirect(302, '/auth/login');
 	}
 };
