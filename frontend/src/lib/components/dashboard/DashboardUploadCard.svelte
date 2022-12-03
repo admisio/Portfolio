@@ -99,7 +99,7 @@
 	</div>
 	{#if fileDropped}
 		<div class="flex content-around justify-between items-center mb-5 ml-5 mr-5">
-			<div class="w-28">
+			<div class="w-24">
 				<img class="w-full" src={filetype == 'PDF' ? documentIcon : archiveIcon} alt="Icon" />
 			</div>
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
