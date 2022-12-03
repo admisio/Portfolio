@@ -21,14 +21,17 @@
 		<p class="mt-8 font-light text-sspsGray text-center">
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 		</p>
-		<div class="w-3/5">
-			<TextField bind:value={adminIdValue} placeholder="Admin id" type="number" />
-
-			<TextField bind:value={adminPasswordValue} placeholder="Heslo" type="password" icon>
-				<div slot="icon" class="flex items-center justify-center">
-					<Lock />
-				</div>
-			</TextField>
+		<div class="w-3/5 mt-8 flex flex-col">
+			<span>
+				<TextField bind:value={adminIdValue} placeholder="Admin id" type="number" />
+			</span>
+			<span class="mt-8">
+				<TextField bind:value={adminPasswordValue} placeholder="Heslo" type="password" icon>
+					<div slot="icon" class="flex items-center justify-center">
+						<Lock />
+					</div>
+				</TextField>
+			</span>
 		</div>
 		<input
 			class="mt-8 w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
