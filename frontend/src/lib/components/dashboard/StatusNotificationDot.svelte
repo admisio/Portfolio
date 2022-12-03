@@ -19,7 +19,7 @@
 </script>
 
 <!-- make red dot -->
-<div class="flex flex-row justify-between">
+<div class="flex flex-row justify-between animate-pulse div-{status}">
     <span class="mt-1 w-6 h-6 rounded-full {status}" />
     <!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
 </div>
@@ -29,15 +29,22 @@
 		@apply rounded-full p-1;
 	}
 
+    .div-submitted {
+        @apply animate-none;
+    }
+
     .submitted {
         @apply bg-[#35e000ff];
     }
 
     .uploaded {
         @apply bg-[#ff8530ff];
-    }
+        @apply animate-none;
 
+    }
+    
     .missing {
         @apply bg-red-700;
     }
+
 </style>
