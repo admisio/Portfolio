@@ -102,7 +102,7 @@
 			<div class="w-24">
 				<img class="w-full" src={filetype == 'PDF' ? documentIcon : archiveIcon} alt="Icon" />
 			</div>
-			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+			<svg class="hidden xl:block h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
 				><line
 					x1="0"
 					y="0"
@@ -113,7 +113,7 @@
 					stroke-dasharray="3"
 				/></svg
 			>
-			<div class="items-center">
+			<div class="hidden xl:block items-center">
 				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
 					<h2 class="text-xl font-bold">{status === 'submitted' ? 'Odesláno' : 'Nahráno'}</h2>
 				{:else}
