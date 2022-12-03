@@ -14,7 +14,7 @@
 
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
-	export let filesize: string;
+	export let filesize: number;
 	export let fileType: number;
 
 	let fileDropped: boolean = false;
@@ -91,7 +91,7 @@
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
 		<h3 class="mb-4 sm:mb-0">{title}</h3>
 		<div class="mb-4 sm:mb-0 mt-1 sm:mt-0">
-			<FileType {filetype} {filesize} />
+			<FileType {filetype} filesize={filesize + " MB"} />
 		</div>
 		<div class="absolute px-7 right-0 top-4">
 			<StatusNotificationDot {status} />
@@ -141,7 +141,7 @@
 		<div class="flex-1 mt-6">
 			<FileDrop
 				multiple={false}
-				maxSize={filetype == 'PDF' ? 10_000_000 : 100_000_000}
+				maxSize={filesize * 1_000_000}
 				accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}

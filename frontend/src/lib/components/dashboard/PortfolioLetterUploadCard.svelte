@@ -17,6 +17,6 @@
     on:filedrop={e => onFileDrop(e.detail)} 
     title="Portfolio"
     filetype="PDF"
-    filesize="10 MB"
+    filesize={10}
     fileType={2}>
 </DashboardUploadCard>
