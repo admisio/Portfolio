@@ -3,6 +3,35 @@ import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler } from '.';
 
+
+// SSR Compatible
+export const apiLogout = async (fetchSsr?: any) => {
+	try {
+		fetchSsr ? await fetchSsr(API_URL + '/candidate/logout', { method: 'POST', credentials: 'include' }) : await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
+	} catch (e: any) {
+		throw errorHandler(e, 'Logout failed');
+	}
+}
+
+// SSR Compatible
+export const apiFetchDetails = async (fetchSsr?: any): Promise<CandidateData | null> => {
+	try {
+		if (fetchSsr) {
+			const res = await fetchSsr(API_URL + '/candidate/details', { method: "GET", credentials: 'include' });
+			const body = await res.text();
+			console.log(body);
+			if (res.status === 500) {
+				return null;
+			}
+			return JSON.parse(body);
+		}
+		const res = await axios.get(API_URL + '/candidate/details', { withCredentials: true });
+		return res.data;
+	} catch (e: any) {
+		throw errorHandler(e, 'Failed to fill details');
+	}
+}
+
 export const apiWhoami = async (): Promise<string> => {
 	try {
 		const res = await axios.get(`${API_URL}/whoami`);
@@ -21,28 +50,11 @@ export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 	}
 }
 
-// TODO
-export const apiLogout = async (fetchSsr?: any) => {
-	try {
-		fetchSsr ? await fetchSsr(API_URL + '/candidate/logout', { method: 'POST', credentials: 'include' }) : await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
-	} catch (e: any) {
-		throw errorHandler(e, 'Logout failed');
-	}
-}
 
 export const apiFillDetails = async (data: CandidateData): Promise<CandidateData> => {
 	console.log(data);
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
-		return res.data;
-	} catch (e: any) {
-		throw errorHandler(e, 'Failed to fill details');
-	}
-}
-
-export const apiFetchDetails = async (): Promise<CandidateData> => {
-	try {
-		const res = await axios.get(API_URL + '/candidate/details', { withCredentials: true });
 		return res.data;
 	} catch (e: any) {
 		throw errorHandler(e, 'Failed to fill details');
