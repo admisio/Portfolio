@@ -10,22 +10,25 @@
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: string;
-	export let fileType: number = 0;
+	export let fileType: number;
 
 	let status: Status;
 
 	$: if ($submissionProgress) {
 		status = getStatus();
+		console.log('type' + fileType + ' status: ' + status);
 	}
 
 	const getStatus = (): Status => {
+		console.log($submissionProgress);
 		switch ($submissionProgress.status) {
 			case UploadStatus.None:
 				return 'missing';
 			case UploadStatus.Some:
-				if (!$submissionProgress.files!.some(code => code === fileType)) {
+				if ($submissionProgress.files!.some(code => code === fileType)) {
 					return 'uploaded';
 				}
+				return 'missing';
 			case UploadStatus.All:
 				return 'uploaded';
 			case UploadStatus.Submitted:
