@@ -88,19 +88,23 @@
 </script>
 
 <div class="relative card uploadCard">
-	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
+	<div class="header">
 		<h3 class="mb-4 sm:mb-0">{title}</h3>
 		<div class="mb-4 sm:mb-0 mt-1 sm:mt-0">
-			<FileType {filetype} filesize={filesize + " MB"} />
+			<FileType {filetype} filesize={filesize + ' MB'} />
 		</div>
 		<div class="absolute px-7 right-0 top-4">
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
 	{#if fileDropped}
-		<div class="flex content-around justify-between items-center mb-5 sm:mx-5">
+		<div class="body flex content-around justify-between items-center">
 			<div class="w-24">
-				<img class="w-full" src={filetype == 'PDF' ? documentIcon : archiveIcon} alt="Icon" />
+				<img
+					class="w-full object-scale-down"
+					src={filetype == 'PDF' ? documentIcon : archiveIcon}
+					alt="Icon"
+				/>
 			</div>
 			<svg class="hidden xl:block h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
 				><line
@@ -138,7 +142,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="flex-1 mt-6">
+		<div class="body">
 			<FileDrop
 				multiple={false}
 				maxSize={filesize * 1_000_000}
@@ -166,12 +170,32 @@
 		@apply hidden;
 	}
 	.card {
+		@apply m-3 bg-transparent;
 		@apply h-full;
 		@apply flex flex-col justify-between;
 
-		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
+
+		@apply transition-all duration-300;
+	}
+	.card:hover {
+		@apply shadow-2xl;
+		@apply m-0;
+	}
+	.header {
+		@apply rounded-t-3xl;
 		@apply px-7 pb-7 pt-14;
+		background-color: rgb(220, 238, 253);
+		backdrop-filter: blur(15px) saturate(0.86);
+		-webkit-backdrop-filter: blur(15px) saturate(0.86);
+
+		@apply flex flex-col sm:flex-row justify-between sm:items-center;
+	}
+	.body {
+		@apply bg-[#f8fbfc];
+		@apply rounded-b-3xl;
+		@apply flex-1;
+		@apply p-7;
 	}
 	.card h3 {
 		@apply text-sspsBlue text-2xl xl:text-4xl font-semibold;
