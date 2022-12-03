@@ -4,7 +4,7 @@
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { login } from '../../../stores/candidate';
+	import { login } from '$lib/stores/candidate';
 	import { goto } from '$app/navigation';
 	
 	

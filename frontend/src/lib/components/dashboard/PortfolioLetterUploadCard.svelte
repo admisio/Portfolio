@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { AxiosProgressEvent } from "axios";
-	import { fetchSubmProgress } from "../../../stores/portfolio";
-	import { apiUploadPortfolioLetter } from "../../../@api/candidate";
+	import { fetchSubmProgress } from "$lib/stores/portfolio";
+	import { apiUploadPortfolioLetter } from "../../@api/candidate";
 	import DashboardUploadCard from "./DashboardUploadCard.svelte";
 
     const onFileDrop = async (file: File) => {

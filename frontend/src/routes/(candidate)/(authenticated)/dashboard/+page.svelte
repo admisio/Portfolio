@@ -6,11 +6,11 @@
 
 	import DashboardUploadCard from '$lib/components/dashboard/DashboardUploadCard.svelte';
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
-	import { candidateData, fetchDetails } from '../../stores/candidate';
+	import { candidateData, fetchDetails } from '$lib/stores/candidate';
 	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
-	import { fetchSubmProgress } from '../../stores/portfolio';
+	import { fetchSubmProgress } from '$lib/stores/portfolio';
 
 	
 	let fullName = "";

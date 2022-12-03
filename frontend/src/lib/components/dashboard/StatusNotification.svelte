@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Status } from "../../../stores/portfolio";
+	import type { Status } from "$lib/stores/portfolio";
 
 
     export let status: Status;

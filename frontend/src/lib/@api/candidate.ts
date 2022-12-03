@@ -1,6 +1,6 @@
 import axios, { type AxiosProgressEvent } from 'axios';
-import type { CandidateData, CandidateLogin } from 'src/stores/candidate';
-import type { SubmissionProgress } from 'src/stores/portfolio';
+import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
+import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler } from '.';
 
 export async function apiWhoami(): Promise<string> {

@@ -10,7 +10,7 @@
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import { fillDetails, candidateData, type CandidateData } from '../../stores/candidate';
+	import { fillDetails, candidateData, type CandidateData } from '$lib/stores/candidate';
 
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
