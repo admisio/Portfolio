@@ -4,17 +4,17 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ fetch }) => {
 	let details;
-	
 	try {
 		details = await apiFetchDetails(fetch);
 	} catch {
 		throw redirect(302, '/register');
 	}
 
+	let submissionProgress;
 	try {
-		await apiFetchSubmissionProgress(fetch);
-	} catch {
-		// TODO:
+		submissionProgress = await apiFetchSubmissionProgress(fetch);
+	} catch (e) {
+		console.log(e);
 	}
 
 	return {
@@ -22,9 +22,9 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 			name: details.name,
 			surname: details.surname,
 			email: details.email
-		}
-		/*submission: {
+		},
+		submission: {
 			...submissionProgress
-		}*/
+		}
 	};
 };
