@@ -8,4 +8,12 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 	if (details === null) {
 		throw redirect(302, '/register');
 	}
+
+	return {
+		candidate: {
+			name: details.name,
+			surname: details.surname,
+			email: details.email
+		}
+	};
 };
