@@ -10,8 +10,11 @@
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
 	import type { PageData } from './$types';
+	import { fetchSubmProgress } from '$lib/stores/portfolio';
 
 	export let data: PageData;
+
+	fetchSubmProgress();
 </script>
 
 <FullLayout>
