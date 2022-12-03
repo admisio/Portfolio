@@ -1,50 +1,47 @@
 <script lang="ts">
-	import type { Status } from "$lib/stores/portfolio";
+	import type { Status } from '$lib/stores/portfolio';
 
+	export let status: Status;
+	let title: string;
 
-    export let status: Status;
-    let title: string;
-
-    $: switch (status) {
-        case "submitted":
-            title = "Odeslané";
-            break;
-        case "uploaded":
-            title = "Nahráno";
-            break;
-        case "missing":
-            title = "Chybí";
-            break;
-    };
+	$: switch (status) {
+		case 'submitted':
+			title = 'Odeslané';
+			break;
+		case 'uploaded':
+			title = 'Nahráno';
+			break;
+		case 'missing':
+			title = 'Chybí';
+			break;
+	}
 </script>
 
 <!-- make red dot -->
 <div class="flex flex-row justify-between animate-pulse div-{status}">
-    <span class="mt-1 w-6 h-6 rounded-full {status}" />
-    <!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
+	<span class="mt-1 w-6 h-6 rounded-full {status}" />
+	<!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
 </div>
 
 <style>
-    span {
+	span {
 		@apply rounded-full p-1;
 	}
 
-    .div-submitted {
-        @apply animate-none;
-    }
+	.div-submitted {
+		@apply animate-none;
+	}
 
-    .submitted {
-        @apply bg-[#35e000ff];
-    }
+	.submitted {
+		@apply bg-[#35e000ff];
+	}
 
-    .uploaded {
-        @apply bg-[#ff8530ff];
-        @apply animate-none;
+	.uploaded {
+		@apply bg-[#ff8530ff];
+		@apply animate-none;
+	}
 
-    }
-    
-    .missing {
-        @apply bg-red-700;
-    }
-
+	.missing {
+		@apply bg-red-700;
+	}
 </style>

@@ -25,14 +25,14 @@
 </svg>
 
 <style>
-    svg {
-        @apply w-12 h-12;
-    }
+	svg {
+		@apply w-12 h-12;
+	}
 	.blue {
 		@apply stroke-sspsBlue fill-sspsBlue;
-		@apply transition-colors duration-300 hover:fill-sspsBlueDark hover:stroke-sspsBlueDark; 
+		@apply transition-colors duration-300 hover:fill-sspsBlueDark hover:stroke-sspsBlueDark;
 	}
 	.white {
-        @apply stroke-white fill-white;
-    }
+		@apply stroke-white fill-white;
+	}
 </style>

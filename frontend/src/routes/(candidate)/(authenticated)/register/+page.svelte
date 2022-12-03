@@ -43,7 +43,10 @@
 			name: yup.string().required(),
 			surname: yup.string(),
 			email: yup.string().email().required(),
-			telephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			telephone: yup
+				.string()
+				.required()
+				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			birthplace: yup.string().required(),
 			birthdate: yup.string().required(),
 			sex: yup.string(),
@@ -53,24 +56,27 @@
 			study: yup.string().required(),
 			parentName: yup.string(),
 			parentSurname: yup.string(),
-			parentTelephone: yup.string().required().matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			parentTelephone: yup
+				.string()
+				.required()
+				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			parentEmail: yup.string().email().required()
 		}),
 
 		onSubmit: async (values) => {
 			if (pageIndex === pageCount) {
 				try {
-					console.log("submit")
+					console.log('submit');
 					// @ts-ignore // love javascript
 					delete values.undefined;
-					values.birthdate = '2000-01-01' // TODO: reformat user typed date
+					values.birthdate = '2000-01-01'; // TODO: reformat user typed date
 					await apiFillDetails(values);
-					goto("/dashboard");
+					goto('/dashboard');
 				} catch (e) {
-					console.error("error while submitting data: " + e);
+					console.error('error while submitting data: ' + e);
 				}
 			}
-		},
+		}
 	});
 
 	$: console.log($errors);
@@ -84,7 +90,10 @@
 				break;
 
 			case 1:
-				if (/* $errors.birthdurname || */ $errors.birthplace || $errors.birthdate /* || $errors.sex */) {
+				if (
+					/* $errors.birthdurname || */ $errors.birthplace ||
+					$errors.birthdate /* || $errors.sex */
+				) {
 					return true;
 				}
 				break;
@@ -158,11 +167,7 @@
 			</p>
 			<div class="flex flex-row md:flex-col w-full">
 				<span class="w-full mt-8">
-					<TextField
-						type="text"
-						placeholder="Rodné příjmení"
-						on:change={handleChange}
-					/>
+					<TextField type="text" placeholder="Rodné příjmení" on:change={handleChange} />
 				</span>
 				<span class="w-full mt-8 ml-2 md:ml-0">
 					<TextField
@@ -250,11 +255,7 @@
 					/>
 				</span>
 				<span class="w-full mt-8 ml-2 md:ml-0">
-					<TextField
-						on:change={handleChange}
-						type="text"
-						placeholder="Evidenční číslo přihlášky"
-					/>
+					<TextField on:change={handleChange} type="text" placeholder="Evidenční číslo přihlášky" />
 				</span>
 			</div>
 			<div class="mt-8 flex items-center justify-center w-full">
@@ -278,7 +279,7 @@
 		<input
 			on:click={async (e) => {
 				await handleSubmit(e);
-				console.log("clicked " + isPageInvalid());
+				console.log('clicked ' + isPageInvalid());
 				if (isPageInvalid()) return;
 				if (pageIndex === pageCount) {
 				} else {
