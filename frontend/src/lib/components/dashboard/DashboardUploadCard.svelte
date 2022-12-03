@@ -7,6 +7,8 @@
 	import type { AxiosProgressEvent } from 'axios';
 	import StatusNotificationDot from './StatusNotificationDot.svelte';
 
+	import documentIcon from '$lib/assets/document.png';
+
 	const dispatch = createEventDispatcher();
 
 	export let title: string;
@@ -84,19 +86,19 @@
 	};
 </script>
 
-<div class="card uploadCard">
+<div class="relative card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
 		<h3 class="">{title}</h3>
 		<div class="mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
 		</div>
-		<div class="mb-16 mr-8">
+		<div class="absolute px-7 right-0 top-4">
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
 	{#if fileDropped}	
 		<div class="flex content-around justify-between items-center mb-5 ml-5 mr-5">
-			<svg class="w-35 h-35" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+			<img src={documentIcon} alt="">
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
 			<div class="items-center">
 				{#if bytesTotal === 0}
@@ -147,7 +149,7 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply px-7 py-7;
+		@apply px-7 pb-7 pt-14;
 	}
 	.card h3 {
 		@apply text-sspsBlue text-2xl xl:text-4xl font-semibold;
