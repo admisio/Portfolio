@@ -6,13 +6,11 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { apiLogin } from '$lib/@api/candidate';
-	
-	
+
 	let applicationId = Number($page.params.code);
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
-
 
 	$: {
 		codeValueMobile = codeValueMobile.toUpperCase();
@@ -35,25 +33,41 @@
 				codeElementArray[index + 1].focus();
 			}
 		}
-		codeValueMobile = codeValueArray.join('')
+		codeValueMobile = codeValueArray.join('');
 	};
-	
+
 	$: if (codeValueArray.length === 8) {
 		submit();
-	};
+	}
 
 	async function submit() {
 		try {
-			await apiLogin({applicationId, password: codeValueMobile});
-			goto("/dashboard");
-	 	} catch (e) {
+			await apiLogin({ applicationId, password: codeValueMobile });
+			goto('/dashboard');
+		} catch (e) {
 			console.error(e);
 		}
 		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 	}
 
+	const onPaste = (e: ClipboardEvent) => {
+		e.preventDefault();
+		const text = e.clipboardData?.getData('text/plain');
+		if (text) {
+			codeValueMobile = text;
+		}
+		for (const el of codeElementArray) {
+			el.blur();
+		}
+	};
+
 	onMount(() => {
 		codeElementArray[0].focus();
+
+		// Document on:paste
+		document.onpaste = (e: ClipboardEvent) => {
+			onPaste(e);
+		};
 	});
 </script>
 
@@ -61,18 +75,14 @@
 	<div class="modal">
 		<img class="mx-auto" src={woman} alt="" />
 		<div class="flex justify-center items-center">
-			<input
-				bind:value={codeValueMobile}
-				type="text"
-				class="codeInputMobile"
-				
-			/>
+			<input bind:value={codeValueMobile} type="text" class="codeInputMobile" />
 			{#each [1, 2, 3, 4] as value}
 				<input
 					class="codeInputDesktop"
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
-					on:keydown|preventDefault={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					on:paste|preventDefault={(e) => onPaste(e)}
 					type="text"
 				/>
 			{/each}
@@ -82,7 +92,8 @@
 					class="codeInputDesktop"
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
-					on:keydown|preventDefault={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					on:paste|preventDefault={(e) => onPaste(e)}
 					type="text"
 				/>
 			{/each}
