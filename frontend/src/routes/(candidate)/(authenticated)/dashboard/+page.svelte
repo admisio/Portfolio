@@ -24,7 +24,7 @@
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title={$candidateData.name + " " + $candidateData.surname ?? ""}>
+			<DashboardInfoCard title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
 				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
@@ -41,19 +41,27 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="my-10 name w-[90%] mx-auto">
-			<DashboardInfoCard title={$candidateData.name + " " + $candidateData.surname ?? ""}>
+			<DashboardInfoCard title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
 				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
 		<Swiper slidesPerView={1} spaceBetween={20}>
-			{#each [0, 0, 0] as _}
-				<SwiperSlide>
-					<div class="w-[90%] mx-auto">
-						<DashboardUploadCard title="Motivační dopis" filetype="PDF" filesize="10 MB" />
-					</div>
-				</SwiperSlide>
-			{/each}
+			<SwiperSlide>
+				<div class="w-[90%] mx-auto">
+					<CoverLetterUploadCard />
+				</div>
+			</SwiperSlide>
+			<SwiperSlide>
+				<div class="w-[90%] mx-auto">
+					<PortfolioLetterUploadCard />
+				</div>
+			</SwiperSlide>
+			<SwiperSlide>
+				<div class="w-[90%] mx-auto">
+					<PortfolioZipUploadCard />
+				</div>
+			</SwiperSlide>
 		</Swiper>
 	</div>
 </FullLayout>
