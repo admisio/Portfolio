@@ -45,7 +45,7 @@
 	async function submit() {
 		try {
 			await login({applicationId, password: codeValueMobile});
-			goto("/register");
+			goto("/dashboard");
 	 	} catch (e) {
 			console.error(e);
 		}
