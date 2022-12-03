@@ -10,7 +10,7 @@
 	const redirectToCode = () => {
 		// TODO: Validation
 		if (applicationValue) {
-			goto(`/login/${applicationValue}`);
+			goto(`login/${applicationValue}`);
 		}
 	};
 </script>
