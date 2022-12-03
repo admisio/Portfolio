@@ -3,9 +3,9 @@
 	import FileDrop from 'filedrop-svelte';
 	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
-	import StatusNotification from './StatusNotification.svelte';
 	import ProgressBar from './ProgressBar.svelte';
 	import type { AxiosProgressEvent } from 'axios';
+	import StatusNotificationDot from './StatusNotificationDot.svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -22,7 +22,8 @@
 
 	$: if ($submissionProgress) {
 		status = getStatus();
-		console.log('type' + fileType + ' status: ' + status);
+		// console.log('type' + fileType + ' status: ' + status);
+		fileDropped = status === 'uploaded' || status === 'submitted';
 	}
 
 	const getStatus = (): Status => {
@@ -86,9 +87,11 @@
 <div class="card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
 		<h3 class="">{title}</h3>
-		<StatusNotification {status} />
 		<div class="mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
+		</div>
+		<div class="mb-16 mr-8">
+			<StatusNotificationDot {status} />
 		</div>
 	</div>
 	{#if fileDropped}	
@@ -96,12 +99,16 @@
 			<svg class="w-35 h-35" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
 			<div class="items-center">
-				<h2 class="text-xl">Nahráno {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
-				<h2 class="text-xl self-center">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
+				{#if bytesTotal === 0}
+					<h2 class="text-xl font-bold">{status === 'submitted' ? "Odesláno" : "Nahráno"}</h2>
+				{:else}
+					<h2 class="text-xl">Nahráno {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
+					<h2 class="text-xl self-center">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
+				{/if}
 			</div>
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
 			<div class="items-center text-center">
-				<h2 class="text-2xl text-sspsBlueDark font-bold mb-2">{Math.round(progress * 100) + "%"}</h2>
+				<h2 class="text-2xl text-sspsBlueDark font-bold mb-2">{Math.round(progress * 100)} %</h2>
 				<ProgressBar progress={progress}></ProgressBar>
 			</div>
 		</div>
