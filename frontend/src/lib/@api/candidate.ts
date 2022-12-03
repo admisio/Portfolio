@@ -141,3 +141,12 @@ export const apiUploadPortfolioZip = async (
 		throw errorHandler(e, 'Failed to upload cover letter');
 	}
 };
+
+export const apiSubmitPortfolio = async (): Promise<boolean> => {
+	try {
+		await axios.post(API_URL + '/candidate/portfolio/submit', {}, { withCredentials: true });
+		return true;
+	} catch (e: any) {
+		throw errorHandler(e, 'Failed to submit portfolio');
+	}
+};

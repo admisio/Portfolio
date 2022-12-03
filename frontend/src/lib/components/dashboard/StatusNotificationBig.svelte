@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { Status } from "$lib/stores/portfolio";
-    import StatusNotificationDot from "./StatusNotificationDot.svelte";
 
     export let status: Status;
 
     let title: string;
-    switch (status) {
+    $: switch (status) {
         case "submitted":
-            title = "Soubory odeslány!";
+            title = "Soubory odevzdány!";
             break;
         case "uploaded":
             title = "Soubory nahrány!";
@@ -18,10 +17,10 @@
     }
 
 </script>
-<div class="bg-white rounded-full flex mb-8">
-    <div class="mt-3 mb-3 ml-3 flex flex-row">
-        <h2 class="ml-2 text-2xl text-sspsBlueDark font-bold">{title}</h2>
-        <span class="ml-32  w-8 h-8 rounded-full self-center {status}" />
+<div class="bg-white w-96 h-16 rounded-full flex mb-8">
+    <div class="mt-3 mb-3 ml-3 relative flex flex-row">
+        <h2 class="ml-2 ml-12 text-2xl self-center text-sspsBlueDark font-bold">{title}</h2>
+        <span class="w-8 h-8 absolute rounded-full self-center {status}" />
         <!-- <StatusNotificationDot {status} /> -->
     </div>
 </div>
