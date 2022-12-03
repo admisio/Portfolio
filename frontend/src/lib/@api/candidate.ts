@@ -3,7 +3,7 @@ import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler } from '.';
 
-export async function apiWhoami(): Promise<string> {
+export const apiWhoami = async (): Promise<string> => {
 	try {
 		const res = await axios.get(`${API_URL}/whoami`);
 		return res.data;
@@ -12,7 +12,7 @@ export async function apiWhoami(): Promise<string> {
 	}
 }
 
-export async function apiLogin(data: CandidateLogin): Promise<number> {
+export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 	try {
 		const res = await axios.post(API_URL + '/candidate/login', data, { withCredentials: true });
 		return data.applicationId;
@@ -22,15 +22,15 @@ export async function apiLogin(data: CandidateLogin): Promise<number> {
 }
 
 // TODO
-export async function apiLogout() {
+export const apiLogout = async (fetchSsr?: any) => {
 	try {
-		await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
+		fetchSsr ? await fetchSsr(API_URL + '/candidate/logout', { method: 'POST', credentials: 'include' }) : await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
 	} catch (e: any) {
 		throw errorHandler(e, 'Logout failed');
 	}
 }
 
-export async function apiFillDetails(data: CandidateData): Promise<CandidateData> {
+export const apiFillDetails = async (data: CandidateData): Promise<CandidateData> => {
 	console.log(data);
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
@@ -40,7 +40,7 @@ export async function apiFillDetails(data: CandidateData): Promise<CandidateData
 	}
 }
 
-export async function apiFetchDetails(): Promise<CandidateData> {
+export const apiFetchDetails = async (): Promise<CandidateData> => {
 	try {
 		const res = await axios.get(API_URL + '/candidate/details', { withCredentials: true });
 		return res.data;
@@ -49,7 +49,7 @@ export async function apiFetchDetails(): Promise<CandidateData> {
 	}
 }
 
-export async function apiFetchSubmissionProgress(): Promise<SubmissionProgress> {
+export const apiFetchSubmissionProgress = async (): Promise<SubmissionProgress> => {
 	try {
 		const res = await axios.get(API_URL + '/candidate/portfolio/submission_progress', { withCredentials: true });
 		return res.data;
@@ -58,10 +58,10 @@ export async function apiFetchSubmissionProgress(): Promise<SubmissionProgress> 
 	}
 }		
 
-export async function apiUploadCoverLetter(
+export const apiUploadCoverLetter = async (
 	letter: File,
 	progressReporter: (progress: AxiosProgressEvent) => void
-): Promise<boolean> {
+): Promise<boolean> => {
 	try {
 		const res = await axios.post(API_URL + '/candidate/add/cover_letter', letter, {
 			withCredentials: true,
@@ -77,10 +77,10 @@ export async function apiUploadCoverLetter(
 	}
 }
 
-export async function apiUploadPortfolioLetter(
+export const apiUploadPortfolioLetter = async (
 	letter: File,
 	progressReporter: (progress: AxiosProgressEvent) => void
-): Promise<boolean> {
+): Promise<boolean> => {
 	try {
 		const res = await axios.post(API_URL + '/candidate/add/portfolio_letter', letter, {
 			withCredentials: true,
@@ -96,10 +96,10 @@ export async function apiUploadPortfolioLetter(
 	}
 }
 
-export async function apiUploadPortfolioZip(
+export const apiUploadPortfolioZip = async (
 	portfolio: File,
 	progressReporter: (progress: AxiosProgressEvent) => void
-): Promise<boolean> {
+): Promise<boolean> => {
 	try {
 		const res = await axios.post(API_URL + '/candidate/add/portfolio_zip', portfolio, {
 			withCredentials: true,
