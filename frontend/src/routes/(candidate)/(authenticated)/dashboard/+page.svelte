@@ -11,15 +11,10 @@
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
+	import type { PageData } from './$types';
 
 	
-	let fullName = "";
-	let email = "";
-
-	$: if ($candidateData) {
-		fullName = ($candidateData.name ?? "") + " " + ($candidateData.surname ?? "");
-		email = $candidateData.email ?? "";
-	}
+	export let data: PageData;
 
 	fetchSubmProgress(); // TODO: move to a better place
 
@@ -39,8 +34,8 @@
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title={fullName}>
-				<span class="mt-3 text-sspsBlue truncate">{email}</span>
+			<DashboardInfoCard title={data.candidate.name ?? ""}>
+				<span class="mt-3 text-sspsBlue truncate">{data.candidate.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
@@ -56,8 +51,8 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="my-10 name w-[90%] mx-auto">
-			<DashboardInfoCard title={fullName}>
-				<span class="mt-3 text-sspsBlue truncate">{fullName}</span>
+			<DashboardInfoCard title={data.candidate.name ?? ""}>
+				<span class="mt-3 text-sspsBlue truncate">{data.candidate.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
