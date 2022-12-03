@@ -1,5 +1,5 @@
 <script lang="ts">
-	import lev from '$lib/assets/logo/lev.png';
+	import lion from '$lib/assets/logo/lion.png';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 
@@ -15,7 +15,7 @@
 		<div
 			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
 		>
-			<img class="object-cover" src={lev} alt="" />
+			<img class="object-cover" src={lion} alt="" />
 		</div>
 		<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Přihlášení</h1>
 		<p class="mt-8 font-light text-sspsGray text-center">

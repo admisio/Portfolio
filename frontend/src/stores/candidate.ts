@@ -1,6 +1,6 @@
 import { apiFetchDetails, apiFillDetails, apiLogin, apiLogout } from "../@api/candidate";
 import { writable } from "svelte/store";
-import type { ApiError } from "src/@api";
+import { browser } from "$app/environment";
 
 export interface CandidateData {
     name?: string;
@@ -25,7 +25,29 @@ export interface CandidateLogin {
     password: string;
 }
 
-export const candidateData = writable<CandidateData>();
+export const candidateData = writable<CandidateData>({});
+
+
+if (browser) {
+    const name = localStorage.getItem("name");
+    const surname = localStorage.getItem("surname");
+    const email = localStorage.getItem("email");
+    if (name && email && surname) {
+        candidateData.set({
+            name,
+            surname,
+            email
+        });
+    }
+}
+candidateData.subscribe((val) => {
+    if (browser) {
+        localStorage.setItem("name", val.name ?? "");
+        localStorage.setItem("surname", val.surname ?? "");
+        localStorage.setItem("email", val.email ?? "");
+    }
+})
+
 
 export async function login(data: CandidateLogin) {
     // TODO: handle errors

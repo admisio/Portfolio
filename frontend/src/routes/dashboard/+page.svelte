@@ -7,29 +7,32 @@
 	import DashboardUploadCard from '$lib/components/dashboard/DashboardUploadCard.svelte';
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
 	import { candidateData, fetchDetails } from '../../stores/candidate';
+	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
+	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
+	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
+	import { fetchSubmProgress } from '../../stores/portfolio';
 
 	
 	let fullName = "";
 	let email = "";
 
-	$: if ($candidateData === undefined) {
+	$: if ($candidateData) {
+		fullName = ($candidateData.name ?? "") + " " + ($candidateData.surname ?? "");
+		email = $candidateData.email ?? "";
+	}
+
+	fetchSubmProgress(); // TODO: move to a better place
+
+	$: if ($candidateData.name === undefined) {
 		fetch();
-	} else {
-		setNameEmail();
 	}
 
 	const fetch = async () => {
 		try {
 			await fetchDetails();
-			setNameEmail();
 		} catch {
 			console.error("error");
 		}
-	}
-
-	const setNameEmail = async () => {
-		fullName = $candidateData.name + " " + $candidateData.surname;
-		email = $candidateData.email ?? "!Nevyplněné údaje!";
 	}
 </script>
 
@@ -42,13 +45,13 @@
 			</DashboardInfoCard>
 		</div>
 		<div class="coverletter col-span-5">
-			<DashboardUploadCard title="Motivační dopis" filetype="PDF" filesize="10 MB" />
+			<CoverLetterUploadCard />
 		</div>
 		<div class="portfolio col-span-4">
-			<DashboardUploadCard title="Portfolio" filetype="PDF" filesize="10 MB" />
+			<PortfolioLetterUploadCard />
 		</div>
 		<div class="moreData col-span-4">
-			<DashboardUploadCard title="Další data" filetype="ZIP" filesize="100 MB" />
+			<PortfolioZipUploadCard />
 		</div>
 	</div>
 	<div class="dashboard dashboardMobile">

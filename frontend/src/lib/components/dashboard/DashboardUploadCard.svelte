@@ -1,11 +1,42 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
+	import FileDrop from 'filedrop-svelte';
+	import { submissionProgress, UploadStatus, type Status } from '../../../stores/portfolio';
+	import { createEventDispatcher } from 'svelte';
+	import StatusNotification from './StatusNotification.svelte';
+
+	const dispatch = createEventDispatcher();
 
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: string;
+	export let fileType: number;
 
-	import FileDrop from 'filedrop-svelte';
+	let status: Status;
+
+	$: if ($submissionProgress) {
+		status = getStatus();
+		console.log('type' + fileType + ' status: ' + status);
+	}
+
+	const getStatus = (): Status => {
+		console.log($submissionProgress);
+		switch ($submissionProgress.status) {
+			case UploadStatus.None:
+				return 'missing';
+			case UploadStatus.Some:
+				if ($submissionProgress.files!.some(code => code === fileType)) {
+					return 'uploaded';
+				}
+				return 'missing';
+			case UploadStatus.All:
+				return 'uploaded';
+			case UploadStatus.Submitted:
+				return 'submitted';
+			default:
+				return 'missing';
+		}
+	}
 
 	let dashAnimationProgress = 0;
 	let dashAnimationInterval: NodeJS.Timer;
@@ -30,13 +61,17 @@
 	
 	const onFileDrop = (dropped: Dropped) => {
 		console.log(dropped);
+		if (dropped.accepted.length > 0) {
+			dispatch('filedrop', dropped.accepted[0]);
+		}
 	};
 </script>
 
 <div class="card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
 		<h3>{title}</h3>
-		<div class="mt-3 sm:mt-0">
+		<StatusNotification {status} />
+		<div class="mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
 		</div>
 	</div>
@@ -44,7 +79,8 @@
 		<FileDrop
 			multiple={false}
 			maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
-			accept={filetype == 'PDF' ? 'application/pdf' : 'application/octet-stream'}
+			accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
+			
 			on:filedrop={(e) => onFileDrop(e.detail.files)}
 			on:filedragenter={dashAnimationStart}
 			on:filedragleave={dashAnimationStop}
