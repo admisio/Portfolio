@@ -15,15 +15,17 @@
 
 	export let data: PageData;
 
+	// @ts-ignore
 	$: candidateData.set(data.candidate);
+	// @ts-ignore
 	$: submissionProgress.set(data.submission);
 </script>
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title={$candidateData.name ?? ""}>
-				<span class="mt-3 text-sspsBlue truncate">{data.candidate.email}</span>
+			<DashboardInfoCard title={$candidateData.name + " " + $candidateData.surname ?? ""}>
+				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
@@ -39,8 +41,8 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="my-10 name w-[90%] mx-auto">
-			<DashboardInfoCard title={data.candidate.name ?? ""}>
-				<span class="mt-3 text-sspsBlue truncate">{data.candidate.email}</span>
+			<DashboardInfoCard title={$candidateData.name + " " + $candidateData.surname ?? ""}>
+				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
@@ -58,7 +60,7 @@
 
 <style>
 	.dashboardDesktop {
-		@apply w-[65vw] h-[65vh];
+		@apply w-[70vw] h-[70vh];
 		@apply hidden md:grid grid-cols-8 grid-rows-2 gap-10;
 	}
 
