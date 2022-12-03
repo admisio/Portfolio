@@ -10,17 +10,19 @@
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
 	import type { PageData } from './$types';
-	import { fetchSubmProgress } from '$lib/stores/portfolio';
+	import { fetchSubmProgress, submissionProgress } from '$lib/stores/portfolio';
+	import { candidateData } from '$lib/stores/candidate';
 
 	export let data: PageData;
 
-	fetchSubmProgress();
+	$: candidateData.set(data.candidate);
+	$: submissionProgress.set(data.submission);
 </script>
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
-			<DashboardInfoCard title={data.candidate.name ?? ""}>
+			<DashboardInfoCard title={$candidateData.name ?? ""}>
 				<span class="mt-3 text-sspsBlue truncate">{data.candidate.email}</span>
 				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
