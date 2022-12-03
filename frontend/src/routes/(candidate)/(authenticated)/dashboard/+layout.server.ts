@@ -6,8 +6,12 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 	let details;
 	try {
 		details = await apiFetchDetails(fetch);
-	} catch {
-		throw redirect(302, '/register');
+	} catch (e: any) {
+		if (e.code === 401) {
+			throw redirect(302, '/auth/login');
+		} else {
+			throw redirect(302, '/register');
+		}
 	}
 
 	let submissionProgress;
