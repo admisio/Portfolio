@@ -18,8 +18,8 @@
 </script>
 
 <!-- make red dot -->
-<div class="flex flex-row justify-between animate-pulse div-{status}">
-	<span class="mt-1 w-6 h-6 rounded-full {status}" />
+<div class="flex animate-pulse flex-row justify-between div-{status}">
+	<span class="mt-1 h-6 w-6 rounded-full {status}" />
 	<!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
 </div>
 

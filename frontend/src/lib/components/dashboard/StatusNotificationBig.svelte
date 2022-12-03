@@ -18,10 +18,10 @@
 	}
 </script>
 
-<div class="bg-white rounded-full flex mb-8">
+<div class="mb-8 flex rounded-full bg-white">
 	<div class="mt-3 mb-3 ml-3 flex flex-row">
-		<h2 class="ml-2 text-2xl text-sspsBlueDark font-bold">{title}</h2>
-		<span class="ml-32  w-8 h-8 rounded-full self-center {status}" />
+		<h2 class="text-sspsBlueDark ml-2 text-2xl font-bold">{title}</h2>
+		<span class="ml-32  h-8 w-8 self-center rounded-full {status}" />
 		<!-- <StatusNotificationDot {status} /> -->
 	</div>
 </div>

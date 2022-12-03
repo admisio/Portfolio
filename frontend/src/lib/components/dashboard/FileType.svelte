@@ -4,16 +4,16 @@
 </script>
 
 <div>
-	<span class="text-sspsBlue italic text-lg">{filetype}</span>
-	<span class="mx-2 text-sspsGray">/</span>
-	<span class="text-sspsBlue italic text-lg">Max {filesize}</span>
+	<span class="text-sspsBlue text-lg italic">{filetype}</span>
+	<span class="text-sspsGray mx-2">/</span>
+	<span class="text-sspsBlue text-lg italic">Max {filesize}</span>
 </div>
 
 <style>
 	div {
 		@apply flex items-center justify-between;
 		@apply py-1 px-4;
-		@apply bg-white rounded-xl shadow-md;
+		@apply rounded-xl bg-white shadow-md;
 
 		@apply hover:bg-sspsBlue;
 		@apply hover:cursor-pointer;

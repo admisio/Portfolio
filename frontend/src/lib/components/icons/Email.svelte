@@ -3,7 +3,7 @@
 <style>
 	span {
 		@apply flex items-center justify-center;
-		@apply text-center text-2xl text-sspsBlue;
+		@apply text-sspsBlue text-center text-2xl;
 		@apply pb-1;
 
 		@apply select-none;

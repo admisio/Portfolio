@@ -25,8 +25,8 @@
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3">
 			<DashboardInfoCard title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
-				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
-				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
+				<span class="text-sspsBlue mt-3 truncate">{$candidateData.email}</span>
+				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
 		<div class="coverletter col-span-5">
@@ -40,25 +40,25 @@
 		</div>
 	</div>
 	<div class="dashboard dashboardMobile">
-		<div class="my-10 name w-[90%] mx-auto">
+		<div class="name my-10 mx-auto w-[90%]">
 			<DashboardInfoCard title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
-				<span class="mt-3 text-sspsBlue truncate">{$candidateData.email}</span>
-				<span class="mt-3 text-sspsGray text-xs">Uchazeč na SSPŠ</span>
+				<span class="text-sspsBlue mt-3 truncate">{$candidateData.email}</span>
+				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
 		<Swiper slidesPerView={1} spaceBetween={20}>
 			<SwiperSlide>
-				<div class="w-[90%] mx-auto">
+				<div class="mx-auto w-[90%]">
 					<CoverLetterUploadCard />
 				</div>
 			</SwiperSlide>
 			<SwiperSlide>
-				<div class="w-[90%] mx-auto">
+				<div class="mx-auto w-[90%]">
 					<PortfolioLetterUploadCard />
 				</div>
 			</SwiperSlide>
 			<SwiperSlide>
-				<div class="w-[90%] mx-auto">
+				<div class="mx-auto w-[90%]">
 					<PortfolioZipUploadCard />
 				</div>
 			</SwiperSlide>
@@ -68,12 +68,12 @@
 
 <style>
 	.dashboardDesktop {
-		@apply w-[85vw] h-[85vh];
-		@apply hidden md:grid grid-cols-8 grid-rows-2 gap-10;
+		@apply h-[85vh] w-[85vw];
+		@apply hidden grid-cols-8 grid-rows-2 gap-10 md:grid;
 	}
 
 	.dashboardMobile {
-		@apply w-[100vw] h-[90vh];
+		@apply h-[90vh] w-[100vw];
 		@apply md:hidden;
 	}
 

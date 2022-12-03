@@ -1,5 +1,5 @@
 <svg
-	class="fill-transparent stroke-sspsBlue"
+	class="stroke-sspsBlue fill-transparent"
 	height="24"
 	width="24"
 	xmlns="http://www.w3.org/2000/svg"

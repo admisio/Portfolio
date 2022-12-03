@@ -28,18 +28,18 @@
 <style>
 	.bgImage {
 		@apply -z-20;
-		@apply absolute min-w-screen md:min-w-[50vw] min-h-screen;
+		@apply min-w-screen absolute min-h-screen md:min-w-[50vw];
 		@apply bg-no-repeat;
 	}
 	.bgOverlay {
-		@apply -z-10 absolute min-w-screen md:min-w-[50vw] min-h-screen;
+		@apply min-w-screen absolute -z-10 min-h-screen md:min-w-[50vw];
 		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
 		@apply bg-cover;
 	}
 	.bgOverlay .logo {
 		@apply absolute top-0 left-0;
 		@apply hidden md:inline-block;
-		@apply h-auto max-w-56;
+		@apply max-w-56 h-auto;
 		@apply p-7;
 	}
 	.darkModeToggle {
@@ -50,12 +50,12 @@
 	.view {
 		@apply z-10 overflow-scroll;
 		@apply rounded-3xl md:rounded-none;
-		@apply absolute w-[90vw] h-[90vh] top-0 md:top-auto right-0 bottom-0 md:bottom-auto left-0 md:left-auto m-auto md:m-0;
-		@apply md:w-[50vw] md:h-screen;
+		@apply absolute top-0 right-0 bottom-0 left-0 m-auto h-[90vh] w-[90vw] md:top-auto md:bottom-auto md:left-auto md:m-0;
+		@apply md:h-screen md:w-[50vw];
 		@apply md:my-auto;
 		@apply bg-white;
 	}
 	.content {
-		@apply w-full h-full;
+		@apply h-full w-full;
 	}
 </style>

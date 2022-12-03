@@ -87,18 +87,18 @@
 	};
 </script>
 
-<div class="relative card uploadCard">
+<div class="card uploadCard relative">
 	<div class="header">
 		<h3 class="mb-4 sm:mb-0">{title}</h3>
-		<div class="mb-4 sm:mb-0 mt-1 sm:mt-0">
+		<div class="mb-4 mt-1 sm:mb-0 sm:mt-0">
 			<FileType {filetype} filesize={filesize + ' MB'} />
 		</div>
-		<div class="absolute px-7 right-0 top-4">
+		<div class="absolute right-0 top-4 px-7">
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
 	{#if fileDropped}
-		<div class="body flex content-around justify-between items-center">
+		<div class="body flex content-around items-center justify-between">
 			<div class="w-24">
 				<img
 					class="w-full object-scale-down"
@@ -106,7 +106,7 @@
 					alt="Icon"
 				/>
 			</div>
-			<svg class="hidden xl:block h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+			<svg class="h-25 hidden xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
 				><line
 					x1="0"
 					y="0"
@@ -117,12 +117,12 @@
 					stroke-dasharray="3"
 				/></svg
 			>
-			<div class="hidden xl:block items-center">
+			<div class="hidden items-center xl:block">
 				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
 					<h2 class="text-xl font-bold">{status === 'submitted' ? 'Odesláno' : 'Nahráno'}</h2>
 				{:else}
 					<h2 class="text-xl">Nahráno {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
-					<h2 class="text-xl self-center">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
+					<h2 class="self-center text-xl">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
 				{/if}
 			</div>
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
@@ -137,7 +137,7 @@
 				/></svg
 			>
 			<div class="items-center text-center">
-				<h2 class="text-2xl text-sspsBlueDark font-bold mb-2">{Math.round(progress * 100)} %</h2>
+				<h2 class="text-sspsBlueDark mb-2 text-2xl font-bold">{Math.round(progress * 100)} %</h2>
 				<ProgressBar {progress} />
 			</div>
 		</div>
@@ -189,7 +189,7 @@
 		backdrop-filter: blur(15px) saturate(0.86);
 		-webkit-backdrop-filter: blur(15px) saturate(0.86);
 
-		@apply flex flex-col sm:flex-row justify-between sm:items-center;
+		@apply flex flex-col justify-between sm:flex-row sm:items-center;
 	}
 	.body {
 		@apply bg-[#f8fbfc];
@@ -198,10 +198,10 @@
 		@apply p-7;
 	}
 	.card h3 {
-		@apply text-sspsBlue text-2xl xl:text-4xl font-semibold;
+		@apply text-sspsBlue text-2xl font-semibold xl:text-4xl;
 	}
 	.card span {
-		@apply opacity-60 text-sm;
+		@apply text-sm opacity-60;
 		@apply transition-all duration-300;
 	}
 	.card .drag {

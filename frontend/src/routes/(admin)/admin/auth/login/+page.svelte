@@ -13,15 +13,15 @@
 <SplitLayout backgroundImage={background} backgroundPosition="30%">
 	<div class="form">
 		<div
-			class="py-3 px-6 md:py-4 md:px-8 rounded-[999px] shadow-2xl flex items-center justify-center"
+			class="flex items-center justify-center rounded-[999px] py-3 px-6 shadow-2xl md:py-4 md:px-8"
 		>
 			<img class="object-cover" src={lion} alt="" />
 		</div>
-		<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Přihlášení</h1>
-		<p class="mt-8 font-light text-sspsGray text-center">
+		<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Přihlášení</h1>
+		<p class="text-sspsGray mt-8 text-center font-light">
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 		</p>
-		<div class="w-3/5 mt-8 flex flex-col">
+		<div class="mt-8 flex w-3/5 flex-col">
 			<span>
 				<TextField bind:value={adminIdValue} placeholder="Admin id" type="number" />
 			</span>
@@ -34,7 +34,7 @@
 			</span>
 		</div>
 		<input
-			class="mt-8 w-3/5 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white"
+			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-3/5 rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
 			type="submit"
 			value="Odeslat"
 		/>
@@ -44,7 +44,7 @@
 <style>
 	.form {
 		@apply flex flex-col;
-		@apply mx-auto w-[90%] h-full;
+		@apply mx-auto h-full w-[90%];
 		@apply items-center justify-center;
 	}
 </style>
