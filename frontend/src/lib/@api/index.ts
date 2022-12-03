@@ -9,6 +9,6 @@ export interface ApiError {
 	msg: string;
 }
 
-export function errorHandler(error: AxiosError, msg: string): ApiError {
+export const errorHandler = (error: AxiosError, msg: string): ApiError => {
 	return { error, msg };
 }

@@ -40,7 +40,7 @@
 		submit();
 	}
 
-	async function submit() {
+	 const submit = async () => {
 		try {
 			await apiLogin({ applicationId, password: codeValueMobile });
 			goto('/dashboard');
