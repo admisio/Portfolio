@@ -16,7 +16,7 @@ export interface SubmissionProgress {
 }
 export const submissionProgress = writable<SubmissionProgress>({});
 
-export async function fetchSubmProgress() {
+export const fetchSubmProgress = async () => {
 	try {
 		const prog = await apiFetchSubmissionProgress();
 		submissionProgress.set(prog);
