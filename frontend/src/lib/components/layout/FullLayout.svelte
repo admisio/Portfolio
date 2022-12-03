@@ -6,10 +6,10 @@
 
 <div class="bg">
 	<div class="bgOverlay">
-		<!-- <img class="logo" src={logo} alt="SSPŠ logo" /> -->
-		<!-- <div class="darkModeToggle">
+		<img class="logo" src={logo}  alt="SSPŠ logo" />
+		<div class="darkModeToggle">
 			<DarkModeToggle backgroundColor="dark" />
-		</div> -->
+		</div>
 	</div>
 	<div style={`background-image: url(${backgroundImage});`} class="bgImage" />
 </div>
@@ -20,6 +20,9 @@
 </div>
 
 <style>
+	.logo {
+		@apply w-[200px] h-[200px]
+	}
 	.bgImage {
 		@apply -z-20;
 		@apply absolute min-w-screen min-w-full min-h-screen;
@@ -34,7 +37,7 @@
 	.bgOverlay .logo {
 		@apply absolute top-0 left-0;
 		@apply hidden md:inline-block;
-		@apply h-auto max-w-56;
+		@apply h-auto max-w-72;
 		@apply p-7;
 	}
 	.bgOverlay .darkModeToggle {

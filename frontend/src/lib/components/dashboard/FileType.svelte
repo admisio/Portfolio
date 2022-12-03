@@ -4,9 +4,9 @@
 </script>
 
 <div>
-	<span class="text-sspsBlue italic text-sm">{filetype}</span>
+	<span class="text-sspsBlue italic text-lg">{filetype}</span>
 	<span class="mx-2 text-sspsGray">/</span>
-	<span class="text-sspsBlue italic text-sm">Max {filesize}</span>
+	<span class="text-sspsBlue italic text-lg">Max {filesize}</span>
 </div>
 
 <style>

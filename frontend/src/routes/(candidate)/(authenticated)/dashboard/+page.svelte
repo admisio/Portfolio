@@ -53,7 +53,7 @@
 
 <style>
 	.dashboardDesktop {
-		@apply w-[70vw] h-[70vh];
+		@apply w-[65vw] h-[65vh];
 		@apply hidden md:grid grid-cols-8 grid-rows-2 gap-10;
 	}
 
