@@ -1,7 +1,7 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
 	import FileDrop from 'filedrop-svelte';
-	import { submissionProgress, UploadStatus, type Status } from '../../../stores/portfolio';
+	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
 	import StatusNotification from './StatusNotification.svelte';
 
