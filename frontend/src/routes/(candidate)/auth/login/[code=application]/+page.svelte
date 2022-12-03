@@ -74,7 +74,7 @@
 <FullLayout>
 	<div class="modal">
 		<img class="mx-auto" src={woman} alt="" />
-		<div class="flex justify-center items-center">
+		<div class="flex items-center justify-center">
 			<input bind:value={codeValueMobile} type="text" class="codeInputMobile" />
 			{#each [1, 2, 3, 4] as value}
 				<input
@@ -86,7 +86,7 @@
 					type="text"
 				/>
 			{/each}
-			<span class="hidden sm:block mr-2 w-8 h-2 bg-sspsBlue" />
+			<span class="bg-sspsBlue mr-2 hidden h-2 w-8 sm:block" />
 			{#each [5, 6, 7, 8] as value}
 				<input
 					class="codeInputDesktop"
@@ -98,10 +98,10 @@
 				/>
 			{/each}
 		</div>
-		<h3 class="mt-8 mx-8 text-sspsBlue font-semibold text-xl text-center">
+		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
 			Zadejte 8místný kód pro aktivaci účtu
 		</h3>
-		<p class="mt-8 mx-8 text-sspsGray text-center">Nevíte si rady? Klikněte <u>zde</u></p>
+		<p class="text-sspsGray mx-8 mt-8 text-center">Nevíte si rady? Klikněte <u>zde</u></p>
 	</div>
 </FullLayout>
 
@@ -109,21 +109,21 @@
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
-		@apply w-[90vw] h-[90vh] md:w-4/5 md:h-4/5;
+		@apply h-[90vh] w-[90vw] md:h-4/5 md:w-4/5;
 		@apply rounded-3xl;
 		@apply bg-white;
 	}
 	input {
-		@apply text-center font-semibold text-sspsBlue;
-		@apply caret-transparent bg-[#f8fafb] shadow-lg p-3 rounded-xl outline-none border transition-colors duration-300 focus:border-sspsBlue  hover:border-sspsBlue  border-2;
+		@apply text-sspsBlue text-center font-semibold;
+		@apply focus:border-sspsBlue hover:border-sspsBlue rounded-xl border border-2 bg-[#f8fafb] p-3 caret-transparent shadow-lg outline-none  transition-colors  duration-300;
 	}
 	.codeInputMobile {
 		@apply sm:hidden;
-		@apply w-full mx-5;
+		@apply mx-5 w-full;
 	}
 	.codeInputDesktop {
 		@apply hidden;
 		@apply mr-1 md:mr-2;
-		@apply sm:block sm:text-xl sm:w-12 sm:h-15 md:text-4xl md:w-16 md:h-20 xl:text-4xl xl:w-18 xl:h-22 xl:p-0;
+		@apply sm:h-15 xl:w-18 xl:h-22 sm:block sm:w-12 sm:text-xl md:h-20 md:w-16 md:text-4xl xl:p-0 xl:text-4xl;
 	}
 </style>

@@ -7,7 +7,7 @@
 	<div
 		in:fly={{ x: -5, duration: 500, delay: 500 }}
 		out:fly={{ x: 5, duration: 500 }}
-		class="absolute bg-inherit w-full h-full"
+		class="absolute h-full w-full bg-inherit"
 	>
 		<slot />
 	</div>

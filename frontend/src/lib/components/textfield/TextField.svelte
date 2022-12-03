@@ -10,7 +10,7 @@
 	export let error: string = '';
 </script>
 
-<div class="relative flex justify-center items-center">
+<div class="relative flex items-center justify-center">
 	<input
 		class:error
 		bind:value
@@ -19,12 +19,12 @@
 		on:keyup
 		on:change
 		class:withIcon={icon}
-		class="bg-[#f8fafb] w-full shadow-lg p-3 rounded-lg text-xl outline-none border transition-colors duration-300 hover:border-sspsBlue  border-2"
+		class="hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300"
 		use:typeAction
 		{placeholder}
 	/>
 	{#if icon}
-		<span class="flex absolute right-0 top-0 bottom-0 my-auto bg-transparent p-3">
+		<span class="absolute right-0 top-0 bottom-0 my-auto flex bg-transparent p-3">
 			<slot name="icon" />
 		</span>
 	{/if}

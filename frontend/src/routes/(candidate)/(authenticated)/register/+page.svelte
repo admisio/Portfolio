@@ -121,18 +121,18 @@
 
 <SplitLayout>
 	<div class="form">
-		<div class="w-24 h-24 md:w-auto md:h-auto">
+		<div class="h-24 w-24 md:h-auto md:w-auto">
 			<SchoolBadge />
 		</div>
 		{#if pageIndex === 0}
 			<form on:submit={handleSubmit}>
-				<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Registrace</h1>
-				<p class="block mt-8 font-light text-sspsGray text-center">
+				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Registrace</h1>
+				<p class="text-sspsGray mt-8 block text-center font-light">
 					Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget
 					elit.
 				</p>
-				<div class="flex md:flex-col items-center justify-center w-full">
-					<span class="w-full mt-8">
+				<div class="flex w-full items-center justify-center md:flex-col">
+					<span class="mt-8 w-full">
 						<TextField
 							error={$errors.name}
 							on:change={handleChange}
@@ -141,7 +141,7 @@
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
-					<span class="w-full mt-8 ml-2 md:ml-0">
+					<span class="mt-8 ml-2 w-full md:ml-0">
 						<EmailField
 							error={$errors.email}
 							on:change={handleChange}
@@ -161,15 +161,15 @@
 			</form>
 		{/if}
 		{#if pageIndex === 1}
-			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Něco o tobě</h1>
-			<p class="block mt-8 font-light text-sspsGray text-center">
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Něco o tobě</h1>
+			<p class="text-sspsGray mt-8 block text-center font-light">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-row md:flex-col w-full">
-				<span class="w-full mt-8">
+			<div class="flex w-full flex-row md:flex-col">
+				<span class="mt-8 w-full">
 					<TextField type="text" placeholder="Rodné příjmení" on:change={handleChange} />
 				</span>
-				<span class="w-full mt-8 ml-2 md:ml-0">
+				<span class="mt-8 ml-2 w-full md:ml-0">
 					<TextField
 						error={$errors.birthplace}
 						on:change={handleChange}
@@ -185,7 +185,7 @@
 				</span>
 			</div>
 
-			<div class="mt-8 flex items-center w-full">
+			<div class="mt-8 flex w-full items-center">
 				<TextField
 					error={$errors.birthdate}
 					on:change={handleChange}
@@ -205,12 +205,12 @@
 			</div>
 		{/if}
 		{#if pageIndex === 2}
-			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Už jen kousek!</h1>
-			<p class="block mt-8 font-light text-sspsGray text-center">
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Už jen kousek!</h1>
+			<p class="text-sspsGray mt-8 block text-center font-light">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-col w-full">
-				<span class="w-full mt-8">
+			<div class="flex w-full flex-col">
+				<span class="mt-8 w-full">
 					<TextField
 						error={$errors.address}
 						on:change={handleChange}
@@ -228,7 +228,7 @@
 							placeholder="E-mail zákonného zástupce"
 						/>
 					</span>
-					<span class="w-full ml-2 md:ml-0 md:mt-8">
+					<span class="ml-2 w-full md:ml-0 md:mt-8">
 						<TelephoneField
 							error={$errors.parentTelephone}
 							on:change={handleChange}
@@ -240,12 +240,12 @@
 			</div>
 		{/if}
 		{#if pageIndex === 3}
-			<h1 class="mt-8 text-4xl text-sspsBlue font-semibold">Poslední krok</h1>
-			<p class="block mt-8 font-light text-sspsGray text-center">
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Poslední krok</h1>
+			<p class="text-sspsGray mt-8 block text-center font-light">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
-			<div class="flex flex-row md:flex-col w-full">
-				<span class="w-full mt-8">
+			<div class="flex w-full flex-row md:flex-col">
+				<span class="mt-8 w-full">
 					<TextField
 						error={$errors.citizenship}
 						on:change={handleChange}
@@ -254,11 +254,11 @@
 						placeholder="Občanství"
 					/>
 				</span>
-				<span class="w-full mt-8 ml-2 md:ml-0">
+				<span class="mt-8 ml-2 w-full md:ml-0">
 					<TextField on:change={handleChange} type="text" placeholder="Evidenční číslo přihlášky" />
 				</span>
 			</div>
-			<div class="mt-8 flex items-center justify-center w-full">
+			<div class="mt-8 flex w-full items-center justify-center">
 				<IdField
 					error={$errors.personalIdNumber}
 					on:change={handleChange}
@@ -288,7 +288,7 @@
 				}
 				errors.set(formInitialValues);
 			}}
-			class="w-full mt-8 p-3 rounded-lg font-semibold text-xl transition-colors duration-300 bg-sspsBlue hover:bg-sspsBlueDark text-white hover:cursor-pointer"
+			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-full rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300 hover:cursor-pointer"
 			type="submit"
 			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
 		/>
@@ -320,7 +320,7 @@
 <style>
 	.form {
 		@apply flex flex-col;
-		@apply mx-auto w-[90%] h-full;
+		@apply mx-auto h-full w-[90%];
 		@apply items-center justify-center;
 	}
 	.form > form {
@@ -329,9 +329,9 @@
 		@apply items-center justify-center;
 	}
 	.dot {
-		@apply ml-2 w-4 h-4 
-		@apply hover:cursor-pointer hover:bg-sspsBlue
-		@apply rounded-full bg-sspsGray;
+		@apply @apply hover:bg-sspsBlue @apply 
+		bg-sspsGray ml-2 h-4
+		w-4 rounded-full hover:cursor-pointer;
 	}
 	.dotActive {
 		@apply bg-sspsBlue;
