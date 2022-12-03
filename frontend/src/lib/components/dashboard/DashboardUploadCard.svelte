@@ -101,7 +101,7 @@
 			<img src={documentIcon} alt="">
 			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
 			<div class="items-center">
-				{#if bytesTotal === 0}
+				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
 					<h2 class="text-xl font-bold">{status === 'submitted' ? "Odesláno" : "Nahráno"}</h2>
 				{:else}
 					<h2 class="text-xl">Nahráno {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
