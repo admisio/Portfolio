@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { AxiosProgressEvent } from "axios";
 	import { fetchSubmProgress } from "$lib/stores/portfolio";
 	import { apiUploadPortfolioZip } from "$lib/@api/candidate";
 	import DashboardUploadCard from "./DashboardUploadCard.svelte";
 
-    const onFileDrop = async (file: File) => {
-        await apiUploadPortfolioZip(file, (progressEvent: AxiosProgressEvent) => {
-            console.log(progressEvent.loaded)
-        });
+    const onFileDrop = async (detail: any) => {
+        const file = detail.file;
+        const callback = detail.callback;
+        await apiUploadPortfolioZip(file, callback);
         await fetchSubmProgress();
     }
 

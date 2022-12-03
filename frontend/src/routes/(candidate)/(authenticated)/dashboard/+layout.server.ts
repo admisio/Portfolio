@@ -1,13 +1,18 @@
 import { apiFetchDetails, apiFetchSubmissionProgress } from '$lib/@api/candidate';
+import type { CandidateData } from '$lib/stores/candidate';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ fetch }) => {
-	let details;
+	let details: CandidateData;
 	try {
 		details = await apiFetchDetails(fetch);
-	} catch {
-		throw redirect(302, '/register');
+	} catch (e: any) {
+		if (e.code === 401) {
+			throw redirect(302, '/auth/login');
+		} else {
+			throw redirect(302, '/register');
+		}
 	}
 
 	let submissionProgress;
@@ -18,11 +23,7 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
 	}
 
 	return {
-		candidate: {
-			name: details.name,
-			surname: details.surname,
-			email: details.email
-		},
+		candidate: details,
 		submission: {
 			...submissionProgress
 		}
