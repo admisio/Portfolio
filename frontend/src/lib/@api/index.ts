@@ -1,5 +1,6 @@
-import { goto } from "$app/navigation";
 import type { AxiosError } from "axios";
+
+export type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>
 
 export const API_URL = "http://localhost:9000";
 
