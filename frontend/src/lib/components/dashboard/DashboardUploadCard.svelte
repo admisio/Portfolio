@@ -8,6 +8,7 @@
 	import StatusNotificationDot from './StatusNotificationDot.svelte';
 
 	import documentIcon from '$lib/assets/document.png';
+	import archiveIcon from '$lib/assets/archive.png';
 
 	const dispatch = createEventDispatcher();
 
@@ -34,7 +35,7 @@
 			case UploadStatus.None:
 				return 'missing';
 			case UploadStatus.Some:
-				if ($submissionProgress.files!.some(code => code === fileType)) {
+				if ($submissionProgress.files!.some((code) => code === fileType)) {
 					return 'uploaded';
 				}
 				return 'missing';
@@ -45,7 +46,7 @@
 			default:
 				return 'missing';
 		}
-	}
+	};
 
 	let dashAnimationProgress = 0;
 	let dashAnimationInterval: NodeJS.Timer;
@@ -67,7 +68,7 @@
 		accepted: Array<File>;
 		rejected: Array<File>;
 	};
-	
+
 	const onFileDrop = (dropped: Dropped) => {
 		console.log(dropped);
 		if (dropped.accepted.length > 0) {
@@ -96,31 +97,52 @@
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
-	{#if fileDropped}	
+	{#if fileDropped}
 		<div class="flex content-around justify-between items-center mb-5 ml-5 mr-5">
-			<img src={documentIcon} alt="">
-			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
+			<div class="w-28">
+				<img class="w-full" src={filetype == 'PDF' ? documentIcon : archiveIcon} alt="Icon" />
+			</div>
+			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+				><line
+					x1="0"
+					y="0"
+					x2="0"
+					y2="40"
+					stroke="#406280ff"
+					stroke-width="2"
+					stroke-dasharray="3"
+				/></svg
+			>
 			<div class="items-center">
 				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
-					<h2 class="text-xl font-bold">{status === 'submitted' ? "Odesláno" : "Nahráno"}</h2>
+					<h2 class="text-xl font-bold">{status === 'submitted' ? 'Odesláno' : 'Nahráno'}</h2>
 				{:else}
 					<h2 class="text-xl">Nahráno {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
 					<h2 class="text-xl self-center">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
 				{/if}
 			</div>
-			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y="0" x2="0" y2="40" stroke="#406280ff" stroke-width="2" stroke-dasharray="3"></line></svg>
+			<svg class="h-25" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+				><line
+					x1="0"
+					y="0"
+					x2="0"
+					y2="40"
+					stroke="#406280ff"
+					stroke-width="2"
+					stroke-dasharray="3"
+				/></svg
+			>
 			<div class="items-center text-center">
 				<h2 class="text-2xl text-sspsBlueDark font-bold mb-2">{Math.round(progress * 100)} %</h2>
-				<ProgressBar progress={progress}></ProgressBar>
+				<ProgressBar {progress} />
 			</div>
 		</div>
 	{:else}
 		<div class="flex-1 mt-6">
 			<FileDrop
 				multiple={false}
-				maxSize={filetype == 'PDF' ? 100_000_000 : 10_000_000}
+				maxSize={filetype == 'PDF' ? 10_000_000 : 100_000_000}
 				accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
-				
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}
 				on:filedragleave={dashAnimationStop}
