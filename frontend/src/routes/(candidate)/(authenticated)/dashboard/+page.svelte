@@ -6,29 +6,12 @@
 
 	import DashboardUploadCard from '$lib/components/dashboard/DashboardUploadCard.svelte';
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
-	import { candidateData, fetchDetails } from '$lib/stores/candidate';
 	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
-	import { fetchSubmProgress } from '$lib/stores/portfolio';
 	import type { PageData } from './$types';
 
-	
 	export let data: PageData;
-
-	fetchSubmProgress(); // TODO: move to a better place
-
-	$: if ($candidateData.name === undefined) {
-		fetch();
-	}
-
-	const fetch = async () => {
-		try {
-			await fetchDetails();
-		} catch {
-			console.error("error");
-		}
-	}
 </script>
 
 <FullLayout>

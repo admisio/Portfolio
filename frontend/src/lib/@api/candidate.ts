@@ -1,11 +1,11 @@
 import axios, { type AxiosProgressEvent } from 'axios';
 import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
-import { API_URL, errorHandler } from '.';
+import { API_URL, errorHandler, type Fetch } from '.';
 
 
 // SSR Compatible
-export const apiLogout = async (fetchSsr?: any) => {
+export const apiLogout = async (fetchSsr?: Fetch) => {
 	try {
 		fetchSsr ? await fetchSsr(API_URL + '/candidate/logout', { method: 'POST', credentials: 'include' }) : await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
 	} catch (e: any) {
@@ -14,7 +14,7 @@ export const apiLogout = async (fetchSsr?: any) => {
 }
 
 // SSR Compatible
-export const apiFetchDetails = async (fetchSsr?: any): Promise<CandidateData | null> => {
+export const apiFetchDetails = async (fetchSsr?: Fetch): Promise<CandidateData | null> => {
 	try {
 		if (fetchSsr) {
 			const res = await fetchSsr(API_URL + '/candidate/details', { method: "GET", credentials: 'include' });
@@ -31,6 +31,20 @@ export const apiFetchDetails = async (fetchSsr?: any): Promise<CandidateData | n
 		throw errorHandler(e, 'Failed to fill details');
 	}
 }
+
+// SSR Compatible
+export const apiFetchSubmissionProgress = async (fetchSsr?: Fetch): Promise<SubmissionProgress> => {
+	try {
+		if (fetchSsr) {
+			const res = await fetchSsr(API_URL + '/candidate/portfolio/submission_progress', { method: "GET", credentials: 'include' });
+			return await res.json();
+		}
+		const res = await axios.get(API_URL + '/candidate/portfolio/submission_progress', { withCredentials: true });
+		return res.data;
+	} catch (e: any) {
+		throw errorHandler(e, 'Failed to fetch submission progress');
+	}
+}		
 
 export const apiWhoami = async (): Promise<string> => {
 	try {
@@ -60,15 +74,6 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 		throw errorHandler(e, 'Failed to fill details');
 	}
 }
-
-export const apiFetchSubmissionProgress = async (): Promise<SubmissionProgress> => {
-	try {
-		const res = await axios.get(API_URL + '/candidate/portfolio/submission_progress', { withCredentials: true });
-		return res.data;
-	} catch (e: any) {
-		throw errorHandler(e, 'Failed to fetch submission progress');
-	}
-}		
 
 export const apiUploadCoverLetter = async (
 	letter: File,
