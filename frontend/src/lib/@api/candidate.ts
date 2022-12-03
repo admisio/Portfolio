@@ -20,7 +20,7 @@ export const apiFetchDetails = async (fetchSsr?: Fetch): Promise<CandidateData |
 			const res = await fetchSsr(API_URL + '/candidate/details', { method: "GET", credentials: 'include' });
 			const body = await res.text();
 			console.log(body);
-			if (res.status === 500) {
+			if (res.status != 200) {
 				return null;
 			}
 			return JSON.parse(body);
