@@ -89,8 +89,8 @@
 
 <div class="relative card uploadCard">
 	<div class="flex flex-col sm:flex-row justify-between sm:items-center">
-		<h3 class="">{title}</h3>
-		<div class="mt-1 sm:mt-0">
+		<h3 class="mb-4 sm:mb-0">{title}</h3>
+		<div class="mb-4 sm:mb-0 mt-1 sm:mt-0">
 			<FileType {filetype} {filesize} />
 		</div>
 		<div class="absolute px-7 right-0 top-4">
@@ -98,7 +98,7 @@
 		</div>
 	</div>
 	{#if fileDropped}
-		<div class="flex content-around justify-between items-center mb-5 ml-5 mr-5">
+		<div class="flex content-around justify-between items-center mb-5 sm:mx-5">
 			<div class="w-24">
 				<img class="w-full" src={filetype == 'PDF' ? documentIcon : archiveIcon} alt="Icon" />
 			</div>
