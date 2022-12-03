@@ -6,7 +6,7 @@
 
 <div class="bg">
 	<div class="bgOverlay">
-		<img class="logo" src={logo}  alt="SSPŠ logo" />
+		<img class="logo" src={logo} alt="SSPŠ logo" />
 		<div class="darkModeToggle">
 			<DarkModeToggle backgroundColor="dark" />
 		</div>
@@ -21,7 +21,7 @@
 
 <style>
 	.logo {
-		@apply w-[200px] h-[200px]
+		@apply w-[200px] h-[200px];
 	}
 	.bgImage {
 		@apply -z-20;

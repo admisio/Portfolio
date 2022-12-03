@@ -16,7 +16,7 @@
 		@apply bg-white rounded-xl shadow-md;
 
 		@apply hover:bg-sspsBlue;
-        @apply hover:cursor-pointer;
+		@apply hover:cursor-pointer;
 	}
 
 	div,

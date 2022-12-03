@@ -4,19 +4,22 @@
 	import DarkModeToggle from '../DarkModeToggle.svelte';
 
 	export let backgroundImage: string = defaultBg;
-	export let backgroundPosition: string = "55%";
+	export let backgroundPosition: string = '55%';
 </script>
 
 <div class="bg">
 	<div class="bgOverlay">
 		<img class="logo" src={logo} alt="SSPŠ logo" />
 	</div>
-	<div style={`background-image: url(${backgroundImage}); background-position: ${backgroundPosition}`} class="bgImage" />
+	<div
+		style={`background-image: url(${backgroundImage}); background-position: ${backgroundPosition}`}
+		class="bgImage"
+	/>
 </div>
 <div class="view">
-    <div class="darkModeToggle">
-        <DarkModeToggle/>
-    </div>
+	<div class="darkModeToggle">
+		<DarkModeToggle />
+	</div>
 	<div class="content">
 		<slot />
 	</div>
@@ -52,7 +55,7 @@
 		@apply md:my-auto;
 		@apply bg-white;
 	}
-    .content {
-        @apply w-full h-full;
-    }
+	.content {
+		@apply w-full h-full;
+	}
 </style>
