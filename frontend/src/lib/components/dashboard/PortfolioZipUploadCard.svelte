@@ -17,6 +17,6 @@
     on:filedrop={e => onFileDrop(e.detail)} 
     title="Další data"
     filetype="ZIP"
-    filesize="100 MB"
+    filesize={100}
     fileType={3}>
 </DashboardUploadCard>

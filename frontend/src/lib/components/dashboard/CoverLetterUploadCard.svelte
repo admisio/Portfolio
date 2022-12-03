@@ -17,7 +17,7 @@
     on:filedrop={e => onFileDrop(e.detail)}
     title="Motivační dopis"
     filetype="PDF"
-    filesize="10 MB"
+    filesize={10}
     fileType={1}
     >
 </DashboardUploadCard>
