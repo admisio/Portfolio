@@ -4,8 +4,8 @@
 	import woman from '$lib/assets/woman.png';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { login } from '$lib/stores/candidate';
 	import { goto } from '$app/navigation';
+	import { apiLogin } from '$lib/@api/candidate';
 	
 	
 	let applicationId = Number($page.params.code);
@@ -44,7 +44,7 @@
 
 	async function submit() {
 		try {
-			await login({applicationId, password: codeValueMobile});
+			await apiLogin({applicationId, password: codeValueMobile});
 			goto("/dashboard");
 	 	} catch (e) {
 			console.error(e);

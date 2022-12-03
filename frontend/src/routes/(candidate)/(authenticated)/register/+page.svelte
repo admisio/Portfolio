@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { apiFillDetails } from '$lib/@api/candidate';
 
 	import Email from '$lib/components/icons/Email.svelte';
 	import Home from '$lib/components/icons/Home.svelte';
@@ -10,13 +11,9 @@
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import { fillDetails, candidateData, type CandidateData } from '$lib/stores/candidate';
 
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
-	import { writable } from 'svelte/store';
-
-	let applicationValue = '';
 
 	const pageCount = 3;
 	let pageIndex = 0;
@@ -67,7 +64,7 @@
 					// @ts-ignore // love javascript
 					delete values.undefined;
 					values.birthdate = '2000-01-01' // TODO: reformat user typed date
-					await fillDetails(values);
+					await apiFillDetails(values);
 					goto("/dashboard");
 				} catch (e) {
 					console.error("error while submitting data: " + e);

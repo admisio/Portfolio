@@ -18,7 +18,7 @@ export const submissionProgress = writable<SubmissionProgress>({});
 
 export async function fetchSubmProgress() {
     try {
-        let prog = await apiFetchSubmissionProgress();
+        const prog = await apiFetchSubmissionProgress();
         submissionProgress.set(prog);
     } catch (e) {
         console.error(e);
