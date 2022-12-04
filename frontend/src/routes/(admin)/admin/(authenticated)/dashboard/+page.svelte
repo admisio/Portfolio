@@ -3,7 +3,7 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidateData, CandidatePreview } from '$lib/stores/candidate';
-	import CandidateDetails from '$lib/components/dashboard/CandidateDetails.svelte';
+	import CandidateDetails from '$lib/components/list/CandidateDetails.svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
 
@@ -94,7 +94,7 @@
 											class="border-b bg-white hover:cursor-pointer"
 										>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
-												>{candidate.applicationId}</td
+												><a target="_blank" href="/admin/candidate/{candidate.applicationId}">{candidate.applicationId}</a></td
 											>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
 												{candidate.name}
@@ -106,15 +106,6 @@
 												{candidate.study}
 											</td>
 										</tr>
-										{#if candidateDetails.hasOwnProperty(candidate.applicationId)}
-											<div class="mb-20 w-full">
-												<CandidateDetails
-													id={candidate.applicationId}
-													candidate={candidateDetails[candidate.applicationId]}
-												/>
-												<hr class="w-full border-4" />
-											</div>
-										{/if}
 									{/each}
 								</tbody>
 							</table>
