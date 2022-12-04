@@ -40,7 +40,7 @@
 		submit();
 	}
 
-	 const submit = async () => {
+	const submit = async () => {
 		try {
 			await apiLogin({ applicationId, password: codeValueMobile });
 			goto('/dashboard');
@@ -48,7 +48,7 @@
 			console.error(e);
 		}
 		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
-	}
+	};
 
 	const onPaste = (e: ClipboardEvent) => {
 		e.preventDefault();
@@ -65,8 +65,11 @@
 		codeElementArray[0].focus();
 
 		// Document on:paste
-		document.onpaste = (e: ClipboardEvent) => {
-			onPaste(e);
+		document.addEventListener('paste', onPaste);
+
+		return () => {
+			// this function is called when the component is destroyed
+			document.removeEventListener('paste', onPaste);
 		};
 	});
 </script>
