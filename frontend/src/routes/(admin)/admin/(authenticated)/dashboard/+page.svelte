@@ -33,9 +33,8 @@
 </script>
 
 <div>
-	<div class="header" style={`background-image: url(${backgroundImage});`} />
 	<div class="flex flex-row">
-		<div class="list">
+		<div class="list fixed">
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
@@ -95,14 +94,12 @@
 </div>
 
 <style>
-	.header {
-		@apply h-16 w-full;
-	}
 	.list {
-		@apply h-[100vh] w-96;
+		@apply h-full w-96;
 		@apply float-left overflow-scroll;
 
 		@apply border-r border-gray-400;
+		@apply bg-white
 	}
 
 	.list div {
@@ -146,9 +143,9 @@
 	}
 
 	.body {
-		@apply h-[100vh] w-[calc(100vw-96px)];
+		@apply h-full w-full;
 		@apply float-left overflow-hidden;
-		@apply my-6 mx-10;
+		@apply my-6 mx-12 ml-[27rem];
 	}
 
 	.body .controls {
