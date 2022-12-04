@@ -18,20 +18,38 @@
 		candidates = data.preview;
 	});
 
-	const getCandidates = async () => {
+	const getCandidates = async (field?: string) => {
 		try {
-			candidates = await apiListCandidates();
+			candidates = await apiListCandidates(undefined, field);
 		} catch {
 			console.log('error');
 		}
-	}
-
+	};
 
 	type Filter = 'Vše' | 'KBB' | 'IT' | 'GYM';
 
 	let filters: Array<Filter> = ['Vše', 'KBB', 'IT', 'GYM'];
 
 	let activeFilter: Filter = 'Vše';
+
+	const changeFilter = (filter: Filter) => {
+		activeFilter = filter;
+		switch (activeFilter) {
+			case 'Vše':
+				getCandidates();
+				break;
+			case 'KBB':
+				getCandidates('KB');
+				break;
+			case 'IT':
+				getCandidates('IT');
+				break;
+			case 'GYM':
+				getCandidates('G');
+				break;
+		}
+	};
+
 
 	let scrollTop = 0;
 
@@ -43,7 +61,10 @@
 </script>
 
 {#if createCandidateModal}
-	<CreateCandidateModal on:created={getCandidates}  on:close={() => (createCandidateModal = false)} />
+	<CreateCandidateModal
+		on:created={getCandidates}
+		on:close={() => (createCandidateModal = false)}
+	/>
 {/if}
 
 <div>
@@ -52,7 +73,7 @@
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
-					<button on:click={() => (activeFilter = filter)}>{filter}</button>
+					<button on:click={() => changeFilter(filter)}>{filter}</button>
 				</div>
 			{/each}
 		</div>
@@ -95,9 +116,7 @@
 								</thead>
 								<tbody>
 									{#each candidates as candidate}
-										<tr
-											class="border-b bg-white hover:cursor-pointer"
-										>
+										<tr class="border-b bg-white hover:cursor-pointer">
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
 												><a
 													target="_blank"
