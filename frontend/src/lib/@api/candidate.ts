@@ -154,3 +154,12 @@ export const apiSubmitPortfolio = async (): Promise<boolean> => {
 		throw errorHandler(e, 'Failed to submit portfolio');
 	}
 };
+
+export const apiDeltePortfolio = async (): Promise<boolean> => {
+	try {
+		await axios.post(API_URL + '/candidate/portfolio/delete', {}, { withCredentials: true });
+		return true;
+	} catch (e: any) {
+		throw errorHandler(e, 'Failed to delete portfolio');
+	}
+};
