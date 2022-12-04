@@ -35,7 +35,7 @@
 	.modal {
 		@apply absolute;
 		@apply p-4;
-		@apply rounded-md;
+		@apply rounded-xl;
 		@apply transform:
 		@apply bg-white;
 
