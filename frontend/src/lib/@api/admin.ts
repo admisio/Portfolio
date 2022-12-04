@@ -70,12 +70,9 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 
 // SSR compatible
 // List all candidates /admin/list/candidates
-export const apiListCandidates = async (fetchSsr?: Fetch, field?: string): Promise<[CandidatePreview]> => {
+export const apiListCandidates = async (fetchSsr?: Fetch, params?: URLSearchParams): Promise<[CandidatePreview]> => {
 	try {
-		let url = API_URL + '/admin/list/candidates';
-		if (field) {
-			url += '?field=' + field;
-		}
+		let url = API_URL + '/admin/list/candidates?' + params;
 		if (fetchSsr) {
 			const res = await fetchSsr(url, {
 				method: 'GET',
