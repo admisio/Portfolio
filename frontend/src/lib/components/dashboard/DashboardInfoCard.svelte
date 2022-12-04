@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { apiSubmitPortfolio } from '$lib/@api/candidate';
+	import { apiDeltePortfolio, apiSubmitPortfolio } from '$lib/@api/candidate';
 	import Circles from '$lib/components/icons/Circles.svelte';
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
@@ -7,27 +7,34 @@
 	export let title: string;
 	export let status: Status;
 
-	let uploading = false;
+	let loading = false;
 
-	const submit = async () => {
-		uploading = true;
+	const submitPortfolio = async () => {
+		loading = true;
 		await apiSubmitPortfolio();
 		await fetchSubmProgress();
-		uploading = false;
+		loading = false;
+	};
+
+	const deletePortfolio = async () => {
+		loading = true;
+		await apiDeltePortfolio();
+		await fetchSubmProgress();
+		loading = false;
 	};
 
 	const handleNotificationClick = async () => {
 		if (status === "uploaded") {
-			await submit();
+			await submitPortfolio();
 		} else if (status === "submitted") {
-			
+			await deletePortfolio();
 		}
 	}
 </script>
 
 <div class="card flex flex-col">
 	<div class="infoBar flex flex-row-reverse">
-		<StatusNotificationBig loading={uploading} {status} on:click={handleNotificationClick} />
+		<StatusNotificationBig {loading} {status} on:click={handleNotificationClick} />
 	</div>
 	<div class="relative flex flex-row justify-between">
 		<div>
@@ -43,7 +50,6 @@
 </div>
 
 <style>
-
 	.card {
 		@apply m-3;
 		@apply h-full;
