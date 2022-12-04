@@ -6,6 +6,8 @@
 	import CandidateDetails from '$lib/components/list/CandidateDetails.svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
+	import Modal from '$lib/components/Modal.svelte';
+	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 
 	let candidates: [CandidatePreview] = [{}];
 	let candidateDetails: { [id: number]: CandidateData } = {};
@@ -16,7 +18,7 @@
 		candidates = data.preview;
 	});
 
-	async function getCandidates() {
+	const getCandidates = async () => {
 		try {
 			candidates = await apiListCandidates();
 		} catch {
@@ -24,14 +26,6 @@
 		}
 	}
 
-	async function toggleDetail(id: number | undefined) {
-		if (id === undefined) return true;
-		if (candidateDetails.hasOwnProperty(id)) {
-			delete candidateDetails[id];
-		} else {
-			candidateDetails[id] = await apiFetchCandidate(id);
-		}
-	}
 
 	type Filter = 'Vše' | 'KBB' | 'IT' | 'GYM';
 
@@ -40,7 +34,17 @@
 	let activeFilter: Filter = 'Vše';
 
 	let scrollTop = 0;
+
+	let createCandidateModal: boolean = false;
+
+	const openCreateCandidateModal = () => {
+		createCandidateModal = true;
+	};
 </script>
+
+{#if createCandidateModal}
+	<CreateCandidateModal on:created={getCandidates}  on:close={() => (createCandidateModal = false)} />
+{/if}
 
 <div>
 	<div class="flex flex-row">
@@ -57,6 +61,7 @@
 			<div class="controls my-8">
 				<TextField placeholder="Hledat" />
 				<button
+					on:click={openCreateCandidateModal}
 					class="bg-sspsBlue hover:bg-sspsBlueDark ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
 					>Nový uchazeč</button
 				>
@@ -64,6 +69,7 @@
 			{#if scrollTop > 200}
 				<div class="fixed bottom-8 right-8">
 					<button
+						on:click={openCreateCandidateModal}
 						class="bg-sspsBlue flex h-16 w-16 items-center justify-center rounded-full p-6 text-lg font-semibold text-white"
 						>+</button
 					>
@@ -90,11 +96,15 @@
 								<tbody>
 									{#each candidates as candidate}
 										<tr
-											on:click={(e) => toggleDetail(candidate.applicationId)}
 											class="border-b bg-white hover:cursor-pointer"
 										>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
-												><a target="_blank" href="/admin/candidate/{candidate.applicationId}">{candidate.applicationId}</a></td
+												><a
+													target="_blank"
+													rel="noreferrer"
+													href="/admin/candidate/{candidate.applicationId}"
+													>{candidate.applicationId}</a
+												></td
 											>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
 												{candidate.name}
