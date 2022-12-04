@@ -19,10 +19,10 @@ export interface CandidateData {
 }
 
 export interface CandidatePreview {
-	applicationId: number;
-	name: string;
-	surname: string;
-	study: string;
+	applicationId?: number;
+	name?: string;
+	surname?: string;
+	study?: string;
 }
 
 export interface CandidateLogin {
