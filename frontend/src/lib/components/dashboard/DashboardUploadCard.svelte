@@ -98,7 +98,7 @@
 		</div>
 	</div>
 	{#if fileDropped}
-		<div class="body flex content-around items-center justify-between">
+		<div class="body uploaded flex content-around items-center justify-between">
 			<div class="w-24">
 				<img
 					class="w-full object-scale-down"
@@ -196,6 +196,9 @@
 		@apply rounded-b-3xl;
 		@apply flex-1;
 		@apply p-7;
+	}
+	.uploaded {
+		@apply 2xl:px-14 ;
 	}
 	.card h3 {
 		@apply text-sspsBlue text-2xl font-semibold xl:text-4xl;
