@@ -17,4 +17,5 @@
 	filetype="PDF"
 	filesize={10}
 	fileType={1}
+	placeholder="svůj motivanční dopis"
 />

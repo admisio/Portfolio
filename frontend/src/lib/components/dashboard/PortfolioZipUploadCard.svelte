@@ -17,4 +17,5 @@
 	filetype="ZIP"
 	filesize={100}
 	fileType={3}
+	placeholder="vaše další soubory ve formátu ZIP"
 />
