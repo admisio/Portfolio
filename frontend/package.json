@@ -39,6 +39,7 @@
 		"axios": "^1.2.0",
 		"dompurify": "^2.4.1",
 		"filedrop-svelte": "^0.1.2",
+		"isomorphic-dompurify": "^0.24.0",
 		"svelte-forms-lib": "^2.0.1",
 		"swiper": "^8.4.5",
 		"yup": "^0.32.11"
