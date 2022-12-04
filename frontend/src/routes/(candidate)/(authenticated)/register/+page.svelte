@@ -43,7 +43,7 @@
 		initialValues: formInitialValues,
 		validationSchema: yup.object().shape({
 			name: yup.string().required(),
-			surname: yup.string(),
+			surname: yup.string().required(),
 			email: yup.string().email().required(),
 			telephone: yup
 				.string()
