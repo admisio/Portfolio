@@ -70,16 +70,20 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 
 // SSR compatible
 // List all candidates /admin/list/candidates
-export const apiListCandidates = async (fetchSsr?: Fetch): Promise<[CandidatePreview]> => {
+export const apiListCandidates = async (fetchSsr?: Fetch, field?: string): Promise<[CandidatePreview]> => {
 	try {
+		let url = API_URL + '/admin/list/candidates';
+		if (field) {
+			url += '?field=' + field;
+		}
 		if (fetchSsr) {
-			const res = await fetchSsr(API_URL + '/admin/list/candidates', {
+			const res = await fetchSsr(url, {
 				method: 'GET',
 				credentials: 'include'
 			});
 			return await res.json();
 		}
-		const res = await axios.get(API_URL + '/admin/list/candidates', {
+		const res = await axios.get(url, {
 			withCredentials: true
 		});
 		return res.data;
