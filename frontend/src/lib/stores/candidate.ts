@@ -18,8 +18,24 @@ export interface CandidateData {
 	parentEmail?: string;
 }
 
+export interface CandidatePreview {
+	applicationId?: number;
+	name?: string;
+	surname?: string;
+	study?: string;
+}
+
 export interface CandidateLogin {
 	applicationId: number;
+	password: string;
+}
+
+export interface CreateCandidate {
+	applicationId: number;
+	personalIdNumber: string;
+}
+
+export interface CreateCandidateLogin extends CreateCandidate {
 	password: string;
 }
 
