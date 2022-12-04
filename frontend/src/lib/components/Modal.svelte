@@ -19,8 +19,6 @@
 <div class="modalBackground" on:keydown on:click={close} />
 
 <div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
-	<slot name="header" />
-	<hr />
 	<slot />
 </div>
 
@@ -36,14 +34,14 @@
 
 	.modal {
 		@apply absolute;
-		@apply left-1/2 top-1/2;
-		@apply w-[calc(100vw - 4em)]
-        @apply p-4;
+		@apply p-4;
 		@apply rounded-md;
 		@apply transform:
-		translate(-50%, -50%) overflow-auto;
 		@apply bg-white;
 
 		@apply z-50;
+
+		@apply top-1/2 left-1/2;
+		transform: translate(-50%, -50%);
 	}
 </style>
