@@ -11,4 +11,4 @@
 	}
 </script>
 
-<TextField bind:error bind:value on:keydown on:keyup on:change type="number" {placeholder} icon />
+<TextField bind:error bind:value on:keydown on:keyup on:change type="number" {placeholder} />
