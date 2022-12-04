@@ -1,6 +1,6 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
-	import FileDrop from 'filedrop-svelte';
+	import { filedrop, type FileDropOptions } from 'filedrop-svelte';
 	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
 	import ProgressBar from './ProgressBar.svelte';
@@ -86,6 +86,13 @@
 			});
 		}
 	};
+
+	const FileDropOptions: FileDropOptions = {
+		accept: filetype === 'PDF' ? 'application/pdf' : 'application/zip',
+		maxSize: filesize * 1_000_000,
+		multiple: false,
+		windowDrop: false
+	};
 </script>
 
 <div class="card uploadCard relative">
@@ -144,24 +151,19 @@
 		</div>
 	{:else}
 		<div class="body">
-			<FileDrop
-				multiple={false}
-				maxSize={filesize * 1_000_000}
-				accept={filetype == 'PDF' ? 'application/pdf' : 'application/zip'}
+			<div
+				use:filedrop={FileDropOptions}
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}
 				on:filedragleave={dashAnimationStop}
+				class="drag group"
+				on:mouseenter={dashAnimationStart}
+				on:mouseleave={dashAnimationStop}
+				style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
 			>
-				<div
-					class="drag group"
-					on:mouseenter={dashAnimationStart}
-					on:mouseleave={dashAnimationStop}
-					style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
-				>
-					<span class="text-[#406280]">Sem přetáhněte,</span>
-					<span class="text-sspsGray">nebo nahrajte {placeholder}</span>
-				</div>
-			</FileDrop>
+				<span class="text-[#406280]">Sem přetáhněte,</span>
+				<span class="text-sspsGray">nebo nahrajte {placeholder}</span>
+			</div>
 		</div>
 	{/if}
 </div>
@@ -199,7 +201,7 @@
 		@apply p-7;
 	}
 	.uploaded {
-		@apply 2xl:px-14 ;
+		@apply 2xl:px-14;
 	}
 	.card h3 {
 		@apply text-sspsBlue text-2xl font-semibold xl:text-4xl;
