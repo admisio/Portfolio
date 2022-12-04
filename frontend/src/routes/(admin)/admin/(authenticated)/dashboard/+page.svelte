@@ -1,13 +1,11 @@
 <script lang="ts">
-	import backgroundImage from '$lib/assets/background.jpg';
-
 	import { apiFetchCandidate, apiListCandidates, apiResetCandidatePassword } from '$lib/@api/admin';
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidateData, CandidatePreview } from '$lib/stores/candidate';
-	import ListElement from '$lib/components/dashboard/ListElement.svelte';
 	import CandidateDetails from '$lib/components/dashboard/CandidateDetails.svelte';
 	import { onMount } from 'svelte';
+	import type { PageData } from '../$types';
 
 	let candidates: [CandidatePreview] = [{}];
 	let candidateDetails: { [id: number]: CandidateData } = {};
@@ -76,7 +74,7 @@
 				<div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
 					<div class="inline-block min-w-full py-4 sm:px-6 lg:px-8">
 						<div class="overflow-hidden">
-							<table class="min-w-full rounded-md border-2  border-[#dfe0e9] text-center">
+							<table class="min-w-full rounded-md border-2  border-[#dfe0e9] text-center rounded-lg">
 								<thead class="bg-[#f6f4f4] ">
 									<tr>
 										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
