@@ -16,7 +16,7 @@ export const apiLogin = async (data: AdminLogin): Promise<number> => {
 
 // Create new candidate /admin/create
 // return created candidate's applicationId, personalIdNumber and password
-export const createCandidate = async (data: CreateCandidate): Promise<CreateCandidateLogin> => {
+export const apiCreateCandidate = async (data: CreateCandidate): Promise<CreateCandidateLogin> => {
     try {
         const res = await axios.post(API_URL + '/admin/create', data, { withCredentials: true });
         return res.data;
@@ -26,7 +26,7 @@ export const createCandidate = async (data: CreateCandidate): Promise<CreateCand
 }
 
 // Reset candidate password /admin/candidate/{id}/reset_password
-export const resetCandidatePassword = async (id: number): Promise<CreateCandidateLogin> => {
+export const apiResetCandidatePassword = async (id: number): Promise<CreateCandidateLogin> => {
     try {
         const res = await axios.post(API_URL + '/admin/candidate/' + id + '/reset_password',
             {},
