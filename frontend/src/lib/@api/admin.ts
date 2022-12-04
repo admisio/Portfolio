@@ -39,6 +39,24 @@ export const resetCandidatePassword = async (id: number): Promise<CreateCandidat
 }
 
 // SSR compatible
+// Logout as admin /admin/logout
+export const apiLogout = async (fetchSsr?: Fetch) => {
+	try {
+		if (fetchSsr) {
+			const res = await fetchSsr(API_URL + '/admin/logout', {
+				method: 'POST',
+				credentials: 'include'
+			});
+			return await res.text();
+		}
+		const res = await axios.post(API_URL + '/admin/logout', { withCredentials: true });
+		return res.data;
+	} catch (e: any) {
+		throw errorHandler(e, 'Logout failed');
+	}
+};
+
+// SSR compatible
 // List all candidates /admin/list/candidates
 export const apiListCandidates = async (fetchSsr?: Fetch): Promise<[CandidatePreview]> => {
 	try {
