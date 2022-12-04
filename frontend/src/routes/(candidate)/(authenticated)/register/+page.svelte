@@ -9,6 +9,7 @@
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
 	import IdField from '$lib/components/textfield/IdField.svelte';
+	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 
@@ -31,8 +32,8 @@
 		citizenship: '',
 		personalIdNumber: '',
 		study: '',
-		parentName: 'TODO name',
-		parentSurname: 'TODO',
+		parentName: '',
+		parentSurname: '',
 		parentTelephone: '',
 		parentEmail: ''
 	};
@@ -133,11 +134,11 @@
 				</p>
 				<div class="flex w-full items-center justify-center md:flex-col">
 					<span class="mt-8 w-full">
-						<TextField
+						<NameField
 							error={$errors.name}
 							on:change={handleChange}
-							bind:value={$form.name}
-							type="text"
+							bind:valueName={$form.name}
+							bind:valueSurname={$form.surname}
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
@@ -167,7 +168,13 @@
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
-					<TextField type="text" placeholder="Rodné příjmení" on:change={handleChange} />
+					<NameField
+						error={$errors.name}
+						on:change={handleChange}
+						bind:valueName={$form.parentName}
+						bind:valueSurname={$form.parentSurname}
+						placeholder="Jméno a příjmení zákonného zástupce"
+					/>
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
 					<TextField
