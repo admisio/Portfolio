@@ -29,7 +29,7 @@
 	.bgImage {
 		@apply -z-20;
 		@apply min-w-screen absolute min-h-screen md:min-w-[50vw];
-		@apply bg-no-repeat;
+		@apply bg-no-repeat bg-cover;
 	}
 	.bgOverlay {
 		@apply min-w-screen absolute -z-10 min-h-screen md:min-w-[50vw];
