@@ -18,7 +18,7 @@ impl From<(i32, ApplicationDetails)> for Row {
             email: Some(d.email),
             sex: Some(d.sex),
             study: Some(d.study),
-            personal_identification_number: None, // TODO
+            personal_identification_number: Some(d.personal_id_number),
 
             parent_name: Some(d.parent_name),
             parent_surname: Some(d.parent_surname),
