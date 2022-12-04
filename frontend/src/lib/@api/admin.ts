@@ -38,6 +38,18 @@ export const apiResetCandidatePassword = async (id: number): Promise<CreateCandi
     }
 }
 
+export const apiGetCandidatePortfolio = async (id: number): Promise<Blob> => {
+	try {
+		const res = await fetch(API_URL + '/admin/candidate/' + id + '/portfolio', {
+			method: 'GET',
+			credentials: 'include',
+		});
+		return await res.blob();
+	} catch (e: any) {
+		throw errorHandler(e, 'Candidate portfolio failed');
+	}
+}
+
 // SSR compatible
 // Logout as admin /admin/logout
 export const apiLogout = async (fetchSsr?: Fetch) => {
