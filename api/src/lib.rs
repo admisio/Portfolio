@@ -90,8 +90,6 @@ pub fn rocket() -> Rocket<Build>{
             "/candidate/portfolio",
             routes![
                 routes::candidate::submit_portfolio,
-                routes::candidate::is_portfolio_prepared,
-                routes::candidate::is_portfolio_submitted,
                 routes::candidate::submission_progress,
                 routes::candidate::download_portfolio,
                 routes::candidate::delete_portfolio,

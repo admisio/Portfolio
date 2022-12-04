@@ -131,15 +131,6 @@ pub async fn submission_progress(
 
     progress
 }
-// TODO: JSON
-#[get["/is_cover_letter"]]
-pub async fn is_cover_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-
-    let exists = PortfolioService::is_cover_letter(candidate.application).await;
-
-    Ok(exists.to_string())
-}
 
 #[post("/portfolio_letter", data = "<letter>")]
 pub async fn upload_portfolio_letter(
@@ -155,16 +146,6 @@ pub async fn upload_portfolio_letter(
     Ok(())
 }
 
-// TODO: JSON
-#[get["/is_portfolio_letter"]]
-pub async fn is_portfolio_letter(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-
-    let exists = PortfolioService::is_portfolio_letter(candidate.application).await;
-
-    Ok(exists.to_string())
-}
-
 #[post("/portfolio_zip", data = "<portfolio>")]
 pub async fn upload_portfolio_zip(
     session: CandidateAuth,
@@ -177,16 +158,6 @@ pub async fn upload_portfolio_zip(
         .map_err(to_custom_error)?;
 
     Ok(())
-}
-
-// TODO: JSON
-#[get["/is_portfolio_zip"]]
-pub async fn is_portfolio_zip(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-
-    let exists = PortfolioService::is_portfolio_zip(candidate.application).await;
-
-    Ok(exists.to_string())
 }
 
 #[post("/submit")]
@@ -226,42 +197,6 @@ pub async fn delete_portfolio(
         .map_err(to_custom_error)?;
 
     Ok(())
-}
-
-#[deprecated = "Use /submission_progress instead"]
-#[get("/is_prepared")]
-pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-
-    let is_ok = PortfolioService::is_portfolio_prepared(candidate.application).await;
-
-    if !is_ok {
-        // TODO: Correct error
-        return Err(Custom(
-            Status::from_code(404).unwrap_or_default(),
-            "Portfolio not prepared".to_string(),
-        ));
-    }
-
-    Ok("Portfolio ok".to_string())
-}
-
-#[deprecated = "Use /submission_progress instead"]
-#[get("/is_submitted")]
-pub async fn is_portfolio_submitted(session: CandidateAuth) -> Result<String, Custom<String>> {
-    let candidate: entity::candidate::Model = session.into();
-
-    let is_ok = PortfolioService::is_portfolio_submitted(candidate.application).await;
-
-    if !is_ok {
-        // TODO: Correct error
-        return Err(Custom(
-            Status::from_code(404).unwrap_or_default(),
-            "Portfolio not submitted".to_string(),
-        ));
-    }
-
-    Ok("Portfolio ok".to_string())
 }
 
 #[get("/download")]
