@@ -7,6 +7,7 @@
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
+	import SelectField from '$lib/components/SelectField.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import NameField from '$lib/components/textfield/NameField.svelte';
@@ -201,11 +202,11 @@
 					placeholder="Datum narození"
 				/>
 				<div class="ml-2">
-					<TextField
+					<SelectField
 						error={$errors.sex}
 						on:change={handleChange}
 						bind:value={$form.sex}
-						type="text"
+						options={['Žena', 'Muž']}
 						placeholder="Pohlaví"
 					/>
 				</div>
@@ -273,12 +274,12 @@
 					placeholder="Rodné číslo"
 				/>
 				<span class="ml-2">
-					<TextField
+					<SelectField
 						error={$errors.study}
 						on:change={handleChange}
 						bind:value={$form.study}
-						type="text"
 						placeholder="Obor"
+						options={['KBB', 'IT', 'GYM']}
 					/>
 				</span>
 			</div>
