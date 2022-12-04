@@ -7,11 +7,16 @@
 	import type { CandidateData, CandidatePreview } from '$lib/stores/candidate';
 	import ListElement from '$lib/components/dashboard/ListElement.svelte';
 	import CandidateDetails from '$lib/components/dashboard/CandidateDetails.svelte';
+	import { onMount } from 'svelte';
 
 	let candidates: [CandidatePreview] = [{}];
 	let candidateDetails: { [id: number]: CandidateData } = {};
 
-	getCandidates();
+	export let data: PageData;
+
+	onMount(() => {
+		candidates = data.preview;
+	});
 
 	async function getCandidates() {
 		try {
@@ -60,7 +65,10 @@
 			</div>
 			{#if scrollTop > 200}
 				<div class="fixed bottom-8 right-8">
-					<button class="w-16 h-16 text-white text-lg font-semibold rounded-full p-6 bg-sspsBlue flex items-center justify-center">+</button>
+					<button
+						class="bg-sspsBlue flex h-16 w-16 items-center justify-center rounded-full p-6 text-lg font-semibold text-white"
+						>+</button
+					>
 				</div>
 			{/if}
 
@@ -71,15 +79,22 @@
 							<table class="min-w-full rounded-md border-2  border-[#dfe0e9] text-center">
 								<thead class="bg-[#f6f4f4] ">
 									<tr>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Ev. č. přihlásky </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
+											Ev. č. přihlásky
+										</th>
 										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Jméno </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Příjmení </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
+											Příjmení
+										</th>
 										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Obor </th>
 									</tr>
 								</thead>
 								<tbody>
 									{#each candidates as candidate}
-										<tr on:click={e=> toggleDetail(candidate.applicationId)} class="hover:cursor-pointer border-b bg-white">
+										<tr
+											on:click={(e) => toggleDetail(candidate.applicationId)}
+											class="border-b bg-white hover:cursor-pointer"
+										>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
 												>{candidate.applicationId}</td
 											>
@@ -95,11 +110,11 @@
 										</tr>
 										{#if candidateDetails.hasOwnProperty(candidate.applicationId)}
 											<div class="mb-20 w-full">
-												<CandidateDetails 
+												<CandidateDetails
 													id={candidate.applicationId}
-													candidate={candidateDetails[candidate.applicationId]}>
-												</CandidateDetails>
-												<hr class="border-4 w-full">
+													candidate={candidateDetails[candidate.applicationId]}
+												/>
+												<hr class="w-full border-4" />
 											</div>
 										{/if}
 									{/each}
