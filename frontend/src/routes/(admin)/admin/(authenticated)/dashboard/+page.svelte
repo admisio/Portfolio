@@ -94,9 +94,13 @@
 											</td>
 										</tr>
 										{#if candidateDetails.hasOwnProperty(candidate.applicationId)}
-											<CandidateDetails 
-												candidate={candidateDetails[candidate.applicationId]}>
-											</CandidateDetails>
+											<div class="mb-20 w-full">
+												<CandidateDetails 
+													id={candidate.applicationId}
+													candidate={candidateDetails[candidate.applicationId]}>
+												</CandidateDetails>
+												<hr class="border-4 w-full">
+											</div>
 										{/if}
 									{/each}
 								</tbody>

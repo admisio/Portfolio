@@ -3,15 +3,21 @@
 	import type { CandidateData } from "$lib/stores/candidate";
 	import ListElement from "./ListElement.svelte";
 
+    export let id: number;
     export let candidate: CandidateData;
 
-    async function resetCandidatePassword(id: number) {
+    async function resetCandidatePassword() {
 		try {
-			await apiResetCandidatePassword(id);
+			const res = await apiResetCandidatePassword(id);
+            alert("Nove heslo: " + res.password);
 		} catch {
 			console.log('error');
 		}
 	}
+
+    async function downloadPortfolio() {
+        
+    }
 </script>
 
 <div class="flex flex-row">
@@ -35,7 +41,8 @@
     </div>
     <div class="ml-20">
         <div class="bg-sspsBlue hover:bg-sspsBlueDark transition duration-300 rounded-lg px-10 py-4">
-            <button class="text-2xl text-white font-bold">Resetovat heslo</button>
+            <button on:click={e => resetCandidatePassword()} class="text-2xl text-white font-bold">Resetovat heslo</button>
+            <button on:click={e => resetCandidatePassword()} class="text-2xl text-white font-bold">Resetovat heslo</button>
         </div>
     </div>
 </div>
