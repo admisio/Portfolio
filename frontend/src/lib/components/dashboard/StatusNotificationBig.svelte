@@ -12,7 +12,7 @@
 			break;
 		case 'uploaded':
 			title = 'Soubory nebyly odevzdány!';
-			description = 'Odevzdejte soubory prosím';
+			description = 'Odevzdejte soubory kliknutím zde';
 			break;
 		case 'missing':
 			title = 'Soubory nebyly nahrány!';
@@ -23,7 +23,7 @@
 
 <div class="flex flex-col">
 	<div class="info flex flex-col {status}">
-		<span class="text-white text-2xl font-bold">{title}</span>
+		<span class="text-white text-xl font-bold">{title}</span>
 		<span class="text-white text-md italic">{description}</span>
 	</div>
 </div>
@@ -31,7 +31,7 @@
 <style>
 	.info {
 		@apply flex items-center justify-between;
-		@apply py-3 px-8;
+		@apply py-3 px-6;
 		@apply rounded-xl bg-red-700 shadow-md border-red-700;
 
 		@apply hover:cursor-help;
@@ -43,9 +43,10 @@
 
 	.uploaded {
 		@apply bg-yellow-600;
+		@apply !cursor-pointer;
 	}
 
 	.missing {
-		@apply bg-[#ff3030ff];
+		@apply bg-orange-700;
 	}
 </style>

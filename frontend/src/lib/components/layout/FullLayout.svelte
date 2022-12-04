@@ -2,14 +2,18 @@
 	import backgroundImage from '$lib/assets/background.jpg';
 	import logo from '$lib/assets/logo/ssps.svg';
 	import DarkModeToggle from '../DarkModeToggle.svelte';
+
+	export let hideHeader: boolean = false;
 </script>
 
 <div class="bg">
 	<div class="bgOverlay">
-		<img class="logo" src={logo} alt="SSPŠ logo" />
-		<div class="darkModeToggle">
-			<DarkModeToggle backgroundColor="dark" />
-		</div>
+		{#if !hideHeader}
+			<img class="logo" src={logo} alt="SSPŠ logo" />
+			<div class="darkModeToggle">
+				<DarkModeToggle backgroundColor="dark" />
+			</div>
+		{/if}
 	</div>
 	<div style={`background-image: url(${backgroundImage});`} class="bgImage" />
 </div>
@@ -26,7 +30,7 @@
 	.bgImage {
 		@apply -z-20;
 		@apply min-w-screen absolute min-h-screen min-w-full;
-		@apply bg-no-repeat bg-cover;
+		@apply bg-cover bg-no-repeat;
 		background-position: 55%;
 	}
 	.bgOverlay {
