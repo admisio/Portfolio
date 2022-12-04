@@ -26,7 +26,7 @@
 	.bgImage {
 		@apply -z-20;
 		@apply min-w-screen absolute min-h-screen min-w-full;
-		@apply bg-no-repeat;
+		@apply bg-no-repeat bg-cover;
 		background-position: 55%;
 	}
 	.bgOverlay {
