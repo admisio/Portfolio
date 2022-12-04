@@ -7,15 +7,27 @@
 	export let title: string;
 	export let status: Status;
 
+	let uploading = false;
+
 	const submit = async () => {
-		const res = await apiSubmitPortfolio();
+		uploading = true;
+		await apiSubmitPortfolio();
 		await fetchSubmProgress();
+		uploading = false;
 	};
+
+	const handleNotificationClick = async () => {
+		if (status === "uploaded") {
+			await submit();
+		} else if (status === "submitted") {
+			
+		}
+	}
 </script>
 
 <div class="card flex flex-col">
 	<div class="infoBar flex flex-row-reverse">
-		<StatusNotificationBig {status} />
+		<StatusNotificationBig loading={uploading} {status} on:click={handleNotificationClick} />
 	</div>
 	<div class="relative flex flex-row justify-between">
 		<div>

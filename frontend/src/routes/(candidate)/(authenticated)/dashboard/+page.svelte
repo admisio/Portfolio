@@ -4,7 +4,6 @@
 	import { Swiper, SwiperSlide } from 'swiper/svelte';
 	import 'swiper/css';
 
-	import DashboardUploadCard from '$lib/components/dashboard/DashboardUploadCard.svelte';
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
 	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
