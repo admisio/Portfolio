@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { apiResetCandidatePassword } from "$lib/@api/admin";
+	import { apiGetCandidatePortfolio, apiResetCandidatePassword } from "$lib/@api/admin";
 	import type { CandidateData } from "$lib/stores/candidate";
 	import ListElement from "./ListElement.svelte";
 
@@ -16,7 +16,17 @@
 	}
 
     async function downloadPortfolio() {
-        
+        try {
+            const portfolioBlob = await apiGetCandidatePortfolio(id);
+            const url = window.URL.createObjectURL(new Blob([portfolioBlob]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'PORTFOLIO' + '_' + id + '.zip');
+            document.body.appendChild(link);
+            link.click();
+        } catch (e) {
+            console.log(e);
+        }
     }
 </script>
 
@@ -40,12 +50,16 @@
         </li>
     </div>
     <div class="ml-20">
-        <div class="bg-sspsBlue hover:bg-sspsBlueDark transition duration-300 rounded-lg px-10 py-4">
-            <button on:click={e => resetCandidatePassword()} class="text-2xl text-white font-bold">Resetovat heslo</button>
-            <button on:click={e => resetCandidatePassword()} class="text-2xl text-white font-bold">Resetovat heslo</button>
+        <div class="flex flex-col">
+            <button on:click={e => resetCandidatePassword()} class="">Resetovat heslo</button>
+            <button on:click={e => downloadPortfolio()} class="mt-40">Stáhnout portfolio</button>
         </div>
     </div>
 </div>
 
 <style>
+    button {
+        @apply bg-sspsBlue hover:bg-sspsBlueDark transition duration-300 rounded-lg;
+        @apply text-2xl text-white font-bold px-10 py-4;
+    }
 </style>
