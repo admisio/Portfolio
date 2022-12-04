@@ -94,6 +94,7 @@ pub fn rocket() -> Rocket<Build>{
                 routes::candidate::is_portfolio_submitted,
                 routes::candidate::submission_progress,
                 routes::candidate::download_portfolio,
+                routes::candidate::delete_portfolio,
             ],
         )
         .mount(

@@ -214,6 +214,20 @@ pub async fn submit_portfolio(
     Ok("Portfolio submitted".to_string())
 }
 
+#[post("/delete")]
+pub async fn delete_portfolio(
+    conn: Connection<'_, Db>,
+    session: CandidateAuth,
+) -> Result<String, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    PortfolioService::delete_portfolio(candidate.application)
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok("Portfolio deleted".to_string())
+}
+
 #[deprecated = "Use /submission_progress instead"]
 #[get("/is_prepared")]
 pub async fn is_portfolio_prepared(session: CandidateAuth) -> Result<String, Custom<String>> {
