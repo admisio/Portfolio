@@ -26,7 +26,7 @@ export const createCandidate = async (data: CreateCandidate): Promise<CreateCand
 }
 
 // Reset candidate password /admin/candidate/{id}/reset_password
-export const resetCandidatePassword = async (id: number): Promise<string> => {
+export const resetCandidatePassword = async (id: number): Promise<CreateCandidateLogin> => {
     try {
         const res = await axios.post(API_URL + '/admin/candidate/' + id + '/reset_password',
             {},
