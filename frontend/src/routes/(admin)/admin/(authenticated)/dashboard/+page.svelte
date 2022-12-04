@@ -30,6 +30,8 @@
 	let filters: Array<Filter> = ['Vše', 'KBB', 'IT', 'GYM'];
 
 	let activeFilter: Filter = 'Vše';
+
+	let scrollTop = 0;
 </script>
 
 <div>
@@ -42,7 +44,7 @@
 				</div>
 			{/each}
 		</div>
-		<div class="body overflow-scroll">
+		<div class="body relative overflow-scroll">
 			<h1 class="text-3xl font-semibold">Uchazeči</h1>
 			<div class="controls my-8">
 				<TextField placeholder="Hledat" />
@@ -51,6 +53,12 @@
 					>Nový uchazeč</button
 				>
 			</div>
+			{#if scrollTop > 200}
+				<div class="fixed bottom-8 right-8">
+					<button class="w-16 h-16 text-white text-lg font-semibold rounded-full p-6 bg-sspsBlue flex items-center justify-center">+</button>
+				</div>
+			{/if}
+
 			<div class="flex flex-col">
 				<div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
 					<div class="inline-block min-w-full py-4 sm:px-6 lg:px-8">
@@ -93,13 +101,15 @@
 	</div>
 </div>
 
+<svelte:window on:scroll={() => (scrollTop = window.scrollY)} />
+
 <style>
 	.list {
 		@apply h-full w-96;
 		@apply float-left overflow-scroll;
 
 		@apply border-r border-gray-400;
-		@apply bg-white
+		@apply bg-white;
 	}
 
 	.list div {
