@@ -19,7 +19,7 @@
 	</div>
 	<div class="flex flex-row justify-between relative">
 		<div>
-			<span class="absolute -left-20 -top-20">
+			<span class="absolute -left-16 -top-36">
 				<Circles />
 			</span>
 			<div class="mt-20 flex flex-col">
