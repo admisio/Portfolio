@@ -5,9 +5,20 @@
 
 	import background from '$lib/assets/background2.jpg';
 	import Lock from '$lib/components/icons/Lock.svelte';
+	import { apiLogin } from '$lib/@api/admin';
+	import { goto } from '$app/navigation';
 
 	let adminIdValue = '';
 	let adminPasswordValue = '';
+
+	const login = async () => {
+		try {
+			await apiLogin({adminId: Number(adminIdValue), password: adminPasswordValue});
+			goto("/admin/dashboard");
+		} catch (e) {
+			console.log(e);
+		}
+	};
 </script>
 
 <SplitLayout backgroundImage={background} backgroundPosition="30%">
@@ -37,6 +48,7 @@
 			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-3/5 rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
 			type="submit"
 			value="Odeslat"
+			on:click={login}
 		/>
 	</div>
 </SplitLayout>
