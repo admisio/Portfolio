@@ -21,7 +21,7 @@ pub async fn login(
     login_form: Json<AdminLoginRequest>,
     // ip_addr: SocketAddr, // TODO uncomment in production
     cookies: &CookieJar<'_>,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let ip_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
     let db = conn.into_inner();
     let session_token_key = AdminService::login(
@@ -47,10 +47,7 @@ pub async fn login(
     cookies.add_private(Cookie::new("id", session_token.clone()));
     cookies.add_private(Cookie::new("key", private_key.clone()));
 
-    // TODO: JSON
-    let response = format!("{} {}", session_token, private_key);
-
-    return Ok(response);
+    return Ok(());
 }
 
 #[post("/logout")]
@@ -64,12 +61,12 @@ pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &Coo
     
     let res = AdminService::logout(db, session_id)
         .await
-        .map_err(|e| Custom(Status::from_code(e.code()).unwrap_or(Status::InternalServerError), e.to_string()))?;
+        .map_err(to_custom_error)?;
 
     cookies.remove_private(Cookie::named("id"));
     cookies.remove_private(Cookie::named("key"));
 
-    Ok(res)
+    Ok(())
 }
 
 
@@ -135,7 +132,9 @@ pub async fn list_candidates(
         .await
         .map_err(to_custom_error)?;
 
-    Ok(Json(candidates))
+    Ok(
+        Json(candidates)
+    )
 }
 
 #[get("/candidate/<id>")]
@@ -155,7 +154,9 @@ pub async fn get_candidate(
         .await
         .map_err(to_custom_error)?;
 
-    Ok(Json(details))
+    Ok(
+        Json(details)
+    )
 }
 
 #[post("/candidate/<id>/reset_password")]

@@ -24,7 +24,7 @@ pub async fn login(
     login_form: Json<LoginRequest>,
     // ip_addr: SocketAddr, // TODO uncomment in production
     cookies: &CookieJar<'_>,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let ip_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
     let db = conn.into_inner();
     let (session_token, private_key) = CandidateService::login(
@@ -39,7 +39,7 @@ pub async fn login(
     cookies.add_private(Cookie::new("id", session_token.clone()));
     cookies.add_private(Cookie::new("key", private_key.clone()));
 
-    return Ok("".to_string());
+    return Ok(());
 }
 
 #[post("/logout")]
@@ -108,14 +108,14 @@ pub async fn get_details(
 pub async fn upload_cover_letter(
     session: CandidateAuth,
     letter: Letter,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     PortfolioService::add_cover_letter_to_cache(candidate.application, letter.into())
         .await
         .map_err(to_custom_error)?;
 
-    Ok("Letter added".to_string())
+    Ok(())
 }
 
 #[get("/submission_progress")]
@@ -145,14 +145,14 @@ pub async fn is_cover_letter(session: CandidateAuth) -> Result<String, Custom<St
 pub async fn upload_portfolio_letter(
     session: CandidateAuth,
     letter: Letter,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     PortfolioService::add_portfolio_letter_to_cache(candidate.application, letter.into())
         .await
         .map_err(to_custom_error)?;
 
-    Ok("Letter added".to_string())
+    Ok(())
 }
 
 // TODO: JSON
@@ -169,14 +169,14 @@ pub async fn is_portfolio_letter(session: CandidateAuth) -> Result<String, Custo
 pub async fn upload_portfolio_zip(
     session: CandidateAuth,
     portfolio: Portfolio,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     PortfolioService::add_portfolio_zip_to_cache(candidate.application, portfolio.into())
         .await
         .map_err(to_custom_error)?;
 
-    Ok("Portfolio added".to_string())
+    Ok(())
 }
 
 // TODO: JSON
@@ -193,7 +193,7 @@ pub async fn is_portfolio_zip(session: CandidateAuth) -> Result<String, Custom<S
 pub async fn submit_portfolio(
     conn: Connection<'_, Db>,
     session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let db = conn.into_inner();
 
     let candidate: entity::candidate::Model = session.into();
@@ -211,21 +211,21 @@ pub async fn submit_portfolio(
         return Err(to_custom_error(e));
     }
 
-    Ok("Portfolio submitted".to_string())
+    Ok(())
 }
 
 #[post("/delete")]
 pub async fn delete_portfolio(
     conn: Connection<'_, Db>,
     session: CandidateAuth,
-) -> Result<String, Custom<String>> {
+) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
     PortfolioService::delete_portfolio(candidate.application)
         .await
         .map_err(to_custom_error)?;
 
-    Ok("Portfolio deleted".to_string())
+    Ok(())
 }
 
 #[deprecated = "Use /submission_progress instead"]
