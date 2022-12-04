@@ -50,14 +50,20 @@
 				.required()
 				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			birthplace: yup.string().required(),
-			birthdate: yup.string().required(),
+			birthdate: yup
+				.string()
+				.required()
+				.matches(/^((([0-9])|(1|2)[0-9])|(3[0-1]))\.(([1-9])|[1][0-2])\.([0-9]{4})$/),
 			sex: yup.string(),
 			address: yup.string().required(),
 			citizenship: yup.string().required(),
-			personalIdNumber: yup.string().required(),
+			personalIdNumber: yup
+				.string()
+				.required()
+				.matches(/^[0-9]{6}\/[0-9]{4}$/),
 			study: yup.string().required(),
-			parentName: yup.string(),
-			parentSurname: yup.string(),
+			parentName: yup.string().required(),
+			parentSurname: yup.string().required(),
 			parentTelephone: yup
 				.string()
 				.required()
@@ -71,7 +77,11 @@
 					console.log('submit');
 					// @ts-ignore // love javascript
 					delete values.undefined;
-					values.birthdate = '2000-01-01'; // TODO: reformat user typed date
+					values.birthdate = values.birthdate
+						.split('.')
+						.reverse()
+						.map((x) => x.padStart(2, '0'))
+						.join('-');
 					await apiFillDetails(values);
 					goto('/dashboard');
 				} catch (e) {
@@ -93,7 +103,7 @@
 
 			case 1:
 				if (
-					/* $errors.birthdurname || */ $errors.birthplace ||
+					$errors.parentName || $errors.parentSurname || $errors.birthplace ||
 					$errors.birthdate /* || $errors.sex */
 				) {
 					return true;
@@ -170,7 +180,7 @@
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
 					<NameField
-						error={$errors.name}
+						error={$errors.parentName}
 						on:change={handleChange}
 						bind:valueName={$form.parentName}
 						bind:valueSurname={$form.parentSurname}
