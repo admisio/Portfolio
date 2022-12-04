@@ -279,7 +279,7 @@
 						on:change={handleChange}
 						bind:value={$form.study}
 						placeholder="Obor"
-						options={['KBB', 'IT', 'GYM']}
+						options={['KB', 'IT', 'G']}
 					/>
 				</span>
 			</div>
