@@ -1,38 +1,48 @@
 <script lang="ts">
 	import type { Status } from '$lib/stores/portfolio';
-	import StatusNotificationDot from './StatusNotificationDot.svelte';
 
 	export let status: Status;
 
 	let title: string;
-	switch (status) {
+	let description: string;
+	$: switch (status) {
 		case 'submitted':
-			title = 'Soubory odeslány!';
+			title = 'Soubory odevzdány!';
+			description = 'Vaše soubory byly odevzdány';
 			break;
 		case 'uploaded':
-			title = 'Soubory nahrány!';
+			title = 'Soubory nebyly odevzdány!';
+			description = 'Odevzdejte soubory prosím';
 			break;
 		case 'missing':
-			title = 'Chybí soubory!';
+			title = 'Soubory nebyly nahrány!';
+			description = 'Nahrajte včechny soubory prosím';
 			break;
 	}
 </script>
 
-<div class="mb-8 flex rounded-full bg-white">
-	<div class="mt-3 mb-3 ml-3 flex flex-row">
-		<h2 class="text-sspsBlueDark ml-2 text-2xl font-bold">{title}</h2>
-		<span class="ml-32  h-8 w-8 self-center rounded-full {status}" />
-		<!-- <StatusNotificationDot {status} /> -->
+<div class="flex flex-col">
+	<div class="info flex flex-col {status}">
+		<span class="text-white text-2xl font-bold">{title}</span>
+		<span class="text-white text-md italic">{description}</span>
 	</div>
 </div>
 
 <style>
+	.info {
+		@apply flex items-center justify-between;
+		@apply py-3 px-8;
+		@apply rounded-xl bg-red-700 shadow-md border-red-700;
+
+		@apply hover:cursor-help;
+	}
+
 	.submitted {
-		@apply bg-[#35e000ff];
+		@apply bg-green-600;
 	}
 
 	.uploaded {
-		@apply bg-[#ff8530ff];
+		@apply bg-yellow-600;
 	}
 
 	.missing {
