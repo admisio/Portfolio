@@ -2,6 +2,7 @@ import axios, { type AxiosProgressEvent } from 'axios';
 import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
+import DOMPurify from 'isomorphic-dompurify';
 
 // SSR Compatible
 export const apiLogout = async (fetchSsr?: Fetch) => {
@@ -76,7 +77,10 @@ export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 };
 
 export const apiFillDetails = async (data: CandidateData): Promise<CandidateData> => {
-	console.log(data);
+	Object.keys(data).forEach(key => {
+		// @ts-ignore
+		data[key] = DOMPurify.sanitize(data[key]);
+	  });
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
 		return res.data;
