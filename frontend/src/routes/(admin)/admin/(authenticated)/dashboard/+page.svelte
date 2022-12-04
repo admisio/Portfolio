@@ -1,14 +1,15 @@
 <script lang="ts">
 	import backgroundImage from '$lib/assets/background.jpg';
 
-	import { apiFetchCandidate, apiListCandidates } from '$lib/@api/admin';
+	import { apiFetchCandidate, apiListCandidates, apiResetCandidatePassword } from '$lib/@api/admin';
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import type { CandidatePreview } from '$lib/stores/candidate';
+	import type { CandidateData, CandidatePreview } from '$lib/stores/candidate';
+	import ListElement from '$lib/components/dashboard/ListElement.svelte';
+	import CandidateDetails from '$lib/components/dashboard/CandidateDetails.svelte';
 
 	let candidates: [CandidatePreview] = [{}];
-	let candidateDetails: { [id: number]: CandidatePreview } = {};
-	let currentCandidateId: number = 0;
+	let candidateDetails: { [id: number]: CandidateData } = {};
 
 	getCandidates();
 
@@ -20,9 +21,13 @@
 		}
 	}
 
-	async function getCandidateDetails(id: number) {
-		currentCandidateId = id;
-		candidateDetails[id] = await apiFetchCandidate(id);
+	async function toggleDetail(id: number | undefined) {
+		if (id === undefined) return true;
+		if (candidateDetails.hasOwnProperty(id)) {
+			delete candidateDetails[id];
+		} else {
+			candidateDetails[id] = await apiFetchCandidate(id);
+		}
 	}
 
 	type Filter = 'Vše' | 'KBB' | 'IT' | 'GYM';
@@ -66,30 +71,33 @@
 							<table class="min-w-full rounded-md border-2  border-[#dfe0e9] text-center">
 								<thead class="bg-[#f6f4f4] ">
 									<tr>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> # </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> First </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Last </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
-											Handle
-										</th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Ev. č. přihlásky </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Jméno </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Příjmení </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Obor </th>
 									</tr>
 								</thead>
 								<tbody>
-									{#each Array(40) as item}
-										<tr class="border-b bg-white">
-											<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"
-												>1</td
+									{#each candidates as candidate}
+										<tr on:click={e=> toggleDetail(candidate.applicationId)} class="hover:cursor-pointer border-b bg-white">
+											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
+												>{candidate.applicationId}</td
 											>
-											<td class="whitespace-nowrap px-6 py-4 text-sm font-light text-gray-900">
-												Mark
+											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+												{candidate.name}
 											</td>
-											<td class="whitespace-nowrap px-6 py-4 text-sm font-light text-gray-900">
-												Otto
+											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+												{candidate.surname}
 											</td>
-											<td class="whitespace-nowrap px-6 py-4 text-sm font-light text-gray-900">
-												@mdo
+											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+												{candidate.study}
 											</td>
 										</tr>
+										{#if candidateDetails.hasOwnProperty(candidate.applicationId)}
+											<CandidateDetails 
+												candidate={candidateDetails[candidate.applicationId]}>
+											</CandidateDetails>
+										{/if}
 									{/each}
 								</tbody>
 							</table>
