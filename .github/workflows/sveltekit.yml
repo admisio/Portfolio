@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Check out 🚚
         uses: actions/checkout@v3
+      
+      - name: Extract frontend 🚜
+        run: |
+          shopt -s extglob
+          rm -r !(frontend)/
+          mv frontend/* ./
 
       - name: Install pnpm 📦
         uses: pnpm/action-setup@v2
@@ -27,9 +33,7 @@ jobs:
           
       - name: Install dependencies 🚀
         run: pnpm install
-        working-directory: frontend
 
       - name: Build 🔨
         run: pnpm run build
-        working-directory: frontend
 
