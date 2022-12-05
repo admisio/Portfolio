@@ -2,16 +2,25 @@
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
 	import { apiUploadCoverLetter } from '$lib/@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
+	import type { ApiError } from '$lib/@api';
+
+	let error: string | null = null;
 
 	const onFileDrop = async (detail: any) => {
 		const file = detail.file;
 		const callback = detail.callback;
-		await apiUploadCoverLetter(file, callback);
+		try {
+			await apiUploadCoverLetter(file, callback);
+			error = null;
+		} catch (e) {
+			error = (e as ApiError).msg;
+		}
 		await fetchSubmProgress();
 	};
 </script>
 
 <DashboardUploadCard
+	{error}
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	title="Motivační dopis"
 	filetype="PDF"

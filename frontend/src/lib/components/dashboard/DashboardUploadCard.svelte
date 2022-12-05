@@ -12,6 +12,8 @@
 
 	const dispatch = createEventDispatcher();
 
+	export let error: string | null = null;
+
 	export let title: string;
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: number;
@@ -105,7 +107,7 @@
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
-	{#if fileDropped}
+	{#if fileDropped &&  error === null}
 		<div class="body uploaded flex content-around items-center justify-between">
 			<div class="w-24">
 				<img
@@ -161,8 +163,12 @@
 				on:mouseleave={dashAnimationStop}
 				style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
 			>
-				<span class="text-[#406280]">Sem přetáhněte,</span>
-				<span class="text-sspsGray">nebo nahrajte {placeholder}</span>
+				{#if error}
+					<span class="font-semibold text-red-600">{error}</span>
+				{:else}
+					<span class="text-[#406280]">Sem přetáhněte,</span>
+					<span class="text-sspsGray">nebo nahrajte {placeholder}</span>
+				{/if}
 			</div>
 		</div>
 	{/if}
