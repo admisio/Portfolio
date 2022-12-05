@@ -1,4 +1,6 @@
 <script lang="ts">
+	import debounce from 'just-debounce-it';
+
 	import { apiDeltePortfolio, apiSubmitPortfolio } from '$lib/@api/candidate';
 	import Circles from '$lib/components/icons/Circles.svelte';
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
@@ -24,17 +26,17 @@
 	};
 
 	const handleNotificationClick = async () => {
-		if (status === "uploaded") {
+		if (status === 'uploaded') {
 			await submitPortfolio();
-		} else if (status === "submitted") {
+		} else if (status === 'submitted') {
 			await deletePortfolio();
 		}
-	}
+	};
 </script>
 
 <div class="card flex flex-col">
 	<div class="infoBar flex flex-row-reverse">
-		<StatusNotificationBig {loading} {status} on:click={handleNotificationClick} />
+		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
 	</div>
 	<div class="relative flex flex-row justify-between">
 		<div>
