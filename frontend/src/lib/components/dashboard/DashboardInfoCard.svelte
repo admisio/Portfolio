@@ -10,26 +10,30 @@
 	let loading = false;
 
 	const submitPortfolio = async () => {
-		loading = true;
-		await apiSubmitPortfolio();
-		await fetchSubmProgress();
-		loading = false;
+		if (!loading) {
+			loading = true;
+			await apiSubmitPortfolio();
+			await fetchSubmProgress();
+			loading = false;
+		}
 	};
 
 	const deletePortfolio = async () => {
-		loading = true;
-		await apiDeltePortfolio();
-		await fetchSubmProgress();
-		loading = false;
+		if (!loading) {
+			loading = true;
+			await apiDeltePortfolio();
+			await fetchSubmProgress();
+			loading = false;
+		}
 	};
 
 	const handleNotificationClick = async () => {
-		if (status === "uploaded") {
+		if (status === 'uploaded') {
 			await submitPortfolio();
-		} else if (status === "submitted") {
+		} else if (status === 'submitted') {
 			await deletePortfolio();
 		}
-	}
+	};
 </script>
 
 <div class="card flex flex-col">
