@@ -11,6 +11,7 @@ specifiers:
   eslint-config-prettier: ^8.5.0
   eslint-plugin-svelte3: ^4.0.0
   filedrop-svelte: ^0.1.2
+  fuse.js: ^6.6.2
   isomorphic-dompurify: ^0.24.0
   prettier: ^2.7.1
   prettier-plugin-svelte: ^2.8.1
@@ -30,6 +31,7 @@ specifiers:
 dependencies:
   axios: 1.2.0
   filedrop-svelte: 0.1.2
+  fuse.js: 6.6.2
   isomorphic-dompurify: 0.24.0
   svelte-forms-lib: 2.0.1
   swiper: 8.4.5
@@ -1207,6 +1209,11 @@ packages:
   /function-bind/1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
     dev: true
+
+  /fuse.js/6.6.2:
+    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
+    engines: {node: '>=10'}
+    dev: false
 
   /glob-parent/5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}

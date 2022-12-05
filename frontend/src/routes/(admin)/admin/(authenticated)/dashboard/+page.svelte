@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
+	import Fuse from 'fuse.js';
 
 	let candidates: Array<CandidatePreview> = [{}];
 
@@ -57,15 +58,16 @@
 
 	$: candidatesTable = candidates;
 	let searchValue: string = '';
+	$: fuse = new Fuse(candidates, {
+		keys: ['applicationId', 'name', 'surname', 'study']
+	});
+
 	const search = () => {
-		candidatesTable = candidates.filter((candidate) => {
-			return (
-				candidate.applicationId?.toString().toLowerCase().includes(searchValue.toLowerCase()) ||
-				candidate.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-				candidate.surname?.toLowerCase().includes(searchValue.toLowerCase()) ||
-				candidate.study?.toLowerCase().includes(searchValue.toLowerCase())
-			);
-		});
+		if (searchValue === '' || !searchValue) {
+			candidatesTable = candidates;
+		} else {
+			candidatesTable = fuse.search(searchValue).map((result) => result.item);
+		}
 	};
 </script>
 
