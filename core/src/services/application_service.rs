@@ -31,9 +31,8 @@ impl ApplicationService {
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
         
-        let parent = Query::find_parent_by_id(db, application)
-            .await?
-            .ok_or(ServiceError::ParentNotFound)?;
+        let parent = Query::find_candidate_parents(db, candidate.clone())
+            .await?;
 
         let recipients = get_recipients(db, &candidate.public_key).await?;
 
@@ -42,7 +41,7 @@ impl ApplicationService {
         Ok(
             tokio::try_join!(
                 CandidateService::add_candidate_details(db, candidate, enc_details.candidate),
-                ParentService::add_parent_details(db, parent, enc_details.parents[0].clone())
+                ParentService::add_parent_details(db, parent[0].clone(), enc_details.parents[0].clone()) // TODO
             )?
         )
     }
@@ -54,9 +53,8 @@ impl ApplicationService {
     ) -> Result<ApplicationDetails, ServiceError>  {
         let candidate = Query::find_candidate_by_id(db, application_id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parent = Query::find_parent_by_id(db, application_id).await?
-            .ok_or(ServiceError::ParentNotFound)?;
-        let enc_details = EncryptedApplicationDetails::try_from((candidate, parent))?;
+        let parent = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
+        let enc_details = EncryptedApplicationDetails::try_from((candidate, parent[0].clone()))?;
 
         enc_details.decrypt(private_key).await
     }

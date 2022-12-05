@@ -102,8 +102,7 @@ impl CandidateService {
     ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parent = Query::find_parent_by_id(db, id).await?
-            .ok_or(ServiceError::CandidateNotFound)?;
+        let parent = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
 
             
             let new_password_plain = crypto::random_8_char_string();
@@ -125,7 +124,7 @@ impl CandidateService {
             .await?;
         
         let enc_details_opt = EncryptedApplicationDetails::try_from(
-            (candidate, parent)
+            (candidate, parent[0].clone())
         );
         
         if let Ok(enc_details) = enc_details_opt {

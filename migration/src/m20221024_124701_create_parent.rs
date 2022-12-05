@@ -12,11 +12,16 @@ impl MigrationTrait for Migration {
                     .table(Parent::Table)
                     .if_not_exists()
                     .col(
+                        ColumnDef::new(Parent::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
                         ColumnDef::new(Parent::Application)
                             .integer()
                             .not_null()
-                            .primary_key()
-                            .unique_key(),
                     )
                     .col(ColumnDef::new(Parent::Name).string())
                     .col(ColumnDef::new(Parent::Surname).string())
@@ -26,7 +31,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Parent::UpdatedAt).date_time().not_null())
                     .to_owned(),
             )
-            .await
+                .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
@@ -38,6 +43,7 @@ impl MigrationTrait for Migration {
 
 #[derive(Iden)]
 pub enum Parent {
+    Id,
     Table,
     Application,
     Name,
