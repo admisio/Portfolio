@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import Submit from '$lib/components/button/Submit.svelte';
 
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
@@ -25,12 +26,9 @@
 		<div class="w-3/5">
 			<TextField bind:value={applicationValue} placeholder="Ev. číslo" type="number" />
 		</div>
-		<input
-			on:click={redirectToCode}
-			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-3/5 rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
-			type="submit"
-			value="Odeslat"
-		/>
+		<div class="mt-8 w-3/5">
+			<Submit on:click={redirectToCode} value="Odeslat" />
+		</div>
 	</div>
 </SplitLayout>
 

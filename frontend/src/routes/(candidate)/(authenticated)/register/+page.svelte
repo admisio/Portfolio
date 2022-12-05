@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { apiFillDetails } from '$lib/@api/candidate';
+	import Submit from '$lib/components/button/Submit.svelte';
 
 	import Email from '$lib/components/icons/Email.svelte';
 	import Home from '$lib/components/icons/Home.svelte';
@@ -284,22 +285,23 @@
 				</span>
 			</div>
 		{/if}
-		<input
-			on:click={async (e) => {
-				await handleSubmit(e);
-				console.log('clicked ' + isPageInvalid());
-				if (isPageInvalid()) return;
-				if (pageIndex === pageCount) {
-				} else {
-					pagesFilled++;
-					pageIndex++;
-				}
-				errors.set(formInitialValues);
-			}}
-			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-full rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300 hover:cursor-pointer"
-			type="submit"
-			value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
-		/>
+		
+		<div class="mt-8 w-full">
+			<Submit
+				on:click={async (e) => {
+					await handleSubmit(e);
+					console.log('clicked ' + isPageInvalid());
+					if (isPageInvalid()) return;
+					if (pageIndex === pageCount) {
+					} else {
+						pagesFilled++;
+						pageIndex++;
+					}
+					errors.set(formInitialValues);
+				}}
+				value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
+			/>
+		</div>
 
 		<div class="mt-8 flex flex-row justify-center">
 			{#each Array(pageCount + 1) as _, i}
