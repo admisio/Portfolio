@@ -432,6 +432,20 @@ mod tests {
 
     #[tokio::test]
     #[serial]
+    async fn test_delete_cover_letter_from_cache() {
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        PortfolioService::delete_cover_letter_from_cache(APPLICATION_ID).await.unwrap();
+
+        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_err());
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
     async fn test_is_cover_letter() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
@@ -444,12 +458,41 @@ mod tests {
 
     #[tokio::test]
     #[serial]
+    async fn test_delete_cache_item() {
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+
+        PortfolioService::delete_cache_item(APPLICATION_ID, FileType::CoverLetterPdf).await.unwrap();
+
+        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_err());
+        
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+    
+
+    #[tokio::test]
+    #[serial]
     async fn test_add_portfolio_letter_to_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
         
         PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         
         assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_ok());
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_delete_portfolio_letter_from_cache() {
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        PortfolioService::delete_portfolio_letter_from_cache(APPLICATION_ID).await.unwrap();
+
+        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_err());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -474,6 +517,20 @@ mod tests {
         PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
         
         assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_ok());
+
+        clear_data_store_temp_dir(temp_dir).await;
+    }
+
+    #[tokio::test]
+    #[serial]
+    async fn test_delete_portfolio_zip_from_cache() {
+        let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
+
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        
+        PortfolioService::delete_portfolio_zip_from_cache(APPLICATION_ID).await.unwrap();
+
+        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_err());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
