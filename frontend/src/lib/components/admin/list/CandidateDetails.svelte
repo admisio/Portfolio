@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { apiGetCandidatePortfolio, apiResetCandidatePassword } from '$lib/@api/admin';
 	import type { CandidateData } from '$lib/stores/candidate';
-	import ListElement from './ListElement.svelte';
 
 	export let id: number;
 	export let candidate: CandidateData;
