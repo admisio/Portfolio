@@ -8,10 +8,10 @@ use super::candidate::{CandidateDetails, ParentDetails};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncryptedString(String);
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncryptedCandidateDetails {
     pub name: EncryptedString,
     pub surname: EncryptedString,
@@ -26,14 +26,14 @@ pub struct EncryptedCandidateDetails {
     pub study: String,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncryptedParentDetails {
     pub name: EncryptedString,
     pub surname: EncryptedString,
     pub telephone: EncryptedString,
     pub email: EncryptedString,
 }
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncryptedApplicationDetails {
     pub candidate: EncryptedCandidateDetails,
     pub parents: Vec<EncryptedParentDetails>,
@@ -274,15 +274,21 @@ impl EncryptedApplicationDetails {
 }
 
 // TODO: use different metehod for this
-impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails {
+impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        (candidate, parent): (candidate::Model, parent::Model),
+        (candidate, parents): (candidate::Model, Vec<parent::Model>),
     ) -> Result<Self, Self::Error> {
+        let mut enc_parents = vec![];
+        for parent in parents.iter() {
+            enc_parents.push(
+                EncryptedParentDetails::try_from(parent.clone())?
+            );
+        }
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails::try_from(candidate)?,
-            parents: vec![EncryptedParentDetails::try_from(parent)?],
+            parents: enc_parents,
         })
     }
 }
@@ -358,10 +364,10 @@ pub mod tests {
                 study: "study".to_string(),
             },
             parents: vec![ParentDetails {
-                email: "parent_email".to_string(),
                 name: "parent_name".to_string(),
                 surname: "parent_surname".to_string(),
-                telephone: "parent_telephone".to_string()
+                telephone: "parent_telephone".to_string(),
+                email: "parent_email".to_string(),
             }]
         })
     );

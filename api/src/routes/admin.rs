@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -146,10 +146,15 @@ pub async fn get_candidate(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
+    let candidate = Query::find_candidate_by_id(db, id)
+        .await
+        .map_err(|e| to_custom_error(ServiceError::Forbidden))? // TODO better error handling
+        .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    
     let details = ApplicationService::decrypt_all_details(
         private_key,
         db,
-        id
+        candidate
     )
         .await
         .map_err(to_custom_error)?;

@@ -20,15 +20,15 @@ impl Mutation {
         parent: Model,
         enc_parent: EncryptedParentDetails,
     ) -> Result<Model, sea_orm::DbErr> {
-        let mut user: parent::ActiveModel = parent.into();
-        user.name = Set(Some(enc_parent.name.into()));
-        user.surname = Set(Some(enc_parent.surname.into()));
-        user.telephone = Set(Some(enc_parent.telephone.into()));
-        user.email = Set(Some(enc_parent.email.into()));
+        let mut parent: parent::ActiveModel = parent.into();
+        parent.name = Set(Some(enc_parent.name.into()));
+        parent.surname = Set(Some(enc_parent.surname.into()));
+        parent.telephone = Set(Some(enc_parent.telephone.into()));
+        parent.email = Set(Some(enc_parent.email.into()));
 
-        user.updated_at = Set(chrono::offset::Local::now().naive_local());
+        parent.updated_at = Set(chrono::offset::Local::now().naive_local());
 
-        user.update(db).await
+        parent.update(db).await
     }
 }
 
@@ -56,9 +56,9 @@ mod tests {
         .await
         .unwrap();
 
-        Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
+        let new_parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
 
-        let parent = Query::find_parent_by_id(&db, APPLICATION_ID).await.unwrap();
+        let parent = Query::find_parent_by_id(&db, new_parent.id).await.unwrap();
         assert!(parent.is_some());
     }
 
@@ -88,11 +88,11 @@ mod tests {
         .await
         .unwrap();
 
-        Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
+        Mutation::add_parent_details(&db, parent.clone(), encrypted_details.parents[0].clone())
             .await
             .unwrap();
 
-        let parent = Query::find_parent_by_id(&db, APPLICATION_ID)
+        let parent = Query::find_parent_by_id(&db, parent.id)
             .await
             .unwrap()
             .unwrap();

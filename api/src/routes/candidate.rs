@@ -78,7 +78,7 @@ pub async fn post_details(
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into();
 
-    let _candidate_parent = ApplicationService::add_all_details(db, candidate.application, &form)
+    let _candidate_parent = ApplicationService::add_all_details(db, candidate, &form)
         .await
         .map_err(to_custom_error)?;
 
@@ -97,7 +97,7 @@ pub async fn get_details(
     let candidate: entity::candidate::Model = session.into();
 
     // let handle = tokio::spawn(async move {
-    let details = ApplicationService::decrypt_all_details(private_key, db, candidate.application)
+    let details = ApplicationService::decrypt_all_details(private_key, db, candidate)
         .await
         .map(|x| Json(x))
         .map_err(to_custom_error);

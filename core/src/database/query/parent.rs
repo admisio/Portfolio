@@ -13,10 +13,10 @@ impl Query {
     #[deprecated(note = "Use find_candidate_parents instead")]
     pub async fn find_parent_by_id(
         db: &DbConn,
-        application_id: i32,
+        id: i32,
     ) -> Result<Option<Model>, DbErr> {
 
-        Entity::find_by_id(application_id).one(db).await
+        Entity::find_by_id(id).one(db).await
     }
 
     // TODO limit to two parents??

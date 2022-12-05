@@ -24,37 +24,26 @@ impl ApplicationService {
 
     pub async fn add_all_details(
         db: &DbConn,
-        application: i32,
+        candidate: candidate::Model,
         form: &ApplicationDetails,
-    ) -> Result<(candidate::Model, parent::Model), ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, application)
-            .await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-        
-        let parent = Query::find_candidate_parents(db, candidate.clone())
-            .await?;
-
-        let recipients = get_recipients(db, &candidate.public_key).await?;
-
-        let enc_details = EncryptedApplicationDetails::new(form, recipients).await?;
+    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> { // TODO: is this service needed?
 
         Ok(
-            tokio::try_join!(
-                CandidateService::add_candidate_details(db, candidate, enc_details.candidate),
-                ParentService::add_parent_details(db, parent[0].clone(), enc_details.parents[0].clone()) // TODO
-            )?
+            (
+                CandidateService::add_candidate_details(db, candidate.clone(), &form.candidate).await?,
+                ParentService::add_parents_details(db, candidate, &form.parents).await?
+            )
         )
     }
 
     pub async fn decrypt_all_details(
         private_key: String,
         db: &DbConn,
-        application_id: i32,
+        candidate: candidate::Model,
+        // parents: Vec<parent::Model>,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        let candidate = Query::find_candidate_by_id(db, application_id).await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-        let parent = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
-        let enc_details = EncryptedApplicationDetails::try_from((candidate, parent[0].clone()))?;
+        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
+        let enc_details = EncryptedApplicationDetails::try_from((candidate, parents))?;
 
         enc_details.decrypt(private_key).await
     }
