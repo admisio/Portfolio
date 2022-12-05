@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
+	import debounce from 'just-debounce-it';
 	import { filedrop, type FileDropOptions } from 'filedrop-svelte';
 	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
@@ -105,7 +106,7 @@
 			{#if status === 'uploaded'}
 				<button
 					class="mr-3 rounded-xl bg-[#ef8b46] py-0.5 px-2 text-white shadow-md transition-all duration-300 hover:bg-orange-400"
-					on:click={() => dispatch('delete')}>Smazat</button
+					on:click={debounce(() => dispatch('delete'), 150)}>Smazat</button
 				>
 			{/if}
 			<StatusNotificationDot {status} />
