@@ -23,6 +23,8 @@ pub enum ServiceError {
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
+    ParentOverflow,
+    #[error("Too many parents")]
     DbError(#[from] sea_orm::DbErr),
     #[error("User not found, please contact technical support")]
     UserNotFoundByJwtId,
@@ -78,6 +80,7 @@ impl ServiceError {
             ServiceError::UserAlreadyExists => 409,
             ServiceError::CandidateNotFound => 404,
             ServiceError::ParentNotFound => 500,
+            ServiceError::ParentOverflow => 400, // TODO: correct error code
             ServiceError::DbError(_) => 500,
             ServiceError::UserNotFoundByJwtId => 500,
             ServiceError::UserNotFoundBySessionId => 500,

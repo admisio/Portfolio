@@ -14,13 +14,7 @@ impl ApplicationService {
         plain_text_password: &String,
         personal_id_number: String,
     ) -> Result<(candidate::Model, parent::Model), ServiceError> {
-        Ok(
-            /* tokio::try_join!( // TODO: try_join! is not working
-                CandidateService::create(db, application_id, plain_text_password, personal_id_number),
-                ParentService::create(db, application_id)
-            )? */
-
-            
+        Ok( 
             (
                 CandidateService::create(db, application_id, plain_text_password, personal_id_number).await?,
                 ParentService::create(db, application_id).await?
@@ -30,39 +24,26 @@ impl ApplicationService {
 
     pub async fn add_all_details(
         db: &DbConn,
-        application: i32,
+        candidate: candidate::Model,
         form: &ApplicationDetails,
-    ) -> Result<(candidate::Model, parent::Model), ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, application)
-            .await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-        
-        let parent = Query::find_parent_by_id(db, application)
-            .await?
-            .ok_or(ServiceError::ParentNotFound)?;
-
-        let recipients = get_recipients(db, &candidate.public_key).await?;
-
-        let enc_details = EncryptedApplicationDetails::new(form, recipients).await?;
+    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> { // TODO: is this service needed?
 
         Ok(
-            tokio::try_join!(
-                CandidateService::add_candidate_details(db, candidate, enc_details.clone()),
-                ParentService::add_parent_details(db, parent, enc_details.clone())
-            )?
+            (
+                CandidateService::add_candidate_details(db, candidate.clone(), &form.candidate).await?,
+                ParentService::add_parents_details(db, candidate, &form.parents).await?
+            )
         )
     }
 
     pub async fn decrypt_all_details(
         private_key: String,
         db: &DbConn,
-        application_id: i32,
+        candidate: candidate::Model,
+        // parents: Vec<parent::Model>,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        let candidate = Query::find_candidate_by_id(db, application_id).await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-        let parent = Query::find_parent_by_id(db, application_id).await?
-            .ok_or(ServiceError::ParentNotFound)?;
-        let enc_details = EncryptedApplicationDetails::try_from((candidate, parent))?;
+        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
+        let enc_details = EncryptedApplicationDetails::try_from((candidate, parents))?;
 
         enc_details.decrypt(private_key).await
     }

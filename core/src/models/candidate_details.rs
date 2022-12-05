@@ -4,14 +4,15 @@ use entity::{candidate, parent};
 
 use crate::{crypto, models::candidate::{CandidateWithParent, ApplicationDetails}, error::ServiceError};
 
+use super::candidate::{CandidateDetails, ParentDetails};
+
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EncryptedString(String);
 
-#[derive(Clone)]
-pub struct EncryptedApplicationDetails {
-    // Candidate
+#[derive(Debug, Clone)]
+pub struct EncryptedCandidateDetails {
     pub name: EncryptedString,
     pub surname: EncryptedString,
     pub birthplace: EncryptedString,
@@ -23,12 +24,19 @@ pub struct EncryptedApplicationDetails {
     pub sex: EncryptedString,
     pub personal_id_number: EncryptedString,
     pub study: String,
+}
 
-    // Parent
-    pub parent_name: EncryptedString,
-    pub parent_surname: EncryptedString,
-    pub parent_telephone: EncryptedString,
-    pub parent_email: EncryptedString,
+#[derive(Debug, Clone)]
+pub struct EncryptedParentDetails {
+    pub name: EncryptedString,
+    pub surname: EncryptedString,
+    pub telephone: EncryptedString,
+    pub email: EncryptedString,
+}
+#[derive(Debug, Clone)]
+pub struct EncryptedApplicationDetails {
+    pub candidate: EncryptedCandidateDetails,
+    pub parents: Vec<EncryptedParentDetails>,
 }
 
 impl EncryptedString {
@@ -86,11 +94,11 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString {
     }
 }
 
-impl EncryptedApplicationDetails {
+impl EncryptedCandidateDetails {
     pub async fn new(
-        form: &ApplicationDetails,
+        form: &CandidateDetails,
         recipients: Vec<String>,
-    ) -> Result<EncryptedApplicationDetails, ServiceError> {
+    ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d = tokio::try_join!(
             EncryptedString::new(&form.name, &recipients),
@@ -103,34 +111,26 @@ impl EncryptedApplicationDetails {
             EncryptedString::new(&form.email, &recipients),
             EncryptedString::new(&form.sex, &recipients),
             EncryptedString::new(&form.personal_id_number, &recipients),
-            
-            EncryptedString::new(&form.parent_name, &recipients),
-            EncryptedString::new(&form.parent_surname, &recipients),
-            EncryptedString::new(&form.parent_telephone, &recipients),
-            EncryptedString::new(&form.parent_email, &recipients),
         )?;
 
-        Ok(EncryptedApplicationDetails {
-            name: d.0,
-            surname: d.1,
-            birthplace: d.2,
-            birthdate: d.3,
-            address: d.4,
-            telephone: d.5,
-            citizenship: d.6,
-            email: d.7,
-            sex: d.8,
-            personal_id_number: d.9,
-            study: form.study.clone(),
-
-            parent_name: d.10,
-            parent_surname: d.11,
-            parent_telephone: d.12,
-            parent_email: d.13,
-        })
+        Ok(
+            EncryptedCandidateDetails {
+                name: d.0,
+                surname: d.1,
+                birthplace: d.2,
+                birthdate: d.3,
+                address: d.4,
+                telephone: d.5,
+                citizenship: d.6,
+                email: d.7,
+                sex: d.8,
+                personal_id_number: d.9,
+                study: form.study.clone(),
+            }
+        )
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
+    pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
         let d = tokio::try_join!(
             self.name.decrypt(&priv_key),              // 0
             self.surname.decrypt(&priv_key),           // 1
@@ -142,56 +142,153 @@ impl EncryptedApplicationDetails {
             self.email.decrypt(&priv_key),             // 7
             self.sex.decrypt(&priv_key),               // 8
             self.personal_id_number.decrypt(&priv_key),// 9
-            self.parent_name.decrypt(&priv_key),       // 10
-            self.parent_surname.decrypt(&priv_key),    // 11
-            self.parent_telephone.decrypt(&priv_key),  // 12 
-            self.parent_email.decrypt(&priv_key),      // 13
         )?;
 
-        Ok(ApplicationDetails {
-            name: d.0,
-            surname: d.1,
-            birthplace: d.2,
-            birthdate: NaiveDate::parse_from_str(&d.3, NAIVE_DATE_FMT).unwrap(), // TODO
-            address: d.4,
-            telephone: d.5,
-            citizenship: d.6,
-            email: d.7,
-            sex: d.8,
-            personal_id_number: d.9,
-            study: self.study,
+        Ok(CandidateDetails {
+                name: d.0,
+                surname: d.1,
+                birthplace: d.2,
+                birthdate: NaiveDate::parse_from_str(&d.3, NAIVE_DATE_FMT).unwrap(), // TODO
+                address: d.4,
+                telephone: d.5,
+                citizenship: d.6,
+                email: d.7,
+                sex: d.8,
+                personal_id_number: d.9,
+                study: self.study,
+            }
+        )
+    }
+}
+impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
+    type Error = ServiceError;
 
-            parent_name: d.10,
-            parent_surname: d.11,
-            parent_telephone: d.12,
-            parent_email: d.13,
+    fn try_from(
+        candidate: candidate::Model,
+    ) -> Result<Self, Self::Error> {
+        Ok(
+            EncryptedCandidateDetails {
+                name: EncryptedString::try_from(candidate.name)?,
+                surname: EncryptedString::try_from(candidate.surname)?,
+                birthplace: EncryptedString::try_from(candidate.birthplace)?,
+                birthdate: EncryptedString::try_from(candidate.birthdate)?,
+                address: EncryptedString::try_from(candidate.address)?,
+                telephone: EncryptedString::try_from(candidate.telephone)?,
+                citizenship: EncryptedString::try_from(candidate.citizenship)?,
+                email: EncryptedString::try_from(candidate.email)?,
+                sex: EncryptedString::try_from(candidate.sex)?,
+                personal_id_number: EncryptedString::from(candidate.personal_identification_number),
+                study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
+            }
+        )
+    }
+}
+
+impl EncryptedParentDetails {
+    pub async fn new(
+        form: &ParentDetails,
+        recipients: Vec<String>,
+    ) -> Result<EncryptedParentDetails, ServiceError> {
+        let d = tokio::try_join!(
+            EncryptedString::new(&form.name, &recipients),
+            EncryptedString::new(&form.surname, &recipients),
+            EncryptedString::new(&form.telephone, &recipients),
+            EncryptedString::new(&form.email, &recipients),
+        )?;
+
+        Ok(
+            EncryptedParentDetails {
+                name: d.0,
+                surname: d.1,
+                telephone: d.2,
+                email: d.3,
+            }
+        )
+    }
+
+    pub async fn decrypt(&self, priv_key: String) -> Result<ParentDetails, ServiceError> {
+        let d = tokio::try_join!(
+            self.name.decrypt(&priv_key),
+            self.surname.decrypt(&priv_key),
+            self.telephone.decrypt(&priv_key),
+            self.email.decrypt(&priv_key),
+        )?;
+
+        Ok(ParentDetails {
+                name: d.0,
+                surname: d.1,
+                telephone: d.2,
+                email: d.3,
+            }
+        )
+    }
+}
+impl TryFrom<parent::Model> for EncryptedParentDetails {
+    type Error = ServiceError;
+
+    fn try_from(
+        parent: parent::Model,
+    ) -> Result<Self, Self::Error> {
+        Ok(EncryptedParentDetails { 
+                name: EncryptedString::try_from(parent.name)?,
+                surname: EncryptedString::try_from(parent.surname)?,
+                telephone: EncryptedString::try_from(parent.telephone)?,
+                email: EncryptedString::try_from(parent.email)?,
+            }
+        )
+    }
+}
+
+impl EncryptedApplicationDetails {
+    pub async fn new(
+        form: &ApplicationDetails,
+        recipients: Vec<String>,
+    ) -> Result<EncryptedApplicationDetails, ServiceError> {
+        let candidate =  EncryptedCandidateDetails::new(&form.candidate, recipients.clone()).await?;
+        let mut enc_parents= vec![];
+        for parent in form.parents.iter() {
+            enc_parents.push(
+                EncryptedParentDetails::new(parent, recipients.clone()).await?
+            );
+        }
+        Ok(
+            EncryptedApplicationDetails {
+                candidate,
+                parents: enc_parents,
+            }
+        )
+    }
+
+    pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
+        let candidate = self.candidate.decrypt(priv_key.clone()).await?;
+        let mut parents = vec![];
+        for parent in self.parents.iter() {
+            let dec = parent.decrypt(priv_key.clone()).await?;
+            parents.push(dec);
+        }
+        Ok(ApplicationDetails {
+            candidate,
+            parents: parents,
         })
     }
 }
 
-impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails {
+// TODO: use different metehod for this
+impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        (candidate, parent): (candidate::Model, parent::Model),
+        (candidate, parents): (candidate::Model, Vec<parent::Model>),
     ) -> Result<Self, Self::Error> {
+        let mut enc_parents = vec![];
+        for parent in parents.iter() {
+            enc_parents.push(
+                EncryptedParentDetails::try_from(parent.clone())?
+            );
+        }
         Ok(EncryptedApplicationDetails {
-            name: EncryptedString::try_from(candidate.name)?,
-            surname: EncryptedString::try_from(candidate.surname)?,
-            birthplace: EncryptedString::try_from(candidate.birthplace)?,
-            birthdate: EncryptedString::try_from(candidate.birthdate)?,
-            address: EncryptedString::try_from(candidate.address)?,
-            telephone: EncryptedString::try_from(candidate.telephone)?,
-            citizenship: EncryptedString::try_from(candidate.citizenship)?,
-            email: EncryptedString::try_from(candidate.email)?,
-            sex: EncryptedString::try_from(candidate.sex)?,
-            personal_id_number: EncryptedString::from(candidate.personal_identification_number),
-            study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
-
-            parent_name: EncryptedString::try_from(parent.name)?,
-            parent_surname: EncryptedString::try_from(parent.surname)?,
-            parent_telephone: EncryptedString::try_from(parent.telephone)?,
-            parent_email: EncryptedString::try_from(parent.email)?,
+            candidate: EncryptedCandidateDetails::try_from(candidate)?,
+            parents: enc_parents,
         })
     }
 }
@@ -203,22 +300,26 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
         cp: CandidateWithParent,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
-            name: EncryptedString::try_from(cp.name)?,
-            surname: EncryptedString::try_from(cp.surname)?,
-            birthplace: EncryptedString::try_from(cp.birthplace)?,
-            birthdate: EncryptedString::try_from(cp.birthdate)?,
-            address: EncryptedString::try_from(cp.address)?,
-            telephone: EncryptedString::try_from(cp.telephone)?,
-            citizenship: EncryptedString::try_from(cp.citizenship)?,
-            email: EncryptedString::try_from(cp.email)?,
-            sex: EncryptedString::try_from(cp.sex)?,
-            personal_id_number: EncryptedString::try_from(cp.personal_identification_number)?,
-            study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
+            candidate: EncryptedCandidateDetails {
+                name: EncryptedString::try_from(cp.name)?,
+                surname: EncryptedString::try_from(cp.surname)?,
+                birthplace: EncryptedString::try_from(cp.birthplace)?,
+                birthdate: EncryptedString::try_from(cp.birthdate)?,
+                address: EncryptedString::try_from(cp.address)?,
+                telephone: EncryptedString::try_from(cp.telephone)?,
+                citizenship: EncryptedString::try_from(cp.citizenship)?,
+                email: EncryptedString::try_from(cp.email)?,
+                sex: EncryptedString::try_from(cp.sex)?,
+                personal_id_number: EncryptedString::try_from(cp.personal_identification_number)?,
+                study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
+            },
+            parents: vec![EncryptedParentDetails {
+                name: EncryptedString::try_from(cp.parent_name)?,
+                surname: EncryptedString::try_from(cp.parent_surname)?,
+                telephone: EncryptedString::try_from(cp.parent_telephone)?,
+                email: EncryptedString::try_from(cp.parent_email)?,
+            }]
 
-            parent_name: EncryptedString::try_from(cp.parent_name)?,
-            parent_surname: EncryptedString::try_from(cp.parent_surname)?,
-            parent_telephone: EncryptedString::try_from(cp.parent_telephone)?,
-            parent_email: EncryptedString::try_from(cp.parent_email)?,
         })
     }
 }
@@ -240,7 +341,7 @@ pub mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::crypto;
+    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -249,40 +350,44 @@ pub mod tests {
 
     pub static APPLICATION_DETAILS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {
-            name: "name".to_string(),
-            surname: "surname".to_string(),
-            birthplace: "birthplace".to_string(),
-            birthdate: chrono::NaiveDate::from_ymd(2000, 1, 1),
-            address: "address".to_string(),
-            telephone: "telephone".to_string(),
-            citizenship: "citizenship".to_string(),
-            email: "email".to_string(),
-            sex: "sex".to_string(),
-            personal_id_number: "personal_id_number".to_string(),
-            study: "study".to_string(),
-            parent_email: "parent_email".to_string(),
-            parent_name: "parent_name".to_string(),
-            parent_surname: "parent_surname".to_string(),
-            parent_telephone: "parent_telephone".to_string()
+            candidate: CandidateDetails {
+                name: "name".to_string(),
+                surname: "surname".to_string(),
+                birthplace: "birthplace".to_string(),
+                birthdate: chrono::NaiveDate::from_ymd(2000, 1, 1),
+                address: "address".to_string(),
+                telephone: "telephone".to_string(),
+                citizenship: "citizenship".to_string(),
+                email: "email".to_string(),
+                sex: "sex".to_string(),
+                personal_id_number: "personal_id_number".to_string(),
+                study: "study".to_string(),
+            },
+            parents: vec![ParentDetails {
+                name: "parent_name".to_string(),
+                surname: "parent_surname".to_string(),
+                telephone: "parent_telephone".to_string(),
+                email: "parent_email".to_string(),
+            }]
         })
     );
 
     pub fn assert_all_application_details(details: &ApplicationDetails) {
-        assert_eq!(details.name, "name");
-        assert_eq!(details.surname, "surname");
-        assert_eq!(details.birthplace, "birthplace");
-        assert_eq!(details.birthdate, chrono::NaiveDate::from_ymd(2000, 1, 1));
-        assert_eq!(details.address, "address");
-        assert_eq!(details.telephone, "telephone");
-        assert_eq!(details.citizenship, "citizenship");
-        assert_eq!(details.email, "email");
-        assert_eq!(details.sex, "sex");
-        assert_eq!(details.study, "study");
-        assert_eq!(details.personal_id_number, "personal_id_number");
-        assert_eq!(details.parent_name, "parent_name");
-        assert_eq!(details.parent_surname, "parent_surname");
-        assert_eq!(details.parent_telephone, "parent_telephone");
-        assert_eq!(details.parent_email, "parent_email");
+        assert_eq!(details.candidate.name, "name");
+        assert_eq!(details.candidate.surname, "surname");
+        assert_eq!(details.candidate.birthplace, "birthplace");
+        assert_eq!(details.candidate.birthdate, chrono::NaiveDate::from_ymd(2000, 1, 1));
+        assert_eq!(details.candidate.address, "address");
+        assert_eq!(details.candidate.telephone, "telephone");
+        assert_eq!(details.candidate.citizenship, "citizenship");
+        assert_eq!(details.candidate.email, "email");
+        assert_eq!(details.candidate.sex, "sex");
+        assert_eq!(details.candidate.study, "study");
+        assert_eq!(details.candidate.personal_id_number, "personal_id_number");
+        assert_eq!(details.parents[0].name, "parent_name");
+        assert_eq!(details.parents[0].surname, "parent_surname");
+        assert_eq!(details.parents[0].telephone, "parent_telephone");
+        assert_eq!(details.parents[0].email, "parent_email");
     }
 
     #[tokio::test]
@@ -295,19 +400,19 @@ pub mod tests {
         .unwrap();
 
         assert_eq!(
-            crypto::decrypt_password_with_private_key(&encrypted_details.name.0, PRIVATE_KEY)
+            crypto::decrypt_password_with_private_key(&encrypted_details.candidate.name.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
             "name"
         );
         assert_eq!(
-            crypto::decrypt_password_with_private_key(&encrypted_details.email.0, PRIVATE_KEY)
+            crypto::decrypt_password_with_private_key(&encrypted_details.candidate.email.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
             "email"
         );
         assert_eq!(
-            crypto::decrypt_password_with_private_key(&encrypted_details.sex.0, PRIVATE_KEY)
+            crypto::decrypt_password_with_private_key(&encrypted_details.candidate.sex.0, PRIVATE_KEY)
                 .await
                 .unwrap(),
             "sex"

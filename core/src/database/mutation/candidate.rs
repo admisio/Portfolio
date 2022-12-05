@@ -1,4 +1,4 @@
-use crate::{Mutation, models::candidate_details::EncryptedApplicationDetails};
+use crate::{Mutation, models::candidate_details::{EncryptedCandidateDetails}};
 
 use ::entity::candidate::{self};
 use sea_orm::*;
@@ -44,20 +44,20 @@ impl Mutation {
     pub async fn add_candidate_details(
         db: &DbConn,
         user: candidate::Model,
-        enc_details: EncryptedApplicationDetails,
+        enc_candidate: EncryptedCandidateDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let mut user: candidate::ActiveModel = user.into();
-        user.name = Set(Some(enc_details.name.into()));
-        user.surname = Set(Some(enc_details.surname.into()));
-        user.birthplace = Set(Some(enc_details.birthplace.into()));
-        user.birthdate = Set(Some(enc_details.birthdate.into()));
-        user.address = Set(Some(enc_details.address.into()));
-        user.telephone = Set(Some(enc_details.telephone.into()));
-        user.citizenship = Set(Some(enc_details.citizenship.into()));
-        user.email = Set(Some(enc_details.email.into()));
-        user.sex = Set(Some(enc_details.sex.into()));
-        user.personal_identification_number = Set(enc_details.personal_id_number.into()); // TODO: do not set this here, it is already set in the create_candidate mutation???
-        user.study = Set(Some(enc_details.study.into()));
+        user.name = Set(Some(enc_candidate.name.into()));
+        user.surname = Set(Some(enc_candidate.surname.into()));
+        user.birthplace = Set(Some(enc_candidate.birthplace.into()));
+        user.birthdate = Set(Some(enc_candidate.birthdate.into()));
+        user.address = Set(Some(enc_candidate.address.into()));
+        user.telephone = Set(Some(enc_candidate.telephone.into()));
+        user.citizenship = Set(Some(enc_candidate.citizenship.into()));
+        user.email = Set(Some(enc_candidate.email.into()));
+        user.sex = Set(Some(enc_candidate.sex.into()));
+        user.personal_identification_number = Set(enc_candidate.personal_id_number.into()); // TODO: do not set this here, it is already set in the create_candidate mutation???
+        user.study = Set(Some(enc_candidate.study.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 
@@ -117,7 +117,7 @@ mod tests {
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_string()],
         ).await.unwrap();
 
-        Mutation::add_candidate_details(&db, candidate, encrypted_details).await.unwrap();
+        Mutation::add_candidate_details(&db, candidate, encrypted_details.candidate).await.unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, APPLICATION_ID)
         .await

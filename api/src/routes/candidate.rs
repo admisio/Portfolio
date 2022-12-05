@@ -86,7 +86,7 @@ pub async fn post_details(
     let form = details.into_inner();
     let candidate: entity::candidate::Model = session.into();
 
-    let _candidate_parent = ApplicationService::add_all_details(db, candidate.application, &form)
+    let _candidate_parent = ApplicationService::add_all_details(db, candidate, &form)
         .await
         .map_err(to_custom_error)?;
 
@@ -103,7 +103,7 @@ pub async fn get_details(
     let candidate: entity::candidate::Model = session.into();
 
     // let handle = tokio::spawn(async move {
-    let details = ApplicationService::decrypt_all_details(private_key, db, candidate.application)
+    let details = ApplicationService::decrypt_all_details(private_key, db, candidate)
         .await
         .map(|x| Json(x))
         .map_err(to_custom_error);
@@ -284,21 +284,27 @@ mod tests {
     }
 
     const CANDIDATE_DETAILS: &'static str = "{
-        \"name\": \"idk\",
-        \"surname\": \"idk\",
-        \"birthplace\": \"Praha 1\",
-        \"birthdate\": \"2015-09-18\",
-        \"address\": \"Stefanikova jidelna\",
-        \"telephone\": \"000111222333\",
-        \"citizenship\": \"Czech Republic\",
-        \"email\": \"magor@magor.cz\",
-        \"sex\": \"MALE\",
-        \"personalIdNumber\": \"0000000000\",
-        \"study\": \"KB\",
-        \"parentName\": \"maminka\",
-        \"parentSurname\": \"chad\",
-        \"parentTelephone\": \"420111222333\",
-        \"parentEmail\": \"maminka@centrum.cz\"
+        \"candidate\": {
+            \"name\": \"idk\",
+            \"surname\": \"idk\",
+            \"birthplace\": \"Praha 1\",
+            \"birthdate\": \"2015-09-18\",
+            \"address\": \"Stefanikova jidelna\",
+            \"telephone\": \"000111222333\",
+            \"citizenship\": \"Czech Republic\",
+            \"email\": \"magor@magor.cz\",
+            \"sex\": \"MALE\",
+            \"personalIdNumber\": \"0000000000\",
+            \"study\": \"KB\"
+        },
+        \"parents\": [
+            {
+                \"name\": \"maminka\",
+                \"surname\": \"chad\",
+                \"telephone\": \"420111222333\",
+                \"email\": \"maminka@centrum.cz\"
+            }
+        ]
     }";
 
     #[test]

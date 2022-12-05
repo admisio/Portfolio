@@ -2,7 +2,7 @@ use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
-    models::candidate_details::{EncryptedApplicationDetails, EncryptedString},
+    models::{candidate_details::{EncryptedApplicationDetails, EncryptedString, EncryptedCandidateDetails}, candidate::CandidateDetails},
     crypto::{self, hash_password},
     error::ServiceError,
     Mutation, Query, models::candidate::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
@@ -102,8 +102,7 @@ impl CandidateService {
     ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parent = Query::find_parent_by_id(db, id).await?
-            .ok_or(ServiceError::CandidateNotFound)?;
+        let parents = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
 
             
             let new_password_plain = crypto::random_8_char_string();
@@ -125,12 +124,12 @@ impl CandidateService {
             .await?;
         
         let enc_details_opt = EncryptedApplicationDetails::try_from(
-            (candidate, parent)
+            (candidate.clone(), parents)
         );
         
         if let Ok(enc_details) = enc_details_opt {
             let application_details = enc_details.decrypt(admin_private_key).await?;
-            ApplicationService::add_all_details(db, id, &application_details).await?;
+            ApplicationService::add_all_details(db, candidate, &application_details).await?;
         }
 
         Ok(
@@ -150,9 +149,11 @@ impl CandidateService {
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
-        enc_details: EncryptedApplicationDetails,
+        details: &CandidateDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let model = Mutation::add_candidate_details(db, candidate, enc_details.clone()).await?;
+        let recipients = get_recipients(db, &candidate.public_key).await?;
+        let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
+        let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
         Ok(model)
     }
 
@@ -373,8 +374,8 @@ pub mod tests {
     }
 
     #[cfg(test)]
-    pub async fn put_user_data(db: &DbConn) -> (candidate::Model, parent::Model) {
-        use crate::models::candidate_details::tests::APPLICATION_DETAILS;
+    pub async fn put_user_data(db: &DbConn) -> (candidate::Model, Vec<parent::Model>) {
+        use crate::{models::candidate_details::tests::APPLICATION_DETAILS, Query};
 
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(
@@ -383,23 +384,28 @@ pub mod tests {
             &plain_text_password,
             "".to_string(),
         )
-        .await
-        .ok()
-        .unwrap();
+            .await
+            .ok()
+            .unwrap();
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        ApplicationService::add_all_details(&db, candidate.application, &form)
+        let (candidate, parents) = ApplicationService::add_all_details(&db, candidate.clone(), &form)
             .await
-            .unwrap()
+            .unwrap();
+
+        (
+            candidate,
+            parents,
+        )
     }
 
     #[tokio::test]
     async fn test_put_user_data() {
         let db = get_memory_sqlite_connection().await;
-        let (candidate, parent) = put_user_data(&db).await;
+        let (candidate, parents) = put_user_data(&db).await;
         assert!(candidate.name.is_some());
-        assert!(parent.name.is_some());
+        assert!(parents[0].name.is_some());
     }
 
     #[tokio::test]
