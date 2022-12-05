@@ -94,32 +94,27 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString {
     }
 }
 
-impl EncryptedApplicationDetails {
+impl EncryptedCandidateDetails {
     pub async fn new(
-        form: &ApplicationDetails,
+        form: &CandidateDetails,
         recipients: Vec<String>,
-    ) -> Result<EncryptedApplicationDetails, ServiceError> {
-        let birthdate_str = form.candidate.birthdate.format(NAIVE_DATE_FMT).to_string();
+    ) -> Result<EncryptedCandidateDetails, ServiceError> {
+        let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d = tokio::try_join!(
-            EncryptedString::new(&form.candidate.name, &recipients),
-            EncryptedString::new(&form.candidate.surname, &recipients),
-            EncryptedString::new(&form.candidate.birthplace, &recipients),
+            EncryptedString::new(&form.name, &recipients),
+            EncryptedString::new(&form.surname, &recipients),
+            EncryptedString::new(&form.birthplace, &recipients),
             EncryptedString::new(&birthdate_str, &recipients),
-            EncryptedString::new(&form.candidate.address, &recipients),
-            EncryptedString::new(&form.candidate.telephone, &recipients),
-            EncryptedString::new(&form.candidate.citizenship, &recipients),
-            EncryptedString::new(&form.candidate.email, &recipients),
-            EncryptedString::new(&form.candidate.sex, &recipients),
-            EncryptedString::new(&form.candidate.personal_id_number, &recipients),
-            
-            EncryptedString::new(&form.parent.name, &recipients),
-            EncryptedString::new(&form.parent.surname, &recipients),
-            EncryptedString::new(&form.parent.telephone, &recipients),
-            EncryptedString::new(&form.parent.email, &recipients),
+            EncryptedString::new(&form.address, &recipients),
+            EncryptedString::new(&form.telephone, &recipients),
+            EncryptedString::new(&form.citizenship, &recipients),
+            EncryptedString::new(&form.email, &recipients),
+            EncryptedString::new(&form.sex, &recipients),
+            EncryptedString::new(&form.personal_id_number, &recipients),
         )?;
 
-        Ok(EncryptedApplicationDetails {
-            candidate: EncryptedCandidateDetails {
+        Ok(
+            EncryptedCandidateDetails {
                 name: d.0,
                 surname: d.1,
                 birthplace: d.2,
@@ -130,38 +125,26 @@ impl EncryptedApplicationDetails {
                 email: d.7,
                 sex: d.8,
                 personal_id_number: d.9,
-                study: form.candidate.study.clone(),
-            },
-            parent: EncryptedParentDetails {
-                name: d.10,
-                surname: d.11,
-                telephone: d.12,
-                email: d.13,
+                study: form.study.clone(),
             }
-
-        })
+        )
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
+    pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
         let d = tokio::try_join!(
-            self.candidate.name.decrypt(&priv_key),              // 0
-            self.candidate.surname.decrypt(&priv_key),           // 1
-            self.candidate.birthplace.decrypt(&priv_key),        // 2
-            self.candidate.birthdate.decrypt(&priv_key),         // 3
-            self.candidate.address.decrypt(&priv_key),           // 4
-            self.candidate.telephone.decrypt(&priv_key),         // 5
-            self.candidate.citizenship.decrypt(&priv_key),       // 6
-            self.candidate.email.decrypt(&priv_key),             // 7
-            self.candidate.sex.decrypt(&priv_key),               // 8
-            self.candidate.personal_id_number.decrypt(&priv_key),// 9
-            self.parent.name.decrypt(&priv_key),       // 10
-            self.parent.surname.decrypt(&priv_key),    // 11
-            self.parent.telephone.decrypt(&priv_key),  // 12 
-            self.parent.email.decrypt(&priv_key),      // 13
+            self.name.decrypt(&priv_key),              // 0
+            self.surname.decrypt(&priv_key),           // 1
+            self.birthplace.decrypt(&priv_key),        // 2
+            self.birthdate.decrypt(&priv_key),         // 3
+            self.address.decrypt(&priv_key),           // 4
+            self.telephone.decrypt(&priv_key),         // 5
+            self.citizenship.decrypt(&priv_key),       // 6
+            self.email.decrypt(&priv_key),             // 7
+            self.sex.decrypt(&priv_key),               // 8
+            self.personal_id_number.decrypt(&priv_key),// 9
         )?;
 
-        Ok(ApplicationDetails {
-            candidate: CandidateDetails {
+        Ok(CandidateDetails {
                 name: d.0,
                 surname: d.1,
                 birthplace: d.2,
@@ -172,28 +155,19 @@ impl EncryptedApplicationDetails {
                 email: d.7,
                 sex: d.8,
                 personal_id_number: d.9,
-                study: self.candidate.study,
-            },
-            parent: ParentDetails {
-
-                name: d.10,
-                surname: d.11,
-                telephone: d.12,
-                email: d.13,
+                study: self.study,
             }
-
-        })
+        )
     }
 }
-
-impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails {
+impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
     type Error = ServiceError;
 
     fn try_from(
-        (candidate, parent): (candidate::Model, parent::Model),
+        candidate: candidate::Model,
     ) -> Result<Self, Self::Error> {
-        Ok(EncryptedApplicationDetails {
-            candidate: EncryptedCandidateDetails {
+        Ok(
+            EncryptedCandidateDetails {
                 name: EncryptedString::try_from(candidate.name)?,
                 surname: EncryptedString::try_from(candidate.surname)?,
                 birthplace: EncryptedString::try_from(candidate.birthplace)?,
@@ -205,14 +179,105 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
                 sex: EncryptedString::try_from(candidate.sex)?,
                 personal_id_number: EncryptedString::from(candidate.personal_identification_number),
                 study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
-            },
-            parent: EncryptedParentDetails { 
+            }
+        )
+    }
+}
+
+impl EncryptedParentDetails {
+    pub async fn new(
+        form: &ParentDetails,
+        recipients: Vec<String>,
+    ) -> Result<EncryptedParentDetails, ServiceError> {
+        let d = tokio::try_join!(
+            EncryptedString::new(&form.name, &recipients),
+            EncryptedString::new(&form.surname, &recipients),
+            EncryptedString::new(&form.telephone, &recipients),
+            EncryptedString::new(&form.email, &recipients),
+        )?;
+
+        Ok(
+            EncryptedParentDetails {
+                name: d.0,
+                surname: d.1,
+                telephone: d.2,
+                email: d.3,
+            }
+        )
+    }
+
+    pub async fn decrypt(self, priv_key: String) -> Result<ParentDetails, ServiceError> {
+        let d = tokio::try_join!(
+            self.name.decrypt(&priv_key),
+            self.surname.decrypt(&priv_key),
+            self.telephone.decrypt(&priv_key),
+            self.email.decrypt(&priv_key),
+        )?;
+
+        Ok(ParentDetails {
+                name: d.0,
+                surname: d.1,
+                telephone: d.2,
+                email: d.3,
+            }
+        )
+    }
+}
+impl TryFrom<parent::Model> for EncryptedParentDetails {
+    type Error = ServiceError;
+
+    fn try_from(
+        parent: parent::Model,
+    ) -> Result<Self, Self::Error> {
+        Ok(EncryptedParentDetails { 
                 name: EncryptedString::try_from(parent.name)?,
                 surname: EncryptedString::try_from(parent.surname)?,
                 telephone: EncryptedString::try_from(parent.telephone)?,
                 email: EncryptedString::try_from(parent.email)?,
             }
+        )
+    }
+}
 
+impl EncryptedApplicationDetails {
+    pub async fn new(
+        form: &ApplicationDetails,
+        recipients: Vec<String>,
+    ) -> Result<EncryptedApplicationDetails, ServiceError> {
+        let (candidate, parent) = tokio::try_join!(
+            EncryptedCandidateDetails::new(&form.candidate, recipients.clone()),
+            EncryptedParentDetails::new(&form.parent, recipients),
+        )?;
+        Ok(
+            EncryptedApplicationDetails {
+                candidate,
+                parent,
+            }
+        )
+    }
+
+    pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
+        let (candidate, parent) = tokio::try_join!(
+            self.candidate.decrypt(priv_key.clone()),
+            self.parent.decrypt(priv_key),
+        )?;
+        Ok(ApplicationDetails {
+            candidate,
+            parent,
+        })
+    }
+}
+
+// TODO: use different metehod for this
+impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails {
+    type Error = ServiceError;
+
+    fn try_from(
+        (candidate, parent): (candidate::Model, parent::Model),
+    ) -> Result<Self, Self::Error> {
+        Ok(EncryptedApplicationDetails {
+            candidate: EncryptedCandidateDetails::try_from(candidate)?,
+            parent: EncryptedParentDetails::try_from(parent)?,
         })
     }
 }
