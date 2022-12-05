@@ -39,6 +39,7 @@
 		"filedrop-svelte": "^0.1.2",
 		"fuse.js": "^6.6.2",
 		"isomorphic-dompurify": "^0.24.0",
+		"just-debounce-it": "^3.1.1",
 		"svelte-forms-lib": "^2.0.1",
 		"swiper": "^8.4.5",
 		"yup": "^0.32.11"
