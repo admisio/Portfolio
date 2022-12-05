@@ -206,7 +206,7 @@ impl EncryptedParentDetails {
         )
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<ParentDetails, ServiceError> {
+    pub async fn decrypt(&self, priv_key: String) -> Result<ParentDetails, ServiceError> {
         let d = tokio::try_join!(
             self.name.decrypt(&priv_key),
             self.surname.decrypt(&priv_key),
@@ -245,25 +245,30 @@ impl EncryptedApplicationDetails {
         recipients: Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
         let candidate =  EncryptedCandidateDetails::new(&form.candidate, recipients.clone()).await?;
-        let parent = EncryptedParentDetails::new(&form.parents[0], recipients.clone()).await?; // TODO async
+        let mut enc_parents= vec![];
+        for parent in form.parents.iter() {
+            enc_parents.push(
+                EncryptedParentDetails::new(parent, recipients.clone()).await?
+            );
+        }
         Ok(
             EncryptedApplicationDetails {
                 candidate,
-                parents: vec![parent],
+                parents: enc_parents,
             }
         )
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
-        /* let (candidate, parent) = tokio::try_join!(
-            &self.candidate.decrypt(priv_key.clone()),
-            self.parents[0].decrypt(priv_key),
-        )?; */
         let candidate = self.candidate.decrypt(priv_key.clone()).await?;
-        let parent = self.parents[0].clone().decrypt(priv_key).await?;
+        let mut parents = vec![];
+        for parent in self.parents.iter() {
+            let dec = parent.decrypt(priv_key.clone()).await?;
+            parents.push(dec);
+        }
         Ok(ApplicationDetails {
             candidate,
-            parents: vec![parent],
+            parents: parents,
         })
     }
 }
