@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
-	import { apiUploadCoverLetter } from '$lib/@api/candidate';
+	import { apiDeleteCoverLetter, apiUploadCoverLetter } from '$lib/@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
 
 	const onFileDrop = async (detail: any) => {
@@ -9,10 +9,16 @@
 		await apiUploadCoverLetter(file, callback);
 		await fetchSubmProgress();
 	};
+
+	const onDelete = async () => {
+		await apiDeleteCoverLetter();
+		await fetchSubmProgress();
+	};
 </script>
 
 <DashboardUploadCard
 	on:filedrop={(e) => onFileDrop(e.detail)}
+	on:delete={onDelete}
 	title="Motivační dopis"
 	filetype="PDF"
 	filesize={10}

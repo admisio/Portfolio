@@ -101,7 +101,13 @@
 		<div class="mb-4 mt-1 sm:mb-0 sm:mt-0">
 			<FileType {filetype} filesize={filesize + ' MB'} />
 		</div>
-		<div class="absolute right-0 top-4 px-7">
+		<div class="absolute right-0 top-4 flex items-center px-7">
+			{#if status === 'uploaded'}
+				<button
+					class="mr-3 rounded-xl bg-[#ef8b46] py-0.5 px-2 text-white shadow-md transition-all duration-300 hover:bg-orange-400"
+					on:click={() => dispatch('delete')}>Smazat</button
+				>
+			{/if}
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
