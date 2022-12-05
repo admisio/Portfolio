@@ -12,9 +12,9 @@
 
 <style>
 	path {
-		@apply fill-sspsBlue;
+		@apply fill-current;
 	}
 	path:nth-child(2) {
-		@apply stroke-sspsBlue;
+		@apply stroke-current;
 	}
 </style>

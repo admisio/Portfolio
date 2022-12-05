@@ -10,6 +10,6 @@
 
 <style>
 	path {
-		@apply fill-sspsBlue stroke-sspsBlue;
+		@apply fill-current stroke-current;
 	}
 </style>

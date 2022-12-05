@@ -10,10 +10,10 @@
 
 <style>
 	svg {
-		@apply stroke-sspsBlue fill-sspsBlue;
+		@apply stroke-current fill-current;
 	}
 	g,
 	path {
-		@apply fill-sspsBlue stroke-sspsBlue;
+		@apply fill-current stroke-current;
 	}
 </style>

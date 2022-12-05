@@ -20,4 +20,7 @@
 </TextField>
 
 <style>
+	div {
+		@apply text-sspsBlue;
+	}
 </style>

@@ -3,10 +3,8 @@
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
 
-	import Email from '$lib/components/icons/Email.svelte';
 	import Home from '$lib/components/icons/Home.svelte';
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
-	import Telephone from '$lib/components/icons/Telephone.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/SelectField.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
@@ -187,7 +185,7 @@
 						placeholder="Místo narození"
 						icon
 					>
-						<div slot="icon" class="flex items-center justify-center">
+						<div slot="icon" class="flex items-center justify-center text-sspsBlue">
 							<Home />
 						</div>
 					</TextField>
@@ -285,7 +283,7 @@
 				</span>
 			</div>
 		{/if}
-		
+
 		<div class="mt-8 w-full">
 			<Submit
 				on:click={async (e) => {
