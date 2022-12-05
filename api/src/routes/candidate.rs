@@ -128,12 +128,9 @@ pub async fn upload_cover_letter(
 pub async fn delete_cover_letter(session: CandidateAuth) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    PortfolioService::delete_cache_item(
-        candidate.application,
-        portfolio_core::services::portfolio_service::FileType::CoverLetterPdf,
-    )
-    .await
-    .map_err(to_custom_error)?;
+    PortfolioService::delete_cover_letter_from_cache(candidate.application)
+        .await
+        .map_err(to_custom_error)?;
 
     Ok(())
 }
@@ -156,12 +153,9 @@ pub async fn upload_portfolio_letter(
 pub async fn delete_portfolio_letter(session: CandidateAuth) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    PortfolioService::delete_cache_item(
-        candidate.application,
-        portfolio_core::services::portfolio_service::FileType::PortfolioLetterPdf,
-    )
-    .await
-    .map_err(to_custom_error)?;
+    PortfolioService::delete_portfolio_letter_from_cache(candidate.application)
+        .await
+        .map_err(to_custom_error)?;
 
     Ok(())
 }
@@ -184,12 +178,9 @@ pub async fn upload_portfolio_zip(
 pub async fn delete_portfolio_zip(session: CandidateAuth) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    PortfolioService::delete_cache_item(
-        candidate.application,
-        portfolio_core::services::portfolio_service::FileType::PortfolioZip,
-    )
-    .await
-    .map_err(to_custom_error)?;
+    PortfolioService::delete_portfolio_zip_from_cache(candidate.application)
+        .await
+        .map_err(to_custom_error)?;
 
     Ok(())
 }

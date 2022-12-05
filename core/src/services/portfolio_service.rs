@@ -210,7 +210,7 @@ impl PortfolioService {
 
 
     /// Returns true if portfolio is ready to be moved to the final directory
-    pub async fn is_portfolio_prepared(candidate_id: i32) -> bool {
+    async fn is_portfolio_prepared(candidate_id: i32) -> bool {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
         let filenames = vec![FileType::CoverLetterPdf, FileType::PortfolioLetterPdf, FileType::PortfolioZip];
@@ -231,6 +231,24 @@ impl PortfolioService {
         tokio::fs::remove_file(cache_path.join(file_type.as_str())).await?;
 
         Ok(())
+    }
+
+    pub async fn delete_cover_letter_from_cache(
+        candidate_id: i32,
+    ) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id,  FileType::CoverLetterPdf).await
+    }
+
+    pub async fn delete_portfolio_letter_from_cache(
+        candidate_id: i32,
+    ) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id,  FileType::PortfolioLetterPdf).await
+    }
+
+    pub async fn delete_portfolio_zip_from_cache(
+        candidate_id: i32,
+    ) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id,  FileType::PortfolioZip).await
     }
 
     /// Removes all files from cache
