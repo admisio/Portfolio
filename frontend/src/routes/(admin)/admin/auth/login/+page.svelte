@@ -7,14 +7,16 @@
 	import Lock from '$lib/components/icons/Lock.svelte';
 	import { apiLogin } from '$lib/@api/admin';
 	import { goto } from '$app/navigation';
+	import Submit from '$lib/components/button/Submit.svelte';
+	import PasswordField from '$lib/components/textfield/PasswordField.svelte';
 
 	let adminIdValue = '';
 	let adminPasswordValue = '';
 
 	const login = async () => {
 		try {
-			await apiLogin({adminId: Number(adminIdValue), password: adminPasswordValue});
-			goto("/admin/dashboard");
+			await apiLogin({ adminId: Number(adminIdValue), password: adminPasswordValue });
+			goto('/admin/dashboard');
 		} catch (e) {
 			console.log(e);
 		}
@@ -37,19 +39,12 @@
 				<TextField bind:value={adminIdValue} placeholder="Admin id" type="number" />
 			</span>
 			<span class="mt-8">
-				<TextField bind:value={adminPasswordValue} placeholder="Heslo" type="password" icon>
-					<div slot="icon" class="flex items-center justify-center">
-						<Lock />
-					</div>
-				</TextField>
+				<PasswordField bind:value={adminPasswordValue} placeholder="Heslo" />
 			</span>
 		</div>
-		<input
-			class="bg-sspsBlue hover:bg-sspsBlueDark mt-8 w-3/5 rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
-			type="submit"
-			value="Odeslat"
-			on:click={login}
-		/>
+		<div class="mt-8  w-3/5">
+			<Submit value="Odeslat" on:click={login} />
+		</div>
 	</div>
 </SplitLayout>
 
