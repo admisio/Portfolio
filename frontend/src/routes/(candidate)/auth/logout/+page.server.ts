@@ -4,7 +4,9 @@ import { redirect } from '@sveltejs/kit';
 import { apiLogout } from '$lib/@api/candidate';
 
 export const load: PageServerLoad = async ({ fetch, cookies }) => {
-	await apiLogout(fetch);
+	await apiLogout(fetch).catch(() => {
+		// TODO: Handle error
+	});
 
 	cookies.delete('id', { path: '/' });
 	cookies.delete('key', { path: '/' });

@@ -4,13 +4,13 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
 	let candidatePreview: Array<CandidatePreview> = [{}];
-	try {
-		candidatePreview = await apiListCandidates(fetch);
-	} catch (e) {
-		console.error(e);
-	}
+
+	candidatePreview =
+		(await apiListCandidates(fetch).catch((e) => {
+			console.error(e);
+		})) || [];
 
 	return {
-		preview: candidatePreview,
+		preview: candidatePreview
 	};
 };

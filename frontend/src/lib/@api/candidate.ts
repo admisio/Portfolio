@@ -6,64 +6,66 @@ import DOMPurify from 'isomorphic-dompurify';
 
 // SSR Compatible
 export const apiLogout = async (fetchSsr?: Fetch) => {
+	const apiFetch = fetchSsr || fetch;
 	try {
-		fetchSsr
-			? await fetchSsr(API_URL + '/candidate/logout', { method: 'POST', credentials: 'include' })
-			: await axios.post(API_URL + '/candidate/logout', { withCredentials: true });
-	} catch (e: any) {
+		const res = await apiFetch(API_URL + '/candidate/logout', {
+			method: 'POST',
+			credentials: 'include'
+		});
+		return await res.json();
+	} catch (e) {
 		throw errorHandler(e, 'Logout failed');
 	}
 };
 
 // SSR Compatible
 export const apiFetchDetails = async (fetchSsr?: Fetch): Promise<CandidateData> => {
+	const apiFetch = fetchSsr || fetch;
 	try {
-		if (fetchSsr) {
-			const res = await fetchSsr(API_URL + '/candidate/details', {
-				method: 'GET',
-				credentials: 'include'
-			});
-			if (res.status != 200) {
-				throw new Error(await res.text());
-			}
-			return await res.json();
+		const res = await apiFetch(API_URL + '/candidate/details', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		if (res.status != 200) {
+			throw new Error(await res.text());
 		}
-		const res = await axios.get(API_URL + '/candidate/details', { withCredentials: true });
-		return res.data;
-	} catch (e: any) {
-		console.log(e);
-		throw errorHandler(e, 'Failed to fill details');
+		return await res.json();
+	} catch (e) {
+		throw errorHandler(e, 'Fetch details failed');
 	}
 };
 
 // SSR Compatible
 export const apiFetchSubmissionProgress = async (fetchSsr?: Fetch): Promise<SubmissionProgress> => {
+	const apiFetch = fetchSsr || fetch;
 	try {
-		if (fetchSsr) {
-			const res = await fetchSsr(API_URL + '/candidate/portfolio/submission_progress', {
-				method: 'GET',
-				credentials: 'include'
-			});
-			if (res.status != 200) {
-				throw Error(await res.text());
-			}
-			return await res.json();
-		}
-		const res = await axios.get(API_URL + '/candidate/portfolio/submission_progress', {
-			withCredentials: true
+		const res = await apiFetch(API_URL + '/candidate/portfolio/submission_progress', {
+			method: 'GET',
+			credentials: 'include'
 		});
-		return res.data;
-	} catch (e: any) {
+		if (res.status != 200) {
+			throw Error(await res.text());
+		}
+		return await res.json();
+	} catch (e) {
 		throw errorHandler(e, 'Failed to fetch submission progress');
 	}
 };
 
-export const apiWhoami = async (): Promise<string> => {
+export const apiWhoami = async (fetchSsr?: Fetch): Promise<string> => {
+	const apiFetch = fetchSsr || fetch;
 	try {
-		const res = await axios.get(`${API_URL}/whoami`);
-		return res.data;
-	} catch (e: any) {
-		throw errorHandler(e, 'Whoami failed');
+		console.log(API_URL + '/candidate/whoami');
+		const res = await apiFetch(API_URL + '/candidate/whoami', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		if (res.status != 200) {
+			throw Error(await res.text());
+		}
+		return await res.text();
+	} catch (e) {
+		throw errorHandler(e, 'Failed to fetch whoami');
 	}
 };
 
@@ -77,10 +79,11 @@ export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 };
 
 export const apiFillDetails = async (data: CandidateData): Promise<CandidateData> => {
-	Object.keys(data).forEach(key => {
+	Object.keys(data).forEach((key) => {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
 		data[key] = DOMPurify.sanitize(data[key]);
-	  });
+	});
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
 		return res.data;
