@@ -33,8 +33,8 @@ pub async fn login(
         login_form.password.to_string(),
         ip_addr.ip().to_string(),
     )
-        .await
-        .map_err(to_custom_error)?;
+    .await
+    .map_err(to_custom_error)?;
 
     cookies.add_private(Cookie::new("id", session_token.clone()));
     cookies.add_private(Cookie::new("key", private_key.clone()));
@@ -43,14 +43,22 @@ pub async fn login(
 }
 
 #[post("/logout")]
-pub async fn logout(conn: Connection<'_, Db>, _session: CandidateAuth, cookies: &CookieJar<'_>,) -> Result<(), Custom<String>> {
+pub async fn logout(
+    conn: Connection<'_, Db>,
+    _session: CandidateAuth,
+    cookies: &CookieJar<'_>,
+) -> Result<(), Custom<String>> {
     let db = conn.into_inner();
 
-    let cookie = cookies.get_private("id") // unwrap would be safe here because of the auth guard
-        .ok_or(Custom(Status::Unauthorized, "No session cookie".to_string()))?;
+    let cookie = cookies
+        .get_private("id") // unwrap would be safe here because of the auth guard
+        .ok_or(Custom(
+            Status::Unauthorized,
+            "No session cookie".to_string(),
+        ))?;
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
-    
+
     CandidateService::logout(db, session_id)
         .await
         .map_err(to_custom_error)?;
@@ -82,9 +90,7 @@ pub async fn post_details(
         .await
         .map_err(to_custom_error)?;
 
-    Ok(
-        Json(form)
-    )
+    Ok(Json(form))
 }
 
 #[get("/details")]
@@ -118,18 +124,15 @@ pub async fn upload_cover_letter(
     Ok(())
 }
 
-#[get("/submission_progress")]
-pub async fn submission_progress(
-    session: CandidateAuth
-) -> Result<Json<SubmissionProgress>, Custom<String>> {
+#[delete("/cover_letter")]
+pub async fn delete_cover_letter(session: CandidateAuth) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();
 
-    let progress = PortfolioService::get_submission_progress(candidate.application)
+    PortfolioService::delete_cover_letter_from_cache(candidate.application)
         .await
-        .map(|x| Json(x))
-        .map_err(to_custom_error);
+        .map_err(to_custom_error)?;
 
-    progress
+    Ok(())
 }
 
 #[post("/portfolio_letter", data = "<letter>")]
@@ -140,6 +143,17 @@ pub async fn upload_portfolio_letter(
     let candidate: entity::candidate::Model = session.into();
 
     PortfolioService::add_portfolio_letter_to_cache(candidate.application, letter.into())
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok(())
+}
+
+#[delete("/portfolio_letter")]
+pub async fn delete_portfolio_letter(session: CandidateAuth) -> Result<(), Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    PortfolioService::delete_portfolio_letter_from_cache(candidate.application)
         .await
         .map_err(to_custom_error)?;
 
@@ -160,6 +174,31 @@ pub async fn upload_portfolio_zip(
     Ok(())
 }
 
+#[delete("/portfolio_zip")]
+pub async fn delete_portfolio_zip(session: CandidateAuth) -> Result<(), Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    PortfolioService::delete_portfolio_zip_from_cache(candidate.application)
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok(())
+}
+
+#[get("/submission_progress")]
+pub async fn submission_progress(
+    session: CandidateAuth,
+) -> Result<Json<SubmissionProgress>, Custom<String>> {
+    let candidate: entity::candidate::Model = session.into();
+
+    let progress = PortfolioService::get_submission_progress(candidate.application)
+        .await
+        .map(|x| Json(x))
+        .map_err(to_custom_error);
+
+    progress
+}
+
 #[post("/submit")]
 pub async fn submit_portfolio(
     conn: Connection<'_, Db>,
@@ -177,7 +216,9 @@ pub async fn submit_portfolio(
         // TODO: Více kontrol?
         if e.code() == 500 {
             // Cleanup
-            PortfolioService::delete_portfolio(candidate.application).await.unwrap();
+            PortfolioService::delete_portfolio(candidate.application)
+                .await
+                .unwrap();
         }
         return Err(to_custom_error(e));
     }
@@ -213,13 +254,16 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{models::candidate::ApplicationDetails, crypto, sea_orm::prelude::Uuid};
+    use portfolio_core::{crypto, models::candidate::ApplicationDetails, sea_orm::prelude::Uuid};
     use rocket::{
         http::{Cookie, Status},
         local::blocking::Client,
     };
 
-    use crate::{test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD}, routes::admin::tests::admin_login};
+    use crate::{
+        routes::admin::tests::admin_login,
+        test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD},
+    };
 
     fn candidate_login(client: &Client) -> (Cookie, Cookie) {
         let response = client
