@@ -111,6 +111,17 @@ export const apiUploadCoverLetter = async (
 	}
 };
 
+export const apiDeleteCoverLetter = async (): Promise<boolean> => {
+	try {
+		await axios.delete(API_URL + '/candidate/remove/cover_letter', {
+			withCredentials: true,
+		});
+		return true;
+	} catch (e) {
+		throw errorHandler(e, 'Failed to delete cover letter');
+	}
+};
+
 export const apiUploadPortfolioLetter = async (
 	letter: File,
 	progressReporter: (progress: AxiosProgressEvent) => void
@@ -130,6 +141,17 @@ export const apiUploadPortfolioLetter = async (
 	}
 };
 
+export const apiDeletePortfolioLetter = async (): Promise<boolean> => {
+	try {
+		await axios.delete(API_URL + '/candidate/remove/portfolio_letter', {
+			withCredentials: true,
+		});
+		return true;
+	} catch (e) {
+		throw errorHandler(e, 'Failed to delete portfolio letter');
+	}
+};
+
 export const apiUploadPortfolioZip = async (
 	portfolio: File,
 	progressReporter: (progress: AxiosProgressEvent) => void
@@ -146,6 +168,17 @@ export const apiUploadPortfolioZip = async (
 		return true;
 	} catch (e: any) {
 		throw errorHandler(e, 'Failed to upload cover letter');
+	}
+};
+
+export const apiDeletePortfolioZip = async (): Promise<boolean> => {
+	try {
+		await axios.delete(API_URL + '/candidate/remove/portfolio_zip', {
+			withCredentials: true,
+		});
+		return true;
+	} catch (e) {
+		throw errorHandler(e, 'Failed to delete portfolio zip');
 	}
 };
 
