@@ -240,21 +240,25 @@ mod tests {
     }
 
     const CANDIDATE_DETAILS: &'static str = "{
-        \"name\": \"idk\",
-        \"surname\": \"idk\",
-        \"birthplace\": \"Praha 1\",
-        \"birthdate\": \"2015-09-18\",
-        \"address\": \"Stefanikova jidelna\",
-        \"telephone\": \"000111222333\",
-        \"citizenship\": \"Czech Republic\",
-        \"email\": \"magor@magor.cz\",
-        \"sex\": \"MALE\",
-        \"personalIdNumber\": \"0000000000\",
-        \"study\": \"KB\",
-        \"parentName\": \"maminka\",
-        \"parentSurname\": \"chad\",
-        \"parentTelephone\": \"420111222333\",
-        \"parentEmail\": \"maminka@centrum.cz\"
+        \"candidate\": {
+            \"name\": \"idk\",
+            \"surname\": \"idk\",
+            \"birthplace\": \"Praha 1\",
+            \"birthdate\": \"2015-09-18\",
+            \"address\": \"Stefanikova jidelna\",
+            \"telephone\": \"000111222333\",
+            \"citizenship\": \"Czech Republic\",
+            \"email\": \"magor@magor.cz\",
+            \"sex\": \"MALE\",
+            \"personalIdNumber\": \"0000000000\",
+            \"study\": \"KB\"
+        },
+        \"parent\": {
+            \"name\": \"maminka\",
+            \"surname\": \"chad\",
+            \"telephone\": \"420111222333\",
+            \"email\": \"maminka@centrum.cz\"
+        }
     }";
 
     #[test]

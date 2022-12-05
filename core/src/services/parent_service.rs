@@ -1,7 +1,7 @@
 use entity::{parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, Mutation, models::candidate_details::EncryptedApplicationDetails};
+use crate::{error::ServiceError, Mutation, models::candidate_details::{EncryptedParentDetails}};
 
 pub struct ParentService;
 
@@ -19,7 +19,7 @@ impl ParentService {
     pub async fn add_parent_details(
         db: &DbConn,
         parent: parent::Model,
-        enc_details: EncryptedApplicationDetails,
+        enc_details: EncryptedParentDetails,
     ) -> Result<parent::Model, ServiceError> {
         let parent = Mutation::add_parent_details(db, parent, enc_details)
             .await?;

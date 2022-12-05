@@ -6,24 +6,26 @@ type Row = CandidateWithParent;
 
 impl From<(i32, ApplicationDetails)> for Row {
     fn from((application, d): (i32, ApplicationDetails)) -> Self {
+        let c = d.candidate;
+        let p = d.parent;
         Self {
             application,
-            name: Some(d.name),
-            surname: Some(d.surname),
-            birthplace: Some(d.birthplace),
-            birthdate: Some(d.birthdate.to_string()),
-            address: Some(d.address),
-            telephone: Some(d.telephone),
-            citizenship: Some(d.citizenship),
-            email: Some(d.email),
-            sex: Some(d.sex),
-            study: Some(d.study),
-            personal_identification_number: Some(d.personal_id_number),
+            name: Some(c.name),
+            surname: Some(c.surname),
+            birthplace: Some(c.birthplace),
+            birthdate: Some(c.birthdate.to_string()),
+            address: Some(c.address),
+            telephone: Some(c.telephone),
+            citizenship: Some(c.citizenship),
+            email: Some(c.email),
+            sex: Some(c.sex),
+            study: Some(c.study),
+            personal_identification_number: Some(c.personal_id_number),
 
-            parent_name: Some(d.parent_name),
-            parent_surname: Some(d.parent_surname),
-            parent_telephone: Some(d.parent_telephone),
-            parent_email: Some(d.parent_email),
+            parent_name: Some(p.name),
+            parent_surname: Some(p.surname),
+            parent_telephone: Some(p.telephone),
+            parent_email: Some(p.email),
         }
     }
 }

@@ -27,11 +27,10 @@ pub struct BaseCandidateResponse {
     pub submitted: bool,
 }
 
-/// Candidate details (admin and candidate endpoints)
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ApplicationDetails {
-    // Candidate
+pub struct CandidateDetails {
+    // pub application_id: i32,
     pub name: String,
     pub surname: String,
     pub birthplace: String,
@@ -43,12 +42,49 @@ pub struct ApplicationDetails {
     pub sex: String,
     pub study: String,
     pub personal_id_number: String,
-    // Parent
-    pub parent_name: String,
-    pub parent_surname: String,
-    pub parent_telephone: String,
-    pub parent_email: String,
 }
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentDetails {
+    // pub application_id: i32,
+    pub name: String,
+    pub surname: String,
+    pub telephone: String,
+    pub email: String,
+}
+
+/// Candidate details (admin and candidate endpoints)
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationDetails {
+    // Candidate
+    pub candidate: CandidateDetails,
+    pub parent: ParentDetails,
+    // pub opt_parent2: Option<ParentDetails>,
+}
+/* impl ApplicationDetails {
+    pub fn new_one_parent(
+        candidate: CandidateDetails,
+        parent: ParentDetails,
+    ) -> Self {
+        Self {
+            candidate,
+            parent,
+            opt_parent2: None,
+        }
+    }
+    pub fn new_two_parents(
+        candidate: CandidateDetails,
+        parent: ParentDetails,
+        opt_parent2: ParentDetails,
+    ) -> Self {
+        Self {
+            candidate,
+            parent,
+            opt_parent2: Some(opt_parent2),
+        }
+    }
+} */
 
 /// CSV export (admin endpoint)
 #[derive(FromQueryResult, Serialize, Default)]

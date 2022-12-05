@@ -2,7 +2,7 @@ use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
 use crate::{
-    models::candidate_details::{EncryptedApplicationDetails, EncryptedString},
+    models::candidate_details::{EncryptedApplicationDetails, EncryptedString, EncryptedCandidateDetails},
     crypto::{self, hash_password},
     error::ServiceError,
     Mutation, Query, models::candidate::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
@@ -150,9 +150,9 @@ impl CandidateService {
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
-        enc_details: EncryptedApplicationDetails,
+        enc_details: EncryptedCandidateDetails,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let model = Mutation::add_candidate_details(db, candidate, enc_details.clone()).await?;
+        let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
         Ok(model)
     }
 

@@ -1,4 +1,4 @@
-use crate::{Mutation, models::candidate_details::EncryptedApplicationDetails};
+use crate::{Mutation, models::candidate_details::{EncryptedParentDetails}};
 
 use ::entity::parent::{self, Model};
 use sea_orm::*;
@@ -18,13 +18,13 @@ impl Mutation {
     pub async fn add_parent_details(
         db: &DbConn,
         parent: Model,
-        enc_details: EncryptedApplicationDetails, // TODO: use seperate struct??
+        enc_parent: EncryptedParentDetails,
     ) -> Result<Model, sea_orm::DbErr> {
         let mut user: parent::ActiveModel = parent.into();
-        user.name = Set(Some(enc_details.parent_name.into()));
-        user.surname = Set(Some(enc_details.parent_surname.into()));
-        user.telephone = Set(Some(enc_details.parent_telephone.into()));
-        user.email = Set(Some(enc_details.parent_email.into()));
+        user.name = Set(Some(enc_parent.name.into()));
+        user.surname = Set(Some(enc_parent.surname.into()));
+        user.telephone = Set(Some(enc_parent.telephone.into()));
+        user.email = Set(Some(enc_parent.email.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 
@@ -88,7 +88,7 @@ mod tests {
         .await
         .unwrap();
 
-        Mutation::add_parent_details(&db, parent, encrypted_details)
+        Mutation::add_parent_details(&db, parent, encrypted_details.parent)
             .await
             .unwrap();
 
