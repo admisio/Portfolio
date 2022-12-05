@@ -88,7 +88,7 @@ mod tests {
         .await
         .unwrap();
 
-        Mutation::add_parent_details(&db, parent, encrypted_details.parent)
+        Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
             .await
             .unwrap();
 

@@ -7,7 +7,7 @@ type Row = CandidateWithParent;
 impl From<(i32, ApplicationDetails)> for Row {
     fn from((application, d): (i32, ApplicationDetails)) -> Self {
         let c = d.candidate;
-        let p = d.parent;
+        let p = d.parents[0].clone();
         Self {
             application,
             name: Some(c.name),

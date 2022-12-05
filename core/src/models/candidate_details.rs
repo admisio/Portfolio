@@ -36,7 +36,7 @@ pub struct EncryptedParentDetails {
 #[derive(Clone)]
 pub struct EncryptedApplicationDetails {
     pub candidate: EncryptedCandidateDetails,
-    pub parent: EncryptedParentDetails,
+    pub parents: Vec<EncryptedParentDetails>,
 }
 
 impl EncryptedString {
@@ -244,26 +244,26 @@ impl EncryptedApplicationDetails {
         form: &ApplicationDetails,
         recipients: Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
-        let (candidate, parent) = tokio::try_join!(
-            EncryptedCandidateDetails::new(&form.candidate, recipients.clone()),
-            EncryptedParentDetails::new(&form.parent, recipients),
-        )?;
+        let candidate =  EncryptedCandidateDetails::new(&form.candidate, recipients.clone()).await?;
+        let parent = EncryptedParentDetails::new(&form.parents[0], recipients.clone()).await?; // TODO async
         Ok(
             EncryptedApplicationDetails {
                 candidate,
-                parent,
+                parents: vec![parent],
             }
         )
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
-        let (candidate, parent) = tokio::try_join!(
-            self.candidate.decrypt(priv_key.clone()),
-            self.parent.decrypt(priv_key),
-        )?;
+        /* let (candidate, parent) = tokio::try_join!(
+            &self.candidate.decrypt(priv_key.clone()),
+            self.parents[0].decrypt(priv_key),
+        )?; */
+        let candidate = self.candidate.decrypt(priv_key.clone()).await?;
+        let parent = self.parents[0].clone().decrypt(priv_key).await?;
         Ok(ApplicationDetails {
             candidate,
-            parent,
+            parents: vec![parent],
         })
     }
 }
@@ -277,7 +277,7 @@ impl TryFrom<(candidate::Model, parent::Model)> for EncryptedApplicationDetails 
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails::try_from(candidate)?,
-            parent: EncryptedParentDetails::try_from(parent)?,
+            parents: vec![EncryptedParentDetails::try_from(parent)?],
         })
     }
 }
@@ -302,12 +302,12 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
                 personal_id_number: EncryptedString::try_from(cp.personal_identification_number)?,
                 study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
             },
-            parent: EncryptedParentDetails {
+            parents: vec![EncryptedParentDetails {
                 name: EncryptedString::try_from(cp.parent_name)?,
                 surname: EncryptedString::try_from(cp.parent_surname)?,
                 telephone: EncryptedString::try_from(cp.parent_telephone)?,
                 email: EncryptedString::try_from(cp.parent_email)?,
-            }
+            }]
 
         })
     }
@@ -352,12 +352,12 @@ pub mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 study: "study".to_string(),
             },
-            parent: ParentDetails {
+            parents: vec![ParentDetails {
                 email: "parent_email".to_string(),
                 name: "parent_name".to_string(),
                 surname: "parent_surname".to_string(),
                 telephone: "parent_telephone".to_string()
-            }
+            }]
         })
     );
 
@@ -373,10 +373,10 @@ pub mod tests {
         assert_eq!(details.candidate.sex, "sex");
         assert_eq!(details.candidate.study, "study");
         assert_eq!(details.candidate.personal_id_number, "personal_id_number");
-        assert_eq!(details.parent.name, "parent_name");
-        assert_eq!(details.parent.surname, "parent_surname");
-        assert_eq!(details.parent.telephone, "parent_telephone");
-        assert_eq!(details.parent.email, "parent_email");
+        assert_eq!(details.parents[0].name, "parent_name");
+        assert_eq!(details.parents[0].surname, "parent_surname");
+        assert_eq!(details.parents[0].telephone, "parent_telephone");
+        assert_eq!(details.parents[0].email, "parent_email");
     }
 
     #[tokio::test]

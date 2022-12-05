@@ -253,12 +253,14 @@ mod tests {
             \"personalIdNumber\": \"0000000000\",
             \"study\": \"KB\"
         },
-        \"parent\": {
-            \"name\": \"maminka\",
-            \"surname\": \"chad\",
-            \"telephone\": \"420111222333\",
-            \"email\": \"maminka@centrum.cz\"
-        }
+        \"parents\": [
+            {
+                \"name\": \"maminka\",
+                \"surname\": \"chad\",
+                \"telephone\": \"420111222333\",
+                \"email\": \"maminka@centrum.cz\"
+            }
+        ]
     }";
 
     #[test]

@@ -42,7 +42,7 @@ impl ApplicationService {
         Ok(
             tokio::try_join!(
                 CandidateService::add_candidate_details(db, candidate, enc_details.candidate),
-                ParentService::add_parent_details(db, parent, enc_details.parent)
+                ParentService::add_parent_details(db, parent, enc_details.parents[0].clone())
             )?
         )
     }

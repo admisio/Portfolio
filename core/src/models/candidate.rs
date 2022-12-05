@@ -59,32 +59,8 @@ pub struct ParentDetails {
 pub struct ApplicationDetails {
     // Candidate
     pub candidate: CandidateDetails,
-    pub parent: ParentDetails,
-    // pub opt_parent2: Option<ParentDetails>,
+    pub parents: Vec<ParentDetails>,
 }
-/* impl ApplicationDetails {
-    pub fn new_one_parent(
-        candidate: CandidateDetails,
-        parent: ParentDetails,
-    ) -> Self {
-        Self {
-            candidate,
-            parent,
-            opt_parent2: None,
-        }
-    }
-    pub fn new_two_parents(
-        candidate: CandidateDetails,
-        parent: ParentDetails,
-        opt_parent2: ParentDetails,
-    ) -> Self {
-        Self {
-            candidate,
-            parent,
-            opt_parent2: Some(opt_parent2),
-        }
-    }
-} */
 
 /// CSV export (admin endpoint)
 #[derive(FromQueryResult, Serialize, Default)]
