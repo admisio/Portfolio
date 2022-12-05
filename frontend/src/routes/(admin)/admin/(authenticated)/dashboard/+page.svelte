@@ -1,16 +1,13 @@
 <script lang="ts">
-	import { apiFetchCandidate, apiListCandidates, apiResetCandidatePassword } from '$lib/@api/admin';
+	import { apiListCandidates } from '$lib/@api/admin';
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import type { CandidateData, CandidatePreview } from '$lib/stores/candidate';
-	import CandidateDetails from '$lib/components/list/CandidateDetails.svelte';
+	import type { CandidatePreview } from '$lib/stores/candidate';
 	import { onMount } from 'svelte';
 	import type { PageData } from '../$types';
-	import Modal from '$lib/components/Modal.svelte';
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 
-	let candidates: [CandidatePreview] = [{}];
-	let candidateDetails: { [id: number]: CandidateData } = {};
+	let candidates: Array<CandidatePreview> = [{}];
 
 	export let data: PageData;
 
@@ -50,7 +47,6 @@
 		}
 	};
 
-
 	let scrollTop = 0;
 
 	let createCandidateModal: boolean = false;
@@ -58,11 +54,24 @@
 	const openCreateCandidateModal = () => {
 		createCandidateModal = true;
 	};
+
+	$: candidatesTable = candidates;
+	let searchValue: string = '';
+	const search = () => {
+		candidatesTable = candidates.filter((candidate) => {
+			return (
+				candidate.applicationId?.toString().toLowerCase().includes(searchValue.toLowerCase()) ||
+				candidate.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+				candidate.surname?.toLowerCase().includes(searchValue.toLowerCase()) ||
+				candidate.study?.toLowerCase().includes(searchValue.toLowerCase())
+			);
+		});
+	};
 </script>
 
 {#if createCandidateModal}
 	<CreateCandidateModal
-		on:created={getCandidates}
+		on:created={() => getCandidates()}
 		on:close={() => (createCandidateModal = false)}
 	/>
 {/if}
@@ -80,7 +89,7 @@
 		<div class="body relative overflow-scroll">
 			<h1 class="text-3xl font-semibold">Uchazeči</h1>
 			<div class="controls my-8">
-				<TextField placeholder="Hledat" />
+				<TextField on:keyup={search} bind:value={searchValue} placeholder="Hledat" />
 				<button
 					on:click={openCreateCandidateModal}
 					class="bg-sspsBlue hover:bg-sspsBlueDark ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
@@ -115,7 +124,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									{#each candidates as candidate}
+									{#each candidatesTable as candidate}
 										<tr class="border-b bg-white hover:cursor-pointer">
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
 												><a
