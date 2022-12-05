@@ -224,6 +224,15 @@ impl PortfolioService {
         true
     }
 
+    // Delete single item from cache
+    pub async fn delete_cache_item(candidate_id: i32, file_type: FileType) -> Result<(), ServiceError> {
+        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+
+        tokio::fs::remove_file(cache_path.join(file_type.as_str())).await?;
+
+        Ok(())
+    }
+
     /// Removes all files from cache
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
