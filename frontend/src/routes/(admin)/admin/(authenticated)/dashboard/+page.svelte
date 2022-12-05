@@ -8,13 +8,10 @@
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 	import Fuse from 'fuse.js';
 
-	let candidates: Array<CandidatePreview> = [{}];
-
 	export let data: PageData;
 
-	onMount(() => {
-		candidates = data.preview;
-	});
+	let candidates: Array<CandidatePreview> = data.preview;
+
 
 	const getCandidates = async (field?: string) => {
 		try {
