@@ -34,8 +34,8 @@
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
 		<div class="name col-span-3 <2xl:col-span-4">
-			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
-				<span class="text-sspsBlue mt-3 truncate">{$candidateData.email}</span>
+			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
+				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
@@ -51,8 +51,8 @@
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="name my-10 mx-auto w-[90%]">
-			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.name + ' ' + $candidateData.surname ?? ''}>
-				<span class="text-sspsBlue mt-3 truncate">{$candidateData.email}</span>
+			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
+				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
