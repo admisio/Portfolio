@@ -65,12 +65,6 @@
 				email: '',
 				telephone: ''
 			},
-			{
-				name: '',
-				surname: '',
-				email: '',
-				telephone: ''
-			}
 		]
 	};
 
