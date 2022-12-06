@@ -12,6 +12,7 @@
 	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
+	import type { CandidateData } from '$lib/stores/candidate';
 
 	import { createForm } from 'svelte-forms-lib';
 	import type { Writable } from 'svelte/store';
@@ -21,30 +22,7 @@
 	let pageIndex = 0;
 	let pagesFilled = 0;
 
-	interface FormInterface 
-	{
-		candidate: {
-			name: string;
-			surname: string;
-			email: string;
-			telephone: string;
-			birthplace: string;
-			birthdate: string;
-			sex: string;
-			address: string;
-			citizenship: string;
-			personalIdNumber: string;
-			study: string;
-		}
-		parents: Array<{
-			name: string;
-			surname: string;
-			email: string;
-			telephone: string;
-		}>;
-
-	}
-	const formInitialValues: FormInterface = {
+	const formInitialValues = {
 		candidate: {
 			name: '',
 			surname: '',
@@ -100,13 +78,25 @@
 			).required()
 		}),
 
-		onSubmit: async (values) => {
+		onSubmit: async (values: CandidateData) => {
+			console.log("page count: " + pageIndex);
+			console.log(values.candidate);
+			console.log(values.parents);
+			console.log(values);
 			if (pageIndex === pageCount) {
 				try {
 					console.log('submit');
 					// @ts-ignore // love javascript
 					delete values.undefined;
-					values.candidate.birthdate = '2000-01-01'; // TODO: reformat user typed date
+					// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
+					let birthdate_formttted = values.candidate.birthdate!
+						.split('.')
+						.map((x) => x.padStart(2, '0'))
+						.reverse() 
+						.join('-');
+
+					values.candidate.birthdate = birthdate_formttted;
+
 					await apiFillDetails(values);
 					goto('/dashboard');
 				} catch (e) {
