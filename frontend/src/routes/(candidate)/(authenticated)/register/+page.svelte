@@ -34,7 +34,7 @@
 			address: '',
 			citizenship: '',
 			personalIdNumber: '',
-			study: ''
+			study: '',
 		},
 		parents: [
 			{
@@ -42,47 +42,52 @@
 				surname: '',
 				email: '',
 				telephone: ''
-			},
+			}
 		]
 	};
 
+	const formValidationSchema = yup.object().shape({
+		candidate: yup.object().shape({
+			name: yup.string().required(),
+			surname: yup.string(),
+			email: yup.string().email().required(),
+			telephone: yup
+				.string()
+				.required()
+				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+			birthplace: yup.string().required(),
+			birthdate: yup
+				.string()
+				.required()
+				.matches(/^([0-3]?[0-9])\.([1-9]|1[0-2])\.[0-9]{4}$/),
+			sex: yup.string(),
+			address: yup.string().required(),
+			citizenship: yup.string().required(),
+			personalIdNumber: yup.string().required(),
+			study: yup.string().required()
+		}),
+		parents: yup
+			.array()
+			.of(
+				yup.object().shape({
+					name: yup.string().required(),
+					surname: yup.string().required(),
+					email: yup.string().email().required(),
+					telephone: yup
+						.string()
+						.required()
+						.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/)
+				})
+			)
+			.required()
+	});
+
 	const { form, errors, handleSubmit, handleChange } = createForm({
 		initialValues: formInitialValues,
-		validationSchema: yup.object().shape({
-			candidate: yup.object().shape({
-				name: yup.string().required(),
-				surname: yup.string(),
-				email: yup.string().email().required(),
-				telephone: yup
-					.string()
-					.required()
-					.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
-				birthplace: yup.string().required(),
-				birthdate: yup
-					.string()
-					.required()
-					.matches(/^([0-3]?[0-9])\.([1-9]|1[0-2])\.[0-9]{4}$/),
-				sex: yup.string(),
-				address: yup.string().required(),
-				citizenship: yup.string().required(),
-				personalIdNumber: yup.string().required(),
-				study: yup.string().required()
-			}).required(),
-			parents: yup.array().of(
-				yup.object().shape({
-				name: yup.string().required(),
-				surname: yup.string().required(),
-				email: yup.string().email().required(),
-				telephone: yup
-					.string()
-					.required()
-					.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
-				})
-			).required()
-		}),
+		validationSchema: formValidationSchema,
 
 		onSubmit: async (values: CandidateData) => {
-			console.log("page count: " + pageIndex);
+			console.log('page count: ' + pageIndex);
 			console.log(values.candidate);
 			console.log(values.parents);
 			console.log(values);
@@ -92,10 +97,10 @@
 					// @ts-ignore // love javascript
 					delete values.undefined;
 					// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
-					let birthdate_formttted = values.candidate.birthdate!
-						.split('.')
+					let birthdate_formttted = values.candidate
+						.birthdate!.split('.')
 						.map((x) => x.padStart(2, '0'))
-						.reverse() 
+						.reverse()
 						.join('-');
 
 					values.candidate.birthdate = birthdate_formttted;
@@ -109,34 +114,56 @@
 		}
 	});
 
-	$: typedErrors = errors as Writable<any>;
+	type FormErrorType = {
+		[K in keyof typeof formInitialValues]: typeof formInitialValues[K] extends Record<
+			string,
+			unknown
+		>
+			? {
+					[K2 in keyof typeof formInitialValues[K]]: string;
+			  }
+			: typeof formInitialValues[K] extends Array<Record<string, unknown>>
+			? Array<{ [K3 in keyof typeof formInitialValues[K][number]]: string }>
+			: string;
+	};
+
+	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
+	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
 	const isPageInvalid = (): boolean => {
 		switch (pageIndex) {
 			case 0:
-				if ($typedErrors["candidate"]["name"] || $typedErrors["candidate"]["email"] || $typedErrors["candidate"]["telephone"]) {
+				if (
+					$typedErrors['candidate']['name'] ||
+					$typedErrors['candidate']['email'] ||
+					$typedErrors['candidate']['telephone']
+				) {
 					return true;
 				}
 				break;
 
 			case 1:
 				if (
-					/* $typedErrors.birthdurname || */ $typedErrors["candidate"]["birthplace"] ||
-					$typedErrors["candidate"]["birthdate"] /* || $typedErrors.sex */
+					/* $typedErrors.birthdurname || */ $typedErrors['candidate']['birthplace'] ||
+					$typedErrors['candidate']['birthdate'] /* || $typedErrors.sex */
 				) {
 					return true;
 				}
 				break;
 			case 2:
-				if ($typedErrors["candidate"]["address"] || $typedErrors["parents"][0]["email"] || $typedErrors["parents"][0]["telephone"]) {
+				if (
+					$typedErrors['candidate']['address'] ||
+					$typedErrors['parents'][0]['email'] ||
+					$typedErrors['parents'][0]['telephone']
+				) {
 					return true;
 				}
 				break;
 			case 3:
 				if (
-					$typedErrors["candidate"]["citizenship"] ||
-					$typedErrors["candidate"]["personalIdNumber"] ||
-					$typedErrors["candidate"]["study"] //||
+					$typedErrors['candidate']['citizenship'] ||
+					$typedErrors['candidate']['personalIdNumber'] ||
+					$typedErrors['candidate']['study'] //||
 					// $typedErrors.applicationId
 				) {
 					return true;
@@ -164,7 +191,7 @@
 				<div class="flex w-full items-center justify-center md:flex-col">
 					<span class="mt-8 w-full">
 						<NameField
-							error={$typedErrors["candidate"]["name"]}
+							error={$typedErrors['candidate']['name']}
 							on:change={handleChange}
 							bind:valueName={$form.candidate.name}
 							bind:valueSurname={$form.candidate.surname}
@@ -173,7 +200,7 @@
 					</span>
 					<span class="mt-8 ml-2 w-full md:ml-0">
 						<EmailField
-							error={$typedErrors["candidate"]["email"]}
+							error={$typedErrors['candidate']['email']}
 							on:change={handleChange}
 							bind:value={$form.candidate.email}
 							placeholder="E-mail"
@@ -182,7 +209,7 @@
 				</div>
 				<div class="mt-8 w-full">
 					<TelephoneField
-						error={$typedErrors["candidate"]["telephone"]}
+						error={$typedErrors['candidate']['telephone']}
 						on:change={handleChange}
 						bind:value={$form.candidate.telephone}
 						placeholder="Telefon"
@@ -198,7 +225,7 @@
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
 					<NameField
-						error={$typedErrors["parents"][0]["name"] || $typedErrors["parents"][0]["surname"]}
+						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
 						bind:valueName={$form.parents[0].name}
 						bind:valueSurname={$form.parents[0].surname}
@@ -207,7 +234,7 @@
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
 					<TextField
-						error={$typedErrors["candidate"]["birthplace"]}
+						error={$typedErrors['candidate']['birthplace']}
 						on:change={handleChange}
 						bind:value={$form.candidate.birthplace}
 						type="text"
@@ -223,7 +250,7 @@
 
 			<div class="mt-8 flex w-full items-center">
 				<TextField
-					error={$typedErrors["candidate"]["birthdate"]}
+					error={$typedErrors['candidate']['birthdate']}
 					on:change={handleChange}
 					bind:value={$form.candidate.birthdate}
 					type="text"
@@ -231,7 +258,7 @@
 				/>
 				<div class="ml-2">
 					<SelectField
-						error={$typedErrors["candidate"]["sex"]}
+						error={$typedErrors['candidate']['sex']}
 						on:change={handleChange}
 						bind:value={$form.candidate.sex}
 						options={['Žena', 'Muž']}
@@ -248,7 +275,7 @@
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
 					<TextField
-						error={$typedErrors["candidate"]["address"]}
+						error={$typedErrors['candidate']['address']}
 						on:change={handleChange}
 						bind:value={$form.candidate.address}
 						type="text"
@@ -258,7 +285,7 @@
 				<div class="mt-8 flex flex-row items-center md:flex-col">
 					<span class="w-full">
 						<EmailField
-							error={$typedErrors["parents"][0]["email"]}
+							error={$typedErrors['parents'][0]['email']}
 							on:change={handleChange}
 							bind:value={$form.parents[0].email}
 							placeholder="E-mail zákonného zástupce"
@@ -266,7 +293,7 @@
 					</span>
 					<span class="ml-2 w-full md:ml-0 md:mt-8">
 						<TelephoneField
-							error={$typedErrors["parents"][0]["telephone"]}
+							error={$typedErrors['parents'][0]['telephone']}
 							on:change={handleChange}
 							bind:value={$form.parents[0].telephone}
 							placeholder="Telefon zákonného zástupce"
@@ -283,7 +310,7 @@
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
 					<TextField
-						error={$typedErrors["candidate"]["citizenship"]}
+						error={$typedErrors['candidate']['citizenship']}
 						on:change={handleChange}
 						bind:value={$form.candidate.citizenship}
 						type="text"
@@ -296,14 +323,14 @@
 			</div>
 			<div class="mt-8 flex w-full items-center justify-center">
 				<IdField
-					error={$typedErrors["candidate"]["personalIdNumber"]}
+					error={$typedErrors['candidate']['personalIdNumber']}
 					on:change={handleChange}
 					bind:value={$form.candidate.personalIdNumber}
 					placeholder="Rodné číslo"
 				/>
 				<span class="ml-2">
 					<SelectField
-						error={$typedErrors["candidate"]["study"]}
+						error={$typedErrors['candidate']['study']}
 						on:change={handleChange}
 						bind:value={$form.candidate.study}
 						placeholder="Obor"
