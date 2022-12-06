@@ -58,7 +58,10 @@
 					.required()
 					.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 				birthplace: yup.string().required(),
-				birthdate: yup.string().required(),
+				birthdate: yup
+					.string()
+					.required()
+					.matches(/^([0-3]?[0-9])\.([1-9]|1[0-2])\.[0-9]{4}$/),
 				sex: yup.string(),
 				address: yup.string().required(),
 				citizenship: yup.string().required(),
