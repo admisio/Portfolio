@@ -12,8 +12,10 @@
 	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
+	import type { CandidateData } from '$lib/stores/candidate';
 
 	import { createForm } from 'svelte-forms-lib';
+	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 
 	const pageCount = 3;
@@ -21,26 +23,31 @@
 	let pagesFilled = 0;
 
 	const formInitialValues = {
-		name: '',
-		surname: '',
-		email: '',
-		telephone: '',
-		birthplace: '',
-		birthdate: '',
-		sex: '',
-		address: '',
-		citizenship: '',
-		personalIdNumber: '',
-		study: '',
-		parentName: '',
-		parentSurname: '',
-		parentTelephone: '',
-		parentEmail: ''
+		candidate: {
+			name: '',
+			surname: '',
+			email: '',
+			telephone: '',
+			birthplace: '',
+			birthdate: '',
+			sex: '',
+			address: '',
+			citizenship: '',
+			personalIdNumber: '',
+			study: '',
+		},
+		parents: [
+			{
+				name: '',
+				surname: '',
+				email: '',
+				telephone: ''
+			}
+		]
 	};
 
-	const { form, errors, handleSubmit, handleChange } = createForm({
-		initialValues: formInitialValues,
-		validationSchema: yup.object().shape({
+	const formValidationSchema = yup.object().shape({
+		candidate: yup.object().shape({
 			name: yup.string().required(),
 			surname: yup.string(),
 			email: yup.string().email().required(),
@@ -49,28 +56,55 @@
 				.required()
 				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
 			birthplace: yup.string().required(),
-			birthdate: yup.string().required(),
+			birthdate: yup
+				.string()
+				.required()
+				.matches(/^([0-3]?[0-9])\.([1-9]|1[0-2])\.[0-9]{4}$/),
 			sex: yup.string(),
 			address: yup.string().required(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
-			study: yup.string().required(),
-			parentName: yup.string(),
-			parentSurname: yup.string(),
-			parentTelephone: yup
-				.string()
-				.required()
-				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
-			parentEmail: yup.string().email().required()
+			study: yup.string().required()
 		}),
+		parents: yup
+			.array()
+			.of(
+				yup.object().shape({
+					name: yup.string().required(),
+					surname: yup.string().required(),
+					email: yup.string().email().required(),
+					telephone: yup
+						.string()
+						.required()
+						.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/)
+				})
+			)
+			.required()
+	});
 
-		onSubmit: async (values) => {
+	const { form, errors, handleSubmit, handleChange } = createForm({
+		initialValues: formInitialValues,
+		validationSchema: formValidationSchema,
+
+		onSubmit: async (values: CandidateData) => {
+			console.log('page count: ' + pageIndex);
+			console.log(values.candidate);
+			console.log(values.parents);
+			console.log(values);
 			if (pageIndex === pageCount) {
 				try {
 					console.log('submit');
 					// @ts-ignore // love javascript
 					delete values.undefined;
-					values.birthdate = '2000-01-01'; // TODO: reformat user typed date
+					// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
+					let birthdate_formttted = values.candidate
+						.birthdate!.split('.')
+						.map((x) => x.padStart(2, '0'))
+						.reverse()
+						.join('-');
+
+					values.candidate.birthdate = birthdate_formttted;
+
 					await apiFillDetails(values);
 					goto('/dashboard');
 				} catch (e) {
@@ -80,35 +114,57 @@
 		}
 	});
 
-	$: console.log($errors);
+	type FormErrorType = {
+		[K in keyof typeof formInitialValues]: typeof formInitialValues[K] extends Record<
+			string,
+			unknown
+		>
+			? {
+					[K2 in keyof typeof formInitialValues[K]]: string;
+			  }
+			: typeof formInitialValues[K] extends Array<Record<string, unknown>>
+			? Array<{ [K3 in keyof typeof formInitialValues[K][number]]: string }>
+			: string;
+	};
+
+	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
+	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
 	const isPageInvalid = (): boolean => {
 		switch (pageIndex) {
 			case 0:
-				if ($errors.name || $errors.email || $errors.telephone) {
+				if (
+					$typedErrors['candidate']['name'] ||
+					$typedErrors['candidate']['email'] ||
+					$typedErrors['candidate']['telephone']
+				) {
 					return true;
 				}
 				break;
 
 			case 1:
 				if (
-					/* $errors.birthdurname || */ $errors.birthplace ||
-					$errors.birthdate /* || $errors.sex */
+					/* $typedErrors.birthdurname || */ $typedErrors['candidate']['birthplace'] ||
+					$typedErrors['candidate']['birthdate'] /* || $typedErrors.sex */
 				) {
 					return true;
 				}
 				break;
 			case 2:
-				if ($errors.address || $errors.parentEmail || $errors.parentTelephone) {
+				if (
+					$typedErrors['candidate']['address'] ||
+					$typedErrors['parents'][0]['email'] ||
+					$typedErrors['parents'][0]['telephone']
+				) {
 					return true;
 				}
 				break;
 			case 3:
 				if (
-					$errors.citizenship ||
-					$errors.personalIdNumber ||
-					$errors.study //||
-					// $errors.applicationId
+					$typedErrors['candidate']['citizenship'] ||
+					$typedErrors['candidate']['personalIdNumber'] ||
+					$typedErrors['candidate']['study'] //||
+					// $typedErrors.applicationId
 				) {
 					return true;
 				}
@@ -135,27 +191,27 @@
 				<div class="flex w-full items-center justify-center md:flex-col">
 					<span class="mt-8 w-full">
 						<NameField
-							error={$errors.name}
+							error={$typedErrors['candidate']['name']}
 							on:change={handleChange}
-							bind:valueName={$form.name}
-							bind:valueSurname={$form.surname}
+							bind:valueName={$form.candidate.name}
+							bind:valueSurname={$form.candidate.surname}
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
 					<span class="mt-8 ml-2 w-full md:ml-0">
 						<EmailField
-							error={$errors.email}
+							error={$typedErrors['candidate']['email']}
 							on:change={handleChange}
-							bind:value={$form.email}
+							bind:value={$form.candidate.email}
 							placeholder="E-mail"
 						/>
 					</span>
 				</div>
 				<div class="mt-8 w-full">
 					<TelephoneField
-						error={$errors.telephone}
+						error={$typedErrors['candidate']['telephone']}
 						on:change={handleChange}
-						bind:value={$form.telephone}
+						bind:value={$form.candidate.telephone}
 						placeholder="Telefon"
 					/>
 				</div>
@@ -169,23 +225,23 @@
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
 					<NameField
-						error={$errors.name}
+						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
-						bind:valueName={$form.parentName}
-						bind:valueSurname={$form.parentSurname}
+						bind:valueName={$form.parents[0].name}
+						bind:valueSurname={$form.parents[0].surname}
 						placeholder="Jméno a příjmení zákonného zástupce"
 					/>
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
 					<TextField
-						error={$errors.birthplace}
+						error={$typedErrors['candidate']['birthplace']}
 						on:change={handleChange}
-						bind:value={$form.birthplace}
+						bind:value={$form.candidate.birthplace}
 						type="text"
 						placeholder="Místo narození"
 						icon
 					>
-						<div slot="icon" class="flex items-center justify-center text-sspsBlue">
+						<div slot="icon" class="text-sspsBlue flex items-center justify-center">
 							<Home />
 						</div>
 					</TextField>
@@ -194,17 +250,17 @@
 
 			<div class="mt-8 flex w-full items-center">
 				<TextField
-					error={$errors.birthdate}
+					error={$typedErrors['candidate']['birthdate']}
 					on:change={handleChange}
-					bind:value={$form.birthdate}
+					bind:value={$form.candidate.birthdate}
 					type="text"
 					placeholder="Datum narození"
 				/>
 				<div class="ml-2">
 					<SelectField
-						error={$errors.sex}
+						error={$typedErrors['candidate']['sex']}
 						on:change={handleChange}
-						bind:value={$form.sex}
+						bind:value={$form.candidate.sex}
 						options={['Žena', 'Muž']}
 						placeholder="Pohlaví"
 					/>
@@ -219,9 +275,9 @@
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
 					<TextField
-						error={$errors.address}
+						error={$typedErrors['candidate']['address']}
 						on:change={handleChange}
-						bind:value={$form.address}
+						bind:value={$form.candidate.address}
 						type="text"
 						placeholder="Adresa trvalého bydliště"
 					/>
@@ -229,17 +285,17 @@
 				<div class="mt-8 flex flex-row items-center md:flex-col">
 					<span class="w-full">
 						<EmailField
-							error={$errors.parentEmail}
+							error={$typedErrors['parents'][0]['email']}
 							on:change={handleChange}
-							bind:value={$form.parentEmail}
+							bind:value={$form.parents[0].email}
 							placeholder="E-mail zákonného zástupce"
 						/>
 					</span>
 					<span class="ml-2 w-full md:ml-0 md:mt-8">
 						<TelephoneField
-							error={$errors.parentTelephone}
+							error={$typedErrors['parents'][0]['telephone']}
 							on:change={handleChange}
-							bind:value={$form.parentTelephone}
+							bind:value={$form.parents[0].telephone}
 							placeholder="Telefon zákonného zástupce"
 						/>
 					</span>
@@ -254,9 +310,9 @@
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
 					<TextField
-						error={$errors.citizenship}
+						error={$typedErrors['candidate']['citizenship']}
 						on:change={handleChange}
-						bind:value={$form.citizenship}
+						bind:value={$form.candidate.citizenship}
 						type="text"
 						placeholder="Občanství"
 					/>
@@ -267,16 +323,16 @@
 			</div>
 			<div class="mt-8 flex w-full items-center justify-center">
 				<IdField
-					error={$errors.personalIdNumber}
+					error={$typedErrors['candidate']['personalIdNumber']}
 					on:change={handleChange}
-					bind:value={$form.personalIdNumber}
+					bind:value={$form.candidate.personalIdNumber}
 					placeholder="Rodné číslo"
 				/>
 				<span class="ml-2">
 					<SelectField
-						error={$errors.study}
+						error={$typedErrors['candidate']['study']}
 						on:change={handleChange}
-						bind:value={$form.study}
+						bind:value={$form.candidate.study}
 						placeholder="Obor"
 						options={['KB', 'IT', 'G']}
 					/>
@@ -295,6 +351,7 @@
 						pagesFilled++;
 						pageIndex++;
 					}
+					// @ts-ignore
 					errors.set(formInitialValues);
 				}}
 				value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
@@ -315,6 +372,7 @@
 							if (isPageInvalid()) return;
 							pagesFilled++;
 							pageIndex++;
+							// @ts-ignore
 							errors.set(formInitialValues);
 						}
 					}}

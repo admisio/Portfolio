@@ -79,11 +79,22 @@ export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 };
 
 export const apiFillDetails = async (data: CandidateData): Promise<CandidateData> => {
-	Object.keys(data).forEach((key) => {
+	// Sanitize candidate data
+	Object.keys(data.candidate).forEach((key) => {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
-		data[key] = DOMPurify.sanitize(data[key]);
+		data.candidate[key] = DOMPurify.sanitize(data.candidate[key]);
 	});
+	// Sanitize parents data
+	for (let index = 0; index < data.parents.length; index++) {
+		Object.keys(data.parents[index]).forEach((key) => {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			data.parents[index][key] = DOMPurify.sanitize(data.parents[index][key]);
+		});
+	}
+
+	console.log(data);
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
 		return res.data;
