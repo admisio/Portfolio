@@ -12,7 +12,7 @@ portfolio-entity = { path = "../entity" }
 portfolio-core = { path = "../core" }
 
 [dependencies.tokio]
-version = "^1.22"
+version = "^1.23"
 features = [
     "process",
     "macros",
