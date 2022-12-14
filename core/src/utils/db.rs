@@ -1,6 +1,4 @@
-use entity::{admin, candidate, parent, session};
-use sea_orm::{Schema, Database, DbConn};
-use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
+use sea_orm::DbConn;
 
 use crate::Query;
 use crate::error::ServiceError;
@@ -12,8 +10,13 @@ pub async fn get_recipients(db: &DbConn, candidate_pubkey: &str) -> Result<Vec<S
     Ok(recipients)
 }
 
-
+#[cfg(test)]
 pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
+    use entity::{admin, candidate, parent, session};
+    use sea_orm::{Schema, Database};
+    use sea_orm::{sea_query::TableCreateStatement, ConnectionTrait, DbBackend};
+
+    
     let base_url = "sqlite::memory:";
     let db: DbConn = Database::connect(base_url).await.unwrap();
 
