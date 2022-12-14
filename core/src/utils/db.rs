@@ -10,7 +10,6 @@ pub async fn get_recipients(db: &DbConn, candidate_pubkey: &str) -> Result<Vec<S
     Ok(recipients)
 }
 
-#[cfg(test)]
 pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
     use entity::{admin, candidate, parent, session};
     use sea_orm::{Schema, Database};
