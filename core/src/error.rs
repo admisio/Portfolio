@@ -12,10 +12,8 @@ pub enum ServiceError {
     Unauthorized,
     #[error("Forbidden")]
     Forbidden,
-    #[error("Session expired, please login agai")]
+    #[error("Session expired, please login again")]
     ExpiredSession,
-    #[error("Error while encoding JWT")]
-    JwtError,
     #[error("User already exists")]
     UserAlreadyExists,
     #[error("Candidate not found")]
@@ -73,16 +71,18 @@ pub enum ServiceError {
 impl ServiceError {
     pub fn code(&self) -> u16 {
         match self {
+            // 40X
             ServiceError::InvalidApplicationId => 400,
-            ServiceError::InvalidCredentials => 401,
+            ServiceError::ParentOverflow => 400,
             ServiceError::Unauthorized => 401,
-            ServiceError::Forbidden => 403,
+            ServiceError::InvalidCredentials => 401,
             ServiceError::ExpiredSession => 401,
-            ServiceError::JwtError => 500,
-            ServiceError::UserAlreadyExists => 409,
+            ServiceError::Forbidden => 403,
             ServiceError::CandidateNotFound => 404,
+            ServiceError::IncompletePortfolio => 406,
+            ServiceError::UserAlreadyExists => 409,
+            // 500
             ServiceError::ParentNotFound => 500,
-            ServiceError::ParentOverflow => 400, // TODO: correct error code
             ServiceError::DbError(_) => 500,
             ServiceError::UserNotFoundByJwtId => 500,
             ServiceError::UserNotFoundBySessionId => 500,
@@ -101,8 +101,6 @@ impl ServiceError {
             ServiceError::TokioJoinError(_) => 500,
             ServiceError::AesError(_) => 500,
             ServiceError::ArgonConfigError(_) => 500,
-            //TODO: Correct code
-            ServiceError::IncompletePortfolio => 406,
             ServiceError::ZipError(_) => 500,
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
