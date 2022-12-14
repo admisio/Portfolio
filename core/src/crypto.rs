@@ -15,7 +15,6 @@ use crate::error::ServiceError;
 
 /// Foolproof random 8 char string
 /// only uppercase letters (except for 0 and O) and numbers
-/// TODO tests
 pub fn random_8_char_string() -> String {
     let iterator = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
