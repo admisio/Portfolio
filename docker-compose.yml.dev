@@ -7,7 +7,7 @@ services:
     depends_on: 
       - db
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+      PORTFOLIO_DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
     ports:
       - "9000:8000"
     command: sh -c "cargo watch -x run"
