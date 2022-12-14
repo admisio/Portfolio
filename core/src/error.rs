@@ -56,6 +56,8 @@ pub enum ServiceError {
     AesError(#[from] aes_gcm_siv::Error),
     #[error("Portfolio is incomplete")]
     IncompletePortfolio,
+    #[error("Portfolio write error")]
+    PortfolioWriteError,
     #[error("Zip error")]
     ZipError(#[from] async_zip::error::ZipError),
     #[error("Csv error")]
@@ -95,6 +97,7 @@ impl ServiceError {
             ServiceError::TokioJoinError(_) => 500,
             ServiceError::AesError(_) => 500,
             ServiceError::ArgonConfigError(_) => 500,
+            ServiceError::PortfolioWriteError => 500,
             ServiceError::ZipError(_) => 500,
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
