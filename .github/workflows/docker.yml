@@ -33,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         env:
-          IMAGE_NAME: backend
+          IMAGE_NAME: portfolio/backend
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -75,7 +75,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         env:
-          IMAGE_NAME: frontend
+          IMAGE_NAME: portfolio/frontend
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
