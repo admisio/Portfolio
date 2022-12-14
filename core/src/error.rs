@@ -40,6 +40,8 @@ pub enum ServiceError {
     CandidateDetailsNotSet,
     #[error("Tokio join error")]
     TokioJoinError(#[from] tokio::task::JoinError),
+    #[error("Age no recipients error")]
+    AgeNoRecipientsError,
     #[error("Age encrypt error")]
     AgeEncryptError(#[from] age::EncryptError),
     #[error("Age decrypt error")]
@@ -88,6 +90,7 @@ impl ServiceError {
             ServiceError::CryptoEncryptFailed => 500,
             ServiceError::CryptoDecryptFailed => 500,
             ServiceError::CandidateDetailsNotSet => 500,
+            ServiceError::AgeNoRecipientsError => 500,
             ServiceError::AgeEncryptError(_) => 500,
             ServiceError::AgeDecryptError(_) => 500,
             ServiceError::AgeKeyError(_) => 500,

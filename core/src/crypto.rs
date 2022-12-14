@@ -222,8 +222,7 @@ async fn age_encrypt_with_recipients<W: tokio::io::AsyncWrite + Unpin>(
 
         return Ok(());
     } else {
-        // TODO: Error handling
-        unreachable!("No recipients provided");
+        return Err(ServiceError::AgeNoRecipientsError);
     }
 }
 
