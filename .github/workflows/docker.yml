@@ -33,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         env:
-          IMAGE_NAME: portfolio/backend
+          IMAGE_NAME: EETagent/portfolio_backend
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -75,7 +75,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         env:
-          IMAGE_NAME: portfolio/frontend
+          IMAGE_NAME: EETagent/portfolio_frontend
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
