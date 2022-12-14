@@ -32,9 +32,10 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker 🏷️
         id: meta
         uses: docker/metadata-action@v4
+        env:
+          IMAGE_NAME: backend
         with:
-          images: |
-            portfolio/backend
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -73,9 +74,10 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker 🏷️
         id: meta
         uses: docker/metadata-action@v4
+        env:
+          IMAGE_NAME: frontend
         with:
-          images: |
-            portfolio/frontend
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
