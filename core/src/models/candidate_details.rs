@@ -245,12 +245,10 @@ impl EncryptedApplicationDetails {
         recipients: Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
         let candidate =  EncryptedCandidateDetails::new(&form.candidate, &recipients).await?;
-        let mut enc_parents= vec![];
-        for parent in form.parents.iter() {
-            enc_parents.push(
-                EncryptedParentDetails::new(parent, &recipients).await?
-            );
-        }
+        let enc_parents = future::try_join_all(
+            form.parents.iter()
+                .map(|d| EncryptedParentDetails::new(d, &recipients))
+        ).await?;
         Ok(
             EncryptedApplicationDetails {
                 candidate,
@@ -282,12 +280,10 @@ impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDet
     fn try_from(
         (candidate, parents): (candidate::Model, Vec<parent::Model>),
     ) -> Result<Self, Self::Error> {
-        let mut enc_parents = vec![];
-        for parent in parents.iter() {
-            enc_parents.push(
-                EncryptedParentDetails::try_from(parent.clone())?
-            );
-        }
+        let enc_parents = parents.iter()
+            .map(|m| EncryptedParentDetails::try_from(m.clone()))
+            .collect::<Result<Vec<EncryptedParentDetails>, ServiceError>>()?;
+
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails::try_from(candidate)?,
             parents: enc_parents,
