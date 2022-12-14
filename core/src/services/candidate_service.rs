@@ -118,7 +118,6 @@ impl CandidateService {
         Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
-        // TODO: make personal id number required
         let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
             .decrypt(&admin_private_key)
             .await?;
@@ -150,8 +149,8 @@ impl CandidateService {
         db: &DbConn,
         candidate: candidate::Model,
         details: &CandidateDetails,
+        recipients: &Vec<String>,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let recipients = get_recipients(db, &candidate.public_key).await?;
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
         let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
         Ok(model)

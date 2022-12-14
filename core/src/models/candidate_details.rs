@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 
 use entity::{candidate, parent};
+use futures::future;
 
 use crate::{crypto, models::candidate::{CandidateWithParent, ApplicationDetails}, error::ServiceError};
 
@@ -83,7 +84,6 @@ impl From<String> for EncryptedString {
 }
 
 impl TryFrom<Option<NaiveDate>> for EncryptedString {
-    // TODO: take a look at this
     type Error = ServiceError;
 
     fn try_from(d: Option<NaiveDate>) -> Result<Self, Self::Error> {
@@ -97,20 +97,20 @@ impl TryFrom<Option<NaiveDate>> for EncryptedString {
 impl EncryptedCandidateDetails {
     pub async fn new(
         form: &CandidateDetails,
-        recipients: Vec<String>,
+        recipients: &Vec<String>,
     ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d = tokio::try_join!(
-            EncryptedString::new(&form.name, &recipients),
-            EncryptedString::new(&form.surname, &recipients),
-            EncryptedString::new(&form.birthplace, &recipients),
-            EncryptedString::new(&birthdate_str, &recipients),
-            EncryptedString::new(&form.address, &recipients),
-            EncryptedString::new(&form.telephone, &recipients),
-            EncryptedString::new(&form.citizenship, &recipients),
-            EncryptedString::new(&form.email, &recipients),
-            EncryptedString::new(&form.sex, &recipients),
-            EncryptedString::new(&form.personal_id_number, &recipients),
+            EncryptedString::new(&form.name, recipients),
+            EncryptedString::new(&form.surname, recipients),
+            EncryptedString::new(&form.birthplace, recipients),
+            EncryptedString::new(&birthdate_str, recipients),
+            EncryptedString::new(&form.address, recipients),
+            EncryptedString::new(&form.telephone, recipients),
+            EncryptedString::new(&form.citizenship, recipients),
+            EncryptedString::new(&form.email, recipients),
+            EncryptedString::new(&form.sex, recipients),
+            EncryptedString::new(&form.personal_id_number, recipients),
         )?;
 
         Ok(
@@ -187,13 +187,13 @@ impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
 impl EncryptedParentDetails {
     pub async fn new(
         form: &ParentDetails,
-        recipients: Vec<String>,
+        recipients: &Vec<String>,
     ) -> Result<EncryptedParentDetails, ServiceError> {
         let d = tokio::try_join!(
-            EncryptedString::new(&form.name, &recipients),
-            EncryptedString::new(&form.surname, &recipients),
-            EncryptedString::new(&form.telephone, &recipients),
-            EncryptedString::new(&form.email, &recipients),
+            EncryptedString::new(&form.name, recipients),
+            EncryptedString::new(&form.surname, recipients),
+            EncryptedString::new(&form.telephone, recipients),
+            EncryptedString::new(&form.email, recipients),
         )?;
 
         Ok(
@@ -244,11 +244,11 @@ impl EncryptedApplicationDetails {
         form: &ApplicationDetails,
         recipients: Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
-        let candidate =  EncryptedCandidateDetails::new(&form.candidate, recipients.clone()).await?;
+        let candidate =  EncryptedCandidateDetails::new(&form.candidate, &recipients).await?;
         let mut enc_parents= vec![];
         for parent in form.parents.iter() {
             enc_parents.push(
-                EncryptedParentDetails::new(parent, recipients.clone()).await?
+                EncryptedParentDetails::new(parent, &recipients).await?
             );
         }
         Ok(
@@ -260,15 +260,17 @@ impl EncryptedApplicationDetails {
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
-        let candidate = self.candidate.decrypt(priv_key.clone()).await?;
-        let mut parents = vec![];
-        for parent in self.parents.iter() {
-            let dec = parent.decrypt(priv_key.clone()).await?;
-            parents.push(dec);
-        }
+        let decrypted_candidate = self.candidate.decrypt(priv_key.clone()).await?;
+
+        let decrypted_parents = future::try_join_all(
+            self.parents
+                .iter()
+                .map(|d| d.decrypt(priv_key.clone()))
+        ).await?;
+
         Ok(ApplicationDetails {
-            candidate,
-            parents: parents,
+            candidate: decrypted_candidate,
+            parents: decrypted_parents,
         })
     }
 }
@@ -339,9 +341,12 @@ pub async fn decrypt_if_exists(
 pub mod tests {
     use std::sync::Mutex;
 
+    use chrono::{Local};
+    use entity::admin;
     use once_cell::sync::Lazy;
+    use sea_orm::{DbConn, Set, ActiveModelTrait};
 
-    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}};
+    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}, utils::db::get_memory_sqlite_connection, Query, services::candidate_service::tests::put_user_data};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -384,10 +389,30 @@ pub mod tests {
         assert_eq!(details.candidate.sex, "sex");
         assert_eq!(details.candidate.study, "study");
         assert_eq!(details.candidate.personal_id_number, "personal_id_number");
-        assert_eq!(details.parents[0].name, "parent_name");
-        assert_eq!(details.parents[0].surname, "parent_surname");
-        assert_eq!(details.parents[0].telephone, "parent_telephone");
-        assert_eq!(details.parents[0].email, "parent_email");
+        for parent in &details.parents {
+            assert_eq!(parent.name, "parent_name");
+            assert_eq!(parent.surname, "parent_surname");
+            assert_eq!(parent.telephone, "parent_telephone");
+            assert_eq!(parent.email, "parent_email");
+        }
+    }
+
+    async fn insert_test_admin(db: &DbConn) -> admin::Model {
+        admin::ActiveModel {
+            id: Set(1),
+            name: Set("Admin".to_owned()),
+            public_key: Set("age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_owned()),
+            // AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS
+            private_key: Set("5KCEGk0ueWVGnu5Xo3rmpLoilcVZ2ZWmwIcdZEJ8rrBNW7jwzZU/XTcTXtk/xyy/zjF8s+YnuVpOklQvX3EC/Sn+ZwyPY3jokM2RNwnZZlnqdehOEV1SMm/Y".to_owned()),
+            // test
+            password: Set("$argon2i$v=19$m=6000,t=3,p=10$WE9xCQmmWdBK82R4SEjoqA$TZSc6PuLd4aWK2x2WAb+Lm9sLySqjK3KLbNyqyQmzPQ".to_owned()),
+            created_at: Set(Local::now().naive_local()),
+            updated_at: Set(Local::now().naive_local()),
+            ..Default::default()
+        }
+            .insert(db)
+            .await
+            .unwrap()
     }
 
     #[tokio::test]
@@ -436,35 +461,25 @@ pub mod tests {
         assert_all_application_details(&application_details);
     }
 
-    // TODO
-    /* #[tokio::test]
+    #[tokio::test]
     async fn test_encrypted_application_details_from_candidate_parent() {
-        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
-        const PRIVATE_KEY: &str =
-            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
+        let db = get_memory_sqlite_connection().await;
+        let _admin = insert_test_admin(&db).await;
 
-        const birthdate: NaiveDate = chrono::offset::Local::now().date_naive();
-        let encrypted_details = EncryptedApplicationDetails::try_from(
-            ,
-            vec![PUBLIC_KEY],
-        )
-        .await
-        .unwrap();
+        let (candidate, parents) = put_user_data(&db).await;
+
+        let encrypted_details = EncryptedApplicationDetails::try_from((candidate, parents)).unwrap();
 
         let application_details = encrypted_details
-            .decrypt(PRIVATE_KEY.to_string())
+            .decrypt(PRIVATE_KEY.to_string()) // decrypt with admin's private key
             .await
             .unwrap();
 
         assert_all_application_details(&application_details);
-    } */
+    }
 
     #[tokio::test]
     async fn test_encrypted_string_new() {
-        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
-        const PRIVATE_KEY: &str =
-            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
-
         let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY.to_string()])
             .await
             .unwrap();
@@ -479,10 +494,6 @@ pub mod tests {
 
     #[tokio::test]
     async fn test_encrypted_string_decrypt() {
-        const PUBLIC_KEY: &str = "age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5";
-        const PRIVATE_KEY: &str =
-            "AGE-SECRET-KEY-14QG24502DMUUQDT2SPMX2YXPSES0X8UD6NT0PCTDAT6RH8V5Q3GQGSRXPS";
-
         let encrypted = EncryptedString::new("test", &vec![PUBLIC_KEY.to_string()])
             .await
             .unwrap();
