@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
 import { windi } from 'svelte-windicss-preprocess';
 
@@ -8,7 +8,7 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [preprocess(), windi({})],
 	kit: {
-		adapter: adapter()
+		adapter: adapter({ out: 'build' })
 	}
 };
 
