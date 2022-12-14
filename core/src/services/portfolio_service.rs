@@ -127,7 +127,7 @@ impl PortfolioService {
     // Get root path or local directory
     fn get_file_store_path() -> PathBuf {
         dotenv::dotenv().ok();
-        Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
+        Path::new(&std::env::var("PORTFOLIO_STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
     }
 
     /// Writes file to desired location
@@ -379,7 +379,7 @@ mod tests {
 
         tokio::fs::create_dir_all(application_cache_dir.clone()).await.unwrap();
 
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+        std::env::set_var("PORTFOLIO_STORE_PATH", temp_dir.to_str().unwrap());
 
         (temp_dir, application_dir, application_cache_dir)
     }
@@ -388,7 +388,7 @@ mod tests {
     async fn clear_data_store_temp_dir(temp_dir: PathBuf) {
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
 
-        std::env::remove_var("STORE_PATH");
+        std::env::remove_var("PORTFOLIO_STORE_PATH");
     }
 
     #[tokio::test]
@@ -398,7 +398,7 @@ mod tests {
         let plain_text_password = "test".to_string();
 
         let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join("create_folder");
-        std::env::set_var("STORE_PATH", temp_dir.to_str().unwrap());
+        std::env::set_var("PORTFOLIO_STORE_PATH", temp_dir.to_str().unwrap());
 
         CandidateService::create(&db, APPLICATION_ID, &plain_text_password, "".to_string())
             .await
