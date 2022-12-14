@@ -148,7 +148,7 @@ impl EncryptedCandidateDetails {
                 name: d.0,
                 surname: d.1,
                 birthplace: d.2,
-                birthdate: NaiveDate::parse_from_str(&d.3, NAIVE_DATE_FMT).unwrap(), // TODO
+                birthdate: NaiveDate::parse_from_str(&d.3, NAIVE_DATE_FMT).unwrap(),
                 address: d.4,
                 telephone: d.5,
                 citizenship: d.6,
@@ -273,7 +273,6 @@ impl EncryptedApplicationDetails {
     }
 }
 
-// TODO: use different metehod for this
 impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
@@ -322,7 +321,6 @@ impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
     }
 }
 
-// TODO: use this more???
 pub async fn decrypt_if_exists(
     private_key: &String,
     encrypted_string: Option<String>,

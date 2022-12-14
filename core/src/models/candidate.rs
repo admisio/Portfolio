@@ -30,11 +30,10 @@ pub struct BaseCandidateResponse {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CandidateDetails {
-    // pub application_id: i32,
     pub name: String,
     pub surname: String,
     pub birthplace: String,
-    pub birthdate: NaiveDate, // TODO: User NaiveDate or String?
+    pub birthdate: NaiveDate,
     pub address: String,
     pub telephone: String,
     pub citizenship: String,
@@ -46,7 +45,6 @@ pub struct CandidateDetails {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentDetails {
-    // pub application_id: i32,
     pub name: String,
     pub surname: String,
     pub telephone: String,
@@ -65,7 +63,7 @@ pub struct ApplicationDetails {
 /// CSV export (admin endpoint)
 #[derive(FromQueryResult, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct CandidateWithParent { // TODO: use this instead of (Candidate, Parent)???
+pub struct CandidateWithParent {
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,

@@ -10,7 +10,7 @@ use crate::{
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
 
-// TODO
+// TODO validation
 
 /* pub struct FieldOfStudy {
     pub short_name: String,
@@ -102,7 +102,7 @@ impl CandidateService {
     ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parents = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
+        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
 
             
             let new_password_plain = crypto::random_8_char_string();
@@ -242,7 +242,7 @@ impl CandidateService {
     fn is_application_id_valid(application_id: i32) -> bool {
         let s = &application_id.to_string();
         if s.len() <= 3 {
-            // TODO: does the field of study prefix have to be exactly 6 digits?
+            // TODO: does the field of study prefix have to be exactly 6 digits? VYRESIT PODLE PRIHLASEK!!!
             return false;
         }
         let field_of_study_prefix = &s[0..3];

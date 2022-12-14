@@ -26,7 +26,7 @@ impl ApplicationService {
         db: &DbConn,
         candidate: candidate::Model,
         form: &ApplicationDetails,
-    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> { // TODO: is this service needed?
+    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
 
         let recipients = get_recipients(db, &candidate.public_key).await?;
         Ok(
