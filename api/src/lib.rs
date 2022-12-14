@@ -47,7 +47,16 @@ impl Fairing for CORS {
 
     #[cfg(not(debug_assertions))]
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        // TODO
+        response.set_header(Header::new(
+            "Access-Control-Allow-Origin",
+            "https://portfolio.ssps.cz", // TODO: UPRAVIT NA PRODUKČNÍ URL!!
+        ));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "POST, GET, OPTIONS, DELETE",
+        ));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
 
