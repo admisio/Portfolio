@@ -1,6 +1,5 @@
-import { API_URL } from '$lib/@api';
 import type { HandleFetch } from '@sveltejs/kit';
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 
 export const handleFetch: HandleFetch = async ({ request, fetch, event }) => {
 	dotenv.config();
@@ -13,7 +12,13 @@ export const handleFetch: HandleFetch = async ({ request, fetch, event }) => {
 
 	request.headers.set('cookie', cookie);
 
-	request = new Request(request.url.replace(API_URL, process.env.PORTFOLIO_API_URL ?? 'http://127.0.0.1:8000'), request);
+	const url = new URL(request.url);
+
+	url.host = process.env.PORTFOLIO_API_HOST ?? '127.0.0.1:8000';
+
+	url.pathname = url.pathname.replace(/^\/api/, '');
+
+	request = new Request(url, request);
 
 	console.log(`SSR: handleFetch() AFTER:  ${request.method} ${request.url}`);
 
