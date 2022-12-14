@@ -32,7 +32,7 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
     async fn init(_figment: &Figment) -> Result<Self, Self::Error> {
         dotenv::dotenv().ok();
 
-        let database_url = std::env::var("DATABASE_URL").unwrap();
+        let database_url = std::env::var("PORTFOLIO_DATABASE_URL").unwrap();
         let mut options: ConnectOptions = database_url.into();
         options
             .max_connections(1024)

@@ -127,7 +127,7 @@ impl PortfolioService {
     // Get root path or local directory
     fn get_file_store_path() -> PathBuf {
         dotenv::dotenv().ok();
-        Path::new(&std::env::var("STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
+        Path::new(&std::env::var("PORTFOLIO_STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
     }
 
     /// Writes file to desired location
