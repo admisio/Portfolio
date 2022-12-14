@@ -148,7 +148,7 @@ pub async fn get_candidate(
 
     let candidate = Query::find_candidate_by_id(db, id)
         .await
-        .map_err(|e| to_custom_error(ServiceError::Forbidden))? // TODO better error handling
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
     
     let details = ApplicationService::decrypt_all_details(

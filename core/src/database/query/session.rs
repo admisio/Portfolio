@@ -32,7 +32,8 @@ impl Query {
 
 #[cfg(test)]
 mod tests {
-    use entity::{session};
+    use entity::{session, admin, candidate};
+    use sea_orm::ActiveValue::NotSet;
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
     use crate::utils::db::get_memory_sqlite_connection;
@@ -57,8 +58,7 @@ mod tests {
         assert!(session.is_some());
     }
 
-    // TODO: Opravit test_find_sessions_by_user_id
-    /* #[tokio::test]
+    #[tokio::test]
     async fn test_find_sessions_by_user_id() {
         let db = get_memory_sqlite_connection().await;
 
@@ -69,14 +69,14 @@ mod tests {
             code: Set("test".to_string()),
             public_key: Set("test".to_string()),
             private_key: Set("test".to_string()),
-            personal_identification_number_hash: Set("test".to_string()),
+            personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-        .insert(&db)
-        .await
-        .unwrap();
+            .insert(&db)
+            .await
+            .unwrap();
 
         session::ActiveModel {
             id: Set(Uuid::new_v4()),
@@ -87,9 +87,9 @@ mod tests {
             expires_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-        .insert(&db)
-        .await
-        .unwrap();
+            .insert(&db)
+            .await
+            .unwrap();
 
         const ADMIN_ID: i32 = 1;
 
@@ -103,9 +103,9 @@ mod tests {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-        .insert(&db)
-        .await
-        .unwrap();
+            .insert(&db)
+            .await
+            .unwrap();
 
         session::ActiveModel {
             id: Set(Uuid::new_v4()),
@@ -116,18 +116,14 @@ mod tests {
             expires_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-        .insert(&db)
-        .await
-        .unwrap();
-
-        let sessions = Query::find_sessions_by_user_id(&db, Some(APPLICATION_ID), None)
+            .insert(&db)
             .await
             .unwrap();
+
+        let sessions = Query::find_sessions_by_user_id(&db, Some(APPLICATION_ID), None).await.unwrap();
         assert_eq!(sessions.len(), 1);
 
-        let sessions = Query::find_sessions_by_user_id(&db, None, Some(ADMIN_ID))
-            .await
-            .unwrap();
+        let sessions = Query::find_sessions_by_user_id(&db, None, Some(ADMIN_ID)).await.unwrap();
         assert_eq!(sessions.len(), 1);
-    } */
+    }
 }

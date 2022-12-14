@@ -314,6 +314,11 @@ impl PortfolioService {
         ).await?;
         tokio::fs::remove_file(final_path).await?;
 
+        
+        if !Self::is_portfolio_submitted(candidate_id).await {
+            return Err(ServiceError::PortfolioWriteError)
+        }
+
         Ok(())
     }
 

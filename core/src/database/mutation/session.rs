@@ -40,5 +40,23 @@ impl Mutation {
 
 #[cfg(test)]
 mod tests {
-    // TODO: Testy
+    use sea_orm::prelude::Uuid;
+
+    use crate::{utils::db::get_memory_sqlite_connection, Mutation, services::candidate_service::tests::put_user_data};
+
+    #[tokio::test]
+    async fn test_insert_delete_session() {
+        let db = get_memory_sqlite_connection().await;
+
+        let session_id = Uuid::new_v4();
+        let (user, _) = put_user_data(&db).await;
+
+        let session = Mutation::insert_session(&db, Some(user.application), None, session_id, "127.0.0.1".to_string()).await.unwrap();
+
+        assert_eq!(session.id, session_id);
+
+        let delete_result = Mutation::delete_session(&db, session_id).await.unwrap();
+
+        assert_eq!(delete_result.rows_affected, 1);
+    }
 }

@@ -25,7 +25,6 @@ impl<'r> FromData<'r> for Letter {
         let data_bytes = data.into_bytes().await.unwrap();
 
         if !data_bytes.is_complete() {
-            // TODO: Over limit
             return Outcome::Failure((Status::BadRequest, None))
         }
 
@@ -34,7 +33,6 @@ impl<'r> FromData<'r> for Letter {
         let is_pdf = portfolio_core::utils::filetype::filetype_is_pdf(&data_bytes);
 
         if !is_pdf {
-            // TODO: Not PDF
             return Outcome::Failure((Status::BadRequest, None))
         }
 

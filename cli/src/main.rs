@@ -257,7 +257,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let output = sub_matches.get_one::<PathBuf>("output").unwrap();
             tokio::fs::write(output, decrypted).await?;
         },
-        Some(("package", sub_matches)) => { // TODO: compress the output directory into one file???
+        Some(("package", sub_matches)) => {
             let db_url = sub_matches.get_one::<Url>("database").unwrap();
             let db = get_db_conn(sub_matches).await?;
             let key = get_admin_private_key(&db, sub_matches).await?;

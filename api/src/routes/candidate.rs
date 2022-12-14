@@ -213,7 +213,6 @@ pub async fn submit_portfolio(
     if submit.is_err() {
         let e = submit.err().unwrap();
         // Delete on critical error
-        // TODO: Více kontrol?
         if e.code() == 500 {
             // Cleanup
             PortfolioService::delete_portfolio(candidate.application)

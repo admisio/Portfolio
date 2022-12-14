@@ -30,6 +30,7 @@ impl ParentService {
         db: &DbConn,
         ref_candidate: candidate::Model,
         parents_details: &Vec<ParentDetails>,
+        recipients: &Vec<String>,
     ) -> Result<Vec<parent::Model>, ServiceError> {
         let found_parents = Query::find_candidate_parents(db, ref_candidate.clone()).await?;
         if found_parents.len() > 2 {
@@ -42,7 +43,6 @@ impl ParentService {
                 Some(parent) => parent.clone(),
                 None => ParentService::create(db, ref_candidate.application).await?,
             };
-            let recipients = get_recipients(db, &ref_candidate.public_key).await?;
             let enc_details = EncryptedParentDetails::new(&parents_details[i], recipients).await?;
             let parent = Mutation::add_parent_details(db, found_parent.clone(), enc_details.clone()).await?;
             result.push(parent);

@@ -26,12 +26,13 @@ impl ApplicationService {
         db: &DbConn,
         candidate: candidate::Model,
         form: &ApplicationDetails,
-    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> { // TODO: is this service needed?
+    ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
 
+        let recipients = get_recipients(db, &candidate.public_key).await?;
         Ok(
             (
-                CandidateService::add_candidate_details(db, candidate.clone(), &form.candidate).await?,
-                ParentService::add_parents_details(db, candidate, &form.parents).await?
+                CandidateService::add_candidate_details(db, candidate.clone(), &form.candidate, &recipients).await?,
+                ParentService::add_parents_details(db, candidate, &form.parents, &recipients).await?
             )
         )
     }

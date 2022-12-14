@@ -12,10 +12,8 @@ pub enum ServiceError {
     Unauthorized,
     #[error("Forbidden")]
     Forbidden,
-    #[error("Session expired, please login agai")]
+    #[error("Session expired, please login again")]
     ExpiredSession,
-    #[error("Error while encoding JWT")]
-    JwtError,
     #[error("User already exists")]
     UserAlreadyExists,
     #[error("Candidate not found")]
@@ -23,15 +21,11 @@ pub enum ServiceError {
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
-    ParentOverflow,
-    #[error("Too many parents")]
     DbError(#[from] sea_orm::DbErr),
-    #[error("User not found, please contact technical support")]
-    UserNotFoundByJwtId,
+    #[error("Too many parents")]
+    ParentOverflow,
     #[error("User not found, please contact technical support")]
     UserNotFoundBySessionId,
-    #[error("Crypto hash failed, please contact technical support")]
-    CryptoHashFailed,
     #[error("Crypto encryption failed, please contact technical support")]
     CryptoEncryptFailed,
     #[error("Crypto decryption failed, please contact technical support")]
@@ -40,6 +34,8 @@ pub enum ServiceError {
     CandidateDetailsNotSet,
     #[error("Tokio join error")]
     TokioJoinError(#[from] tokio::task::JoinError),
+    #[error("Age no recipients error")]
+    AgeNoRecipientsError,
     #[error("Age encrypt error")]
     AgeEncryptError(#[from] age::EncryptError),
     #[error("Age decrypt error")]
@@ -60,6 +56,8 @@ pub enum ServiceError {
     AesError(#[from] aes_gcm_siv::Error),
     #[error("Portfolio is incomplete")]
     IncompletePortfolio,
+    #[error("Portfolio write error")]
+    PortfolioWriteError,
     #[error("Zip error")]
     ZipError(#[from] async_zip::error::ZipError),
     #[error("Csv error")]
@@ -71,23 +69,24 @@ pub enum ServiceError {
 impl ServiceError {
     pub fn code(&self) -> u16 {
         match self {
+            // 40X
             ServiceError::InvalidApplicationId => 400,
-            ServiceError::InvalidCredentials => 401,
+            ServiceError::ParentOverflow => 400,
             ServiceError::Unauthorized => 401,
-            ServiceError::Forbidden => 403,
+            ServiceError::InvalidCredentials => 401,
             ServiceError::ExpiredSession => 401,
-            ServiceError::JwtError => 500,
-            ServiceError::UserAlreadyExists => 409,
+            ServiceError::Forbidden => 403,
             ServiceError::CandidateNotFound => 404,
+            ServiceError::IncompletePortfolio => 406,
+            ServiceError::UserAlreadyExists => 409,
+            // 500
             ServiceError::ParentNotFound => 500,
-            ServiceError::ParentOverflow => 400, // TODO: correct error code
             ServiceError::DbError(_) => 500,
-            ServiceError::UserNotFoundByJwtId => 500,
             ServiceError::UserNotFoundBySessionId => 500,
-            ServiceError::CryptoHashFailed => 500,
             ServiceError::CryptoEncryptFailed => 500,
             ServiceError::CryptoDecryptFailed => 500,
             ServiceError::CandidateDetailsNotSet => 500,
+            ServiceError::AgeNoRecipientsError => 500,
             ServiceError::AgeEncryptError(_) => 500,
             ServiceError::AgeDecryptError(_) => 500,
             ServiceError::AgeKeyError(_) => 500,
@@ -98,25 +97,10 @@ impl ServiceError {
             ServiceError::TokioJoinError(_) => 500,
             ServiceError::AesError(_) => 500,
             ServiceError::ArgonConfigError(_) => 500,
-            //TODO: Correct code
-            ServiceError::IncompletePortfolio => 406,
+            ServiceError::PortfolioWriteError => 500,
             ServiceError::ZipError(_) => 500,
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::ServiceError;
-
-    #[test]
-    fn test_service_error_code() {
-        let error = ServiceError::CryptoHashFailed;
-
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-        assert!(error.code() >= 100);
-        assert!(error.code() <= 599);
     }
 }

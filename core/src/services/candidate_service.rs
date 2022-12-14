@@ -10,7 +10,7 @@ use crate::{
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
 
-// TODO
+// TODO validation
 
 /* pub struct FieldOfStudy {
     pub short_name: String,
@@ -102,7 +102,7 @@ impl CandidateService {
     ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parents = Query::find_candidate_parents(db, candidate.clone()).await?; // TODO
+        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
 
             
             let new_password_plain = crypto::random_8_char_string();
@@ -118,7 +118,6 @@ impl CandidateService {
         Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
-        // TODO: make personal id number required
         let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
             .decrypt(&admin_private_key)
             .await?;
@@ -150,8 +149,8 @@ impl CandidateService {
         db: &DbConn,
         candidate: candidate::Model,
         details: &CandidateDetails,
+        recipients: &Vec<String>,
     ) -> Result<entity::candidate::Model, ServiceError> {
-        let recipients = get_recipients(db, &candidate.public_key).await?;
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
         let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
         Ok(model)
@@ -243,7 +242,7 @@ impl CandidateService {
     fn is_application_id_valid(application_id: i32) -> bool {
         let s = &application_id.to_string();
         if s.len() <= 3 {
-            // TODO: does the field of study prefix have to be exactly 6 digits?
+            // TODO: does the field of study prefix have to be exactly 6 digits? VYRESIT PODLE PRIHLASEK!!!
             return false;
         }
         let field_of_study_prefix = &s[0..3];

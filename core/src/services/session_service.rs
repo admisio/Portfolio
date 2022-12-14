@@ -109,7 +109,7 @@ impl SessionService {
         // delete old sessions
         SessionService::delete_old_sessions(db, user_id, admin_id, 3)
             .await
-            .ok(); // TODO move to dotenv
+            .ok();
 
         Ok(session.id.to_string())
     }
