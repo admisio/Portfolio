@@ -19,7 +19,6 @@ impl Query {
         Entity::find_by_id(id).one(db).await
     }
 
-    // TODO limit to two parents??
     pub async fn find_candidate_parents(
         db: &DbConn,
         candidate: candidate::Model,
