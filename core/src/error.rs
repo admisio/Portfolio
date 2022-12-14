@@ -21,15 +21,11 @@ pub enum ServiceError {
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
-    ParentOverflow,
-    #[error("Too many parents")]
     DbError(#[from] sea_orm::DbErr),
-    #[error("User not found, please contact technical support")]
-    UserNotFoundByJwtId,
+    #[error("Too many parents")]
+    ParentOverflow,
     #[error("User not found, please contact technical support")]
     UserNotFoundBySessionId,
-    #[error("Crypto hash failed, please contact technical support")]
-    CryptoHashFailed,
     #[error("Crypto encryption failed, please contact technical support")]
     CryptoEncryptFailed,
     #[error("Crypto decryption failed, please contact technical support")]
@@ -84,9 +80,7 @@ impl ServiceError {
             // 500
             ServiceError::ParentNotFound => 500,
             ServiceError::DbError(_) => 500,
-            ServiceError::UserNotFoundByJwtId => 500,
             ServiceError::UserNotFoundBySessionId => 500,
-            ServiceError::CryptoHashFailed => 500,
             ServiceError::CryptoEncryptFailed => 500,
             ServiceError::CryptoDecryptFailed => 500,
             ServiceError::CandidateDetailsNotSet => 500,
@@ -105,19 +99,5 @@ impl ServiceError {
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::ServiceError;
-
-    #[test]
-    fn test_service_error_code() {
-        let error = ServiceError::CryptoHashFailed;
-
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-        assert!(error.code() >= 100);
-        assert!(error.code() <= 599);
     }
 }
