@@ -16,16 +16,6 @@ impl ParentService {
         Ok(parent)
     }
 
-    /* pub async fn add_parent_details(
-        db: &DbConn,
-        parent: parent::Model,
-        enc_details: EncryptedParentDetails,
-    ) -> Result<parent::Model, ServiceError> {
-        let parent = Mutation::add_parent_details(db, parent, enc_details)
-            .await?;
-
-        Ok(parent)
-    } */
     pub async fn add_parents_details(
         db: &DbConn,
         ref_candidate: candidate::Model,

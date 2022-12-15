@@ -40,6 +40,10 @@ age =  { version = "^0.9", features = ["async"] }
 secrecy = { version = "^0.8" }
 base64 = "^0.13"
 
+# logging
+log = "0.4"
+fern = "0.6"
+
 [dependencies.sea-orm]
 version = "^0.10"
 features = [

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
+use logging::Logging;
 use rocket::fairing::{self, AdHoc, Fairing, Info, Kind};
 
 use rocket::http::Header;
@@ -13,6 +14,7 @@ mod guards;
 mod pool;
 mod requests;
 mod routes;
+mod logging;
 pub mod test;
 
 use pool::Db;
@@ -70,6 +72,25 @@ async fn hello() -> &'static str {
     "Hello, world!"
 }
 
+fn setup_logger() -> Result<(), fern::InitError> {
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+                record.target(),
+                record.level(),
+                message
+            ))
+        })
+        .filter(|m| m.target() != "_" && m.target() != "rocket::server") // suppress rocket.rs messages
+        .level(::log::LevelFilter::Info)
+        .chain(std::io::stdout())
+        .chain(fern::log_file("output.log")?)
+        .apply()?;
+    Ok(())
+}
+
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     let conn = &Db::fetch(&rocket).unwrap().conn;
     let _ = migration::Migrator::up(conn, None).await;
@@ -78,10 +99,10 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 
 pub fn rocket() -> Rocket<Build> {
     rocket::build()
+        .attach(Logging)
         .attach(CORS)
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
-        //.mount("/", FileServer::from(relative!("/static")))
         .mount("/", routes![hello, all_options])
         .mount(
             "/candidate/",
@@ -137,6 +158,11 @@ pub fn rocket() -> Rocket<Build> {
 
 #[tokio::main]
 async fn start() -> Result<(), rocket::Error> {
+    let result = setup_logger();
+    if let Some(err) = result.err() {
+        panic!("Error: {}", err);
+    }
+
     rocket().launch().await.map(|_| ())
 }
 

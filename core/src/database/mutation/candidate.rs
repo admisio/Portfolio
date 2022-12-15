@@ -1,6 +1,7 @@
 use crate::{Mutation, models::candidate_details::{EncryptedCandidateDetails}};
 
 use ::entity::candidate::{self};
+use log::{info, warn};
 use sea_orm::*;
 
 impl Mutation {
@@ -12,7 +13,7 @@ impl Mutation {
         pubkey: String,
         encrypted_priv_key: String,
     ) -> Result<candidate::Model, DbErr> {
-        candidate::ActiveModel {
+        let insert = candidate::ActiveModel {
             application: Set(application_id),
             personal_identification_number: Set(enc_personal_id_number),
             code: Set(hashed_password),
@@ -23,7 +24,10 @@ impl Mutation {
             ..Default::default()
         }
             .insert(db)
-            .await
+            .await?;
+
+        info!("CANDIDATE CREATED");
+        Ok(insert)
     }
 
     pub async fn update_candidate_password_and_keys(
@@ -38,7 +42,10 @@ impl Mutation {
         candidate.public_key = Set(pub_key);
         candidate.private_key = Set(priv_key_enc);
 
-        candidate.update(db).await
+        let update = candidate.update(db).await?;
+
+        warn!("CANDIDATE PASSWORD CHANGED");
+        Ok(update)
     }
 
     pub async fn add_candidate_details(
@@ -61,7 +68,11 @@ impl Mutation {
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 
-        user.update(db).await
+        let update = user.update(db).await?;
+
+        info!("CANDIDATE DETAILS ADDED");
+
+        Ok(update)
     }
 }
 

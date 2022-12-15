@@ -37,7 +37,8 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
         options
             .max_connections(1024)
             .min_connections(0)
-            .connect_timeout(Duration::from_secs(3));
+            .connect_timeout(Duration::from_secs(3))
+            .sqlx_logging(false);
             
             /* options
             .max_connections(config.max_connections as u32)

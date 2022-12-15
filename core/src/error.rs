@@ -103,4 +103,23 @@ impl ServiceError {
             ServiceError::CsvIntoInnerError => 500,
         }
     }
+
+    pub fn inner_trace(&self) -> Option<String> {
+        match self {
+            ServiceError::DbError(e) => Some(e.to_string()),
+            ServiceError::AgeEncryptError(e) => Some(e.to_string()),
+            ServiceError::AgeDecryptError(e) => Some(e.to_string()),
+            ServiceError::AgeKeyError(e) => Some(e.to_string()),
+            ServiceError::IOError(e) => Some(e.to_string()),
+            ServiceError::Base64DecodeError(e) => Some(e.to_string()),
+            ServiceError::UTF8DecodeError(e) => Some(e.to_string()),
+            ServiceError::ArgonHashError(e) => Some(e.to_string()),
+            ServiceError::TokioJoinError(e) => Some(e.to_string()),
+            ServiceError::AesError(e) => Some(e.to_string()),
+            ServiceError::ArgonConfigError(e) => Some(e.to_string()),
+            ServiceError::ZipError(e) => Some(e.to_string()),
+            ServiceError::CsvError(e) => Some(e.to_string()),
+            _ => None,
+        }
+    }
 }
