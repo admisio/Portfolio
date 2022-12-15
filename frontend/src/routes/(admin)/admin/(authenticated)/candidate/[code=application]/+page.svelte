@@ -5,7 +5,7 @@
 	export let data: PageData;
 </script>
 
-<CandidateDetails id={data.id} candidate={data.candidate} />
+<CandidateDetails id={data.id} candidateData={data.candidateData} />
 
 <style>
 </style>

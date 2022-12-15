@@ -3,7 +3,10 @@
 	import type { CandidateData } from '$lib/stores/candidate';
 
 	export let id: number;
-	export let candidate: CandidateData;
+	export let candidateData: CandidateData;
+
+	let candidate = candidateData.candidate;
+	let parents = candidateData.parents;
 
 	async function resetCandidatePassword() {
 		try {
@@ -63,31 +66,41 @@
 							<td class="px-2 py-2 font-semibold text-gray-500">Obor</td>
 							<td class="px-2 py-2">{candidate.study}</td>
 						</tr>
+						<tr>
+							<td class="px-2 py-2 font-semibold text-gray-500">Rodné číslo</td>
+							<td class="px-2 py-2">{candidate.personalIdNumber}</td>
+						</tr>
+						<tr>
+							<td class="px-2 py-2 font-semibold text-gray-500">Pohlaví</td>
+							<td class="px-2 py-2">{candidate.sex ?? "NEUVEDENO"}</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
 	<div class="max-w-sm">
-		<div class="rounded-lg bg-white p-10 shadow-xl">
-			<div class="p-2">
-				<h3 class="text-sspsBlue text-center  text-2xl font-medium font-semibold leading-8">
-					{candidate.parentName + ' ' + candidate.parentSurname}
-				</h3>
-				<table class="my-3 text-xs">
-					<tbody
-						><tr>
-							<td class="px-2 py-2 font-semibold text-gray-500">Telefon</td>
-							<td class="px-2 py-2">{candidate.parentTelephone}</td>
-						</tr>
-						<tr>
-							<td class="px-2 py-2 font-semibold text-gray-500">E-mail</td>
-							<td class="px-2 py-2">{candidate.parentEmail}</td>
-						</tr>
-					</tbody>
-				</table>
+		{#each parents as parent}
+			<div class="rounded-lg bg-white p-10 shadow-xl">
+				<div class="p-2">
+					<h3 class="text-sspsBlue text-center  text-2xl font-medium font-semibold leading-8">
+						{parent.name + ' ' + parent.surname}
+					</h3>
+					<table class="my-3 text-xs">
+						<tbody
+							><tr>
+								<td class="px-2 py-2 font-semibold text-gray-500">Telefon</td>
+								<td class="px-2 py-2">{parent.telephone}</td>
+							</tr>
+							<tr>
+								<td class="px-2 py-2 font-semibold text-gray-500">E-mail</td>
+								<td class="px-2 py-2">{parent.email}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
-		</div>
+	{/each}
 
 		<div class="my-8">
 			<div class="flex flex-col">
