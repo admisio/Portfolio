@@ -6,7 +6,10 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 	const { code } = params;
 	const codeNumber = Number(code);
 
-	let candidateData: CandidateData = {};
+	let candidateData: CandidateData = {
+		candidate: {},
+		parents: []
+	};
 	try {
 		candidateData = await apiFetchCandidate(codeNumber, fetch);
 	} catch (e) {
@@ -15,6 +18,6 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 
 	return {
 		id: codeNumber,
-		candidate: candidateData
+		candidateData: candidateData
 	};
 };
