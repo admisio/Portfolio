@@ -5,6 +5,7 @@ use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{FromRequest, Request};
 
+use crate::logging::format_request;
 use crate::pool::Db;
 
 pub struct CandidateAuth(Candidate, String);
@@ -51,8 +52,14 @@ impl<'r> FromRequest<'r> for CandidateAuth {
         let session = CandidateService::auth(conn, uuid).await;
 
         match session {
-            Ok(model) => Outcome::Success(CandidateAuth(model, private_key.to_string().to_string())),
-            Err(_) => Outcome::Failure((Status::Unauthorized, None)),
+            Ok(model) => {
+                info!("{}: CANDIDATE {} AUTHENTICATED", format_request(req), model.application);
+                Outcome::Success(CandidateAuth(model, private_key.to_string().to_string()))
+            },
+            Err(e) => {
+                info!("{}: CANDIDATE {} AUTHENTICATION FAILED", format_request(req), e);
+                Outcome::Failure((Status::Unauthorized, None))
+            },
         }
     }
 }

@@ -1,5 +1,6 @@
 use std::net::Ipv4Addr;
 
+use log::info;
 use rocket::{fairing::{Fairing, Info, Kind}, Request, Data};
 
 pub struct Logging;
@@ -13,8 +14,15 @@ impl Fairing for Logging {
         }
     }
 
-    async fn on_request(&self, request: &mut Request<'_>, d: &mut Data<'_>) {
-        let client_ip = request.client_ip().unwrap_or(std::net::IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))).to_string();
+    async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
+        let s = format_request(request);
+        info!("> {}", s);
+
+    }
+}
+
+pub fn format_request(request: &Request<'_>) -> String {
+    let client_ip = request.client_ip().unwrap_or(std::net::IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))).to_string();
 
         let method = request.method().to_string();
 
@@ -23,14 +31,12 @@ impl Fairing for Logging {
         let user_agent = request.headers().get_one("User-Agent").unwrap_or("").to_string();
         let content_length = request.headers().get_one("Content-Length").unwrap_or("").to_string();
 
-        info!("[{}] {} {} (User-Agent: {}, Content-Length: {}, Host: {})",
+        format!("[{}] {} {} (User-Agent: {}, Content-Length: {}, Host: {})",
             client_ip,
             method,
             uri,
             user_agent,
             content_length,
             host,
-        );
-
-    }
+        )
 }
