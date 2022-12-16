@@ -1,7 +1,7 @@
 use entity::{parent, candidate};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, Mutation, models::{candidate_details::{EncryptedParentDetails}, candidate::ParentDetails}, Query, utils::db::get_recipients};
+use crate::{error::ServiceError, Mutation, models::{candidate_details::{EncryptedParentDetails}, candidate::ParentDetails}, Query};
 
 pub struct ParentService;
 
@@ -22,7 +22,7 @@ impl ParentService {
         parents_details: &Vec<ParentDetails>,
         recipients: &Vec<String>,
     ) -> Result<Vec<parent::Model>, ServiceError> {
-        let found_parents = Query::find_candidate_parents(db, ref_candidate.clone()).await?;
+        let found_parents = Query::find_candidate_parents(db, &ref_candidate).await?;
         if found_parents.len() > 2 {
             return Err(ServiceError::ParentOverflow);
         }
@@ -48,7 +48,7 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::{tests::APPLICATION_DETAILS, EncryptedParentDetails, EncryptedApplicationDetails}}, services::{candidate_service::CandidateService, application_service::ApplicationService}, crypto};
+    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails}, services::{candidate_service::CandidateService, application_service::ApplicationService}, crypto};
 
     use super::ParentService;
 

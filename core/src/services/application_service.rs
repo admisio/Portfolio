@@ -43,7 +43,7 @@ impl ApplicationService {
         candidate: candidate::Model,
         // parents: Vec<parent::Model>,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
+        let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::try_from((candidate, parents))?;
 
         enc_details.decrypt(private_key).await

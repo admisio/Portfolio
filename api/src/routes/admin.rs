@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -59,7 +59,7 @@ pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &Coo
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
     
-    let res = AdminService::logout(db, session_id)
+    let _res = AdminService::logout(db, session_id)
         .await
         .map_err(to_custom_error)?;
 
@@ -137,6 +137,23 @@ pub async fn list_candidates(
     )
 }
 
+#[get("/candidates_csv")]
+pub async fn list_candidates_csv(
+    conn: Connection<'_, Db>,
+    session: AdminAuth,
+) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
+    let private_key = session.get_private_key();
+
+    let candidates = csv::export(db, private_key)
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok(
+        candidates
+    )
+}
+
 #[get("/candidate/<id>")]
 pub async fn get_candidate(
     conn: Connection<'_, Db>,
@@ -162,6 +179,24 @@ pub async fn get_candidate(
     Ok(
         Json(details)
     )
+}
+
+#[delete("/candidate/<id>")]
+pub async fn delete_candidate(
+    conn: Connection<'_, Db>,
+    _session: AdminAuth,
+    id: i32,
+) -> Result<(), Custom<String>> {
+    let db = conn.into_inner();
+
+    let candidate = Query::find_candidate_by_id(db, id)
+        .await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
+        .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    
+    CandidateService::delete_candidate(db, candidate)
+        .await
+        .map_err(to_custom_error)
 }
 
 #[post("/candidate/<id>/reset_password")]

@@ -150,9 +150,16 @@ pub fn rocket() -> Rocket<Build> {
                 routes::admin::get_candidate,
                 routes::admin::reset_candidate_password,
                 routes::admin::get_candidate_portfolio,
+                routes::admin::delete_candidate,
             ],
         )
-        .mount("/admin/list", routes![routes::admin::list_candidates,])
+        .mount(
+            "/admin/list",
+            routes![
+                routes::admin::list_candidates,
+                routes::admin::list_candidates_csv,
+            ]
+        )
         .register("/", catchers![])
 }
 

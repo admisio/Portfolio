@@ -63,7 +63,7 @@ pub struct ApplicationDetails {
 /// CSV export (admin endpoint)
 #[derive(FromQueryResult, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct CandidateWithParent {
+pub struct Row {
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
@@ -81,6 +81,11 @@ pub struct CandidateWithParent {
     pub parent_surname: Option<String>,
     pub parent_telephone: Option<String>,
     pub parent_email: Option<String>,
+
+    pub second_parent_name: Option<String>,
+    pub second_parent_surname: Option<String>,
+    pub second_parent_telephone: Option<String>,
+    pub second_parent_email: Option<String>,
 }
 
 impl BaseCandidateResponse {

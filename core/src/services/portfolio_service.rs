@@ -1,7 +1,7 @@
 use std::{path::{PathBuf, Path}};
 
 use entity::candidate;
-use log::info;
+use log::{info, warn};
 use sea_orm::{DbConn};
 use serde::{Serialize, ser::{SerializeStruct}};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -347,6 +347,18 @@ impl PortfolioService {
         }
 
         info!("PORTFOLIO {} DELETE FINISHED", candidate_id);
+
+        Ok(())
+    }
+
+    /// Deletes all candidate folder. Used ONLY when candidate is deleted!
+    pub async fn delete_candidate_root(candidate_id: i32) -> Result<(), ServiceError> {
+        warn!("CANDIDATE {} ROOT DIRECTORY DELETE STARTED", candidate_id);
+
+        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+        tokio::fs::remove_dir_all(path).await?;
+
+        warn!("CANDIDATE {} ROOT DIRECTORY DELETE FINISHED", candidate_id);
 
         Ok(())
     }
