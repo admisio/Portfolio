@@ -287,6 +287,6 @@ pub mod tests {
         let cookies = admin_login(&client);
         let response = create_candidate(&client, cookies, 1031511, "0".to_string());
     
-        assert_eq!(response.password.len(), 8);
+        assert_eq!(response.password.len(), 12);
     }
 }

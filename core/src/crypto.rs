@@ -13,7 +13,7 @@ use std::str::FromStr;
 
 use crate::error::ServiceError;
 
-/// Foolproof random 8 char string
+/// Foolproof random 12 char string
 /// only uppercase letters (except for 0 and O) and numbers
 pub fn random_12_char_string() -> String {
     let random_chars_12: Vec<char> = rand::thread_rng()
@@ -339,11 +339,11 @@ pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_random_8_char_string() {
+    fn test_random_12_char_string() {
         for _ in 0..1000 {
             let s = super::random_12_char_string();
             // Is 8 chars long
-            assert_eq!(s.len(), 8);
+            assert_eq!(s.len(), 12);
             // Does not contain possibly confusing characters
             assert!(!s.contains('0'));
             assert!(!s.contains('O'));
