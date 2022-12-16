@@ -89,7 +89,7 @@
 					type="text"
 				/>
 			{/each}
-			<span class="bg-sspsBlue mr-2 hidden h-2 w-8 sm:block" />
+			<span class="separater" />
 			{#each [5, 6, 7, 8] as value}
 				<input
 					class="codeInputDesktop"
@@ -100,6 +100,17 @@
 					type="text"
 				/>
 			{/each}
+			<span class="separater" />
+			{#each [9, 10, 11, 12] as value}
+			<input
+				class="codeInputDesktop"
+				bind:this={codeElementArray[value - 1]}
+				bind:value={codeValueArray[value - 1]}
+				on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+				on:paste|preventDefault={(e) => onPaste(e)}
+				type="text"
+			/>
+		{/each}
 		</div>
 		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
 			Zadejte 8místný kód pro aktivaci účtu
@@ -120,13 +131,16 @@
 		@apply text-sspsBlue text-center font-semibold;
 		@apply focus:border-sspsBlue hover:border-sspsBlue rounded-xl border border-2 bg-[#f8fafb] p-3 caret-transparent shadow-lg outline-none  transition-colors  duration-300;
 	}
+	.separater {
+		@apply bg-sspsBlue mr-2 hidden h-2 w-8 md:block
+	}
 	.codeInputMobile {
-		@apply sm:hidden;
+		@apply md:hidden;
 		@apply mx-5 w-full;
 	}
 	.codeInputDesktop {
 		@apply hidden;
 		@apply mr-1 md:mr-2;
-		@apply sm:h-15 xl:w-18 xl:h-22 sm:block sm:w-12 sm:text-xl md:h-20 md:w-16 md:text-4xl xl:p-0 xl:text-4xl;
+		@apply sm:h-15 xl:w-18 xl:h-22 md:block sm:w-12 sm:text-xl md:h-20 md:w-16 md:text-4xl xl:p-0 xl:text-4xl;
 	}
 </style>
