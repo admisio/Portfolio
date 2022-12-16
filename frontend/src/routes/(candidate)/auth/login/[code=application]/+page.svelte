@@ -36,7 +36,7 @@
 		codeValueMobile = codeValueArray.join('');
 	};
 
-	$: if (codeValueArray.length === 8) {
+	$: if (codeValueArray.length === 12) {
 		submit();
 	}
 
@@ -113,7 +113,7 @@
 			{/each}
 		</div>
 		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
-			Zadejte 8místný kód pro aktivaci účtu
+			Zadejte 12místný kód pro aktivaci účtu
 		</h3>
 		<p class="text-sspsGray mx-8 mt-8 text-center">Nevíte si rady? Klikněte <u>zde</u></p>
 	</div>
