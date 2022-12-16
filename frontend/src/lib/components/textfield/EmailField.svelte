@@ -15,6 +15,7 @@
 	on:keyup
 	on:change
 	type="email"
+	tooltip="Zadejte platný email.|radko.sablik@ssps.cz"
 	{placeholder}
 	icon
 >

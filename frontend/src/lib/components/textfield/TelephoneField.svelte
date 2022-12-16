@@ -17,7 +17,9 @@
 	}
 </script>
 
-<TextField bind:error bind:value on:keydown on:keyup on:change type="tel" {placeholder} icon>
+<TextField bind:error bind:value on:keydown on:keyup on:change type="tel"
+tooltip="Zadejte platné telefonní číslo.|+420 123 456 789"
+ {placeholder} icon>
 	<div slot="icon" class="flex items-center justify-center">
 		<Telephone />
 	</div>

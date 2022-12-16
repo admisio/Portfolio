@@ -26,7 +26,7 @@
 	export let error: string = '';
 </script>
 
-<TextField bind:error bind:value on:click on:keydown on:keyup on:change type="text" {placeholder} />
+<TextField tooltip="Zadejte platné jméno a příjmení.|Radko Sáblík" bind:error bind:value on:click on:keydown on:keyup on:change type="text" {placeholder} />
 
 <style>
 </style>

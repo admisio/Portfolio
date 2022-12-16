@@ -224,7 +224,7 @@
 					elit.
 				</p>
 				<div class="flex w-full items-center justify-center md:flex-col">
-					<span class="mt-8 w-full">
+					<span class="field w-full">
 						<NameField
 							error={$typedErrors['candidate']['name']}
 							on:change={handleChange}
@@ -233,7 +233,7 @@
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
-					<span class="mt-8 ml-2 w-full md:ml-0">
+					<span class="field ml-2 w-full md:ml-0">
 						<EmailField
 							error={$typedErrors['candidate']['email']}
 							on:change={handleChange}
@@ -242,7 +242,7 @@
 						/>
 					</span>
 				</div>
-				<div class="mt-8 w-full">
+				<div class="field w-full">
 					<TelephoneField
 						error={$typedErrors['candidate']['telephone']}
 						on:change={handleChange}
@@ -258,7 +258,7 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
-				<span class="mt-8 w-full">
+				<span class="field w-full">
 					<TextField
 						error={$typedErrors['candidate']['address']}
 						on:change={handleChange}
@@ -267,13 +267,14 @@
 						placeholder="Adresa trvalého bydliště"
 					/>
 				</span>
-				<span class="mt-8 ml-2 w-full md:ml-0">
+				<span class="field ml-2 w-full md:ml-0">
 					<TextField
 						error={$typedErrors['candidate']['birthplace']}
 						on:change={handleChange}
 						bind:value={$form.candidate.birthplace}
 						type="text"
 						placeholder="Místo narození"
+						tooltip="Zadejte Vaše místo narození|Praha 1"
 						icon
 					>
 						<div slot="icon" class="text-sspsBlue flex items-center justify-center">
@@ -283,13 +284,14 @@
 				</span>
 			</div>
 
-			<div class="mt-8 flex w-full items-center">
+			<div class="field flex w-full items-center">
 				<TextField
 					error={$typedErrors['candidate']['birthdate']}
 					on:change={handleChange}
 					bind:value={$form.candidate.birthdate}
 					type="text"
 					placeholder="Datum narození"
+					tooltip="Zadejte datum narození|1.1.2000"
 				/>
 				<div class="ml-2">
 					<SelectField
@@ -308,7 +310,7 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex w-full flex-col">
-				<span class="mt-8 w-full">
+				<span class="field w-full">
 					<NameField
 						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
@@ -317,7 +319,7 @@
 						placeholder="Jméno a příjmení zákonného zástupce"
 					/>
 				</span>
-				<div class="mt-8 flex flex-row items-center md:flex-col">
+				<div class="field flex flex-row items-center md:flex-col">
 					<span class="w-full">
 						<EmailField
 							error={$typedErrors['parents'][0]['email']}
@@ -326,7 +328,7 @@
 							placeholder="E-mail zákonného zástupce"
 						/>
 					</span>
-					<span class="ml-2 w-full md:ml-0 md:mt-8">
+					<span class="field ml-2 w-full md:ml-0 md:mt-8">
 						<TelephoneField
 							error={$typedErrors['parents'][0]['telephone']}
 							on:change={handleChange}
@@ -378,20 +380,21 @@
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
-				<span class="mt-8 w-full">
+				<span class="field w-full">
 					<TextField
 						error={$typedErrors['candidate']['citizenship']}
 						on:change={handleChange}
 						bind:value={$form.candidate.citizenship}
 						type="text"
 						placeholder="Občanství"
+						tooltip="Vyberte zemi, ve které máte občanství|Česká republika"
 					/>
 				</span>
-				<span class="mt-8 ml-2 w-full md:ml-0">
+				<span class="field ml-2 w-full md:ml-0">
 					<TextField on:change={handleChange} type="text" placeholder="Evidenční číslo přihlášky" />
 				</span>
 			</div>
-			<div class="mt-8 flex w-full items-center justify-center">
+			<div class="field flex w-full items-center justify-center">
 				<IdField
 					error={$typedErrors['candidate']['personalIdNumber']}
 					on:change={handleChange}
@@ -463,6 +466,9 @@
 		@apply flex flex-col;
 		@apply w-full;
 		@apply items-center justify-center;
+	}
+	.field {
+		@apply mt-12;
 	}
 	.dot {
 		@apply @apply hover:bg-sspsBlue @apply 

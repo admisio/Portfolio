@@ -13,7 +13,7 @@
 	}
 </script>
 
-<TextField bind:error bind:value on:keydown on:keyup on:change type="text" {placeholder} icon>
+<TextField bind:error bind:value on:keydown on:keyup on:change type="text" {placeholder} tooltip="Zadejte rodné číslo|000101/0123" icon>
 	<div slot="icon" class="flex items-center justify-center">
 		<Person />
 	</div>
