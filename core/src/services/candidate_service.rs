@@ -145,6 +145,13 @@ impl CandidateService {
         Ok(())
     }
 
+    pub async fn delete_candidate(db: &DbConn, candidate: candidate::Model) -> Result<(), ServiceError> {
+        PortfolioService::delete_candidate_root(candidate.application).await?;
+
+        Mutation::delete_candidate(db, candidate).await?;
+        Ok(())
+    }
+
     pub(in crate::services) async fn add_candidate_details(
         db: &DbConn,
         candidate: candidate::Model,
@@ -374,7 +381,7 @@ pub mod tests {
 
     #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (candidate::Model, Vec<parent::Model>) {
-        use crate::{models::candidate_details::tests::APPLICATION_DETAILS};
+        use crate::models::candidate_details::tests::APPLICATION_DETAILS;
 
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(

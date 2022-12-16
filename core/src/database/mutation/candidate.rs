@@ -30,6 +30,17 @@ impl Mutation {
         Ok(insert)
     }
 
+    pub async fn delete_candidate(
+        db: &DbConn,
+        candidate: candidate::Model,
+    ) -> Result<DeleteResult, DbErr> {
+        let application = candidate.application;
+        let delete = candidate.delete(db).await?;
+
+        warn!("CANDIDATE {} DELETED", application);
+        Ok(delete)
+    }
+
     pub async fn update_candidate_password_and_keys(
         db: &DbConn,
         candidate: candidate::Model,

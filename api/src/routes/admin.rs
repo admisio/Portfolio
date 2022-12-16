@@ -181,6 +181,24 @@ pub async fn get_candidate(
     )
 }
 
+#[delete("/candidate/<id>")]
+pub async fn delete_candidate(
+    conn: Connection<'_, Db>,
+    _session: AdminAuth,
+    id: i32,
+) -> Result<(), Custom<String>> {
+    let db = conn.into_inner();
+
+    let candidate = Query::find_candidate_by_id(db, id)
+        .await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
+        .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    
+    CandidateService::delete_candidate(db, candidate)
+        .await
+        .map_err(to_custom_error)
+}
+
 #[post("/candidate/<id>/reset_password")]
 pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,

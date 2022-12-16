@@ -150,6 +150,7 @@ pub fn rocket() -> Rocket<Build> {
                 routes::admin::get_candidate,
                 routes::admin::reset_candidate_password,
                 routes::admin::get_candidate_portfolio,
+                routes::admin::delete_candidate,
             ],
         )
         .mount(
