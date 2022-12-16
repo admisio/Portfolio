@@ -152,7 +152,13 @@ pub fn rocket() -> Rocket<Build> {
                 routes::admin::get_candidate_portfolio,
             ],
         )
-        .mount("/admin/list", routes![routes::admin::list_candidates,])
+        .mount(
+            "/admin/list",
+            routes![
+                routes::admin::list_candidates,
+                routes::admin::list_candidates_csv,
+            ]
+        )
         .register("/", catchers![])
 }
 

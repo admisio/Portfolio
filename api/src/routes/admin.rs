@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_8_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -134,6 +134,23 @@ pub async fn list_candidates(
 
     Ok(
         Json(candidates)
+    )
+}
+
+#[get("/candidates_csv")]
+pub async fn list_candidates_csv(
+    conn: Connection<'_, Db>,
+    session: AdminAuth,
+) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
+    let private_key = session.get_private_key();
+
+    let candidates = csv::export(db, private_key)
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok(
+        candidates
     )
 }
 
