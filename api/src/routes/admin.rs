@@ -59,7 +59,7 @@ pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &Coo
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
     
-    let res = AdminService::logout(db, session_id)
+    let _res = AdminService::logout(db, session_id)
         .await
         .map_err(to_custom_error)?;
 
