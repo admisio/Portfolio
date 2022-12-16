@@ -20,8 +20,8 @@ serde_json = { version = "^1.0" }
 chrono = "^0.4"
 
 # logging
-log = "0.4"
-fern = "0.6"
+log = "^0.4"
+fern = "^0.6"
 
 portfolio-entity = { path = "../entity" }
 portfolio-migration = { path = "../migration" }
