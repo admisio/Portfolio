@@ -1,6 +1,7 @@
 use std::{path::{PathBuf, Path}};
 
 use entity::candidate;
+use log::info;
 use sea_orm::{DbConn};
 use serde::{Serialize, ser::{SerializeStruct}};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -136,12 +137,15 @@ impl PortfolioService {
         data: Vec<u8>,
         filename: FileType,
     ) -> Result<(), ServiceError> {
+        info!("PORTFOLIO {} CACHE {} WRITE STARTED", candidate_id, filename.as_str());
+
         let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
 
         let mut file = tokio::fs::File::create(cache_path.join(filename.as_str())).await?;
 
         file.write_all(&data).await?;
 
+        info!("PORTFOLIO {} CACHE {} WRITE FINISHED", candidate_id, filename.as_str());
         Ok(())
     }
 
@@ -271,6 +275,8 @@ impl PortfolioService {
         if Self::is_portfolio_prepared(candidate_id).await == false {
             return Err(ServiceError::IncompletePortfolio);
         }
+        
+        info!("PORTFOLIO {} SUBMIT STARTED", candidate.application);
 
         let mut archive = tokio::fs::File::create(path.join(FileType::PortfolioZip.as_str())).await?;
         let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
@@ -319,11 +325,14 @@ impl PortfolioService {
             return Err(ServiceError::PortfolioWriteError)
         }
 
+        info!("PORTFOLIO {} SUBMIT FINISHED", candidate_id);
+
         Ok(())
     }
 
     /// Delete PORTFOLIO.age file
     pub async fn delete_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
+        info!("PORTFOLIO {} DELETE STARTED", candidate_id);
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
         let portfolio_path = path.join(FileType::PortfolioZip.as_str());
@@ -337,6 +346,8 @@ impl PortfolioService {
             tokio::fs::remove_file(&portfolio_age_path).await?;
         }
 
+        info!("PORTFOLIO {} DELETE FINISHED", candidate_id);
+
         Ok(())
     }
 
@@ -349,13 +360,14 @@ impl PortfolioService {
 
     /// Returns decrypted portfolio zip as Vec of bytes
     pub async fn get_portfolio(candidate_id: i32, private_key: String) -> Result<Vec<u8>, ServiceError> {
+        info!("PORTFOLIO {} DECRYPT STARTED", candidate_id);
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
 
         let path = path.join(FileType::Age.as_str());
 
-        let buffer =
-            crypto::decrypt_file_with_private_key_as_buffer(path, &private_key).await?;
+        let buffer = crypto::decrypt_file_with_private_key_as_buffer(path, &private_key).await?;
 
+        info!("PORTFOLIO {} DECRYPT FINISHED", candidate_id);
         Ok(buffer)
     }
 }

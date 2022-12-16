@@ -1,10 +1,12 @@
 use entity::admin::Model as Admin;
+use log::info;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::admin_service::AdminService;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{FromRequest, Request};
 
+use crate::logging::format_request;
 use crate::pool::Db;
 
 pub struct AdminAuth(Admin, String);
@@ -49,10 +51,14 @@ impl<'r> FromRequest<'r> for AdminAuth {
         let session = AdminService::auth(conn, uuid).await;
 
         match session {
-            Ok(model) => Outcome::Success(AdminAuth(model, private_key.to_string())),
-            Err(e) => Outcome::Failure(
-                (Status::from_code(e.code()).unwrap_or(Status::Unauthorized), None)
-            ),
+            Ok(model) => {
+                warn!("{}: ADMIN {} AUTHENTICATED", format_request(req), model.id);
+                Outcome::Success(AdminAuth(model, private_key.to_string()))
+            },
+            Err(e) => {
+                info!("{}: ADMIN AUTHENTICATION FAILED: {}", format_request(req), e);
+                Outcome::Failure((Status::Unauthorized, None))
+        },
         }
 
     }
