@@ -126,6 +126,12 @@
 						.reverse()
 						.join('-');
 
+					if (values.parents[1].name === '' && values.parents[1].surname === '' && 
+					    values.parents[1].email === '' && values.parents[1].telephone === ''
+					) {
+						values.parents.pop();
+					}
+
 					values.candidate.birthdate = birthdate_formttted;
 
 					await apiFillDetails(values);
@@ -421,8 +427,11 @@
 					if (isPageInvalid()) return;
 					if (pageIndex === pageCount) {
 					} else {
-						pagesFilled++;
 						pageIndex++;
+
+						if (pagesFilled < pageIndex) {
+							pagesFilled++;
+						}
 					}
 					// @ts-ignore
 					errors.set(formInitialValues);
