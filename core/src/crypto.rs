@@ -14,7 +14,7 @@ use std::str::FromStr;
 use crate::error::ServiceError;
 
 /// Foolproof random 12 char string
-/// only uppercase letters (except for 0 and O) and numbers
+/// Only uppercase letters (except for O) and numbers (except for 0)
 pub fn random_12_char_string() -> String {
     let random_chars_12: Vec<char> = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
