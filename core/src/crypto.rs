@@ -13,24 +13,29 @@ use std::str::FromStr;
 
 use crate::error::ServiceError;
 
-/// Foolproof random 8 char string
-/// only uppercase letters (except for 0 and O) and numbers
-pub fn random_8_char_string() -> String {
-    let iterator = rand::thread_rng()
+/// Foolproof random 12 char string
+/// Only uppercase letters (except for O) and numbers (except for 0)
+pub fn random_12_char_string() -> String {
+    let random_chars_12: Vec<char> = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
-        .map(char::from);
+        .map(char::from)
+        .filter(is_usable_char)
+        .take(12)
+        .collect();
+    
+    random_chars_12
+        .iter()
+        .map(|c| c.to_string())
+        .collect::<Vec<String>>()
+        .join("")
+}
 
-    let mut s = String::new();
-    for c in iterator {
-        // add all characters except for: lowercase chars, 0 and O
-        if ('1'..='9').contains(&c) || ('A'..='N').contains(&c) || ('P'..'Z').contains(&c) {
-            s.push(c);
-            if s.len() == 8 {
-                break;
-            }
-        }
-    }
-    s
+/// Exclude O and 0, lowercase letters
+fn is_usable_char(c: &char) -> bool {
+    ('1'..='9').contains(&c) ||
+    ('A'..='N').contains(&c) ||
+    ('P'..'Z').contains(&c) ||
+    ['@', '#', '$', '%'].contains(&c)
 }
 
 pub async fn hash_password(password_plain_text: String) -> Result<String, ServiceError> {
@@ -334,11 +339,11 @@ pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_random_8_char_string() {
+    fn test_random_12_char_string() {
         for _ in 0..1000 {
-            let s = super::random_8_char_string();
+            let s = super::random_12_char_string();
             // Is 8 chars long
-            assert_eq!(s.len(), 8);
+            assert_eq!(s.len(), 12);
             // Does not contain possibly confusing characters
             assert!(!s.contains('0'));
             assert!(!s.contains('O'));
@@ -388,7 +393,7 @@ mod tests {
         );
         assert!(key_2.len() >= 32);
 
-        let key_3 = super::convert_key_aes256(&super::random_8_char_string());
+        let key_3 = super::convert_key_aes256(&super::random_12_char_string());
         assert!(key_3.len() >= 32);
     }
 

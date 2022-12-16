@@ -105,7 +105,7 @@ impl CandidateService {
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
             
-            let new_password_plain = crypto::random_8_char_string();
+        let new_password_plain = crypto::random_12_char_string();
         let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
 
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
