@@ -1,7 +1,7 @@
 use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
-    crypto::random_8_char_string,
+    crypto::random_12_char_string,
     services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
@@ -90,7 +90,7 @@ pub async fn create_candidate(
     let db = conn.into_inner();
     let form = request.into_inner();
 
-    let plain_text_password = random_8_char_string();
+    let plain_text_password = random_12_char_string();
 
     ApplicationService::create_candidate_with_parent(
         db,
@@ -287,6 +287,6 @@ pub mod tests {
         let cookies = admin_login(&client);
         let response = create_candidate(&client, cookies, 1031511, "0".to_string());
     
-        assert_eq!(response.password.len(), 8);
+        assert_eq!(response.password.len(), 12);
     }
 }
