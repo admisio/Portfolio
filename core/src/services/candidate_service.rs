@@ -102,7 +102,7 @@ impl CandidateService {
     ) -> Result<CreateCandidateResponse, ServiceError> {
         let candidate = Query::find_candidate_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
-        let parents = Query::find_candidate_parents(db, candidate.clone()).await?;
+        let parents = Query::find_candidate_parents(db, &candidate).await?;
 
             
             let new_password_plain = crypto::random_8_char_string();
@@ -163,7 +163,7 @@ impl CandidateService {
         page: Option<u64>,
     ) -> Result<Vec<BaseCandidateResponse>, ServiceError> {
 
-        let candidates = Query::list_candidates(
+        let candidates = Query::list_candidates_preview(
             db,
             field_of_study,
             page
@@ -374,7 +374,7 @@ pub mod tests {
 
     #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (candidate::Model, Vec<parent::Model>) {
-        use crate::{models::candidate_details::tests::APPLICATION_DETAILS, Query};
+        use crate::{models::candidate_details::tests::APPLICATION_DETAILS};
 
         let plain_text_password = "test".to_string();
         let (candidate, _parent) = ApplicationService::create_candidate_with_parent(

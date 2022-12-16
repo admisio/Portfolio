@@ -2,7 +2,7 @@ use sea_orm::*;
 
 use ::entity::{candidate, candidate::Entity as Candidate, parent};
 
-use crate::{Query, models::candidate::CandidateWithParent};
+use crate::Query;
 
 pub const PAGE_SIZE: u64 = 20;
 
@@ -39,7 +39,7 @@ impl Query {
             .await
     }
 
-    pub async fn list_candidates(
+    pub async fn list_candidates_preview(
         db: &DbConn,
         field_of_study_opt: Option<String>,
         page: Option<u64>,
@@ -64,18 +64,11 @@ impl Query {
         }
     }
 
-
-    pub async fn list_all_candidates_with_parents(
-        db: &DbConn,
-    ) -> Result<Vec<CandidateWithParent>, DbErr> {
+    pub async fn list_candidates_full(
+        db: &DbConn
+    ) -> Result<Vec<candidate::Model>, DbErr> {
         Candidate::find()
             .order_by(candidate::Column::Application, Order::Asc)
-            .join(JoinType::InnerJoin, candidate::Relation::Parent.def())
-            .column_as(parent::Column::Name, "parent_name")
-            .column_as(parent::Column::Surname, "parent_surname")
-            .column_as(parent::Column::Telephone, "parent_telephone")
-            .column_as(parent::Column::Email, "parent_email")
-            .into_model::<CandidateWithParent>()
             .all(db)
             .await
     }

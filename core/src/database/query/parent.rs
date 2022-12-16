@@ -21,7 +21,7 @@ impl Query {
 
     pub async fn find_candidate_parents(
         db: &DbConn,
-        candidate: candidate::Model,
+        candidate: &candidate::Model,
     ) -> Result<Vec<Model>, DbErr> {
 
         candidate.find_related(parent::Entity)

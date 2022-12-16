@@ -3,7 +3,7 @@ use chrono::NaiveDate;
 use entity::{candidate, parent};
 use futures::future;
 
-use crate::{crypto, models::candidate::{CandidateWithParent, ApplicationDetails}, error::ServiceError};
+use crate::{crypto, models::candidate::{Row, ApplicationDetails}, error::ServiceError};
 
 use super::candidate::{CandidateDetails, ParentDetails};
 
@@ -290,11 +290,11 @@ impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDet
     }
 }
 
-impl TryFrom<CandidateWithParent> for EncryptedApplicationDetails {
+impl TryFrom<Row> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        cp: CandidateWithParent,
+        cp: Row,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails {
