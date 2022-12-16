@@ -18,7 +18,7 @@
 	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 
-	const pageCount = 3;
+	const pageCount = 4;
 	let pageIndex = 0;
 	let pagesFilled = 0;
 
@@ -34,9 +34,15 @@
 			address: '',
 			citizenship: '',
 			personalIdNumber: '',
-			study: '',
+			study: ''
 		},
 		parents: [
+			{
+				name: '',
+				surname: '',
+				email: '',
+				telephone: ''
+			},
 			{
 				name: '',
 				surname: '',
@@ -66,20 +72,37 @@
 			personalIdNumber: yup.string().required(),
 			study: yup.string().required()
 		}),
-		parents: yup
-			.array()
-			.of(
-				yup.object().shape({
-					name: yup.string().required(),
-					surname: yup.string().required(),
-					email: yup.string().email().required(),
-					telephone: yup
-						.string()
-						.required()
-						.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/)
+		parents: yup.array().of(
+			yup.object().shape({
+				name: yup.string().test((_val, context) => {
+					if (context.path.includes('parents[1]')) {
+						return true;
+					}
+					return _val !== '';
+				}),
+				surname: yup.string().test((_val, context) => {
+					if (context.path.includes('parents[1]')) {
+						return true;
+					}
+					return _val !== '';
+				}),
+				email: yup
+					.string()
+					.email()
+					.test((_val, context) => {
+						if (context.path.includes('parents[1]')) {
+							return true;
+						}
+						return _val !== '';
+					}),
+				telephone: yup.string().test((_val, context) => {
+					if (context.path.includes('parents[1]')) {
+						return true;
+					}
+					return _val?.match(/^\+\d{1,3} \d{3} \d{3} \d{3}$/) !== null;
 				})
-			)
-			.required()
+			})
+		)
 	});
 
 	const { form, errors, handleSubmit, handleChange } = createForm({
@@ -145,14 +168,16 @@
 			case 1:
 				if (
 					/* $typedErrors.birthdurname || */ $typedErrors['candidate']['birthplace'] ||
-					$typedErrors['candidate']['birthdate'] /* || $typedErrors.sex */
+					$typedErrors['candidate']['birthdate'] ||
+					$typedErrors['candidate']['address'] /* || $typedErrors.sex */
 				) {
 					return true;
 				}
 				break;
 			case 2:
 				if (
-					$typedErrors['candidate']['address'] ||
+					$typedErrors['parents'][0]['name'] ||
+					$typedErrors['parents'][0]['surname'] ||
 					$typedErrors['parents'][0]['email'] ||
 					$typedErrors['parents'][0]['telephone']
 				) {
@@ -160,6 +185,16 @@
 				}
 				break;
 			case 3:
+				if (
+					$typedErrors['parents'][1]['name'] ||
+					$typedErrors['parents'][1]['surname'] ||
+					$typedErrors['parents'][1]['email'] ||
+					$typedErrors['parents'][1]['telephone']
+				) {
+					return true;
+				}
+				break;
+			case 4:
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
@@ -224,12 +259,12 @@
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
-					<NameField
-						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
+					<TextField
+						error={$typedErrors['candidate']['address']}
 						on:change={handleChange}
-						bind:valueName={$form.parents[0].name}
-						bind:valueSurname={$form.parents[0].surname}
-						placeholder="Jméno a příjmení zákonného zástupce"
+						bind:value={$form.candidate.address}
+						type="text"
+						placeholder="Adresa trvalého bydliště"
 					/>
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
@@ -274,12 +309,12 @@
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
-					<TextField
-						error={$typedErrors['candidate']['address']}
+					<NameField
+						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
-						bind:value={$form.candidate.address}
-						type="text"
-						placeholder="Adresa trvalého bydliště"
+						bind:valueName={$form.parents[0].name}
+						bind:valueSurname={$form.parents[0].surname}
+						placeholder="Jméno a příjmení zákonného zástupce"
 					/>
 				</span>
 				<div class="mt-8 flex flex-row items-center md:flex-col">
@@ -303,6 +338,41 @@
 			</div>
 		{/if}
 		{#if pageIndex === 3}
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Dobrovolné!</h1>
+			<p class="text-sspsGray mt-8 block text-center font-light">
+				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+			</p>
+			<div class="flex w-full flex-col">
+				<span class="mt-8 w-full">
+					<NameField
+						error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
+						on:change={handleChange}
+						bind:valueName={$form.parents[1].name}
+						bind:valueSurname={$form.parents[1].surname}
+						placeholder="Jméno a příjmení zákonného zástupce"
+					/>
+				</span>
+				<div class="mt-8 flex flex-row items-center md:flex-col">
+					<span class="w-full">
+						<EmailField
+							error={$typedErrors['parents'][1]['email']}
+							on:change={handleChange}
+							bind:value={$form.parents[1].email}
+							placeholder="E-mail zákonného zástupce"
+						/>
+					</span>
+					<span class="ml-2 w-full md:ml-0 md:mt-8">
+						<TelephoneField
+							error={$typedErrors['parents'][1]['telephone']}
+							on:change={handleChange}
+							bind:value={$form.parents[1].telephone}
+							placeholder="Telefon zákonného zástupce"
+						/>
+					</span>
+				</div>
+			</div>
+		{/if}
+		{#if pageIndex === 4}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Poslední krok</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
