@@ -220,8 +220,7 @@
 			<form on:submit={handleSubmit}>
 				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Registrace</h1>
 				<p class="text-sspsGray mt-8 block text-center font-light">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget
-					elit.
+					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který vám pomůže s vyplněním potřebných údajů.
 				</p>
 				<div class="flex w-full items-center justify-center md:flex-col">
 					<span class="mt-8 w-full">
@@ -255,7 +254,7 @@
 		{#if pageIndex === 1}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Něco o tobě</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Pro registraci je potřeba vyplnit několik údajů o tobě. Tyto údaje budou použity pro přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
@@ -305,7 +304,7 @@
 		{#if pageIndex === 2}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Už jen kousek!</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
@@ -340,7 +339,7 @@
 		{#if pageIndex === 3}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Dobrovolné!</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				V případě, že máte druhého zákonného zástupce (např. otec a matka), můžete jej zde zadat.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
@@ -375,7 +374,7 @@
 		{#if pageIndex === 4}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Poslední krok</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
