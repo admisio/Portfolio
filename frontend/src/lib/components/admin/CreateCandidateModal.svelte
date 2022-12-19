@@ -7,6 +7,7 @@
 	import NumberField from '../textfield/NumberField.svelte';
 
 	let isOpened = true;
+	let isInvalid = false;
 
 	let applicationId: string = '';
 	let personalId: string = '';
@@ -20,6 +21,16 @@
 			applicationId: Number(applicationId),
 			personalIdNumber: personalId
 		};
+		if (!(applicationId.startsWith("101") ||
+			applicationId.startsWith("102") ||
+			applicationId.startsWith("103"))
+		) {
+			isInvalid = true;
+			setTimeout(() => {
+				isInvalid = false
+			}, 3000);
+			return;
+		}
 		try {
 			login = await apiCreateCandidate(data);
 			dispatch('created');
@@ -43,7 +54,9 @@
 			{:else}
 				<h1 class="text-sspsBlue text-3xl font-semibold">Registrace nového uchazeče</h1>
 				<h3 class="my-4">Evidenčni číslo přihlášky</h3>
-				<NumberField bind:value={applicationId} />
+				<div class="rounded-xl" class:invalid={isInvalid}>
+					<NumberField bind:value={applicationId} />
+				</div>
 				<h3 class="my-4">Rodné číslo</h3>
 				<IdField bind:value={personalId} />
 				<input
@@ -58,4 +71,8 @@
 {/if}
 
 <style>
+	.invalid {
+		@apply border-4;
+		@apply border-red-700;
+	}
 </style>
