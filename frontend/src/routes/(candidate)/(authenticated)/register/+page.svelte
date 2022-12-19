@@ -24,6 +24,7 @@
 	let pagesFilled = 0;
 
 	const formInitialValues = {
+		gdpr: false,
 		candidate: {
 			name: '',
 			surname: '',
@@ -54,6 +55,7 @@
 	};
 
 	const formValidationSchema = yup.object().shape({
+		gdpr: yup.boolean().oneOf([true]),
 		candidate: yup.object().shape({
 			name: yup.string().required(),
 			surname: yup.string(),
@@ -156,6 +158,11 @@
 
 	const isPageInvalid = (): boolean => {
 		switch (pageIndex) {
+			case 0:
+				if ($typedErrors['gdpr']) {
+					return true;
+				}
+				break;
 			case 1:
 				if (
 					$typedErrors['candidate']['name'] ||
@@ -221,10 +228,15 @@
 			<form on:submit={handleSubmit}>
 				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Váš souhlas</h1>
 				<p class="text-sspsGray mt-8 block text-center font-light">
-					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš souhlas s jejich zpracováním.
+					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
+					souhlas s jejich zpracováním.
 				</p>
 				<div class="mt-8 w-full">
-					<GdprCheckBox />
+					<GdprCheckBox
+						on:change={handleChange}
+						bind:value={$form.gdpr}
+						error={$typedErrors['gdpr']}
+					/>
 				</div>
 			</form>
 		{:else if pageIndex === 1}
