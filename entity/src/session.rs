@@ -12,6 +12,7 @@ pub struct Model {
     pub ip_address: String,
     pub created_at: DateTime,
     pub expires_at: DateTime,
+    pub updated_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

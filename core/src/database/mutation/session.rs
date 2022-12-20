@@ -1,4 +1,4 @@
-use chrono::{Utc, Duration};
+use chrono::{Utc, Duration, NaiveDateTime};
 use ::entity::session;
 use sea_orm::{*, prelude::Uuid};
 
@@ -21,11 +21,24 @@ impl Mutation {
             created_at: Set(Utc::now().naive_local()),
             expires_at: Set(Utc::now()
                 .naive_local()
-                .checked_add_signed(Duration::days(1))
+                .checked_add_signed(Duration::days(14))
                 .unwrap()),
+            updated_at: Set(Utc::now().naive_local())
         }
         .insert(db)
         .await
+    }
+
+    pub async fn update_session_expiration(db: &DbConn, 
+        session: session::Model, 
+        expires_at: NaiveDateTime,
+    ) -> Result<session::Model, DbErr> {
+        let mut session = session.into_active_model();
+
+        session.expires_at = Set(expires_at);
+        session.updated_at = Set(Utc::now().naive_local());
+        
+        session.update(db).await
     }
 
     pub async fn delete_session(db: &DbConn, session_id: Uuid) -> Result<DeleteResult, DbErr> {

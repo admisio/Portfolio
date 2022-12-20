@@ -1,7 +1,8 @@
 use std::cmp::min;
 
-use entity::{admin, candidate};
-use sea_orm::{prelude::Uuid, DatabaseConnection, ModelTrait, DbConn};
+use chrono::Duration;
+use entity::{admin, candidate, session};
+use sea_orm::{prelude::Uuid, ModelTrait, DbConn};
 
 use crate::{
     crypto::{self},
@@ -19,7 +20,7 @@ pub(in crate::services) struct SessionService;
 impl SessionService {
     /// Delete n old sessions for user
     async fn delete_old_sessions(
-        db: &DatabaseConnection,
+        db: &DbConn,
         user_id: Option<i32>,
         admin_id: Option<i32>,
         keep_n_recent: usize,
@@ -42,7 +43,7 @@ impl SessionService {
 
     /// Authenticate user by application id and password and generate a new session
     pub async fn new_session(
-        db: &DatabaseConnection,
+        db: &DbConn,
         user_id: Option<i32>,
         admin_id: Option<i32>,
         password: String,
@@ -97,14 +98,7 @@ impl SessionService {
         // user is authenticated, generate a new session
         let random_uuid: Uuid = Uuid::new_v4();
 
-        let session =
-            match Mutation::insert_session(db, user_id, admin_id, random_uuid, ip_addr).await {
-                Ok(session) => session,
-                Err(e) => {
-                    eprintln!("Error creating session: {}", e);
-                    return Err(ServiceError::DbError(e));
-                }
-            };
+        let session = Mutation::insert_session(db, user_id, admin_id, random_uuid, ip_addr).await?;
 
         // delete old sessions
         SessionService::delete_old_sessions(db, user_id, admin_id, 3)
@@ -118,28 +112,43 @@ impl SessionService {
         Self::delete_old_sessions(db, user_id, admin_id, 0).await
     }
 
+    /// Check if session is valid
+    async fn is_valid(db: &DbConn, session: &session::Model) -> Result<bool, ServiceError> {
+        let now = chrono::Utc::now().naive_utc();
+        if now >= session.expires_at {
+            Mutation::delete_session(db, session.id).await?;
+            Ok(false)
+        } else {
+            Ok(true)
+        }
+
+    }
+
+    /// If 1 day or more since last update, extend session duration to 14 days
+    async fn extend_session_duration_to_14_days(db: &DbConn, session: session::Model) -> Result<(), ServiceError> {
+        let now = chrono::Utc::now().naive_utc();
+        if now >= session.updated_at.checked_add_signed(Duration::days(1)).ok_or(ServiceError::Unauthorized)? {
+            let new_expires_at = now.checked_add_signed(Duration::days(14)).ok_or(ServiceError::Unauthorized)?;
+            Mutation::update_session_expiration(db, session, new_expires_at).await?;
+        }
+        Ok(())
+    }
+
     /// Authenticate user by session id
     /// Return user model if session is valid
     pub async fn auth_user_session(
-        db: &DatabaseConnection,
+        db: &DbConn,
         uuid: Uuid,
     ) -> Result<AdminUser, ServiceError> {
-        let session = match Query::find_session_by_uuid(db, uuid).await {
-            Ok(session) => match session {
-                Some(session) => session,
-                None => return Err(ServiceError::UserNotFoundBySessionId),
-            },
-            Err(e) => return Err(ServiceError::DbError(e)),
-        };
+        let session = Query::find_session_by_uuid(db, uuid).await?
+            .ok_or(ServiceError::UserNotFoundBySessionId)?;
 
-        let now = chrono::Utc::now().naive_utc();
-        // check if session is expired
-        if now > session.expires_at {
-            // delete session
-            Mutation::delete_session(db, session.id).await.unwrap();
+        if !Self::is_valid(db, &session).await? {
             return Err(ServiceError::ExpiredSession);
         }
 
+        Self::extend_session_duration_to_14_days(db, session.clone()).await?;
+        
         let candidate = session.find_related(candidate::Entity).one(db).await;
         let admin = session.find_related(admin::Entity).one(db).await;
 
