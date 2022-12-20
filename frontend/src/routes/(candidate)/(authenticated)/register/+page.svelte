@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
+	import GdprCheckBox from '$lib/components/checkbox/GdprCheckBox.svelte';
 
 	import Home from '$lib/components/icons/Home.svelte';
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
@@ -18,11 +19,12 @@
 	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 
-	const pageCount = 4;
+	const pageCount = 5;
 	let pageIndex = 0;
 	let pagesFilled = 0;
 
 	const formInitialValues = {
+		gdpr: false,
 		candidate: {
 			name: '',
 			surname: '',
@@ -53,6 +55,7 @@
 	};
 
 	const formValidationSchema = yup.object().shape({
+		gdpr: yup.boolean().oneOf([true]),
 		candidate: yup.object().shape({
 			name: yup.string().required(),
 			surname: yup.string(),
@@ -156,6 +159,11 @@
 	const isPageInvalid = (): boolean => {
 		switch (pageIndex) {
 			case 0:
+				if ($typedErrors['gdpr']) {
+					return true;
+				}
+				break;
+			case 1:
 				if (
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['email'] ||
@@ -165,7 +173,7 @@
 				}
 				break;
 
-			case 1:
+			case 2:
 				if (
 					/* $typedErrors.birthdurname || */ $typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['birthdate'] ||
@@ -174,7 +182,7 @@
 					return true;
 				}
 				break;
-			case 2:
+			case 3:
 				if (
 					$typedErrors['parents'][0]['name'] ||
 					$typedErrors['parents'][0]['surname'] ||
@@ -184,7 +192,7 @@
 					return true;
 				}
 				break;
-			case 3:
+			case 4:
 				if (
 					$typedErrors['parents'][1]['name'] ||
 					$typedErrors['parents'][1]['surname'] ||
@@ -194,7 +202,7 @@
 					return true;
 				}
 				break;
-			case 4:
+			case 5:
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
@@ -218,10 +226,25 @@
 		</div>
 		{#if pageIndex === 0}
 			<form on:submit={handleSubmit}>
+				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Váš souhlas</h1>
+				<p class="text-sspsGray mt-8 block text-center font-light">
+					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
+					souhlas s jejich zpracováním.
+				</p>
+				<div class="mt-8 w-full">
+					<GdprCheckBox
+						on:change={handleChange}
+						bind:value={$form.gdpr}
+						error={$typedErrors['gdpr']}
+					/>
+				</div>
+			</form>
+		{:else if pageIndex === 1}
+			<form on:submit={handleSubmit}>
 				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Registrace</h1>
 				<p class="text-sspsGray mt-8 block text-center font-light">
-					Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget
-					elit.
+					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který vám pomůže s
+					vyplněním potřebných údajů.
 				</p>
 				<div class="flex w-full items-center justify-center md:flex-col">
 					<span class="mt-8 w-full">
@@ -251,11 +274,11 @@
 					/>
 				</div>
 			</form>
-		{/if}
-		{#if pageIndex === 1}
+		{:else if pageIndex === 2}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Něco o tobě</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Pro registraci je potřeba vyplnit několik údajů o tobě. Tyto údaje budou použity pro
+				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
@@ -301,11 +324,10 @@
 					/>
 				</div>
 			</div>
-		{/if}
-		{#if pageIndex === 2}
+		{:else if pageIndex === 3}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Už jen kousek!</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
@@ -336,11 +358,10 @@
 					</span>
 				</div>
 			</div>
-		{/if}
-		{#if pageIndex === 3}
+		{:else if pageIndex === 4}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Dobrovolné!</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				V případě, že máte druhého zákonného zástupce (např. otec a matka), můžete jej zde zadat.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
@@ -371,11 +392,10 @@
 					</span>
 				</div>
 			</div>
-		{/if}
-		{#if pageIndex === 4}
+		{:else if pageIndex === 5}
 			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Poslední krok</h1>
 			<p class="text-sspsGray mt-8 block text-center font-light">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
