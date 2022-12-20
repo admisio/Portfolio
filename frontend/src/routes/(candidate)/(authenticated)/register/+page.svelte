@@ -6,7 +6,7 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
-	import SelectField from '$lib/components/SelectField.svelte';
+	import SelectField from '$lib/components/select/SelectField.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
 	import IdField from '$lib/components/textfield/IdField.svelte';
 	import NameField from '$lib/components/textfield/NameField.svelte';

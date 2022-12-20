@@ -8,7 +8,16 @@
 </script>
 
 <div>
-	<select class:error bind:value on:click on:keydown on:keyup on:change {placeholder} class:placeholder={!value}>
+	<select
+		class:error
+		bind:value
+		on:click
+		on:keydown
+		on:keyup
+		on:change
+		{placeholder}
+		class:placeholder={!value}
+	>
 		{#if placeholder}
 			<option value="" disabled selected>{placeholder}</option>
 		{/if}
@@ -41,5 +50,10 @@
 	}
 	.error {
 		@apply border-red-700;
+	}
+	select {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
 	}
 </style>
