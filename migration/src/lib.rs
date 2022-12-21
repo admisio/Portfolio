@@ -8,6 +8,7 @@ mod m20221025_154422_create_session;
 mod m20221027_194728_session_create_user_fk;
 mod m20221028_194728_session_create_admin_fk;
 mod m20221112_112212_create_parent_candidate_fk;
+mod m20221221_162232_create_admin_session;
 pub struct Migrator;
 
 #[async_trait::async_trait]
@@ -20,8 +21,10 @@ impl MigratorTrait for Migrator {
             Box::new(m20221024_134454_insert_sample_admin::Migration::default()),
             Box::new(m20221025_154422_create_session::Migration),
             Box::new(m20221027_194728_session_create_user_fk::Migration),
-            Box::new(m20221028_194728_session_create_admin_fk::Migration),
             Box::new(m20221112_112212_create_parent_candidate_fk::Migration),
+            Box::new(m20221221_162232_create_admin_session::Migration),
+            Box::new(m20221028_194728_session_create_admin_fk::Migration),
+
         ]
     }
 }

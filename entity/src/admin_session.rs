@@ -5,11 +5,11 @@ use sea_orm::entity::prelude::*;
 use crate::session_trait::UserSession;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
-#[sea_orm(table_name = "session")]
+#[sea_orm(table_name = "admin_session")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub candidate_id: Option<i32>,
+    pub admin_id: Option<i32>,
     pub ip_address: String,
     pub created_at: DateTime,
     pub expires_at: DateTime,
@@ -19,18 +19,18 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::candidate::Entity",
-        from = "Column::CandidateId",
-        to = "super::candidate::Column::Application",
+        belongs_to = "super::admin::Entity",
+        from = "Column::AdminId",
+        to = "super::admin::Column::Id",
         on_update = "Cascade",
         on_delete = "Cascade"
     )]
-    Candidate,
+    Admin,
 }
 
-impl Related<super::candidate::Entity> for Entity {
+impl Related<super::admin::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Candidate.def()
+        Relation::Admin.def()
     }
 }
 

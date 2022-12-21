@@ -1,6 +1,7 @@
 use async_trait::async_trait;
-use entity::candidate;
-use sea_orm::{prelude::Uuid, DbConn};
+use chrono::Duration;
+use entity::{candidate, session};
+use sea_orm::{prelude::Uuid, DbConn, IntoActiveModel};
 
 use crate::{
     models::{candidate_details::{EncryptedApplicationDetails, EncryptedString, EncryptedCandidateDetails}, candidate::CandidateDetails},
@@ -9,7 +10,7 @@ use crate::{
     Mutation, Query, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse}, auth::AuthenticableTrait}, utils::db::get_recipients,
 };
 
-use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
+use super::{session_service::SessionService, application_service::ApplicationService, portfolio_service::PortfolioService};
 
 // TODO validation
 
@@ -115,7 +116,7 @@ impl CandidateService {
         ).await?;
 
 
-        SessionService::revoke_all_sessions(db, Some(id), None).await?;
+        Self::delete_old_sessions(db, candidate.clone(), 0).await?;
         Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
@@ -223,11 +224,21 @@ impl CandidateService {
         let field_of_study_prefix = &s[0..3];
         FIELD_OF_STUDY_PREFIXES.contains(&field_of_study_prefix)
     }
+
+    pub async fn extend_session_duration_to_14_days(db: &DbConn, session: session::Model) -> Result<(), ServiceError> {
+        let now = chrono::Utc::now().naive_utc();
+        if now >= session.updated_at.checked_add_signed(Duration::days(1)).ok_or(ServiceError::Unauthorized)? {
+            let new_expires_at = now.checked_add_signed(Duration::days(14)).ok_or(ServiceError::Unauthorized)?;
+            Mutation::update_session_expiration(db, session, new_expires_at).await?;
+        }
+        Ok(())
+    }
 }
 
 #[async_trait]
 impl AuthenticableTrait for CandidateService {
     type User = candidate::Model;
+    type Session = session::Model;
 
     async fn login(
         db: &DbConn,
@@ -239,7 +250,7 @@ impl AuthenticableTrait for CandidateService {
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
-        let session_id = SessionService::new_session(db, Some(application_id), None, password.clone(), ip_addr)
+        let session_id = Self::new_session(db, candidate.clone(), password.clone(), ip_addr)
             .await?;
 
         let private_key = Self::decrypt_private_key(candidate, password).await?;
@@ -247,18 +258,68 @@ impl AuthenticableTrait for CandidateService {
     }
 
     async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
-        match SessionService::auth_user_session(db, session_uuid).await {
-            Ok(user) => match user {
-                AdminUser::Candidate(candidate) => Ok(candidate),
-                AdminUser::Admin(_) => Err(ServiceError::Unauthorized),
-            },
-            Err(e) => Err(e),
+        let session = Query::find_session_by_uuid(db, session_uuid)
+            .await?
+            .ok_or(ServiceError::Unauthorized)?;
+
+        if !SessionService::is_valid(&session).await? {
+            Mutation::delete_session(db, session.into_active_model()).await?;
+            return Err(ServiceError::ExpiredSession);
         }
+        // Candidate authenticated
+
+        Self::extend_session_duration_to_14_days(db, session.clone()).await?;
+
+        let candidate = Query::find_candidate_by_id(db, session.candidate_id.unwrap())
+            .await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+        Ok(candidate)
     }
-    async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
-        Mutation::delete_session(db, session_id).await?;
+
+    async fn logout(db: &DbConn, session: session::Model) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session.into_active_model()).await?;
         Ok(())
     }
+
+    async fn new_session(
+        db: &DbConn,
+        candidate: candidate::Model,
+        password: String,
+        ip_addr: String,
+    ) -> Result<String, ServiceError> {
+        if !crypto::verify_password(password.clone(), candidate.code.clone()).await? {
+            return Err(ServiceError::InvalidCredentials);
+        }
+        // user is authenticated, generate a new session
+        let random_uuid: Uuid = Uuid::new_v4();
+
+        let session = Mutation::insert_candidate_session(db, random_uuid, candidate.application, ip_addr).await?;
+
+        Self::delete_old_sessions(db, candidate, 3)
+            .await
+            .ok();
+
+        Ok(session.id.to_string())
+    }
+    async fn delete_old_sessions(
+        db: &DbConn,
+        candidate: candidate::Model,
+        keep_n_recent: usize,
+    ) -> Result<(), ServiceError> {
+        let mut sessions = Query::find_related_candidate_sessions(db, candidate)
+            .await?;
+        
+        sessions.sort_by_key(|s| s.created_at);
+
+        let sessions = sessions.iter()
+            .map(|s| s.clone().into_active_model())
+            .collect::<Vec<session::ActiveModel>>();
+        
+        SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
+        Ok(())
+    }
+
 }
 
 #[cfg(test)]

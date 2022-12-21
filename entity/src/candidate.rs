@@ -30,21 +30,21 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::parent::Entity")]
-    Parent,
     #[sea_orm(has_many = "super::session::Entity")]
     Session,
-}
-
-impl Related<super::parent::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Parent.def()
-    }
+    #[sea_orm(has_many = "super::parent::Entity")]
+    Parent,
 }
 
 impl Related<super::session::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Session.def()
+    }
+}
+
+impl Related<super::parent::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Parent.def()
     }
 }
 

@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use entity::admin;
-use sea_orm::{prelude::Uuid, DbConn};
+use entity::{admin, admin_session};
+use sea_orm::{prelude::Uuid, DbConn, IntoActiveModel};
 
 use crate::{crypto, error::ServiceError, Query, Mutation, models::auth::AuthenticableTrait};
 
-use super::session_service::{AdminUser, SessionService};
+use super::session_service::SessionService;
 
 pub struct AdminService;
 
@@ -25,6 +25,7 @@ impl AdminService {
 #[async_trait]
 impl AuthenticableTrait for AdminService {
     type User = admin::Model;
+    type Session = admin_session::Model;
 
     async fn login(
         db: &DbConn,
@@ -34,9 +35,8 @@ impl AuthenticableTrait for AdminService {
     ) -> Result<(String, String), ServiceError> {
         let admin = Query::find_admin_by_id(db, admin_id).await?.ok_or(ServiceError::InvalidCredentials)?;
 
-        let session_id = SessionService::new_session(db,
-            None,
-            Some(admin_id),
+        let session_id = Self::new_session(db,
+            admin.clone(),
             password.clone(),
             ip_addr
         )
@@ -47,16 +47,64 @@ impl AuthenticableTrait for AdminService {
     }
 
     async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<admin::Model, ServiceError> {
-        match SessionService::auth_user_session(db, session_uuid).await? {
-            AdminUser::Admin(admin) => Ok(admin),
-            AdminUser::Candidate(_) => Err(ServiceError::Unauthorized),
+        let session = Query::find_admin_session_by_uuid(db, session_uuid)
+            .await?
+            .ok_or(ServiceError::Unauthorized)?;
+
+        if !SessionService::is_valid(&session).await? {
+            Mutation::delete_session(db, session.into_active_model()).await?;
+            return Err(ServiceError::ExpiredSession);
         }
+
+        let admin = Query::find_admin_by_id(db, session.admin_id.unwrap())
+            .await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+        Ok(admin)
     }
 
-    async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
-        Mutation::delete_session(db, session_id).await?;
+    async fn logout(db: &DbConn, session: admin_session::Model) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session.into_active_model()).await?;
         Ok(())
     }
+
+    async fn new_session(
+        db: &DbConn,
+        admin: admin::Model,
+        password: String,
+        ip_addr: String,
+    ) -> Result<String, ServiceError> {
+        if !crypto::verify_password(password.clone(), admin.password.clone()).await? {
+            return Err(ServiceError::InvalidCredentials);
+        }
+        // user is authenticated, generate a new session
+        let random_uuid: Uuid = Uuid::new_v4();
+
+        let session = Mutation::insert_admin_session(db, admin.id, random_uuid, ip_addr).await?;
+
+        Self::delete_old_sessions(db, admin, 1)
+            .await?;
+
+        Ok(session.id.to_string())
+    }
+    async fn delete_old_sessions(
+        db: &DbConn,
+        admin: admin::Model,
+        keep_n_recent: usize,
+    ) -> Result<(), ServiceError> {
+        let mut sessions = Query::find_related_admin_sessions(db, admin)
+            .await?;
+        
+        sessions.sort_by_key(|s| s.created_at);
+
+        let sessions = sessions.iter()
+            .map(|s| s.clone().into_active_model())
+            .collect::<Vec<admin_session::ActiveModel>>();
+
+        SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
+        Ok(())
+    }
+
 }
 
 #[cfg(test)]

@@ -9,20 +9,20 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Session::Table)
+                    .table(AdminSession::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Session::Id)
+                        ColumnDef::new(AdminSession::Id)
                             .uuid()
-                            .not_null()
                             .unique_key()
+                            .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Session::CandidateId).integer())
-                    .col(ColumnDef::new(Session::IpAddress).string().not_null())
-                    .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
-                    .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())
-                    .col(ColumnDef::new(Session::UpdatedAt).date_time().not_null())
+                    .col(ColumnDef::new(AdminSession::AdminId).integer())
+                    .col(ColumnDef::new(AdminSession::IpAddress).string().not_null())
+                    .col(ColumnDef::new(AdminSession::CreatedAt).date_time().not_null())
+                    .col(ColumnDef::new(AdminSession::ExpiresAt).date_time().not_null())
+                    .col(ColumnDef::new(AdminSession::UpdatedAt).date_time().not_null())
                     .to_owned(),
             )
             .await
@@ -30,16 +30,17 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Session::Table).to_owned())
+            .drop_table(Table::drop().table(AdminSession::Table).to_owned())
             .await
     }
 }
 
+/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
-pub enum Session {
+pub enum AdminSession {
     Table,
     Id,
-    CandidateId,
+    AdminId,
     IpAddress,
     CreatedAt,
     ExpiresAt,

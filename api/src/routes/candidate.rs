@@ -1,5 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
+use portfolio_core::Query;
 use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::models::candidate::ApplicationDetails;
 use portfolio_core::sea_orm::prelude::Uuid;
@@ -59,8 +60,8 @@ pub async fn logout(
         ))?;
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
-
-    CandidateService::logout(db, session_id)
+    let session = Query::find_session_by_uuid(db, session_id).await.unwrap().unwrap(); // TODO
+    CandidateService::logout(db, session)
         .await
         .map_err(to_custom_error)?;
 
