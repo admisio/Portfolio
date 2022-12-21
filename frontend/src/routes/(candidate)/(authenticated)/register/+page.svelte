@@ -21,7 +21,7 @@
 
 	const pageCount = 5;
 	let pageIndex = 0;
-	let pagesFilled = 0;
+	let pagesFilled = [false, false, false, false, false];
 
 	const formInitialValues = {
 		gdpr: false,
@@ -438,7 +438,7 @@
 					if (isPageInvalid()) return;
 					if (pageIndex === pageCount) {
 					} else {
-						pagesFilled++;
+						pagesFilled[pageIndex] = true;
 						pageIndex++;
 					}
 					// @ts-ignore
@@ -453,15 +453,17 @@
 				<button
 					class:dotActive={i === pageIndex}
 					on:click={async (e) => {
-						if (i <= pagesFilled) {
-							// never skip unfilled or invalid pages
-							pageIndex = i;
-						} else if (i == pagesFilled + 1) {
-							// if next page is clicked, validate current page
-							await handleSubmit(e);
-							if (isPageInvalid()) return;
-							pagesFilled++;
-							pageIndex++;
+						const progress = pagesFilled.slice(0, i ).every((item) => item === true);
+						if (progress) {
+							if (i > pageIndex) {
+								// if next page is clicked, validate current page
+								await handleSubmit(e);
+								if (isPageInvalid()) return;
+								pagesFilled[i] = true;
+								pageIndex++;
+							} else {
+								pageIndex = i;
+							}
 							// @ts-ignore
 							errors.set(formInitialValues);
 						}
