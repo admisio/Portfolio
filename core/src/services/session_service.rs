@@ -44,64 +44,41 @@ impl SessionService {
     /// Authenticate user by application id and password and generate a new session
     pub async fn new_session(
         db: &DbConn,
-        user_id: Option<i32>,
+        candidate_id: Option<i32>,
         admin_id: Option<i32>,
         password: String,
         ip_addr: String,
     ) -> Result<String, ServiceError> {
-        if user_id.is_none() && admin_id.is_none() {
+        if candidate_id.is_none() && admin_id.is_none() {
             return Err(ServiceError::UserNotFoundBySessionId);
         }
 
-        if admin_id.is_none() {
-            // unwrap is safe here
-            let candidate = match Query::find_candidate_by_id(db, user_id.unwrap()).await {
-                Ok(candidate) => match candidate {
-                    Some(candidate) => candidate,
-                    None => return Err(ServiceError::CandidateNotFound),
-                },
-                Err(e) => return Err(ServiceError::DbError(e)),
-            };
+        if let Some(candidate_id) = candidate_id {
+            let candidate = Query::find_candidate_by_id(db, candidate_id).await?
+                .ok_or(ServiceError::CandidateNotFound)?;
 
             // compare passwords
-            match crypto::verify_password(password.clone(), candidate.code.clone()).await {
-                Ok(valid) => {
-                    if !valid {
-                        return Err(ServiceError::InvalidCredentials);
-                    }
-                }
-                Err(_) => return Err(ServiceError::InvalidCredentials),
+            if !crypto::verify_password(password.clone(), candidate.code.clone()).await? {
+                return Err(ServiceError::InvalidCredentials);
             }
         }
 
-        if user_id.is_none() {
-            // unwrap is safe here
-            let admin = match Query::find_admin_by_id(db, admin_id.unwrap()).await {
-                Ok(admin) => match admin {
-                    Some(admin) => admin,
-                    None => return Err(ServiceError::CandidateNotFound),
-                },
-                Err(e) => return Err(ServiceError::DbError(e)),
-            };
+        if let Some(admin_id) = admin_id {
+            let admin = Query::find_admin_by_id(db, admin_id).await?
+                .ok_or(ServiceError::InvalidCredentials)?;
 
             // compare passwords
-            match crypto::verify_password(password.clone(), admin.password.clone()).await {
-                Ok(valid) => {
-                    if !valid {
-                        return Err(ServiceError::InvalidCredentials);
-                    }
-                }
-                Err(_) => return Err(ServiceError::InvalidCredentials),
+            if !crypto::verify_password(password.clone(), admin.password.clone()).await? {
+                return Err(ServiceError::InvalidCredentials);
             }
         }
-
         // user is authenticated, generate a new session
+        
         let random_uuid: Uuid = Uuid::new_v4();
 
-        let session = Mutation::insert_session(db, user_id, admin_id, random_uuid, ip_addr).await?;
+        let session = Mutation::insert_session(db, candidate_id, admin_id, random_uuid, ip_addr).await?;
 
-        // delete old sessions
-        SessionService::delete_old_sessions(db, user_id, admin_id, 3)
+        SessionService::delete_old_sessions(db, candidate_id, admin_id, 3)
             .await
             .ok();
 

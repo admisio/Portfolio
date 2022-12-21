@@ -1,5 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
+use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::models::candidate::ApplicationDetails;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
@@ -227,7 +228,6 @@ pub async fn submit_portfolio(
 
 #[post("/delete")]
 pub async fn delete_portfolio(
-    conn: Connection<'_, Db>,
     session: CandidateAuth,
 ) -> Result<(), Custom<String>> {
     let candidate: entity::candidate::Model = session.into();

@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use entity::candidate;
 use sea_orm::{prelude::Uuid, DbConn};
 
@@ -5,7 +6,7 @@ use crate::{
     models::{candidate_details::{EncryptedApplicationDetails, EncryptedString, EncryptedCandidateDetails}, candidate::CandidateDetails},
     crypto::{self, hash_password},
     error::ServiceError,
-    Mutation, Query, models::candidate::{BaseCandidateResponse, CreateCandidateResponse}, utils::db::get_recipients,
+    Mutation, Query, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse}, auth::AuthenticableTrait}, utils::db::get_recipients,
 };
 
 use super::{session_service::{AdminUser, SessionService}, application_service::ApplicationService, portfolio_service::PortfolioService};
@@ -140,11 +141,6 @@ impl CandidateService {
         )
     }
 
-    pub async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
-        Mutation::delete_session(db, session_id).await?;
-        Ok(())
-    }
-
     pub async fn delete_candidate(db: &DbConn, candidate: candidate::Model) -> Result<(), ServiceError> {
         PortfolioService::delete_candidate_root(candidate.application).await?;
 
@@ -218,34 +214,6 @@ impl CandidateService {
         Ok(private_key)
     }
 
-    pub async fn login(
-        db: &DbConn,
-        candidate_id: i32,
-        password: String,
-        ip_addr: String,
-    ) -> Result<(String, String), ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, candidate_id)
-            .await?
-            .ok_or(ServiceError::CandidateNotFound)?;
-
-        let session_id =
-            SessionService::new_session(db, Some(candidate_id), None, password.clone(), ip_addr)
-                .await?;
-
-        let private_key = Self::decrypt_private_key(candidate, password).await?;
-        Ok((session_id, private_key))
-    }
-
-    pub async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
-        match SessionService::auth_user_session(db, session_uuid).await {
-            Ok(user) => match user {
-                AdminUser::Candidate(candidate) => Ok(candidate),
-                AdminUser::Admin(_) => Err(ServiceError::Unauthorized),
-            },
-            Err(e) => Err(e),
-        }
-    }
-
     fn is_application_id_valid(application_id: i32) -> bool {
         let s = &application_id.to_string();
         if s.len() <= 3 {
@@ -257,10 +225,47 @@ impl CandidateService {
     }
 }
 
+#[async_trait]
+impl AuthenticableTrait for CandidateService {
+    type User = candidate::Model;
+
+    async fn login(
+        db: &DbConn,
+        application_id: i32,
+        password: String,
+        ip_addr: String,
+    ) -> Result<(String, String), ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, application_id)
+            .await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+
+        let session_id = SessionService::new_session(db, Some(application_id), None, password.clone(), ip_addr)
+            .await?;
+
+        let private_key = Self::decrypt_private_key(candidate, password).await?;
+        Ok((session_id, private_key))
+    }
+
+    async fn auth(db: &DbConn, session_uuid: Uuid) -> Result<candidate::Model, ServiceError> {
+        match SessionService::auth_user_session(db, session_uuid).await {
+            Ok(user) => match user {
+                AdminUser::Candidate(candidate) => Ok(candidate),
+                AdminUser::Admin(_) => Err(ServiceError::Unauthorized),
+            },
+            Err(e) => Err(e),
+        }
+    }
+    async fn logout(db: &DbConn, session_id: Uuid) -> Result<(), ServiceError> {
+        Mutation::delete_session(db, session_id).await?;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use sea_orm::{DbConn};
 
+    use crate::models::auth::AuthenticableTrait;
     use crate::models::candidate_details::tests::assert_all_application_details;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{crypto, services::candidate_service::CandidateService, Mutation};

@@ -1,4 +1,5 @@
 use entity::candidate::Model as Candidate;
+use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::candidate_service::CandidateService;
 use rocket::http::Status;
