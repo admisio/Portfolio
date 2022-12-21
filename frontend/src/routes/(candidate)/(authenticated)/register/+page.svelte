@@ -403,12 +403,12 @@
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="mt-8 w-full">
-					<TextField
+					<SelectField
 						error={$typedErrors['candidate']['citizenship']}
 						on:change={handleChange}
 						bind:value={$form.candidate.citizenship}
-						type="text"
 						placeholder="Občanství"
+						options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 					/>
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
@@ -416,13 +416,21 @@
 				</span>
 			</div>
 			<div class="mt-8 flex w-full items-center justify-center">
-				<IdField
-					error={$typedErrors['candidate']['personalIdNumber']}
-					on:change={handleChange}
-					bind:value={$form.candidate.personalIdNumber}
-					placeholder="Rodné číslo"
-					helperText="Rodné číslo musí být ve formátu 123456/7890"
-				/>
+				{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
+					<IdField
+						error={$typedErrors['candidate']['personalIdNumber']}
+						on:change={handleChange}
+						bind:value={$form.candidate.personalIdNumber}
+						placeholder="Rodné číslo"
+					/>
+				{:else}
+					<TextField
+						error={$typedErrors['candidate']['personalIdNumber']}
+						on:change={handleChange}
+						bind:value={$form.candidate.personalIdNumber}
+						placeholder="Rodné číslo"
+					/>
+				{/if}
 				<span class="ml-2">
 					<SelectField
 						error={$typedErrors['candidate']['study']}
