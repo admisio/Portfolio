@@ -2,7 +2,9 @@
 	import Lock from '../icons/Lock.svelte';
 	import TextField from './TextField.svelte';
 
+	export let helperText: string = '';
 	export let placeholder: string = '';
+	
 	export let value: string = '';
 	export let error: string = '';
 </script>
@@ -14,6 +16,7 @@
 	on:keydown
 	on:keyup
 	{placeholder}
+	{helperText}
 	on:change
 	type="password"
 	icon

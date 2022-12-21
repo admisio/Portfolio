@@ -288,6 +288,7 @@
 						bind:value={$form.candidate.address}
 						type="text"
 						placeholder="Adresa trvalého bydliště"
+						helperText="Uveďte ulici, č.p., město, PSČ"
 					/>
 				</span>
 				<span class="mt-8 ml-2 w-full md:ml-0">
@@ -297,6 +298,7 @@
 						bind:value={$form.candidate.birthplace}
 						type="text"
 						placeholder="Místo narození"
+						helperText="Uveďte město"
 						icon
 					>
 						<div slot="icon" class="text-sspsBlue flex items-center justify-center">
@@ -313,6 +315,8 @@
 					bind:value={$form.candidate.birthdate}
 					type="text"
 					placeholder="Datum narození"
+					
+					helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 				/>
 				<div class="ml-2">
 					<SelectField
@@ -417,6 +421,7 @@
 					on:change={handleChange}
 					bind:value={$form.candidate.personalIdNumber}
 					placeholder="Rodné číslo"
+					helperText="Rodné číslo musí být ve formátu 123456/7890"
 				/>
 				<span class="ml-2">
 					<SelectField

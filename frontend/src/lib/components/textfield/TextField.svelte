@@ -3,14 +3,30 @@
 	const typeAction = (node: HTMLInputElement) => {
 		node.type = type;
 	};
+
+	export let helperText: string = '';
 	export let placeholder: string = '';
+
 	export let value: string = '';
 
 	export let icon: boolean = false;
 	export let error: string = '';
+
+	import { tippy } from 'svelte-tippy';
+	import 'tippy.js/dist/tippy.css';
+
+	const isTooltip = helperText ? tippy : () => {};
+	const tooltipDelay = error != "" ? 0 : 1000;
 </script>
 
-<div>
+<div
+	use:isTooltip={{
+		content: helperText,
+		placement: 'top',
+		showOnCreate: false,
+		delay: tooltipDelay
+	}}
+>
 	<input
 		class:error
 		bind:value
