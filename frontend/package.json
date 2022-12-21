@@ -42,7 +42,9 @@
 		"isomorphic-dompurify": "^0.24.0",
 		"just-debounce-it": "^3.1.1",
 		"svelte-forms-lib": "^2.0.1",
+		"svelte-tippy": "^1.3.2",
 		"swiper": "^8.4.5",
+		"tippy.js": "^6.3.7",
 		"yup": "^0.32.11"
 	}
 }

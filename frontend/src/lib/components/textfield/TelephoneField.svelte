@@ -2,7 +2,9 @@
 	import Telephone from '../icons/Telephone.svelte';
 	import TextField from './TextField.svelte';
 
+	let helperText: string = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 	export let placeholder: string = '';
+
 	export let value: string = '';
 	export let error: string = '';
 
@@ -17,7 +19,17 @@
 	}
 </script>
 
-<TextField bind:error bind:value on:keydown on:keyup on:change type="tel" {placeholder} icon>
+<TextField
+	bind:error
+	bind:value
+	on:keydown
+	on:keyup
+	on:change
+	type="tel"
+	{placeholder}
+	{helperText}
+	icon
+>
 	<div slot="icon" class="flex items-center justify-center">
 		<Telephone />
 	</div>

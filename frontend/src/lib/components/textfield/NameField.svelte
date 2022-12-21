@@ -2,12 +2,13 @@
 	import { onMount } from 'svelte';
 	import TextField from './TextField.svelte';
 
+	let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
 	export let placeholder: string = '';
 
 	export let valueName: string = '';
 	export let valueSurname: string = '';
 
-	let value: string = "";
+	let value: string = '';
 
 	$: {
 		const parsed = value.trim().split(' ');
@@ -26,7 +27,17 @@
 	export let error: string = '';
 </script>
 
-<TextField bind:error bind:value on:click on:keydown on:keyup on:change type="text" {placeholder} />
+<TextField
+	bind:error
+	bind:value
+	on:click
+	on:keydown
+	on:keyup
+	on:change
+	type="text"
+	{placeholder}
+	{helperText}
+/>
 
 <style>
 </style>
