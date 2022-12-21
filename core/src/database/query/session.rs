@@ -48,6 +48,7 @@ mod tests {
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
+            updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
         .insert(&db)
@@ -85,6 +86,7 @@ mod tests {
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
+            updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
             .insert(&db)
@@ -114,6 +116,7 @@ mod tests {
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
+            updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
             .insert(&db)
