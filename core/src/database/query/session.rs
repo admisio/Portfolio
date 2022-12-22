@@ -22,11 +22,17 @@ impl Query {
     }
 
     pub async fn find_related_candidate_sessions(db: &DbConn, candidate: candidate::Model) -> Result<Vec<session::Model>, DbErr> {
-        candidate.find_related(Session).all(db).await
+        candidate.find_related(Session)
+            .order_by_asc(session::Column::UpdatedAt)
+            .all(db)
+            .await
     }
 
     pub async fn find_related_admin_sessions(db: &DbConn, admin: admin::Model) -> Result<Vec<admin_session::Model>, DbErr> {
-        admin.find_related(admin_session::Entity).all(db).await
+        admin.find_related(admin_session::Entity)
+            .order_by_asc(admin_session::Column::UpdatedAt)
+            .all(db)
+            .await
     }
 
     // find session by user id
@@ -50,7 +56,6 @@ impl Query {
 #[cfg(test)]
 mod tests {
     use entity::{session, admin, candidate, admin_session};
-    use sea_orm::ActiveValue::NotSet;
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
     use crate::utils::db::get_memory_sqlite_connection;

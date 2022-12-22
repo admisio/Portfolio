@@ -250,8 +250,7 @@ impl AuthenticableTrait for CandidateService {
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
-        let session_id = Self::new_session(db, candidate.clone(), password.clone(), ip_addr)
-            .await?;
+        let session_id = Self::new_session(db, candidate.clone(), password.clone(), ip_addr).await?;
 
         let private_key = Self::decrypt_private_key(candidate, password).await?;
         Ok((session_id, private_key))
@@ -296,9 +295,7 @@ impl AuthenticableTrait for CandidateService {
 
         let session = Mutation::insert_candidate_session(db, random_uuid, candidate.application, ip_addr).await?;
 
-        Self::delete_old_sessions(db, candidate, 3)
-            .await
-            .ok();
+        Self::delete_old_sessions(db, candidate, 3).await?;
 
         Ok(session.id.to_string())
     }
@@ -307,14 +304,11 @@ impl AuthenticableTrait for CandidateService {
         candidate: candidate::Model,
         keep_n_recent: usize,
     ) -> Result<(), ServiceError> {
-        let mut sessions = Query::find_related_candidate_sessions(db, candidate)
-            .await?;
-        
-        sessions.sort_by_key(|s| s.created_at);
-
-        let sessions = sessions.iter()
+        let sessions = Query::find_related_candidate_sessions(db, candidate)
+            .await?
+            .iter()
             .map(|s| s.clone().into_active_model())
-            .collect::<Vec<session::ActiveModel>>();
+            .collect();
         
         SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
         Ok(())

@@ -82,8 +82,7 @@ impl AuthenticableTrait for AdminService {
 
         let session = Mutation::insert_admin_session(db, admin.id, random_uuid, ip_addr).await?;
 
-        Self::delete_old_sessions(db, admin, 1)
-            .await?;
+        Self::delete_old_sessions(db, admin, 1).await?;
 
         Ok(session.id.to_string())
     }
@@ -92,14 +91,11 @@ impl AuthenticableTrait for AdminService {
         admin: admin::Model,
         keep_n_recent: usize,
     ) -> Result<(), ServiceError> {
-        let mut sessions = Query::find_related_admin_sessions(db, admin)
-            .await?;
-        
-        sessions.sort_by_key(|s| s.created_at);
-
-        let sessions = sessions.iter()
+        let sessions = Query::find_related_admin_sessions(db, admin)
+            .await?
+            .iter()
             .map(|s| s.clone().into_active_model())
-            .collect::<Vec<admin_session::ActiveModel>>();
+            .collect();
 
         SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
         Ok(())
