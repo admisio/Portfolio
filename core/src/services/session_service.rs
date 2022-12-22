@@ -7,11 +7,6 @@ use crate::{
     Mutation,
 };
 
-pub enum AdminUser {
-    Admin(entity::admin::Model),
-    Candidate(entity::candidate::Model),
-}
-
 pub(in crate::services) struct SessionService;
 
 impl SessionService {
