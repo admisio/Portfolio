@@ -39,7 +39,6 @@
 	select {
 		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 		@apply min-w-40;
-		text-align-last: center;
 	}
 	option {
 		@apply w-full;
