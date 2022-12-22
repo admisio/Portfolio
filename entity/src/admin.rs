@@ -18,13 +18,13 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::session::Entity")]
-    Session,
+    #[sea_orm(has_many = "super::admin_session::Entity")]
+    AdminSession,
 }
 
-impl Related<super::session::Entity> for Entity {
+impl Related<super::admin_session::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Session.def()
+        Relation::AdminSession.def()
     }
 }
 

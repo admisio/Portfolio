@@ -3,6 +3,7 @@
 pub mod prelude;
 
 pub mod admin;
+pub mod admin_session;
 pub mod candidate;
 pub mod parent;
 pub mod session;
