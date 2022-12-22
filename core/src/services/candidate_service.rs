@@ -178,9 +178,10 @@ impl CandidateService {
                 .iter()
                 .map(|c| async move {
                     BaseCandidateResponse::from_encrypted(
-                    private_key,
-                    c.clone(),
-                    true).await
+                        private_key,
+                        c.clone(),
+                    PortfolioService::get_submission_progress(c.application).await.ok()
+                ).await
                 })
         ).await
     }

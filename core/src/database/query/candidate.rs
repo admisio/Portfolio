@@ -50,13 +50,15 @@ impl Query {
             select
         }
             .order_by(candidate::Column::Application, Order::Asc)
-            .into_model::<CandidateResult>()
-            .paginate(db, PAGE_SIZE);
+            .into_model::<CandidateResult>();
 
         if let Some(page) = page {
-            query.fetch_page(page).await
+            query
+                .paginate(db, PAGE_SIZE)
+                .fetch_page(page).await
         } else {
-            query.fetch().await
+            query
+                .all(db).await
         }
     }
 
