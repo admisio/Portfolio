@@ -129,7 +129,7 @@ pub async fn list_candidates(
 
     }
 
-    let candidates = CandidateService::list_candidates(private_key, db, field, page)
+    let candidates = CandidateService::list_candidates(&private_key, db, field, page)
         .await
         .map_err(to_custom_error)?;
 

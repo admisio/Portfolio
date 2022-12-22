@@ -8,6 +8,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{error::ServiceError, Query, crypto};
 
+#[derive(Debug)]
 pub enum SubmissionProgress {
     NoneInCache,
     SomeInCache(Vec<FileType>),
@@ -49,7 +50,7 @@ impl Serialize for SubmissionProgress {
 }
 
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum FileType {
     CoverLetterPdf = 1,
     PortfolioLetterPdf = 2,
