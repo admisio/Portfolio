@@ -161,7 +161,7 @@ impl CandidateService {
     }
 
     pub async fn list_candidates(
-        private_key: String,
+        private_key: &String,
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
@@ -173,22 +173,16 @@ impl CandidateService {
             page
         ).await?;
 
-        let mut result: Vec<BaseCandidateResponse> = vec![];
-
-        for candidate in candidates {
-            result.push(
-                BaseCandidateResponse::from_encrypted(
-                    &private_key,
-                    candidate.application,
-                    candidate.name,
-                    candidate.surname, 
-                    candidate.study,
-                true
-                ).await?
-            )
-        }
-
-        Ok(result)
+        futures::future::try_join_all(
+            candidates
+                .iter()
+                .map(|c| async move {
+                    BaseCandidateResponse::from_encrypted(
+                    private_key,
+                    c.clone(),
+                    true).await
+                })
+        ).await
     }
 
     pub fn is_candidate_info(candidate: &candidate::Model) -> bool {
@@ -372,12 +366,12 @@ pub mod tests {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
         let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
-        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None, None).await.unwrap();
+        let candidates = CandidateService::list_candidates(&private_key, &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = CandidateService::list_candidates(private_key.clone(), &db, None, None).await.unwrap();
+        let candidates = CandidateService::list_candidates(&private_key, &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 1);
     }
 

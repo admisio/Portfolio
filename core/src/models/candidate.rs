@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 use sea_orm::FromQueryResult;
 use serde::{Serialize, Deserialize};
 
-use crate::{error::ServiceError};
+use crate::{error::ServiceError, database::query::candidate::CandidateResult};
 
 use super::candidate_details::decrypt_if_exists;
 
@@ -23,6 +23,8 @@ pub struct BaseCandidateResponse {
     pub application_id: i32,
     pub name: String,
     pub surname: String,
+    pub email: String,
+    pub telephone: String,
     pub study: String,
     pub submitted: bool,
 }
@@ -91,20 +93,21 @@ pub struct Row {
 impl BaseCandidateResponse {
     pub async fn from_encrypted(
         private_key: &String,
-        application_id: i32,
-        name_opt: Option<String>,
-        surname_opt: Option<String>,
-        study_opt: Option<String>,
+        c: CandidateResult,
         submitted: bool,
     ) -> Result<Self, ServiceError> {
-        let name = decrypt_if_exists(private_key, name_opt).await?;
-        let surname = decrypt_if_exists(private_key, surname_opt).await?;
+        let name = decrypt_if_exists(private_key, c.name).await?;
+        let surname = decrypt_if_exists(private_key, c.surname).await?;
+        let email = decrypt_if_exists(private_key, c.email).await?;
+        let telephone = decrypt_if_exists(private_key, c.telephone).await?;
         Ok(
             Self {
+                application_id: c.application,
                 name,
-                application_id,
                 surname,
-                study: study_opt.unwrap_or("".to_string()),
+                email,
+                telephone,
+                study: c.study.unwrap_or("".to_string()),
                 submitted,
             }
         )

@@ -17,16 +17,15 @@ impl ApplicationId {
     }
 }
 
-#[derive(FromQueryResult)]
-pub struct CandidateParentResult {
+#[derive(FromQueryResult, Clone)]
+pub struct CandidateResult {
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
+    pub email: Option<String>,
+    pub telephone: Option<String>,
     pub study: Option<String>,    
     pub citizenship: Option<String>,
-
-    pub parent_name: Option<String>,
-    pub parent_surname: Option<String>,
 }
 
 impl Query {
@@ -43,7 +42,7 @@ impl Query {
         db: &DbConn,
         field_of_study_opt: Option<String>,
         page: Option<u64>,
-    ) -> Result<Vec<CandidateParentResult>, DbErr> {
+    ) -> Result<Vec<CandidateResult>, DbErr> {
         let select = Candidate::find();
         let query = if let Some(study) = field_of_study_opt {
            select.filter(candidate::Column::Study.eq(study)) 
@@ -51,10 +50,7 @@ impl Query {
             select
         }
             .order_by(candidate::Column::Application, Order::Asc)
-            .join(JoinType::InnerJoin, candidate::Relation::Parent.def())
-            .column_as(parent::Column::Name, "parent_name")
-            .column_as(parent::Column::Surname, "parent_surname")
-            .into_model::<CandidateParentResult>()
+            .into_model::<CandidateResult>()
             .paginate(db, PAGE_SIZE);
 
         if let Some(page) = page {
