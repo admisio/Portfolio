@@ -26,7 +26,7 @@ export const apiFetchDetails = async (fetchSsr?: Fetch): Promise<CandidateData> 
 			method: 'GET',
 			credentials: 'include'
 		});
-		if (res.status != 200) {
+		if (!res.ok) {
 			throw new Error(await res.text());
 		}
 		return await res.json();
@@ -200,6 +200,17 @@ export const apiSubmitPortfolio = async (): Promise<boolean> => {
 	} catch (e: any) {
 		throw errorHandler(e, 'Failed to submit portfolio');
 	}
+};
+
+export const apiGetPortfolio = async (): Promise<Blob> => {
+	const res = await fetch(API_URL + '/candidate/portfolio/download', {
+		method: 'GET',
+		credentials: 'include'
+	});
+	if (!res.ok) {
+		throw errorHandler(await res.text(), 'Failed to download portfolio');
+	}
+	return await res.blob();
 };
 
 export const apiDeltePortfolio = async (): Promise<boolean> => {

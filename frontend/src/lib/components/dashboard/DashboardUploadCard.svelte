@@ -114,7 +114,7 @@
 			<StatusNotificationDot {status} />
 		</div>
 	</div>
-	{#if fileDropped &&  error === null}
+	{#if fileDropped && error === null}
 		<div class="body uploaded flex content-around items-center justify-between">
 			<div class="w-24">
 				<img
@@ -155,7 +155,7 @@
 			>
 			<div class="items-center text-center">
 				<h2 class="text-sspsBlueDark mb-2 text-2xl font-bold">{Math.round(progress * 100)} %</h2>
-				<ProgressBar {progress} />
+				<ProgressBar submitted={status === 'submitted'} {progress} />
 			</div>
 		</div>
 	{:else}
