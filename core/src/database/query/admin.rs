@@ -13,7 +13,7 @@ impl Query {
 
         let public_keys = admins
             .iter()
-            .map(|admin| admin.public_key.clone())
+            .map(|admin| admin.public_key.to_owned())
             .collect();
 
         Ok(public_keys)

@@ -308,7 +308,7 @@ impl AuthenticableTrait for CandidateService {
         let sessions = Query::find_related_candidate_sessions(db, &candidate)
             .await?
             .iter()
-            .map(|s| s.clone().into_active_model())
+            .map(|s| s.to_owned().into_active_model())
             .collect();
         
         SessionService::delete_sessions(db, sessions, keep_n_recent).await?;

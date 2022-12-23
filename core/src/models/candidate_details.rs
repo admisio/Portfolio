@@ -130,18 +130,18 @@ impl EncryptedCandidateDetails {
         )
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
+    pub async fn decrypt(self, priv_key: &String) -> Result<CandidateDetails, ServiceError> {
         let d = tokio::try_join!(
-            self.name.decrypt(&priv_key),              // 0
-            self.surname.decrypt(&priv_key),           // 1
-            self.birthplace.decrypt(&priv_key),        // 2
-            self.birthdate.decrypt(&priv_key),         // 3
-            self.address.decrypt(&priv_key),           // 4
-            self.telephone.decrypt(&priv_key),         // 5
-            self.citizenship.decrypt(&priv_key),       // 6
-            self.email.decrypt(&priv_key),             // 7
-            self.sex.decrypt(&priv_key),               // 8
-            self.personal_id_number.decrypt(&priv_key),// 9
+            self.name.decrypt(priv_key),              // 0
+            self.surname.decrypt(priv_key),           // 1
+            self.birthplace.decrypt(priv_key),        // 2
+            self.birthdate.decrypt(priv_key),         // 3
+            self.address.decrypt(priv_key),           // 4
+            self.telephone.decrypt(priv_key),         // 5
+            self.citizenship.decrypt(priv_key),       // 6
+            self.email.decrypt(priv_key),             // 7
+            self.sex.decrypt(priv_key),               // 8
+            self.personal_id_number.decrypt(priv_key),// 9
         )?;
 
         Ok(CandidateDetails {
@@ -206,7 +206,7 @@ impl EncryptedParentDetails {
         )
     }
 
-    pub async fn decrypt(&self, priv_key: String) -> Result<ParentDetails, ServiceError> {
+    pub async fn decrypt(&self, priv_key: &String) -> Result<ParentDetails, ServiceError> {
         let d = tokio::try_join!(
             self.name.decrypt(&priv_key),
             self.surname.decrypt(&priv_key),
@@ -223,11 +223,11 @@ impl EncryptedParentDetails {
         )
     }
 }
-impl TryFrom<parent::Model> for EncryptedParentDetails {
+impl TryFrom<&parent::Model> for EncryptedParentDetails {
     type Error = ServiceError;
 
     fn try_from(
-        parent: parent::Model,
+        parent: &parent::Model,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedParentDetails { 
                 name: EncryptedString::try_from(&parent.name)?,
@@ -258,12 +258,12 @@ impl EncryptedApplicationDetails {
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
-        let decrypted_candidate = self.candidate.decrypt(priv_key.clone()).await?;
+        let decrypted_candidate = self.candidate.decrypt(&priv_key).await?;
 
         let decrypted_parents = future::try_join_all(
             self.parents
                 .iter()
-                .map(|d| d.decrypt(priv_key.clone()))
+                .map(|d| d.decrypt(&priv_key))
         ).await?;
 
         Ok(ApplicationDetails {
@@ -280,7 +280,7 @@ impl TryFrom<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDe
         (candidate, parents): (&candidate::Model, Vec<parent::Model>),
     ) -> Result<Self, Self::Error> {
         let enc_parents = parents.iter()
-            .map(|m| EncryptedParentDetails::try_from(m.clone()))
+            .map(|m| EncryptedParentDetails::try_from(m))
             .collect::<Result<Vec<EncryptedParentDetails>, ServiceError>>()?;
 
         Ok(EncryptedApplicationDetails {

@@ -26,7 +26,7 @@ impl SessionService {
             .iter()
             .take(sessions.len() - min(sessions.len(), keep_n_recent))
         {
-            Mutation::delete_session(db, session.clone()).await?;
+            Mutation::delete_session(db, session.to_owned()).await?;
         }
 
         Ok(())
