@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { flip } from 'svelte/animate';
 	import FullLayout from '$lib/components/layout/FullLayout.svelte';
 
 	import { Swiper, SwiperSlide } from 'swiper/svelte';
@@ -41,25 +42,45 @@
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
-		<div class="movable name col-span-3 row-span-4" class:showDetailsInfoCard={showDetails}>
-			<DashboardInfoCard
-				bind:showDetails
-				status={getUploadStatus($submissionProgress.status)}
-				title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
+		{#each [0] as animated (animated)}
+			<div
+				class="movable name col-span-3 row-span-4"
+				animate:flip={{ duration: 400}}
+				class:showDetailsInfoCard={showDetails}
 			>
-				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
-				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
-			</DashboardInfoCard>
-		</div>
+				<DashboardInfoCard
+					bind:showDetails
+					status={getUploadStatus($submissionProgress.status)}
+					title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
+				>
+					<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
+					<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
+				</DashboardInfoCard>
+			</div>
+		{/each}
+
 		<div class="movable coverletter col-span-5 row-span-4">
 			<CoverLetterUploadCard />
 		</div>
-		<div class="portfolio col-span-4 row-span-4" class:showDetailsPortfolio={showDetails}>
-			<PortfolioLetterUploadCard />
-		</div>
-		<div class="moreData col-span-4 row-span-4" class:showDetailsMoreData={showDetails}>
-			<PortfolioZipUploadCard />
-		</div>
+		{#each [0] as animated (animated)}
+			<div
+				animate:flip={{ duration: 400 }}
+				class="portfolio col-span-4 row-span-4"
+				class:showDetailsPortfolio={showDetails}
+			>
+				<PortfolioLetterUploadCard />
+			</div>
+		{/each}
+
+		{#each [0] as animated (animated)}
+			<div
+				animate:flip={{ duration: 400 }}
+				class="moreData col-span-4 row-span-4"
+				class:showDetailsMoreData={showDetails}
+			>
+				<PortfolioZipUploadCard />
+			</div>
+		{/each}
 	</div>
 	<div class="dashboard dashboardMobile">
 		<div class="name my-10 mx-auto w-[90%]">
