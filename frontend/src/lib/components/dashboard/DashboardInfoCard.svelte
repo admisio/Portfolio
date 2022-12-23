@@ -43,80 +43,107 @@
 			const url = window.URL.createObjectURL(new Blob([portfolioBlob]));
 			const link = document.createElement('a');
 			link.href = url;
-			link.setAttribute('download', 'PORTFOLIO' + '_' + $candidateData.candidate.name + '_' + $candidateData.candidate.surname + '.zip');
+			link.setAttribute(
+				'download',
+				'PORTFOLIO' +
+					'_' +
+					$candidateData.candidate.name +
+					'_' +
+					$candidateData.candidate.surname +
+					'.zip'
+			);
 			document.body.appendChild(link);
 			link.click();
 		} catch (e) {
 			console.log(e);
 		}
-	}
+	};
 </script>
-<!-- TODO expand on mouse hover?? -->
-<!-- <div class="card flex flex-col" on:mouseenter={(_) => showDetails = true} on:mouseleave={(_) => showDetails = false}> -->
+
 <div class="card flex flex-col">
-	<div class="infoBar flex flex-row-reverse">
+	<div class="infoBar flex flex-row-reverse <2xl:flex-col">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
 		<div class="mr-4">
 			<div on:click on:keydown class="flex flex-col">
-				<div class="flex flex-col h-20">
-					<InfoButton bind:showDetails={showDetails} on:download={downloadPortfolio} on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
+				<div class="flex flex-col <2xl:ml-auto <2xl:flex-row <2xl:my-2">
+					<InfoButton
+						bind:showDetails
+						on:download={downloadPortfolio}
+						on:showInfo={(_) => (showDetails = !showDetails)}
+					/>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="relative flex flex-row">
+	<div class="relative flex flex-col md:flex-row h-full justify-between my-2">
 		<div>
 			<span class="absolute -left-16 -top-36">
 				<Circles />
 			</span>
-			<div class="mt-8 flex flex-col lg:mt-12">
+			<div class="flex flex-col xl:mt-10">
 				<h3>{title}</h3>
 				<slot />
 			</div>
 		</div>
 		{#if showDetails}
-		<svg class="ml-12 mr-8 h-40 hidden xl:block mt-10" viewBox="0 0 2 80" xmlns="http://www.w3.org/2000/svg">
-			<line
-				x1="0"
-				y="0"
-				x2="0"
-				y2="80"
-				stroke="#406280ff"
-				stroke-width="2"
-				stroke-dasharray="3"/>
-		</svg>
-		<div
-			use:tippy={{
-				content: "<span>Vámi vyplněné osobní údaje</span>",
-				allowHTML: true,
-				placement: 'top',
-				showOnCreate: false,
-				delay: 0
-			}}
-		 class="flex flex-col justify-around mt-10">
-			<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
-			<span>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span>
-			<span>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span></span>
-			<span>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span></span>
-			<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
-		</div>
-		<div
-			use:tippy={{
-				content: "<span>Vámi vyplněné osobní údaje</span>",
-				allowHTML: true,
-				placement: 'top',
-				showOnCreate: false,
-				delay: 0
-			}}
-		 class="ml-10 <xl:ml-4 flex flex-col justify-around mt-10">
-			{#each $candidateData.parents as parent}
-			<div class="flex flex-col">
-				<span class="font-bold text-sspsBlue text-xl">{parent.name + " " + parent.surname}</span>
-				<span>Email: <span class="font-bold">{parent.email}</span></span>
-				<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+			<svg
+				class="ml-12 mr-8 hidden h-40 xl:block"
+				viewBox="0 0 2 80"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<line
+					x1="0"
+					y="0"
+					x2="0"
+					y2="80"
+					stroke="#406280ff"
+					stroke-width="2"
+					stroke-dasharray="3"
+				/>
+			</svg>
+			<div
+				use:tippy={{
+					content: '<span>Vámi vyplněné osobní údaje</span>',
+					allowHTML: true,
+					placement: 'top',
+					showOnCreate: false,
+					delay: 0
+				}}
+				class="flex flex-col justify-around <2xl:text-xs"
+			>
+				<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
+				<span
+					>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span
+				>
+				<span
+					>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
+					></span
+				>
+				<span
+					>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
+					></span
+				>
+				<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
 			</div>
-			{/each}
-		</div>
+			<div
+				use:tippy={{
+					content: '<span>Vámi vyplněné osobní údaje</span>',
+					allowHTML: true,
+					placement: 'top',
+					showOnCreate: false,
+					delay: 0
+				}}
+				class="md:ml-4 flex flex-col <2xl:text-xs"
+			>
+				{#each $candidateData.parents as parent}
+					<div class="flex flex-col">
+						<span class="text-sspsBlue text-xl font-bold">{parent.name + ' ' + parent.surname}</span
+						>
+						<span>Email: <span class="font-bold">{parent.email}</span></span>
+						<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+					</div>
+				{/each}
+			</div>
 		{/if}
 	</div>
 </div>
