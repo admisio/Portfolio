@@ -36,7 +36,7 @@ impl AuthenticableTrait for AdminService {
         let admin = Query::find_admin_by_id(db, admin_id).await?.ok_or(ServiceError::InvalidCredentials)?;
 
         let session_id = Self::new_session(db,
-            admin.clone(),
+            &admin,
             password.clone(),
             ip_addr
         )
@@ -70,7 +70,7 @@ impl AuthenticableTrait for AdminService {
 
     async fn new_session(
         db: &DbConn,
-        admin: admin::Model,
+        admin: &admin::Model,
         password: String,
         ip_addr: String,
     ) -> Result<String, ServiceError> {
@@ -82,13 +82,13 @@ impl AuthenticableTrait for AdminService {
 
         let session = Mutation::insert_admin_session(db, admin.id, random_uuid, ip_addr).await?;
 
-        Self::delete_old_sessions(db, admin, 1).await?;
+        Self::delete_old_sessions(db, &admin, 1).await?;
 
         Ok(session.id.to_string())
     }
     async fn delete_old_sessions(
         db: &DbConn,
-        admin: admin::Model,
+        admin: &admin::Model,
         keep_n_recent: usize,
     ) -> Result<(), ServiceError> {
         let sessions = Query::find_related_admin_sessions(db, admin)

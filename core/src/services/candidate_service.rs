@@ -115,9 +115,13 @@ impl CandidateService {
             new_password_plain.to_string()
         ).await?;
 
-
-        Self::delete_old_sessions(db, candidate.clone(), 0).await?;
-        Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
+        Self::delete_old_sessions(db, &candidate, 0).await?;
+        let candidate = Mutation::update_candidate_password_and_keys(db,
+             candidate,
+             new_password_hash,
+             pubkey,
+             encrypted_priv_key
+        ).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
         let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
@@ -125,7 +129,7 @@ impl CandidateService {
             .await?;
         
         let enc_details_opt = EncryptedApplicationDetails::try_from(
-            (candidate.clone(), parents)
+            (&candidate, parents)
         );
         
         if let Ok(enc_details) = enc_details_opt {
@@ -220,13 +224,15 @@ impl CandidateService {
         FIELD_OF_STUDY_PREFIXES.contains(&field_of_study_prefix)
     }
 
-    pub async fn extend_session_duration_to_14_days(db: &DbConn, session: session::Model) -> Result<(), ServiceError> {
+    pub async fn extend_session_duration_to_14_days(db: &DbConn, session: session::Model) -> Result<session::Model, ServiceError> {
         let now = chrono::Utc::now().naive_utc();
         if now >= session.updated_at.checked_add_signed(Duration::days(1)).ok_or(ServiceError::Unauthorized)? {
             let new_expires_at = now.checked_add_signed(Duration::days(14)).ok_or(ServiceError::Unauthorized)?;
-            Mutation::update_session_expiration(db, session, new_expires_at).await?;
+
+            Ok(Mutation::update_session_expiration(db, session, new_expires_at).await?)
+        } else {
+            Ok(session)
         }
-        Ok(())
     }
 }
 
@@ -245,7 +251,7 @@ impl AuthenticableTrait for CandidateService {
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
-        let session_id = Self::new_session(db, candidate.clone(), password.clone(), ip_addr).await?;
+        let session_id = Self::new_session(db, &candidate, password.clone(), ip_addr).await?;
 
         let private_key = Self::decrypt_private_key(candidate, password).await?;
         Ok((session_id, private_key))
@@ -278,7 +284,7 @@ impl AuthenticableTrait for CandidateService {
 
     async fn new_session(
         db: &DbConn,
-        candidate: candidate::Model,
+        candidate: &candidate::Model,
         password: String,
         ip_addr: String,
     ) -> Result<String, ServiceError> {
@@ -290,19 +296,19 @@ impl AuthenticableTrait for CandidateService {
 
         let session = Mutation::insert_candidate_session(db, random_uuid, candidate.application, ip_addr).await?;
 
-        Self::delete_old_sessions(db, candidate, 3).await?;
+        Self::delete_old_sessions(db, &candidate, 3).await?;
 
         Ok(session.id.to_string())
     }
     async fn delete_old_sessions(
         db: &DbConn,
-        candidate: candidate::Model,
+        candidate: &candidate::Model,
         keep_n_recent: usize,
     ) -> Result<(), ServiceError> {
-        let sessions = Query::find_related_candidate_sessions(db, candidate)
+        let sessions = Query::find_related_candidate_sessions(db, &candidate)
             .await?
             .iter()
-            .map(|s| s.clone().into_active_model())
+            .map(|s| s.to_owned().into_active_model())
             .collect();
         
         SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
@@ -313,7 +319,7 @@ impl AuthenticableTrait for CandidateService {
 
 #[cfg(test)]
 pub mod tests {
-    use sea_orm::{DbConn};
+    use sea_orm::DbConn;
 
     use crate::models::auth::AuthenticableTrait;
     use crate::models::candidate_details::tests::assert_all_application_details;
@@ -451,7 +457,7 @@ pub mod tests {
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db, candidate.clone(), &form)
+        let (candidate, parents) = ApplicationService::add_all_details(&db, candidate, &form)
             .await
             .unwrap();
 
@@ -478,7 +484,7 @@ pub mod tests {
         let dec_priv_key = crypto::decrypt_password(enc_candidate.private_key.clone(), password)
             .await
             .unwrap();
-        let enc_details = EncryptedApplicationDetails::try_from((enc_candidate, enc_parent))
+        let enc_details = EncryptedApplicationDetails::try_from((&enc_candidate, enc_parent))
             .ok()
             .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();

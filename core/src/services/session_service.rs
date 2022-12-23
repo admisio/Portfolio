@@ -26,7 +26,7 @@ impl SessionService {
             .iter()
             .take(sessions.len() - min(sessions.len(), keep_n_recent))
         {
-            Mutation::delete_session(db, session.clone()).await?;
+            Mutation::delete_session(db, session.to_owned()).await?;
         }
 
         Ok(())
@@ -88,7 +88,7 @@ mod tests {
         // correct password
         let session = CandidateService::new_session(
             db,
-            candidate,
+            &candidate,
             "Tajny_kod".to_string(),
             "127.0.0.1".to_string(),
         )
@@ -119,7 +119,7 @@ mod tests {
         // incorrect password
         assert!(CandidateService::new_session(
             db,
-            candidate_form,
+            &candidate_form,
             "Spatny_kod".to_string(),
             "127.0.0.1".to_string()
         )

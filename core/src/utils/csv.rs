@@ -42,7 +42,7 @@ pub async fn export(
         let application = candidate.application;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
-        let row: Row = match EncryptedApplicationDetails::try_from((candidate, parents)) {
+        let row: Row = match EncryptedApplicationDetails::try_from((&candidate, parents)) {
             Ok(d) => Row::from(
                 d
                     .decrypt(private_key.to_string())

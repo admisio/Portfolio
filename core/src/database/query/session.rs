@@ -21,14 +21,14 @@ impl Query {
         AdminSession::find_by_id(uuid).one(db).await
     }
 
-    pub async fn find_related_candidate_sessions(db: &DbConn, candidate: candidate::Model) -> Result<Vec<session::Model>, DbErr> {
+    pub async fn find_related_candidate_sessions(db: &DbConn, candidate: &candidate::Model) -> Result<Vec<session::Model>, DbErr> {
         candidate.find_related(Session)
             .order_by_asc(session::Column::UpdatedAt)
             .all(db)
             .await
     }
 
-    pub async fn find_related_admin_sessions(db: &DbConn, admin: admin::Model) -> Result<Vec<admin_session::Model>, DbErr> {
+    pub async fn find_related_admin_sessions(db: &DbConn, admin: &admin::Model) -> Result<Vec<admin_session::Model>, DbErr> {
         admin.find_related(admin_session::Entity)
             .order_by_asc(admin_session::Column::UpdatedAt)
             .all(db)
@@ -126,10 +126,10 @@ mod tests {
             .await
             .unwrap();
 
-        let sessions = Query::find_related_candidate_sessions(&db, candidate).await.unwrap();
+        let sessions = Query::find_related_candidate_sessions(&db, &candidate).await.unwrap();
         assert_eq!(sessions.len(), 1);
 
-        let sessions = Query::find_related_admin_sessions(&db, admin).await.unwrap();
+        let sessions = Query::find_related_admin_sessions(&db, &admin).await.unwrap();
         assert_eq!(sessions.len(), 1);
     }
 }

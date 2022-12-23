@@ -67,12 +67,12 @@ impl Into<String> for EncryptedString {
     }
 }
 
-impl TryFrom<Option<String>> for EncryptedString {
+impl TryFrom<&Option<String>> for EncryptedString {
     type Error = ServiceError;
 
-    fn try_from(s: Option<String>) -> Result<Self, Self::Error> {
+    fn try_from(s: &Option<String>) -> Result<Self, Self::Error> {
         match s {
-            Some(s) => Ok(Self(s)),
+            Some(s) => Ok(Self(s.to_owned())),
             None => Err(ServiceError::CandidateDetailsNotSet),
         }
     }
@@ -130,18 +130,18 @@ impl EncryptedCandidateDetails {
         )
     }
 
-    pub async fn decrypt(self, priv_key: String) -> Result<CandidateDetails, ServiceError> {
+    pub async fn decrypt(self, priv_key: &String) -> Result<CandidateDetails, ServiceError> {
         let d = tokio::try_join!(
-            self.name.decrypt(&priv_key),              // 0
-            self.surname.decrypt(&priv_key),           // 1
-            self.birthplace.decrypt(&priv_key),        // 2
-            self.birthdate.decrypt(&priv_key),         // 3
-            self.address.decrypt(&priv_key),           // 4
-            self.telephone.decrypt(&priv_key),         // 5
-            self.citizenship.decrypt(&priv_key),       // 6
-            self.email.decrypt(&priv_key),             // 7
-            self.sex.decrypt(&priv_key),               // 8
-            self.personal_id_number.decrypt(&priv_key),// 9
+            self.name.decrypt(priv_key),              // 0
+            self.surname.decrypt(priv_key),           // 1
+            self.birthplace.decrypt(priv_key),        // 2
+            self.birthdate.decrypt(priv_key),         // 3
+            self.address.decrypt(priv_key),           // 4
+            self.telephone.decrypt(priv_key),         // 5
+            self.citizenship.decrypt(priv_key),       // 6
+            self.email.decrypt(priv_key),             // 7
+            self.sex.decrypt(priv_key),               // 8
+            self.personal_id_number.decrypt(priv_key),// 9
         )?;
 
         Ok(CandidateDetails {
@@ -160,25 +160,25 @@ impl EncryptedCandidateDetails {
         )
     }
 }
-impl TryFrom<candidate::Model> for EncryptedCandidateDetails {
+impl TryFrom<&candidate::Model> for EncryptedCandidateDetails {
     type Error = ServiceError;
 
     fn try_from(
-        candidate: candidate::Model,
+        candidate: &candidate::Model,
     ) -> Result<Self, Self::Error> {
         Ok(
             EncryptedCandidateDetails {
-                name: EncryptedString::try_from(candidate.name)?,
-                surname: EncryptedString::try_from(candidate.surname)?,
-                birthplace: EncryptedString::try_from(candidate.birthplace)?,
-                birthdate: EncryptedString::try_from(candidate.birthdate)?,
-                address: EncryptedString::try_from(candidate.address)?,
-                telephone: EncryptedString::try_from(candidate.telephone)?,
-                citizenship: EncryptedString::try_from(candidate.citizenship)?,
-                email: EncryptedString::try_from(candidate.email)?,
-                sex: EncryptedString::try_from(candidate.sex)?,
-                personal_id_number: EncryptedString::from(candidate.personal_identification_number),
-                study: candidate.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
+                name: EncryptedString::try_from(&candidate.name)?,
+                surname: EncryptedString::try_from(&candidate.surname)?,
+                birthplace: EncryptedString::try_from(&candidate.birthplace)?,
+                birthdate: EncryptedString::try_from(&candidate.birthdate)?,
+                address: EncryptedString::try_from(&candidate.address)?,
+                telephone: EncryptedString::try_from(&candidate.telephone)?,
+                citizenship: EncryptedString::try_from(&candidate.citizenship)?,
+                email: EncryptedString::try_from(&candidate.email)?,
+                sex: EncryptedString::try_from(&candidate.sex)?,
+                personal_id_number: EncryptedString::from(candidate.personal_identification_number.to_owned()),
+                study: candidate.study.as_ref().ok_or(ServiceError::CandidateDetailsNotSet)?.to_string(),
             }
         )
     }
@@ -206,7 +206,7 @@ impl EncryptedParentDetails {
         )
     }
 
-    pub async fn decrypt(&self, priv_key: String) -> Result<ParentDetails, ServiceError> {
+    pub async fn decrypt(&self, priv_key: &String) -> Result<ParentDetails, ServiceError> {
         let d = tokio::try_join!(
             self.name.decrypt(&priv_key),
             self.surname.decrypt(&priv_key),
@@ -223,17 +223,17 @@ impl EncryptedParentDetails {
         )
     }
 }
-impl TryFrom<parent::Model> for EncryptedParentDetails {
+impl TryFrom<&parent::Model> for EncryptedParentDetails {
     type Error = ServiceError;
 
     fn try_from(
-        parent: parent::Model,
+        parent: &parent::Model,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedParentDetails { 
-                name: EncryptedString::try_from(parent.name)?,
-                surname: EncryptedString::try_from(parent.surname)?,
-                telephone: EncryptedString::try_from(parent.telephone)?,
-                email: EncryptedString::try_from(parent.email)?,
+                name: EncryptedString::try_from(&parent.name)?,
+                surname: EncryptedString::try_from(&parent.surname)?,
+                telephone: EncryptedString::try_from(&parent.telephone)?,
+                email: EncryptedString::try_from(&parent.email)?,
             }
         )
     }
@@ -258,12 +258,12 @@ impl EncryptedApplicationDetails {
     }
 
     pub async fn decrypt(self, priv_key: String) -> Result<ApplicationDetails, ServiceError> {
-        let decrypted_candidate = self.candidate.decrypt(priv_key.clone()).await?;
+        let decrypted_candidate = self.candidate.decrypt(&priv_key).await?;
 
         let decrypted_parents = future::try_join_all(
             self.parents
                 .iter()
-                .map(|d| d.decrypt(priv_key.clone()))
+                .map(|d| d.decrypt(&priv_key))
         ).await?;
 
         Ok(ApplicationDetails {
@@ -273,14 +273,14 @@ impl EncryptedApplicationDetails {
     }
 }
 
-impl TryFrom<(candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
+impl TryFrom<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        (candidate, parents): (candidate::Model, Vec<parent::Model>),
+        (candidate, parents): (&candidate::Model, Vec<parent::Model>),
     ) -> Result<Self, Self::Error> {
         let enc_parents = parents.iter()
-            .map(|m| EncryptedParentDetails::try_from(m.clone()))
+            .map(|m| EncryptedParentDetails::try_from(m))
             .collect::<Result<Vec<EncryptedParentDetails>, ServiceError>>()?;
 
         Ok(EncryptedApplicationDetails {
@@ -298,23 +298,23 @@ impl TryFrom<Row> for EncryptedApplicationDetails {
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails {
-                name: EncryptedString::try_from(cp.name)?,
-                surname: EncryptedString::try_from(cp.surname)?,
-                birthplace: EncryptedString::try_from(cp.birthplace)?,
-                birthdate: EncryptedString::try_from(cp.birthdate)?,
-                address: EncryptedString::try_from(cp.address)?,
-                telephone: EncryptedString::try_from(cp.telephone)?,
-                citizenship: EncryptedString::try_from(cp.citizenship)?,
-                email: EncryptedString::try_from(cp.email)?,
-                sex: EncryptedString::try_from(cp.sex)?,
-                personal_id_number: EncryptedString::try_from(cp.personal_identification_number)?,
+                name: EncryptedString::try_from(&cp.name)?,
+                surname: EncryptedString::try_from(&cp.surname)?,
+                birthplace: EncryptedString::try_from(&cp.birthplace)?,
+                birthdate: EncryptedString::try_from(&cp.birthdate)?,
+                address: EncryptedString::try_from(&cp.address)?,
+                telephone: EncryptedString::try_from(&cp.telephone)?,
+                citizenship: EncryptedString::try_from(&cp.citizenship)?,
+                email: EncryptedString::try_from(&cp.email)?,
+                sex: EncryptedString::try_from(&cp.sex)?,
+                personal_id_number: EncryptedString::try_from(&cp.personal_identification_number)?,
                 study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet)?,
             },
             parents: vec![EncryptedParentDetails {
-                name: EncryptedString::try_from(cp.parent_name)?,
-                surname: EncryptedString::try_from(cp.parent_surname)?,
-                telephone: EncryptedString::try_from(cp.parent_telephone)?,
-                email: EncryptedString::try_from(cp.parent_email)?,
+                name: EncryptedString::try_from(&cp.parent_name)?,
+                surname: EncryptedString::try_from(&cp.parent_surname)?,
+                telephone: EncryptedString::try_from(&cp.parent_telephone)?,
+                email: EncryptedString::try_from(&cp.parent_email)?,
             }]
 
         })
@@ -325,7 +325,7 @@ pub async fn decrypt_if_exists(
     private_key: &String,
     encrypted_string: Option<String>,
 ) -> Result<String, ServiceError> {
-    match EncryptedString::try_from(encrypted_string) {
+    match EncryptedString::try_from(&encrypted_string) {
         Ok(encrypted_string) => Ok(encrypted_string.decrypt(private_key).await?),
         Err(_) => Ok(String::from("")),
     }
@@ -462,7 +462,7 @@ pub mod tests {
 
         let (candidate, parents) = put_user_data(&db).await;
 
-        let encrypted_details = EncryptedApplicationDetails::try_from((candidate, parents)).unwrap();
+        let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, parents)).unwrap();
 
         let application_details = encrypted_details
             .decrypt(PRIVATE_KEY.to_string()) // decrypt with admin's private key
