@@ -202,6 +202,17 @@ export const apiSubmitPortfolio = async (): Promise<boolean> => {
 	}
 };
 
+export const apiGetPortfolio = async (): Promise<Blob> => {
+	const res = await fetch(API_URL + '/candidate/portfolio/download', {
+		method: 'GET',
+		credentials: 'include'
+	});
+	if (!res.ok) {
+		throw errorHandler(await res.text(), 'Failed to download portfolio');
+	}
+	return await res.blob();
+};
+
 export const apiDeltePortfolio = async (): Promise<boolean> => {
 	try {
 		await axios.post(API_URL + '/candidate/portfolio/delete', {}, { withCredentials: true });

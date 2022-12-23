@@ -1,10 +1,12 @@
 <script lang="ts">
 	import debounce from 'just-debounce-it';
 
-	import { apiDeltePortfolio, apiSubmitPortfolio } from '$lib/@api/candidate';
+	import { apiDeltePortfolio, apiGetPortfolio, apiSubmitPortfolio } from '$lib/@api/candidate';
 	import Circles from '$lib/components/icons/Circles.svelte';
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
+	import InfoButton from './InfoButton.svelte';
+	import { candidateData } from '$lib/stores/candidate';
 
 	export let title: string;
 	export let status: Status;
@@ -32,11 +34,32 @@
 			await deletePortfolio();
 		}
 	};
+
+	const downloadPortfolio = async () => {
+		try {
+			const portfolioBlob = await apiGetPortfolio();
+			const url = window.URL.createObjectURL(new Blob([portfolioBlob]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'PORTFOLIO' + '_' + $candidateData.candidate.name + '_' + $candidateData.candidate.surname + '.zip');
+			document.body.appendChild(link);
+			link.click();
+		} catch (e) {
+			console.log(e);
+		}
+	}
 </script>
 
 <div class="card flex flex-col">
 	<div class="infoBar flex flex-row-reverse">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
+		<div class="mr-4">
+			<div on:click on:keydown class="flex flex-col">
+				<div class="flex flex-col h-20">
+					<InfoButton on:download={downloadPortfolio}></InfoButton>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div class="relative flex flex-row justify-between">
 		<div>
