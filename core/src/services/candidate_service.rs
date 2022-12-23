@@ -115,9 +115,13 @@ impl CandidateService {
             new_password_plain.to_string()
         ).await?;
 
-
         Self::delete_old_sessions(db, candidate.clone(), 0).await?;
-        Mutation::update_candidate_password_and_keys(db, candidate.clone(), new_password_hash, pubkey, encrypted_priv_key).await?;
+        let candidate = Mutation::update_candidate_password_and_keys(db,
+             candidate,
+             new_password_hash,
+             pubkey,
+             encrypted_priv_key
+        ).await?;
         
         // user might no have filled his details yet, but personal id number is filled from beginning
         let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
