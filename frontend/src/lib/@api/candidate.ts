@@ -125,7 +125,7 @@ export const apiUploadCoverLetter = async (
 export const apiDeleteCoverLetter = async (): Promise<boolean> => {
 	try {
 		await axios.delete(API_URL + '/candidate/remove/cover_letter', {
-			withCredentials: true,
+			withCredentials: true
 		});
 		return true;
 	} catch (e) {
@@ -155,7 +155,7 @@ export const apiUploadPortfolioLetter = async (
 export const apiDeletePortfolioLetter = async (): Promise<boolean> => {
 	try {
 		await axios.delete(API_URL + '/candidate/remove/portfolio_letter', {
-			withCredentials: true,
+			withCredentials: true
 		});
 		return true;
 	} catch (e) {
@@ -185,7 +185,7 @@ export const apiUploadPortfolioZip = async (
 export const apiDeletePortfolioZip = async (): Promise<boolean> => {
 	try {
 		await axios.delete(API_URL + '/candidate/remove/portfolio_zip', {
-			withCredentials: true,
+			withCredentials: true
 		});
 		return true;
 	} catch (e) {

@@ -72,7 +72,7 @@
 						</tr>
 						<tr>
 							<td class="px-2 py-2 font-semibold text-gray-500">Pohlaví</td>
-							<td class="px-2 py-2">{candidate.sex ?? "NEUVEDENO"}</td>
+							<td class="px-2 py-2">{candidate.sex ?? 'NEUVEDENO'}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -100,7 +100,7 @@
 					</table>
 				</div>
 			</div>
-	{/each}
+		{/each}
 
 		<div class="my-8">
 			<div class="flex flex-col">

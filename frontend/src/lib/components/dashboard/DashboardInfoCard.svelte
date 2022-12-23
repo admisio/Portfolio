@@ -61,11 +61,11 @@
 </script>
 
 <div class="card flex flex-col">
-	<div class="infoBar flex flex-row-reverse <2xl:flex-col">
+	<div class="infoBar <2xl:flex-col flex flex-row-reverse">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
 		<div class="mr-4">
 			<div on:click on:keydown class="flex flex-col">
-				<div class="flex flex-col <2xl:ml-auto <2xl:flex-row <2xl:my-2">
+				<div class="<2xl:ml-auto <2xl:flex-row <2xl:my-2 flex flex-col">
 					<InfoButton
 						bind:showDetails
 						on:download={downloadPortfolio}
@@ -75,12 +75,12 @@
 			</div>
 		</div>
 	</div>
-	<div class="relative flex flex-col my-2 overflow-hidden">
+	<div class="relative my-2 flex flex-col overflow-hidden">
 		<div>
 			<span class="absolute -left-16 -top-36">
 				<Circles />
 			</span>
-			<div class="flex flex-col mt-[5%]">
+			<div class="mt-[5%] flex flex-col">
 				<h3>{title}</h3>
 				<slot />
 			</div>
@@ -95,11 +95,12 @@
 						showOnCreate: false,
 						delay: 0
 					}}
-					class="flex flex-col justify-between leading-10 mt-4"
+					class="mt-4 flex flex-col justify-between leading-10"
 				>
 					<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 					<span
-						>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span
+						>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
+						></span
 					>
 					<span
 						>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
@@ -119,11 +120,12 @@
 						showOnCreate: false,
 						delay: 0
 					}}
-					class="flex flex-col leading-10 mt-4"
+					class="mt-4 flex flex-col leading-10"
 				>
 					{#each $candidateData.parents as parent}
 						<div class="flex flex-col">
-							<span class="text-sspsBlue text-xl font-bold">{parent.name + ' ' + parent.surname}</span
+							<span class="text-sspsBlue text-xl font-bold"
+								>{parent.name + ' ' + parent.surname}</span
 							>
 							<span>Email: <span class="font-bold">{parent.email}</span></span>
 							<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>

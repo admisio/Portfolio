@@ -11,4 +11,4 @@ export interface ApiError {
 
 export const errorHandler = (error: AxiosError | unknown, msg: string): ApiError => {
 	return { error, msg };
-}
+};

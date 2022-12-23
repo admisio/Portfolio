@@ -4,7 +4,7 @@
 
 	export let helperText: string = '';
 	export let placeholder: string = '';
-	
+
 	export let value: string = '';
 	export let error: string = '';
 </script>

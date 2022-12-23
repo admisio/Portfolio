@@ -4,7 +4,7 @@
 
 	export let helperText: string = '';
 	export let placeholder: string = '';
-	
+
 	export let value: string = '';
 	export let error: string = '';
 
@@ -15,7 +15,17 @@
 	}
 </script>
 
-<TextField bind:error bind:value on:keydown on:keyup on:change type="text" {placeholder} {helperText} icon>
+<TextField
+	bind:error
+	bind:value
+	on:keydown
+	on:keyup
+	on:change
+	type="text"
+	{placeholder}
+	{helperText}
+	icon
+>
 	<div slot="icon" class="flex items-center justify-center">
 		<Person />
 	</div>
