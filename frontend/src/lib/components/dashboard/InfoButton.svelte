@@ -16,7 +16,8 @@
 
 <div class="flex flex-col">
 	<div class="flex flex-col">
-		<span on:click={(_) => showInfo()} on:keydown={(_) => showInfo()} use:tippy={{
+		<span on:click={(_) => showInfo()} on:keydown={(_) => showInfo()} 
+		use:tippy={{
 			content: "Zobrazit osobní údaje",
 			placement: 'top',
 			showOnCreate: false,

@@ -14,6 +14,9 @@
 
 	export let data: PageData;
 
+	// TODO: transition
+	let showDetails = true;
+
 	// @ts-ignore
 	$: candidateData.set(data.candidate);
 	// @ts-ignore
@@ -33,13 +36,13 @@
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
-		<div class="name col-span-4">
-			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
+		<div class="movable name col-span-5" class:col-span-5={showDetails} class:col-span-3={!showDetails}>
+			<DashboardInfoCard bind:showDetails={showDetails} status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
 				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<div class="coverletter col-span-4">
+		<div class="movable coverletter" class:col-span-3={showDetails} class:col-span-5={!showDetails}>
 			<CoverLetterUploadCard />
 		</div>
 		<div class="portfolio col-span-3">

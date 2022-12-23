@@ -7,10 +7,12 @@
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
 	import InfoButton from './InfoButton.svelte';
 	import { candidateData } from '$lib/stores/candidate';
+	import tippy from 'tippy.js';
 
 	export let title: string;
 	export let status: Status;
 
+	export let showDetails = true;
 	let loading = false;
 
 	const submitPortfolio = async () => {
@@ -56,12 +58,12 @@
 		<div class="mr-4">
 			<div on:click on:keydown class="flex flex-col">
 				<div class="flex flex-col h-20">
-					<InfoButton on:download={downloadPortfolio}></InfoButton>
+					<InfoButton on:download={downloadPortfolio} on:showInfo on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="relative flex flex-row justify-between">
+	<div class="relative flex flex-row">
 		<div>
 			<span class="absolute -left-16 -top-36">
 				<Circles />
@@ -71,6 +73,50 @@
 				<slot />
 			</div>
 		</div>
+		{#if showDetails}
+		<svg class="ml-12 mr-8 h-40 hidden xl:block mt-10" viewBox="0 0 2 80" xmlns="http://www.w3.org/2000/svg">
+			<line
+				x1="0"
+				y="0"
+				x2="0"
+				y2="80"
+				stroke="#406280ff"
+				stroke-width="2"
+				stroke-dasharray="3"/>
+		</svg>
+		<div
+			use:tippy={{
+				content: "<span>Vámi vyplněné osobní údaje</span>",
+				allowHTML: true,
+				placement: 'top',
+				showOnCreate: false,
+				delay: 0
+			}}
+		 class="flex flex-col justify-around mt-10">
+			<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
+			<span>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span>
+			<span>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span></span>
+			<span>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span></span>
+			<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
+		</div>
+		<div
+			use:tippy={{
+				content: "<span>Vámi vyplněné osobní údaje</span>",
+				allowHTML: true,
+				placement: 'top',
+				showOnCreate: false,
+				delay: 0
+			}}
+		 class="ml-10 flex flex-col justify-around mt-10">
+			{#each $candidateData.parents as parent}
+			<div class="flex flex-col">
+				<span class="font-bold text-sspsBlue text-xl">{parent.name + " " + parent.surname}</span>
+				<span>Email: <span class="font-bold">{parent.email}</span></span>
+				<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+			</div>
+			{/each}
+		</div>
+		{/if}
 	</div>
 </div>
 
