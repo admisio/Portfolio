@@ -18,11 +18,11 @@ impl ParentService {
 
     pub async fn add_parents_details(
         db: &DbConn,
-        ref_candidate: candidate::Model,
+        ref_candidate: &candidate::Model,
         parents_details: &Vec<ParentDetails>,
         recipients: &Vec<String>,
     ) -> Result<Vec<parent::Model>, ServiceError> {
-        let found_parents = Query::find_candidate_parents(db, &ref_candidate).await?;
+        let found_parents = Query::find_candidate_parents(db, ref_candidate).await?;
         if found_parents.len() > 2 {
             return Err(ServiceError::ParentOverflow);
         }
@@ -108,12 +108,12 @@ mod tests {
 
         let form = APPLICATION_DETAILS_TWO_PARENTS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db, candidate.clone(), &form)
+        let (candidate, parents) = ApplicationService::add_all_details(&db, candidate, &form)
             .await
             .unwrap();
 
         let priv_key = crypto::decrypt_password(candidate.private_key.clone(), plain_text_password).await.unwrap();
-        let dec_details = EncryptedApplicationDetails::try_from((candidate, parents))
+        let dec_details = EncryptedApplicationDetails::try_from((&candidate, parents))
             .unwrap()
             .decrypt(priv_key)
             .await

@@ -29,10 +29,12 @@ impl ApplicationService {
     ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
 
         let recipients = get_recipients(db, &candidate.public_key).await?;
+        let candidate = CandidateService::add_candidate_details(db, candidate, &form.candidate, &recipients).await?;
+        let parents = ParentService::add_parents_details(db, &candidate, &form.parents, &recipients).await?;
         Ok(
             (
-                CandidateService::add_candidate_details(db, candidate.clone(), &form.candidate, &recipients).await?,
-                ParentService::add_parents_details(db, candidate, &form.parents, &recipients).await?
+                candidate,
+                parents
             )
         )
     }
@@ -44,7 +46,7 @@ impl ApplicationService {
         // parents: Vec<parent::Model>,
     ) -> Result<ApplicationDetails, ServiceError>  {
         let parents = Query::find_candidate_parents(db, &candidate).await?;
-        let enc_details = EncryptedApplicationDetails::try_from((candidate, parents))?;
+        let enc_details = EncryptedApplicationDetails::try_from((&candidate, parents))?;
 
         enc_details.decrypt(private_key).await
     }

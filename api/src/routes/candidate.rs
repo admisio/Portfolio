@@ -210,7 +210,7 @@ pub async fn submit_portfolio(
 
     let candidate: entity::candidate::Model = session.into();
 
-    let submit = PortfolioService::submit(candidate.clone(), &db).await;
+    let submit = PortfolioService::submit(&candidate, &db).await;
 
     if submit.is_err() {
         let e = submit.err().unwrap();
