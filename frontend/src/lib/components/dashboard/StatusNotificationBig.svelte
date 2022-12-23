@@ -24,7 +24,7 @@
 
 <div on:click on:keydown class="flex flex-col">
 	<div class="info flex flex-col {status}">
-		<span class="text-xl font-bold text-white">{title}</span>
+		<span class="2xl:text-xl font-bold text-white">{title}</span>
 		{#if loading}
 			<div role="status">
 				<svg
