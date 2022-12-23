@@ -52,7 +52,7 @@
 			</DashboardInfoCard>
 		</div>
 		<div class="movable coverletter col-span-5 row-span-4">
-			<CoverLetterUploadCard  />
+			<CoverLetterUploadCard />
 		</div>
 		<div class="portfolio col-span-4 row-span-4" class:showDetailsPortfolio={showDetails}>
 			<PortfolioLetterUploadCard />
@@ -103,7 +103,7 @@
 	}
 	.dashboardDesktop {
 		@apply h-[85vh] w-[85vw];
-		@apply hidden grid-cols-8 grid-rows-8 gap-10 md:grid;
+		@apply grid-rows-8 hidden grid-cols-8 gap-10 md:grid;
 	}
 
 	.dashboardMobile {
