@@ -33,19 +33,19 @@
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
-		<div class="name col-span-3 <2xl:col-span-4">
+		<div class="name col-span-4">
 			<DashboardInfoCard status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
 				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<div class="coverletter col-span-5 <2xl:col-span-4">
+		<div class="coverletter col-span-4">
 			<CoverLetterUploadCard />
 		</div>
-		<div class="portfolio col-span-4">
+		<div class="portfolio col-span-3">
 			<PortfolioLetterUploadCard />
 		</div>
-		<div class="moreData col-span-4">
+		<div class="moreData col-span-5">
 			<PortfolioZipUploadCard />
 		</div>
 	</div>
