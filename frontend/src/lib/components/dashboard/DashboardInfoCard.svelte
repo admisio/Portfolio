@@ -59,7 +59,7 @@
 		<div class="mr-4">
 			<div on:click on:keydown class="flex flex-col">
 				<div class="flex flex-col h-20">
-					<InfoButton on:download={downloadPortfolio} on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
+					<InfoButton bind:showDetails={showDetails} on:download={downloadPortfolio} on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
 				</div>
 			</div>
 		</div>

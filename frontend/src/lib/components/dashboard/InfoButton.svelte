@@ -4,6 +4,8 @@
 	import { createEventDispatcher } from 'svelte';
 	import { submissionProgress, UploadStatus } from '$lib/stores/portfolio';
 
+	export let showDetails: boolean;
+
 	const dispatch = createEventDispatcher();
 
 	const showInfo = () => {
@@ -16,10 +18,11 @@
 </script>
 
 <div class="flex flex-col">
+	<!-- TODO: better icon for "hide details"? -->
 	<div class="flex flex-col">
 		<span on:click={(_) => showInfo()} on:keydown={(_) => showInfo()} 
 		use:tippy={{
-			content: "Zobrazit osobní údaje",
+			content: (showDetails ? "Skrýt" : "Zobrazit") + " osobní údaje",
 			placement: 'top',
 			showOnCreate: false,
 			delay: 0
