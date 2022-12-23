@@ -51,14 +51,15 @@
 		}
 	}
 </script>
-
+<!-- TODO expand on mouse hover?? -->
+<!-- <div class="card flex flex-col" on:mouseenter={(_) => showDetails = true} on:mouseleave={(_) => showDetails = false}> -->
 <div class="card flex flex-col">
 	<div class="infoBar flex flex-row-reverse">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
 		<div class="mr-4">
 			<div on:click on:keydown class="flex flex-col">
 				<div class="flex flex-col h-20">
-					<InfoButton on:download={downloadPortfolio} on:showInfo on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
+					<InfoButton on:download={downloadPortfolio} on:showInfo={(_) => showDetails = !showDetails}></InfoButton>
 				</div>
 			</div>
 		</div>
