@@ -15,7 +15,7 @@
 	export let data: PageData;
 
 	// TODO: transition
-	let showDetails = true;
+	let showDetails = false;
 
 	// @ts-ignore
 	$: candidateData.set(data.candidate);

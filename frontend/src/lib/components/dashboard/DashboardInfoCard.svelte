@@ -12,7 +12,7 @@
 	export let title: string;
 	export let status: Status;
 
-	export let showDetails = true;
+	export let showDetails = false;
 	let loading = false;
 
 	const submitPortfolio = async () => {
