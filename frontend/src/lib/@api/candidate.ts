@@ -26,7 +26,7 @@ export const apiFetchDetails = async (fetchSsr?: Fetch): Promise<CandidateData> 
 			method: 'GET',
 			credentials: 'include'
 		});
-		if (res.status != 200) {
+		if (!res.ok) {
 			throw new Error(await res.text());
 		}
 		return await res.json();
