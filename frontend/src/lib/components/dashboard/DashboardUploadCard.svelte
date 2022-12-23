@@ -155,7 +155,7 @@
 			>
 			<div class="items-center text-center">
 				<h2 class="text-sspsBlueDark mb-2 text-2xl font-bold">{Math.round(progress * 100)} %</h2>
-				<ProgressBar {progress} />
+				<ProgressBar submitted={status === 'submitted'} {progress} />
 			</div>
 		</div>
 	{:else}

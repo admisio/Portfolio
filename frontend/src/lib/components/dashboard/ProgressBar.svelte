@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let progress: number;
+	export let submitted: boolean = false;
 </script>
 
 <div class="progress-bar">
@@ -13,27 +14,30 @@
 	>
 		<line x1="5" y1="3" x2="45" y2="3" stroke="#e6e6e6" stroke-width="6" stroke-linecap="round" />
 
-		{#if progress === 1}
-			<line
-				x1="5"
-				y1="3"
-				x2={progress * 45}
-				y2="3"
-				stroke="#35e000ff"
-				stroke-width="3"
-				stroke-linecap="round"
-			/>
-		{:else}
-			<line
-				x1="5"
-				y1="3"
-				x2={progress * 45}
-				y2="3"
-				stroke="#75bff8ff"
-				stroke-width="3"
-				stroke-linecap="round"
-			/>
-		{/if}
+		<line
+			x1="5"
+			y1="3"
+			x2={progress * 45}
+			y2="3"
+			class:submitted={progress === 1 && submitted}
+			class:not-submitted={progress === 1 && !submitted}
+			class:uploading={progress !== 1}
+			stroke-width="3"
+			stroke-linecap="round"
+		/>
+
 		>
 	</svg>
 </div>
+
+<style>
+	.submitted {
+		@apply stroke-[#35e000ff];
+	}
+	.not-submitted {
+		@apply stroke-[#ef8b46];
+	}
+	.uploading {
+		@apply stroke-[#75bff8ff];
+	}
+</style>
