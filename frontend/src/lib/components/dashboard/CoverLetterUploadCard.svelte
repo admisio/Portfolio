@@ -4,6 +4,7 @@
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
 	import type { ApiError } from '$lib/@api';
 
+	export let compact: boolean = false;
 	let error: string | null = null;
 
 	const onFileDrop = async (detail: any) => {
@@ -26,6 +27,7 @@
 
 <DashboardUploadCard
 	{error}
+	compact
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	on:delete={onDelete}
 	title="Motivační dopis"

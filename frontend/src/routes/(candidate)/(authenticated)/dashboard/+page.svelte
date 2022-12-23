@@ -36,14 +36,14 @@
 
 <FullLayout>
 	<div class="dashboard dashboardDesktop">
-		<div class="movable name col-span-5" class:col-span-5={showDetails} class:col-span-3={!showDetails}>
+		<div class="movable name col-span-3" class:showDetailsInfoCard={showDetails}>
 			<DashboardInfoCard bind:showDetails={showDetails} status={getUploadStatus($submissionProgress.status)} title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}>
 				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<div class="movable coverletter" class:col-span-3={showDetails} class:col-span-5={!showDetails}>
-			<CoverLetterUploadCard />
+		<div class="movable coverletter col-span-5" class:showDetailsUploadCard={showDetails}>
+			<CoverLetterUploadCard compact={showDetails} />
 		</div>
 		<div class="portfolio col-span-4">
 			<PortfolioLetterUploadCard />
@@ -80,6 +80,12 @@
 </FullLayout>
 
 <style>
+	.showDetailsInfoCard {
+		@apply col-span-5 <2xl: col-span-6;
+	}
+	.showDetailsUploadCard {
+		@apply col-span-3 <2xl: col-span-2;
+	}
 	.dashboardDesktop {
 		@apply h-[85vh] w-[85vw];
 		@apply hidden grid-cols-8 grid-rows-2 gap-10 md:grid;

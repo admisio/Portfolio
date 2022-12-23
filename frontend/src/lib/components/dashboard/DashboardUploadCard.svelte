@@ -20,6 +20,7 @@
 	export let filesize: number;
 	export let fileType: number;
 	export let placeholder: string = '';
+	export let compact: boolean = false;
 
 	let fileDropped: boolean = false;
 	let progress: number = 1;
@@ -101,9 +102,11 @@
 <div class="card uploadCard relative">
 	<div class="header">
 		<h3 class="mb-4 sm:mb-0">{title}</h3>
-		<div class="mb-4 mt-1 sm:mb-0 sm:mt-0">
-			<FileType {filetype} filesize={filesize + ' MB'} />
-		</div>
+		{#if !compact}
+			<div class="mb-4 mt-1 sm:mb-0 sm:mt-0">
+				<FileType {filetype} filesize={filesize + ' MB'} />
+			</div>
+		{/if}
 		<div class="absolute right-0 top-4 flex items-center px-7">
 			{#if status === 'uploaded'}
 				<button
@@ -116,24 +119,26 @@
 	</div>
 	{#if fileDropped &&  error === null}
 		<div class="body uploaded flex content-around items-center justify-between">
-			<div class="w-24">
-				<img
-					class="w-full object-scale-down"
-					src={filetype == 'PDF' ? documentIcon : archiveIcon}
-					alt="Icon"
-				/>
-			</div>
-			<svg class="h-25 hidden xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
-				><line
-					x1="0"
-					y="0"
-					x2="0"
-					y2="40"
-					stroke="#406280ff"
-					stroke-width="2"
-					stroke-dasharray="3"
-				/></svg
-			>
+			{#if !compact}
+				<div class="w-24">
+					<img
+						class="w-full object-scale-down"
+						src={filetype == 'PDF' ? documentIcon : archiveIcon}
+						alt="Icon"
+					/>
+				</div>
+				<svg class="h-25 hidden xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+					><line
+						x1="0"
+						y="0"
+						x2="0"
+						y2="40"
+						stroke="#406280ff"
+						stroke-width="2"
+						stroke-dasharray="3"
+					/></svg
+				>
+			{/if}
 			<div class="hidden items-center xl:block">
 				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
 					<h2 class="text-xl font-bold">{status === 'submitted' ? 'Odesláno' : 'Nahráno'}</h2>

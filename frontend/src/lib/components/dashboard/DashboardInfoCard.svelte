@@ -108,7 +108,7 @@
 				showOnCreate: false,
 				delay: 0
 			}}
-		 class="ml-10 flex flex-col justify-around mt-10">
+		 class="ml-10 <xl:ml-4 flex flex-col justify-around mt-10">
 			{#each $candidateData.parents as parent}
 			<div class="flex flex-col">
 				<span class="font-bold text-sspsBlue text-xl">{parent.name + " " + parent.surname}</span>
