@@ -30,11 +30,11 @@ impl ParentService {
         let mut result = vec![];
         for i in 0..parents_details.len() {
             let found_parent = match found_parents.get(i) {
-                Some(parent) => parent.clone(),
+                Some(parent) => parent.to_owned(),
                 None => ParentService::create(db, ref_candidate.application).await?,
             };
             let enc_details = EncryptedParentDetails::new(&parents_details[i], recipients).await?;
-            let parent = Mutation::add_parent_details(db, found_parent.clone(), enc_details.clone()).await?;
+            let parent = Mutation::add_parent_details(db, found_parent, enc_details.clone()).await?;
             result.push(parent);
         }
 
