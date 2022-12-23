@@ -45,7 +45,7 @@
 		{#each [0] as animated (animated)}
 			<div
 				class="movable name col-span-3 row-span-4"
-				animate:flip={{ duration: 400}}
+				animate:flip={{ duration: 400 }}
 				class:showDetailsInfoCard={showDetails}
 			>
 				<DashboardInfoCard

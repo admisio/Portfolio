@@ -24,12 +24,12 @@
 
 <div on:click on:keydown class="flex flex-col">
 	<div class="info flex flex-col {status}">
-		<span class="2xl:text-xl font-bold text-white">{title}</span>
+		<span class="font-bold text-white 2xl:text-xl">{title}</span>
 		{#if loading}
 			<div role="status">
 				<svg
 					aria-hidden="true"
-					class="my-2 h-6 w-6 animate-spin !fill-sspsBlue text-gray-200"
+					class="!fill-sspsBlue my-2 h-6 w-6 animate-spin text-gray-200"
 					viewBox="0 0 100 101"
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"

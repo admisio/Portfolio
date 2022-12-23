@@ -4,19 +4,8 @@
 	export let error: string = '';
 </script>
 
-<input
-	class:error
-	on:change
-	type="checkbox"
-	id="gdpr"
-	bind:checked={value}
-	class="peer hidden"
-/>
-<label
-	for="gdpr"
-	class="peer-checked:border-sspsBlue peer-checked:text-gray-600"
-	class:error
->
+<input class:error on:change type="checkbox" id="gdpr" bind:checked={value} class="peer hidden" />
+<label for="gdpr" class="peer-checked:border-sspsBlue peer-checked:text-gray-600" class:error>
 	<div class="block">
 		<span class="text-2xl">📜</span>
 

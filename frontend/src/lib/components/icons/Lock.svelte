@@ -10,7 +10,7 @@
 
 <style>
 	svg {
-		@apply stroke-current fill-current;
+		@apply fill-current stroke-current;
 	}
 	g,
 	path {

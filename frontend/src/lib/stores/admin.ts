@@ -1,4 +1,4 @@
 export interface AdminLogin {
-    adminId: number;
-    password: string;
+	adminId: number;
+	password: string;
 }

@@ -16,7 +16,7 @@
 	import 'tippy.js/dist/tippy.css';
 
 	const isTooltip = helperText ? tippy : () => {};
-	$: tooltipDelay = error != "" ? 0 : 1000;
+	$: tooltipDelay = error != '' ? 0 : 1000;
 </script>
 
 <div

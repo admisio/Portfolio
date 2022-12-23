@@ -12,7 +12,6 @@
 
 	let candidates: Array<CandidatePreview> = data.preview;
 
-
 	const getCandidates = async (field?: string) => {
 		try {
 			candidates = await apiListCandidates(undefined, field);

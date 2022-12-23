@@ -23,4 +23,4 @@ export const fetchSubmProgress = async () => {
 	} catch (e) {
 		console.error(e);
 	}
-}
+};

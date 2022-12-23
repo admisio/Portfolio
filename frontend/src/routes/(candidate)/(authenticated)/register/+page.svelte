@@ -133,7 +133,9 @@
 
 					values.candidate.birthdate = birthdate_formttted;
 
-					values.parents.filter((x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== '');
+					values.parents.filter(
+						(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
+					);
 
 					await apiFillDetails(values);
 					goto('/dashboard');
@@ -320,7 +322,6 @@
 					bind:value={$form.candidate.birthdate}
 					type="text"
 					placeholder="Datum narození"
-					
 					helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 				/>
 				<div class="ml-2">
@@ -471,7 +472,7 @@
 				<button
 					class:dotActive={i === pageIndex}
 					on:click={async (e) => {
-						const progress = pagesFilled.slice(0, i ).every((item) => item === true);
+						const progress = pagesFilled.slice(0, i).every((item) => item === true);
 						if (progress) {
 							if (i > pageIndex) {
 								// if next page is clicked, validate current page

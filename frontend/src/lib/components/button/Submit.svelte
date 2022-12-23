@@ -7,8 +7,8 @@
 <style>
 	input {
 		@apply bg-sspsBlue hover:bg-sspsBlueDark 
-        @apply rounded-lg p-3 text-xl font-semibold text-white 
-        @apply transition-colors duration-300;
-        @apply w-full;
+        @apply @apply rounded-lg p-3 text-xl font-semibold 
+        text-white transition-colors duration-300;
+		@apply w-full;
 	}
 </style>
