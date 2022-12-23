@@ -45,10 +45,10 @@
 		<div class="movable coverletter" class:col-span-3={showDetails} class:col-span-5={!showDetails}>
 			<CoverLetterUploadCard />
 		</div>
-		<div class="portfolio col-span-3">
+		<div class="portfolio col-span-4">
 			<PortfolioLetterUploadCard />
 		</div>
-		<div class="moreData col-span-5">
+		<div class="moreData col-span-4">
 			<PortfolioZipUploadCard />
 		</div>
 	</div>
