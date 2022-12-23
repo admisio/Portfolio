@@ -8,12 +8,12 @@
 	class:error
 	on:change
 	type="checkbox"
-	id="gdpr-option"
+	id="gdpr"
 	bind:checked={value}
 	class="peer hidden"
 />
 <label
-	for="gdpr-option"
+	for="gdpr"
 	class="peer-checked:border-sspsBlue peer-checked:text-gray-600"
 	class:error
 >
