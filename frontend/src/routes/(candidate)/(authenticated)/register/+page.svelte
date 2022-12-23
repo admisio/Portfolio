@@ -118,6 +118,8 @@
 			console.log(values.parents);
 			console.log(values);
 			if (pageIndex === pageCount) {
+				// clone values to oldValues
+				let oldValues = JSON.parse(JSON.stringify(values));
 				try {
 					console.log('submit');
 					// @ts-ignore // love javascript
@@ -131,9 +133,12 @@
 
 					values.candidate.birthdate = birthdate_formttted;
 
+					values.parents.filter((x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== '');
+
 					await apiFillDetails(values);
 					goto('/dashboard');
 				} catch (e) {
+					values = oldValues;
 					console.error('error while submitting data: ' + e);
 				}
 			}
