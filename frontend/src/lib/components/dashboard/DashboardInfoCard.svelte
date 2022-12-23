@@ -75,74 +75,61 @@
 			</div>
 		</div>
 	</div>
-	<div class="relative flex flex-col md:flex-row h-full justify-between my-2">
+	<div class="relative flex flex-col my-2 overflow-hidden">
 		<div>
 			<span class="absolute -left-16 -top-36">
 				<Circles />
 			</span>
-			<div class="flex flex-col xl:mt-10">
+			<div class="flex flex-col mt-[5%]">
 				<h3>{title}</h3>
 				<slot />
 			</div>
 		</div>
 		{#if showDetails}
-			<svg
-				class="ml-12 mr-8 hidden h-40 xl:block"
-				viewBox="0 0 2 80"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<line
-					x1="0"
-					y="0"
-					x2="0"
-					y2="80"
-					stroke="#406280ff"
-					stroke-width="2"
-					stroke-dasharray="3"
-				/>
-			</svg>
-			<div
-				use:tippy={{
-					content: '<span>Vámi vyplněné osobní údaje</span>',
-					allowHTML: true,
-					placement: 'top',
-					showOnCreate: false,
-					delay: 0
-				}}
-				class="flex flex-col justify-around <2xl:text-xs"
-			>
-				<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
-				<span
-					>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span
+			<div class="overflow-scroll">
+				<div
+					use:tippy={{
+						content: '<span>Vámi vyplněné osobní údaje</span>',
+						allowHTML: true,
+						placement: 'top',
+						showOnCreate: false,
+						delay: 0
+					}}
+					class="flex flex-col justify-between leading-10 mt-4"
 				>
-				<span
-					>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
-					></span
+					<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
+					<span
+						>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span></span
+					>
+					<span
+						>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
+						></span
+					>
+					<span
+						>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
+						></span
+					>
+					<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
+				</div>
+				<div
+					use:tippy={{
+						content: '<span>Vámi vyplněné osobní údaje</span>',
+						allowHTML: true,
+						placement: 'top',
+						showOnCreate: false,
+						delay: 0
+					}}
+					class="flex flex-col leading-10 mt-4"
 				>
-				<span
-					>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
-					></span
-				>
-				<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
-			</div>
-			<div
-				use:tippy={{
-					content: '<span>Vámi vyplněné osobní údaje</span>',
-					allowHTML: true,
-					placement: 'top',
-					showOnCreate: false,
-					delay: 0
-				}}
-				class="md:ml-4 flex flex-col <2xl:text-xs"
-			>
-				{#each $candidateData.parents as parent}
-					<div class="flex flex-col">
-						<span class="text-sspsBlue text-xl font-bold">{parent.name + ' ' + parent.surname}</span
-						>
-						<span>Email: <span class="font-bold">{parent.email}</span></span>
-						<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
-					</div>
-				{/each}
+					{#each $candidateData.parents as parent}
+						<div class="flex flex-col">
+							<span class="text-sspsBlue text-xl font-bold">{parent.name + ' ' + parent.surname}</span
+							>
+							<span>Email: <span class="font-bold">{parent.email}</span></span>
+							<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+						</div>
+					{/each}
+				</div>
 			</div>
 		{/if}
 	</div>

@@ -51,13 +51,13 @@
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<div class="movable coverletter col-span-5 row-span-4" class:showDetailsUploadCard={showDetails}>
-			<CoverLetterUploadCard compact={showDetails} />
+		<div class="movable coverletter col-span-5 row-span-4">
+			<CoverLetterUploadCard  />
 		</div>
-		<div class="portfolio col-span-4 row-span-4">
+		<div class="portfolio col-span-4 row-span-4" class:showDetailsPortfolio={showDetails}>
 			<PortfolioLetterUploadCard />
 		</div>
-		<div class="moreData col-span-4 row-span-4">
+		<div class="moreData col-span-4 row-span-4" class:showDetailsMoreData={showDetails}>
 			<PortfolioZipUploadCard />
 		</div>
 	</div>
@@ -93,10 +93,13 @@
 
 <style>
 	.showDetailsInfoCard {
-		@apply <2xl:col-span-5 <2xl:row-span-5 col-span-6;
+		@apply md:row-span-8;
 	}
-	.showDetailsUploadCard {
-		@apply <2xl:col-span-3 <2xl:row-span-5 col-span-2;
+	.showDetailsPortfolio {
+		@apply md:hidden;
+	}
+	.showDetailsMoreData {
+		@apply md:col-span-5;
 	}
 	.dashboardDesktop {
 		@apply h-[85vh] w-[85vw];
