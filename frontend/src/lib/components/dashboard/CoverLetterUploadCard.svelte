@@ -27,7 +27,7 @@
 
 <DashboardUploadCard
 	{error}
-	compact
+	{compact}
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	on:delete={onDelete}
 	title="Motivační dopis"
