@@ -31,7 +31,7 @@
 	</div>
 </TextField>
 
-<style>
+<style lang="postcss">
 	div {
 		@apply text-sspsBlue;
 	}

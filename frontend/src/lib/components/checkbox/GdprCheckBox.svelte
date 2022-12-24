@@ -15,7 +15,7 @@
 	</div>
 </label>
 
-<style>
+<style lang="postcss">
 	label {
 		@apply inline-flex  w-full items-center justify-between;
 		@apply cursor-pointer;

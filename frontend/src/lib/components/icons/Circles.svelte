@@ -4,7 +4,7 @@
 	<span class="h-28 w-28 bg-black bg-[#55b1bd] opacity-60" />
 </div>
 
-<style>
+<style lang="postcss">
 	div {
 		@apply relative;
 	}

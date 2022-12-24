@@ -7,7 +7,7 @@
 	/></svg
 >
 
-<style>
+<style lang="postcss">
 	svg {
 		@apply fill-none stroke-current;
 	}

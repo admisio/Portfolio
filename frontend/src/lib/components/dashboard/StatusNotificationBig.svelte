@@ -50,7 +50,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.info {
 		@apply flex items-center justify-between;
 		@apply py-3 px-6;

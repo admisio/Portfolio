@@ -9,7 +9,7 @@
 	<span class="text-sspsBlue text-lg italic">Max {filesize}</span>
 </div>
 
-<style>
+<style lang="postcss">
 	div {
 		@apply flex items-center justify-between;
 		@apply py-1 px-4;

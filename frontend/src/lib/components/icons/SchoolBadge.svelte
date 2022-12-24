@@ -8,5 +8,5 @@
 	<img class="object-cover" src={lion} alt="" />
 </div>
 
-<style>
+<style lang="postcss">
 </style>

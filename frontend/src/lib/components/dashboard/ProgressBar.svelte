@@ -30,7 +30,7 @@
 	</svg>
 </div>
 
-<style>
+<style lang="postcss">
 	.submitted {
 		@apply stroke-[#35e000ff];
 	}

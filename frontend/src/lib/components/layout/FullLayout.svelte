@@ -23,7 +23,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.logo {
 		@apply h-[200px] w-[200px];
 	}

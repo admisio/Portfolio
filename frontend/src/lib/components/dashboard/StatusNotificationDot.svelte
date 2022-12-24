@@ -23,7 +23,7 @@
 	<!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
 </div>
 
-<style>
+<style lang="postcss">
 	span {
 		@apply rounded-full p-1;
 	}

@@ -155,7 +155,7 @@
 
 <svelte:window on:scroll={() => (scrollTop = window.scrollY)} />
 
-<style>
+<style lang="postcss">
 	.list {
 		@apply h-full w-96;
 		@apply float-left overflow-scroll;

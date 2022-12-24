@@ -39,5 +39,5 @@
 	{helperText}
 />
 
-<style>
+<style lang="postcss">
 </style>

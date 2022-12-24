@@ -181,7 +181,7 @@
 	{/if}
 </div>
 
-<style>
+<style lang="postcss">
 	:global([type='file']) {
 		@apply hidden;
 	}

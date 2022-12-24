@@ -111,7 +111,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	button {
 		@apply bg-sspsBlue hover:bg-sspsBlueDark rounded-lg transition duration-300;
 		@apply px-10 py-4 text-2xl font-bold text-white;

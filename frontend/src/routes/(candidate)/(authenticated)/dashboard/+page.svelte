@@ -112,7 +112,7 @@
 	</div>
 </FullLayout>
 
-<style>
+<style lang="postcss">
 	.showDetailsInfoCard {
 		@apply md:row-span-8;
 	}

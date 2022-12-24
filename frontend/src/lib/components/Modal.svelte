@@ -22,7 +22,7 @@
 	<slot />
 </div>
 
-<style>
+<style lang="postcss">
 	.modalBackground {
 		@apply fixed;
 		@apply top-0 left-0;

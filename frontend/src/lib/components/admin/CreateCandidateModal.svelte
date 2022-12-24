@@ -57,5 +57,5 @@
 	</Modal>
 {/if}
 
-<style>
+<style lang="postcss">
 </style>

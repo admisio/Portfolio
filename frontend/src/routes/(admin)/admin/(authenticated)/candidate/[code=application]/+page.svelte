@@ -7,5 +7,5 @@
 
 <CandidateDetails id={data.id} candidateData={data.candidateData} />
 
-<style>
+<style lang="postcss">
 </style>

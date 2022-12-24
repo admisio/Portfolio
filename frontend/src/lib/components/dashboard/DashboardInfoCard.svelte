@@ -137,7 +137,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.card {
 		@apply m-3;
 		@apply h-full;
