@@ -29,7 +29,7 @@
 
 <style lang="postcss">
 	div,
-	input {
+	select {
 		@apply w-full;
 	}
 	div {

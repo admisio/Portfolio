@@ -213,9 +213,4 @@
 	.body .controls {
 		@apply flex flex-row items-center justify-between;
 	}
-
-	.candidatePreview {
-		@apply mt-5 h-20 w-full rounded-xl bg-gray-200;
-		@apply hover:cursor-pointer;
-	}
 </style>
