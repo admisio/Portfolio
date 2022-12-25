@@ -186,10 +186,6 @@
 	};
 
 	const onSubmit = async (values: CandidateData) => {
-		console.log('page count: ' + pageIndex);
-		console.log(values.candidate);
-		console.log(values.parents);
-		console.log(values);
 		if (pageIndex === pageCount) {
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
@@ -337,9 +333,9 @@
 		<div class="h-24 w-24 md:h-auto md:w-auto">
 			<SchoolBadge />
 		</div>
-		<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}} id="triggerForm" class="invisible hidden"></form>
+		<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden"></form>
 		{#if pageIndex === 0}
-			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
+			<form on:submit={handleSubmit}>
 				<h1 class="title mt-8">{pageTexts[0]}</h1>
 				<p class="description mt-8 block text-center">
 					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
@@ -355,7 +351,7 @@
 				</div>
 			</form>
 		{:else if pageIndex === 1}
-			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
+			<form on:submit={handleSubmit}>
 				<h1 class="title mt-8">{pageTexts[1]}</h1>
 				<p class="description mt-8 block text-center">
 					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
@@ -560,7 +556,6 @@
 		<div class="mt-8 w-full">
 			<Submit
 				on:click={async (e) => {
-					console.log('event: ' + e);
 					await handleSubmit(e);
 					if (isPageInvalid(pageIndex)) return;
 					if (pageIndex === pageCount) {
