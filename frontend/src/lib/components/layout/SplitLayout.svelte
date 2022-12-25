@@ -28,11 +28,11 @@
 <style lang="postcss">
 	.bgImage {
 		@apply -z-20;
-		@apply min-w-screen absolute min-h-screen md:min-w-[50vw];
+		@apply min-w-screen absolute min-h-full md:min-w-[50vw];
 		@apply bg-cover bg-no-repeat;
 	}
 	.bgOverlay {
-		@apply min-w-screen absolute -z-10 min-h-screen md:min-w-[50vw];
+		@apply min-w-screen absolute -z-10 min-h-full md:min-w-[50vw];
 		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
 		@apply bg-cover;
 	}

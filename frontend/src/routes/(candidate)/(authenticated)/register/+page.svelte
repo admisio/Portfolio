@@ -332,7 +332,7 @@
 <SplitLayout>
 	<div class="form relative">
 		<div class="absolute bottom-3/12 flex flex-col w-full">
-			<div class="h-24 w-24 md:h-32 md:w-32 self-center mb-4">
+			<div class="h-32 w-32 <md:hidden self-center mb-4">
 				<SchoolBadge />
 			</div>
 		<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden"></form>
@@ -359,7 +359,7 @@
 					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
 					vyplněním potřebných údajů.
 				</p>
-				<div class="flex w-full items-center justify-center md:flex-col">
+				<div class="flex flex-col">
 					<span class="mt-8 w-full">
 						<NameField
 							error={$typedErrors['candidate']['name']}
@@ -369,7 +369,7 @@
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
-					<span class="mt-8 ml-2 w-full md:ml-0">
+					<span class="mt-8 w-full">
 						<EmailField
 							error={$typedErrors['candidate']['email']}
 							on:change={handleChange}
@@ -377,14 +377,14 @@
 							placeholder="E-mail"
 						/>
 					</span>
-				</div>
-				<div class="mt-8 w-full">
-					<TelephoneField
-						error={$typedErrors['candidate']['telephone']}
-						on:change={handleChange}
-						bind:value={$form.candidate.telephone}
-						placeholder="Telefon"
-					/>
+					<span class="mt-8 w-full">
+						<TelephoneField
+							error={$typedErrors['candidate']['telephone']}
+							on:change={handleChange}
+							bind:value={$form.candidate.telephone}
+							placeholder="Telefon"
+						/>
+					</span>
 				</div>
 			</form>
 		{:else if pageIndex === 2}
@@ -393,7 +393,7 @@
 				Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
 			</p>
-			<div class="flex w-full flex-row md:flex-col">
+			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
 					<TextField
 						error={$typedErrors['candidate']['address']}
@@ -404,7 +404,7 @@
 						helperText="Uveďte ulici, č.p., město, PSČ"
 					/>
 				</span>
-				<span class="mt-8 ml-2 w-full md:ml-0">
+				<span class="mt-8 w-full">
 					<TextField
 						error={$typedErrors['candidate']['birthplace']}
 						on:change={handleChange}
@@ -455,24 +455,22 @@
 						placeholder="Jméno a příjmení zákonného zástupce"
 				/>
 			</span>
-			<div class="mt-8 flex flex-row items-center md:flex-col">
-				<span class="w-full">
-					<EmailField
-							error={$typedErrors['parents'][0]['email']}
-						on:change={handleChange}
-							bind:value={$form.parents[0].email}
-							placeholder="E-mail zákonného zástupce"
-					/>
-				</span>
-				<span class="ml-2 w-full md:ml-0 md:mt-8">
-					<TelephoneField
-							error={$typedErrors['parents'][0]['telephone']}
-						on:change={handleChange}
-							bind:value={$form.parents[0].telephone}
-							placeholder="Telefon zákonného zástupce"
-					/>
-				</span>
-			</div>
+			<span class="mt-8 w-full">
+				<EmailField
+						error={$typedErrors['parents'][0]['email']}
+					on:change={handleChange}
+						bind:value={$form.parents[0].email}
+						placeholder="E-mail zákonného zástupce"
+				/>
+			</span>
+			<span class="w-full mt-8">
+				<TelephoneField
+						error={$typedErrors['parents'][0]['telephone']}
+					on:change={handleChange}
+						bind:value={$form.parents[0].telephone}
+						placeholder="Telefon zákonného zástupce"
+				/>
+			</span>
 		</div>
 		{:else if pageIndex === 4}
 			<h1 class="title mt-8">{pageTexts[4]}</h1>
@@ -489,24 +487,22 @@
 						placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
 					/>
 				</span>
-				<div class="mt-8 flex flex-row items-center md:flex-col">
-					<span class="w-full">
-						<EmailField
-							error={$typedErrors['parents'][1]['email']}
-							on:change={handleChange}
-							bind:value={$form.parents[1].email}
-							placeholder="E-mail zákonného zástupce (nepovinné)"
-						/>
+				<span class="mt-8 w-full">
+					<EmailField
+						error={$typedErrors['parents'][1]['email']}
+						on:change={handleChange}
+						bind:value={$form.parents[1].email}
+						placeholder="E-mail zákonného zástupce (nepovinné)"
+					/>
+				</span>
+				<span class="mt-8 w-full">
+					<TelephoneField
+						error={$typedErrors['parents'][1]['telephone']}
+						on:change={handleChange}
+						bind:value={$form.parents[1].telephone}
+						placeholder="Telefon zákonného zástupce (nepovinné)"
+					/>
 					</span>
-					<span class="ml-2 w-full md:ml-0 md:mt-8">
-						<TelephoneField
-							error={$typedErrors['parents'][1]['telephone']}
-							on:change={handleChange}
-							bind:value={$form.parents[1].telephone}
-							placeholder="Telefon zákonného zástupce (nepovinné)"
-						/>
-					</span>
-				</div>
 			</div>
 		{:else if pageIndex === 5}
 			<h1 class="title mt-8">{pageTexts[5]}</h1>
