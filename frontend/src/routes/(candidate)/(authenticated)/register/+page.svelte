@@ -331,7 +331,7 @@
 
 <SplitLayout>
 	<div class="form relative">
-		<div class="absolute bottom-3/12 flex flex-col w-full">
+		<div class="overflow-scroll h-[65%] md:h-auto absolute bottom-3/12 flex flex-col w-full">
 			<div class="h-32 w-32 <md:hidden self-center mb-4">
 				<SchoolBadge />
 			</div>
@@ -344,7 +344,7 @@
 					souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si můžete přečíst
 					<a href="/bezpecnost" class="text-sspsBlue underline"> zde</a>.
 				</p>
-				<div class="mt-8 w-full">
+				<div class="field">
 					<GdprCheckBox
 						on:change={handleChange}
 						bind:value={$form.gdpr}
@@ -360,7 +360,7 @@
 					vyplněním potřebných údajů.
 				</p>
 				<div class="flex flex-col">
-					<span class="mt-8 w-full">
+					<span class="field">
 						<NameField
 							error={$typedErrors['candidate']['name']}
 							on:change={handleChange}
@@ -369,7 +369,7 @@
 							placeholder="Jméno a příjmení"
 						/>
 					</span>
-					<span class="mt-8 w-full">
+					<span class="field">
 						<EmailField
 							error={$typedErrors['candidate']['email']}
 							on:change={handleChange}
@@ -377,7 +377,7 @@
 							placeholder="E-mail"
 						/>
 					</span>
-					<span class="mt-8 w-full">
+					<span class="field">
 						<TelephoneField
 							error={$typedErrors['candidate']['telephone']}
 							on:change={handleChange}
@@ -394,7 +394,7 @@
 				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
 			</p>
 			<div class="flex w-full flex-col">
-				<span class="mt-8 w-full">
+				<span class="field">
 					<TextField
 						error={$typedErrors['candidate']['address']}
 						on:change={handleChange}
@@ -404,7 +404,7 @@
 						helperText="Uveďte ulici, č.p., město, PSČ"
 					/>
 				</span>
-				<span class="mt-8 w-full">
+				<span class="field">
 					<TextField
 						error={$typedErrors['candidate']['birthplace']}
 						on:change={handleChange}
@@ -421,7 +421,7 @@
 				</span>
 			</div>
 
-			<div class="mt-8 flex w-full items-center">
+			<div class="field flex items-center">
 				<TextField
 					error={$typedErrors['candidate']['birthdate']}
 					on:change={handleChange}
@@ -446,7 +446,7 @@
 				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
 		<div class="flex w-full flex-col">
-			<span class="mt-8 w-full">
+			<span class="field">
 				<NameField
 						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
@@ -455,7 +455,7 @@
 						placeholder="Jméno a příjmení zákonného zástupce"
 				/>
 			</span>
-			<span class="mt-8 w-full">
+			<span class="field">
 				<EmailField
 						error={$typedErrors['parents'][0]['email']}
 					on:change={handleChange}
@@ -463,7 +463,7 @@
 						placeholder="E-mail zákonného zástupce"
 				/>
 			</span>
-			<span class="w-full mt-8">
+			<span class="field">
 				<TelephoneField
 						error={$typedErrors['parents'][0]['telephone']}
 					on:change={handleChange}
@@ -478,7 +478,7 @@
 				Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
 			</p>
 			<div class="flex w-full flex-col">
-				<span class="mt-8 w-full">
+				<span class="field">
 					<NameField
 						error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
 						on:change={handleChange}
@@ -487,7 +487,7 @@
 						placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
 					/>
 				</span>
-				<span class="mt-8 w-full">
+				<span class="field">
 					<EmailField
 						error={$typedErrors['parents'][1]['email']}
 						on:change={handleChange}
@@ -495,7 +495,7 @@
 						placeholder="E-mail zákonného zástupce (nepovinné)"
 					/>
 				</span>
-				<span class="mt-8 w-full">
+				<span class="field">
 					<TelephoneField
 						error={$typedErrors['parents'][1]['telephone']}
 						on:change={handleChange}
@@ -510,7 +510,7 @@
 				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
-				<span class="mt-8 w-full">
+				<span class="field">
 					<SelectField
 						error={$typedErrors['candidate']['citizenship']}
 						on:change={handleChange}
@@ -519,11 +519,11 @@
 						options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 					/>
 				</span>
-				<span class="mt-8 ml-2 w-full md:ml-0">
+				<span class="field ml-2 md:ml-0">
 					<TextField on:change={handleChange} type="text" placeholder="Evidenční číslo přihlášky" />
 				</span>
 			</div>
-			<div class="mt-8 flex w-full items-center justify-center">
+			<div class="field flex items-center justify-center">
 				{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
 					<IdField
 						error={$typedErrors['candidate']['personalIdNumber']}
@@ -552,7 +552,7 @@
 		{/if}
 		</div>
 		<div class="controls w-full absolute bottom-1/12">
-			<div class="mt-8 w-full">
+			<div class="field">
 				<Submit
 					on:click={async (e) => {
 						await handleSubmit(e);
@@ -569,7 +569,7 @@
 				/>
 			</div>
 	
-			<div class="mt-8 flex flex-row justify-center">
+			<div class="mt-4 md:mt-8 flex flex-row justify-center">
 				{#each Array(pageCount + 1) as _, i}
 					<button
 						class:dotActive={i === pageIndex}
@@ -592,6 +592,9 @@
 </SplitLayout>
 
 <style lang="postcss">
+	.field {
+		@apply mt-4 md:mt-8 w-full;
+	}
 	.form {
 		@apply flex flex-col;
 		@apply mx-auto h-full w-[90%];
@@ -611,7 +614,7 @@
 		@apply bg-sspsBlue;
 	}
 	.description {
-		@apply text-gray-500
+		@apply text-gray-500;
 	}
 	.title {
 		@apply text-sspsBlue text-4xl font-semibold text-center;
