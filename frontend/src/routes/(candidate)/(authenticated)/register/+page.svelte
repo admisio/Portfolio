@@ -330,10 +330,11 @@
 </script>
 
 <SplitLayout>
-	<div class="form">
-		<div class="h-24 w-24 md:h-auto md:w-auto">
-			<SchoolBadge />
-		</div>
+	<div class="form relative">
+		<div class="absolute bottom-3/12 flex flex-col w-full">
+			<div class="h-24 w-24 md:h-32 md:w-32 self-center mb-4">
+				<SchoolBadge />
+			</div>
 		<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden"></form>
 		{#if pageIndex === 0}
 			<form on:submit={handleSubmit}>
@@ -444,35 +445,35 @@
 			<p class="description mt-8 block text-center">
 				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
-			<div class="flex w-full flex-col">
-				<span class="mt-8 w-full">
-					<NameField
+		<div class="flex w-full flex-col">
+			<span class="mt-8 w-full">
+				<NameField
 						error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 						on:change={handleChange}
 						bind:valueName={$form.parents[0].name}
 						bind:valueSurname={$form.parents[0].surname}
 						placeholder="Jméno a příjmení zákonného zástupce"
-					/>
-				</span>
-				<div class="mt-8 flex flex-row items-center md:flex-col">
-					<span class="w-full">
-						<EmailField
+				/>
+			</span>
+			<div class="mt-8 flex flex-row items-center md:flex-col">
+				<span class="w-full">
+					<EmailField
 							error={$typedErrors['parents'][0]['email']}
-							on:change={handleChange}
+						on:change={handleChange}
 							bind:value={$form.parents[0].email}
 							placeholder="E-mail zákonného zástupce"
-						/>
-					</span>
-					<span class="ml-2 w-full md:ml-0 md:mt-8">
-						<TelephoneField
+					/>
+				</span>
+				<span class="ml-2 w-full md:ml-0 md:mt-8">
+					<TelephoneField
 							error={$typedErrors['parents'][0]['telephone']}
-							on:change={handleChange}
+						on:change={handleChange}
 							bind:value={$form.parents[0].telephone}
 							placeholder="Telefon zákonného zástupce"
-						/>
-					</span>
-				</div>
+					/>
+				</span>
 			</div>
+		</div>
 		{:else if pageIndex === 4}
 			<h1 class="title mt-8">{pageTexts[4]}</h1>
 			<p class="description mt-8 block text-center">
@@ -508,7 +509,7 @@
 				</div>
 			</div>
 		{:else if pageIndex === 5}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[5]}</h1>
+			<h1 class="title mt-8">{pageTexts[5]}</h1>
 			<p class="description mt-8 block text-center">
 				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
 			</p>
@@ -553,41 +554,43 @@
 				</span>
 			</div>
 		{/if}
-
-		<div class="mt-8 w-full">
-			<Submit
-				on:click={async (e) => {
-					await handleSubmit(e);
-					if (isPageInvalid(pageIndex)) return;
-					if (pageIndex === pageCount) {
-					} else {
-						pagesFilled[pageIndex] = true;
-						pageIndex++;
-					}
-					// @ts-ignore
-					errors.set(formInitialValues);
-				}}
-				value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
-			/>
 		</div>
-
-		<div class="mt-8 flex flex-row justify-center">
-			{#each Array(pageCount + 1) as _, i}
-				<button
-					class:dotActive={i === pageIndex}
+		<div class="controls w-full absolute bottom-1/12">
+			<div class="mt-8 w-full">
+				<Submit
 					on:click={async (e) => {
-						pageIndex -= pageIndex === pageCount ? 1 : 0;
 						await handleSubmit(e);
-						pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));
-
-						const progress = pagesFilled.slice(0, i).every((item) => item === true);
-						if (progress) {
-							pageIndex = i;
+						if (isPageInvalid(pageIndex)) return;
+						if (pageIndex === pageCount) {
+						} else {
+							pagesFilled[pageIndex] = true;
+							pageIndex++;
 						}
+						// @ts-ignore
+						errors.set(formInitialValues);
 					}}
-					class="dot"
+					value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
 				/>
-			{/each}
+			</div>
+	
+			<div class="mt-8 flex flex-row justify-center">
+				{#each Array(pageCount + 1) as _, i}
+					<button
+						class:dotActive={i === pageIndex}
+						on:click={async (e) => {
+							pageIndex -= pageIndex === pageCount ? 1 : 0;
+							await handleSubmit(e);
+							pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));
+	
+							const progress = pagesFilled.slice(0, i).every((item) => item === true);
+							if (progress) {
+								pageIndex = i;
+							}
+						}}
+						class="dot"
+					/>
+				{/each}
+			</div>
 		</div>
 	</div>
 </SplitLayout>
