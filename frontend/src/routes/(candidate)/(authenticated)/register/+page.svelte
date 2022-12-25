@@ -71,7 +71,7 @@
 		gdpr: yup.boolean().oneOf([true]),
 		candidate: yup.object().shape({
 			name: yup.string().required(),
-			surname: yup.string(),
+			surname: yup.string().required(),
 			email: yup.string().email().required(),
 			telephone: yup
 				.string()
@@ -106,13 +106,13 @@
 					.string()
 					.email()
 					.test((_val, context) => {
-						if (context.path.includes('parents[1]')) {
+						if (context.path.includes('parents[1]') && _val === '') {
 							return true;
 						}
 						return _val !== '';
 					}),
 				telephone: yup.string().test((_val, context) => {
-					if (context.path.includes('parents[1]')) {
+					if (context.path.includes('parents[1]') && _val === '') {
 						return true;
 					}
 					return _val?.match(/^\+\d{1,3} \d{3} \d{3} \d{3}$/) !== null;
