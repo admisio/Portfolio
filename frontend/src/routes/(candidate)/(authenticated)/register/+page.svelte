@@ -191,9 +191,9 @@
 
 			case 2:
 				if (
-					/* $typedErrors.birthdurname || */ $typedErrors['candidate']['birthplace'] ||
+					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['birthdate'] ||
-					$typedErrors['candidate']['address'] /* || $typedErrors.sex */
+					$typedErrors['candidate']['address']
 				) {
 					return true;
 				}
@@ -222,8 +222,7 @@
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
-					$typedErrors['candidate']['study'] //||
-					// $typedErrors.applicationId
+					$typedErrors['candidate']['study']
 				) {
 					return true;
 				}
