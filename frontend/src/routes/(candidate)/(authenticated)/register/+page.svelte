@@ -19,16 +19,22 @@
 	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
-	import { onMount } from 'svelte';
 
 	const pageCount = 5;
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false];
+	let pageTexts = [
+		'Zpracování osobních údajů',
+		'Registrace',
+		'Něco o Vás',
+		'Kontakt na zákonného zástupce',
+		'Kontakt na druhého zákonného zástupce',
+		'Poslední krok'
+	];
 
 	export let data: PageData;
 	let details = data.candidate;
 
-	let editMode = false;
 
 	const formInitialValues = {
 		gdpr: false,
@@ -270,6 +276,7 @@
 			]
 		});
 		pageIndex = 1; // skip gdpr page	
+		pageTexts[1] = 'Úprava osobních údajů'
 	}
 
 	// onMount(() => {
@@ -288,10 +295,11 @@
 		<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}} id="triggerForm" class="invisible hidden"></form>
 		{#if pageIndex === 0}
 			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
-				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Váš souhlas</h1>
-				<p class="text-sspsGray mt-8 block text-center font-light">
+				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[0]}</h1>
+				<p class="description mt-8 block text-center">
 					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
-					souhlas s jejich zpracováním.
+					souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si můžete přečíst
+					<a href="/bezpecnost" class="text-sspsBlue underline"> zde</a>.
 				</p>
 				<div class="mt-8 w-full">
 					<GdprCheckBox
@@ -303,9 +311,9 @@
 			</form>
 		{:else if pageIndex === 1}
 			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
-				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Registrace</h1>
-				<p class="text-sspsGray mt-8 block text-center font-light">
-					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který vám pomůže s
+				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[1]}</h1>
+				<p class="description mt-8 block text-center">
+					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
 					vyplněním potřebných údajů.
 				</p>
 				<div class="flex w-full items-center justify-center md:flex-col">
@@ -337,9 +345,9 @@
 				</div>
 			</form>
 		{:else if pageIndex === 2}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Něco o tobě</h1>
-			<p class="text-sspsGray mt-8 block text-center font-light">
-				Pro registraci je potřeba vyplnit několik údajů o tobě. Tyto údaje budou použity pro
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[2]}</h1>
+			<p class="description mt-8 block text-center">
+				Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
@@ -390,8 +398,8 @@
 				</div>
 			</div>
 		{:else if pageIndex === 3}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Už jen kousek!</h1>
-			<p class="text-sspsGray mt-8 block text-center font-light">
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[3]}</h1>
+			<p class="description mt-8 block text-center">
 				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
 			<div class="flex w-full flex-col">
@@ -424,9 +432,9 @@
 				</div>
 			</div>
 		{:else if pageIndex === 4}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Dobrovolné!</h1>
-			<p class="text-sspsGray mt-8 block text-center font-light">
-				V případě, že máte druhého zákonného zástupce (např. otec a matka), můžete jej zde zadat.
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[4]}</h1>
+			<p class="description mt-8 block text-center">
+				Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="mt-8 w-full">
@@ -435,7 +443,7 @@
 						on:change={handleChange}
 						bind:valueName={$form.parents[1].name}
 						bind:valueSurname={$form.parents[1].surname}
-						placeholder="Jméno a příjmení zákonného zástupce"
+						placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
 					/>
 				</span>
 				<div class="mt-8 flex flex-row items-center md:flex-col">
@@ -444,7 +452,7 @@
 							error={$typedErrors['parents'][1]['email']}
 							on:change={handleChange}
 							bind:value={$form.parents[1].email}
-							placeholder="E-mail zákonného zástupce"
+							placeholder="E-mail zákonného zástupce (nepovinné)"
 						/>
 					</span>
 					<span class="ml-2 w-full md:ml-0 md:mt-8">
@@ -452,14 +460,14 @@
 							error={$typedErrors['parents'][1]['telephone']}
 							on:change={handleChange}
 							bind:value={$form.parents[1].telephone}
-							placeholder="Telefon zákonného zástupce"
+							placeholder="Telefon zákonného zástupce (nepovinné)"
 						/>
 					</span>
 				</div>
 			</div>
 		{:else if pageIndex === 5}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Poslední krok</h1>
-			<p class="text-sspsGray mt-8 block text-center font-light">
+			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[5]}</h1>
+			<p class="description mt-8 block text-center">
 				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
@@ -561,5 +569,8 @@
 	}
 	.dotActive {
 		@apply bg-sspsBlue;
+	}
+	.description {
+		@apply text-gray-500
 	}
 </style>
