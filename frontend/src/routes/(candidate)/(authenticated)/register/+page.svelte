@@ -534,18 +534,7 @@
 
 						const progress = pagesFilled.slice(0, i).every((item) => item === true);
 						if (progress) {
-							if (i > pageIndex) {
-								// if next page is clicked, validate current page
-								console.log($errors);
-								if (isPageInvalid(pageIndex)) return;
-								// pagesFilled[i] = true;
-								console.log(pagesFilled);
-								pageIndex = i;
-							} else {
-								pageIndex = i;
-							}
-							// @ts-ignore
-							// errors.set(formInitialValues);
+							pageIndex = i;
 						}
 					}}
 					class="dot"
