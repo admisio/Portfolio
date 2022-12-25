@@ -81,7 +81,7 @@
 			birthdate: yup
 				.string()
 				.required()
-				.matches(/^([0-3]?[0-9])\.([1-9]|1[0-2])\.[0-9]{4}$/),
+				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
 			sex: yup.string(),
 			address: yup.string().required(),
 			citizenship: yup.string().required(),
@@ -250,7 +250,6 @@
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate
 			.split('-')
-			.map((x) => x.startsWith('0') ? x.slice(1) : x)
 			.reverse()
 			.join('.');
 			
