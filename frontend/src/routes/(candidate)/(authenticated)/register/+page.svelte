@@ -340,7 +340,7 @@
 		<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}} id="triggerForm" class="invisible hidden"></form>
 		{#if pageIndex === 0}
 			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
-				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[0]}</h1>
+				<h1 class="title mt-8">{pageTexts[0]}</h1>
 				<p class="description mt-8 block text-center">
 					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
 					souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si můžete přečíst
@@ -356,7 +356,7 @@
 			</form>
 		{:else if pageIndex === 1}
 			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
-				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[1]}</h1>
+				<h1 class="title mt-8">{pageTexts[1]}</h1>
 				<p class="description mt-8 block text-center">
 					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
 					vyplněním potřebných údajů.
@@ -390,7 +390,7 @@
 				</div>
 			</form>
 		{:else if pageIndex === 2}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[2]}</h1>
+			<h1 class="title mt-8">{pageTexts[2]}</h1>
 			<p class="description mt-8 block text-center">
 				Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
@@ -443,7 +443,7 @@
 				</div>
 			</div>
 		{:else if pageIndex === 3}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[3]}</h1>
+			<h1 class="title mt-8">{pageTexts[3]}</h1>
 			<p class="description mt-8 block text-center">
 				Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
 			</p>
@@ -477,7 +477,7 @@
 				</div>
 			</div>
 		{:else if pageIndex === 4}
-			<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{pageTexts[4]}</h1>
+			<h1 class="title mt-8">{pageTexts[4]}</h1>
 			<p class="description mt-8 block text-center">
 				Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
 			</p>
@@ -617,5 +617,8 @@
 	}
 	.description {
 		@apply text-gray-500
+	}
+	.title {
+		@apply text-sspsBlue text-4xl font-semibold text-center;
 	}
 </style>
