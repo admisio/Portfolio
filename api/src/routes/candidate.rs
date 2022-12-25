@@ -2,7 +2,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use portfolio_core::Query;
 use portfolio_core::models::auth::AuthenticableTrait;
-use portfolio_core::models::candidate::ApplicationDetails;
+use portfolio_core::models::candidate::{ApplicationDetails, BaseCandidateResponse, NewCandidateResponse};
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
@@ -72,9 +72,13 @@ pub async fn logout(
 }
 
 #[get("/whoami")]
-pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
+pub async fn whoami(session: CandidateAuth) -> Result<Json<NewCandidateResponse>, Custom<String>> {
+    let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
-    Ok(candidate.application.to_string())
+    let response = NewCandidateResponse::from_encrypted(&private_key, candidate).await
+        .map_err(to_custom_error)?;
+
+    Ok(Json(response))
 }
 
 // TODO: use put instead of post???
