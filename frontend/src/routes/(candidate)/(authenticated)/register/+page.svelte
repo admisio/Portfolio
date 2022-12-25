@@ -13,15 +13,22 @@
 	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
-	import type { CandidateData } from '$lib/stores/candidate';
+	import type { PageData } from './$types';
 
 	import { createForm } from 'svelte-forms-lib';
 	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
+	import type { CandidateData } from '$lib/stores/candidate';
+	import { onMount } from 'svelte';
 
 	const pageCount = 5;
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false];
+
+	export let data: PageData;
+	let details = data.candidate;
+
+	let editMode = false;
 
 	const formInitialValues = {
 		gdpr: false,
@@ -108,43 +115,45 @@
 		)
 	});
 
+	const onSubmit = async (values: CandidateData) => {
+		console.log('page count: ' + pageIndex);
+		console.log(values.candidate);
+		console.log(values.parents);
+		console.log(values);
+		if (pageIndex === pageCount) {
+			// clone values to oldValues
+			let oldValues = JSON.parse(JSON.stringify(values));
+			try {
+				console.log('submit');
+				// @ts-ignore // love javascript
+				delete values.undefined;
+				// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
+				let birthdate_formttted = values.candidate
+					.birthdate!.split('.')
+					.map((x) => x.padStart(2, '0'))
+					.reverse()
+					.join('-');
+
+				values.candidate.birthdate = birthdate_formttted;
+
+				values.parents.filter(
+					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
+				);
+
+				await apiFillDetails(values);
+				goto('/dashboard');
+			} catch (e) {
+				values = oldValues;
+				console.error('error while submitting data: ' + e);
+			}
+		}
+	}
+
 	const { form, errors, handleSubmit, handleChange } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: formValidationSchema,
 
-		onSubmit: async (values: CandidateData) => {
-			console.log('page count: ' + pageIndex);
-			console.log(values.candidate);
-			console.log(values.parents);
-			console.log(values);
-			if (pageIndex === pageCount) {
-				// clone values to oldValues
-				let oldValues = JSON.parse(JSON.stringify(values));
-				try {
-					console.log('submit');
-					// @ts-ignore // love javascript
-					delete values.undefined;
-					// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
-					let birthdate_formttted = values.candidate
-						.birthdate!.split('.')
-						.map((x) => x.padStart(2, '0'))
-						.reverse()
-						.join('-');
-
-					values.candidate.birthdate = birthdate_formttted;
-
-					values.parents.filter(
-						(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
-					);
-
-					await apiFillDetails(values);
-					goto('/dashboard');
-				} catch (e) {
-					values = oldValues;
-					console.error('error while submitting data: ' + e);
-				}
-			}
-		}
+		onSubmit: async (values: CandidateData) => onSubmit(values)
 	});
 
 	type FormErrorType = {
@@ -163,8 +172,8 @@
 	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
 	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
-	const isPageInvalid = (): boolean => {
-		switch (pageIndex) {
+	const isPageInvalid = (index: number): boolean => {
+		switch (index) {
 			case 0:
 				if ($typedErrors['gdpr']) {
 					return true;
@@ -224,6 +233,52 @@
 		}
 		return false;
 	};
+
+	const formatTelephone = (telephone: string) => {
+		return '+' + telephone
+			.match(/[0-9]{1,3}/g)!
+			.join(' ');
+	}
+
+	$: console.log($form.candidate.birthdate);
+	
+	if (details !== undefined) {
+		details.candidate.birthdate = details.candidate.birthdate
+			.split('-')
+			.map((x) => x.startsWith('0') ? x.slice(1) : x)
+			.reverse()
+			.join('.');
+			
+			details.candidate.telephone = formatTelephone(details.candidate.telephone);
+			details.parents.map((x) => x.telephone = x.telephone != '' ? formatTelephone(x.telephone) : '');
+			form.set({
+				gdpr: true,
+				candidate: {
+					...details.candidate
+				},
+				parents: [
+				{
+					...details.parents[0]
+				},
+				{
+					...details.parents[1] ?? {
+						name: '',
+						surname: '',
+						email: '',
+						telephone: ''
+					}
+				}
+			]
+		});
+		pageIndex = 1; // skip gdpr page	
+	}
+
+	// onMount(() => {
+	// 	let evt: Event = document.createEvent('MouseEvent');
+	// 	handleSubmit(evt);
+		
+	// });
+
 </script>
 
 <SplitLayout>
@@ -231,8 +286,9 @@
 		<div class="h-24 w-24 md:h-auto md:w-auto">
 			<SchoolBadge />
 		</div>
+		<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}} id="triggerForm" class="invisible hidden"></form>
 		{#if pageIndex === 0}
-			<form on:submit={handleSubmit}>
+			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
 				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Váš souhlas</h1>
 				<p class="text-sspsGray mt-8 block text-center font-light">
 					V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš
@@ -247,7 +303,7 @@
 				</div>
 			</form>
 		{:else if pageIndex === 1}
-			<form on:submit={handleSubmit}>
+			<form on:submit={(e) => {handleSubmit(e); console.log("event" + e)}}>
 				<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Registrace</h1>
 				<p class="text-sspsGray mt-8 block text-center font-light">
 					V rámci usnadnění přijímacího řízení jsme připravili online formulář, který vám pomůže s
@@ -452,9 +508,9 @@
 		<div class="mt-8 w-full">
 			<Submit
 				on:click={async (e) => {
+					console.log('event: ' + e);
 					await handleSubmit(e);
-					console.log('clicked ' + isPageInvalid());
-					if (isPageInvalid()) return;
+					if (isPageInvalid(pageIndex)) return;
 					if (pageIndex === pageCount) {
 					} else {
 						pagesFilled[pageIndex] = true;
@@ -472,19 +528,24 @@
 				<button
 					class:dotActive={i === pageIndex}
 					on:click={async (e) => {
+						pageIndex -= pageIndex === pageCount ? 1 : 0;
+						await handleSubmit(e);
+						pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));
+
 						const progress = pagesFilled.slice(0, i).every((item) => item === true);
 						if (progress) {
 							if (i > pageIndex) {
 								// if next page is clicked, validate current page
-								await handleSubmit(e);
-								if (isPageInvalid()) return;
-								pagesFilled[i] = true;
-								pageIndex++;
+								console.log($errors);
+								if (isPageInvalid(pageIndex)) return;
+								// pagesFilled[i] = true;
+								console.log(pagesFilled);
+								pageIndex = i;
 							} else {
 								pageIndex = i;
 							}
 							// @ts-ignore
-							errors.set(formInitialValues);
+							// errors.set(formInitialValues);
 						}
 					}}
 					class="dot"

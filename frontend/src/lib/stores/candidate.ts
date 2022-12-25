@@ -2,23 +2,23 @@ import { writable } from 'svelte/store';
 
 export interface CandidateData {
 	candidate: {
-		name?: string;
-		surname?: string;
-		birthplace?: string;
-		birthdate?: string;
-		address?: string;
-		telephone?: string;
-		citizenship?: string;
-		email?: string;
-		sex?: string;
-		study?: string;
-		personalIdNumber?: string;
+		name: string;
+		surname: string;
+		birthplace: string;
+		birthdate: string;
+		address: string;
+		telephone: string;
+		citizenship: string;
+		email: string;
+		sex: string;
+		study: string;
+		personalIdNumber: string;
 	};
 	parents: Array<{
-		name?: string;
-		surname?: string;
-		telephone?: string;
-		email?: string;
+		name: string;
+		surname: string;
+		telephone: string;
+		email: string;
 	}>;
 }
 
@@ -44,6 +44,18 @@ export interface CreateCandidateLogin extends CreateCandidate {
 }
 
 export const candidateData = writable<CandidateData>({
-	candidate: {},
+	candidate: {
+		name: '',
+		surname: '',
+		birthplace: '',
+		birthdate: '',
+		address: '',
+		telephone: '',
+		citizenship: '',
+		email: '',
+		sex: '',
+		study: '',
+		personalIdNumber: ''
+	},
 	parents: []
 });
