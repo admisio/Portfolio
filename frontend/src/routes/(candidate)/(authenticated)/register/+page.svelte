@@ -136,7 +136,7 @@
 
 				values.candidate.birthdate = birthdate_formttted;
 
-				values.parents.filter(
+				values.parents = values.parents.filter(
 					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
 				);
 
