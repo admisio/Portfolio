@@ -121,6 +121,70 @@
 		)
 	});
 
+	type FormErrorType = {
+		[K in keyof typeof formInitialValues]: typeof formInitialValues[K] extends Record<
+			string,
+			unknown
+		>
+			? {
+					[K2 in keyof typeof formInitialValues[K]]: string;
+			  }
+			: typeof formInitialValues[K] extends Array<Record<string, unknown>>
+			? Array<{ [K3 in keyof typeof formInitialValues[K][number]]: string }>
+			: string;
+	};
+
+	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
+	$: typedErrors = errors as unknown as Writable<FormErrorType>;
+
+	// TODO: validate on admin dashboard, move somewhere
+	// TODO: nefunguje pro lidi nar. pred 1.1.1954 :D
+	const isPersonalIdNumberValid = (personalIdNumber: string): boolean => {
+		const idFmt = personalIdNumber
+			.split('/')
+			.join('');
+
+		const lastDigitCheck = Number(idFmt.slice(0, 9)) % 11 === Number(idFmt.at(-1)) || Number(idFmt.at(-1)) === 10;
+		const divisibleBy11 = Number(idFmt) % 11 === 0;
+
+		if (lastDigitCheck && divisibleBy11) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	const isPersonalIdNumberWithBirthdateValid = (personalIdNumber: string, birthdate: string): boolean => {
+		const dateFmt = birthdate
+			.split('.')
+			.map((x) => x.padStart(2, '0')) 
+			.reverse()
+			.join('')
+			.slice(2);
+		const idFmt = personalIdNumber
+			.split('/')
+			.join('');
+
+		const divisionValid = isPersonalIdNumberValid(personalIdNumber);
+
+		const idMonth = Number(idFmt.slice(2, 4));
+		const dateMonth = Number(dateFmt.slice(2, 4));
+		const monthValid = idMonth === dateMonth || idMonth === dateMonth + 50 || 
+			idMonth === dateMonth + 20 || idMonth === dateMonth + 70;
+		
+		if (
+			idFmt.slice(0, 2) === dateFmt.slice(0, 2) &&
+			monthValid &&
+			idFmt.slice(4, 6) === dateFmt.slice(4, 6) &&
+			divisionValid
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	
+	};
+
 	const onSubmit = async (values: CandidateData) => {
 		console.log('page count: ' + pageIndex);
 		console.log(values.candidate);
@@ -130,7 +194,12 @@
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
-				console.log('submit');
+				if (values.candidate.citizenship === 'Česká republika') {
+					if (!isPersonalIdNumberWithBirthdateValid(values.candidate.personalIdNumber, values.candidate.birthdate)) {
+						alert('Rodné číslo neodpovídá oficiální specifikaci či datumu narození'); // TODO: alerts
+						throw new Error('Rodné číslo neodpovídá datumu narození');
+					}
+				}
 				// @ts-ignore // love javascript
 				delete values.undefined;
 				// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
@@ -145,6 +214,7 @@
 				values.parents = values.parents.filter(
 					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
 				);
+
 
 				await apiFillDetails(values);
 				goto('/dashboard');
@@ -161,22 +231,6 @@
 
 		onSubmit: async (values: CandidateData) => onSubmit(values)
 	});
-
-	type FormErrorType = {
-		[K in keyof typeof formInitialValues]: typeof formInitialValues[K] extends Record<
-			string,
-			unknown
-		>
-			? {
-					[K2 in keyof typeof formInitialValues[K]]: string;
-			  }
-			: typeof formInitialValues[K] extends Array<Record<string, unknown>>
-			? Array<{ [K3 in keyof typeof formInitialValues[K][number]]: string }>
-			: string;
-	};
-
-	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
-	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
@@ -244,8 +298,6 @@
 			.match(/[0-9]{1,3}/g)!
 			.join(' ');
 	}
-
-	$: console.log($form.candidate.birthdate);
 	
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate
@@ -277,12 +329,6 @@
 		pageIndex = 1; // skip gdpr page	
 		pageTexts[1] = 'Úprava osobních údajů'
 	}
-
-	// onMount(() => {
-	// 	let evt: Event = document.createEvent('MouseEvent');
-	// 	handleSubmit(evt);
-		
-	// });
 
 </script>
 
