@@ -58,7 +58,7 @@ mod tests {
                 name: "name".to_string(),
                 surname: "surname".to_string(),
                 birthplace: "birthplace".to_string(),
-                birthdate: chrono::NaiveDate::from_ymd(2000, 1, 1),
+                birthdate: chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 address: "address".to_string(),
                 telephone: "telephone".to_string(),
                 citizenship: "citizenship".to_string(),

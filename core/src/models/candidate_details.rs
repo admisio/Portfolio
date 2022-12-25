@@ -335,12 +335,12 @@ pub async fn decrypt_if_exists(
 pub mod tests {
     use std::sync::Mutex;
 
-    use chrono::{Local};
+    use chrono::Local;
     use entity::admin;
     use once_cell::sync::Lazy;
     use sea_orm::{DbConn, Set, ActiveModelTrait};
 
-    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}, utils::db::get_memory_sqlite_connection, Query, services::candidate_service::tests::put_user_data};
+    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -353,7 +353,7 @@ pub mod tests {
                 name: "name".to_string(),
                 surname: "surname".to_string(),
                 birthplace: "birthplace".to_string(),
-                birthdate: chrono::NaiveDate::from_ymd(2000, 1, 1),
+                birthdate: chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 address: "address".to_string(),
                 telephone: "telephone".to_string(),
                 citizenship: "citizenship".to_string(),
@@ -375,7 +375,7 @@ pub mod tests {
         assert_eq!(details.candidate.name, "name");
         assert_eq!(details.candidate.surname, "surname");
         assert_eq!(details.candidate.birthplace, "birthplace");
-        assert_eq!(details.candidate.birthdate, chrono::NaiveDate::from_ymd(2000, 1, 1));
+        assert_eq!(details.candidate.birthdate, chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap());
         assert_eq!(details.candidate.address, "address");
         assert_eq!(details.candidate.telephone, "telephone");
         assert_eq!(details.candidate.citizenship, "citizenship");

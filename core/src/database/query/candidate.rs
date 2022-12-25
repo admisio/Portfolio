@@ -1,6 +1,6 @@
 use sea_orm::*;
 
-use ::entity::{candidate, candidate::Entity as Candidate, parent};
+use ::entity::{candidate, candidate::Entity as Candidate};
 
 use crate::Query;
 
