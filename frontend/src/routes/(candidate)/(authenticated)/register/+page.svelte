@@ -144,7 +144,8 @@
 			.split('/')
 			.join('');
 
-		const lastDigitCheck = Number(idFmt.slice(0, 9)) % 11 === Number(idFmt.at(-1)) || Number(idFmt.at(-1)) === 10;
+		const lastDigitCheck = Number(idFmt.slice(0, 9)) % 11 === Number(idFmt.at(-1)) || 
+			Number(idFmt.slice(0, 9)) % 11 === 10; // an edge case that could occur
 		const divisibleBy11 = Number(idFmt) % 11 === 0;
 
 		if (lastDigitCheck && divisibleBy11) {
