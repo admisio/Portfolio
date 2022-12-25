@@ -7,7 +7,19 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 	const codeNumber = Number(code);
 
 	let candidateData: CandidateData = {
-		candidate: {},
+		candidate: {
+			name: '',
+			surname: '',
+			birthplace: '',
+			birthdate: '',
+			address: '',
+			telephone: '',
+			citizenship: '',
+			email: '',
+			sex: '',
+			study: '',
+			personalIdNumber: ''
+		},
 		parents: []
 	};
 	try {
