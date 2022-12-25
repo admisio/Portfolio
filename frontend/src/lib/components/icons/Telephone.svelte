@@ -11,7 +11,7 @@
 	></svg
 >
 
-<style>
+<style lang="postcss">
 	svg {
 		@apply stroke-sspsBlue fill-transparent;
 	}

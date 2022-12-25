@@ -73,7 +73,7 @@
 	</span>
 {/if}
 
-<style>
+<style lang="postcss">
 	.icon {
 		@apply text-sspsBlueDark h-10 w-10 transition-colors duration-300 hover:cursor-pointer;
 		@apply hover:text-sspsBlue;

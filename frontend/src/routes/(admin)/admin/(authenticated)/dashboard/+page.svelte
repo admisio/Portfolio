@@ -3,12 +3,11 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidatePreview } from '$lib/stores/candidate';
-	import { onMount } from 'svelte';
-	import type { PageData } from '../$types';
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 	import Fuse from 'fuse.js';
+	import type { PageServerData } from './$types';
 
-	export let data: PageData;
+	export let data: PageServerData;
 
 	let candidates: Array<CandidatePreview> = data.preview;
 
@@ -155,7 +154,7 @@
 
 <svelte:window on:scroll={() => (scrollTop = window.scrollY)} />
 
-<style>
+<style lang="postcss">
 	.list {
 		@apply h-full w-96;
 		@apply float-left overflow-scroll;
@@ -212,10 +211,5 @@
 
 	.body .controls {
 		@apply flex flex-row items-center justify-between;
-	}
-
-	.candidatePreview {
-		@apply mt-5 h-20 w-full rounded-xl bg-gray-200;
-		@apply hover:cursor-pointer;
 	}
 </style>

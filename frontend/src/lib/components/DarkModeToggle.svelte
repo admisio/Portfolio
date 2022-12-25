@@ -24,7 +24,7 @@
 	</g>
 </svg>
 
-<style>
+<style lang="postcss">
 	svg {
 		@apply h-12 w-12;
 	}

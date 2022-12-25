@@ -43,4 +43,7 @@ export interface CreateCandidateLogin extends CreateCandidate {
 	password: string;
 }
 
-export const candidateData = writable<CandidateData>({});
+export const candidateData = writable<CandidateData>({
+	candidate: {},
+	parents: []
+});

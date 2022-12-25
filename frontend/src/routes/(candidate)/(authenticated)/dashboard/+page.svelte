@@ -23,9 +23,7 @@
 	// TODO: transition
 	let showDetails = false;
 
-	// @ts-ignore
 	$: candidateData.set(data.candidate);
-	// @ts-ignore
 	$: submissionProgress.set(data.submission);
 
 	const getUploadStatus = (progressStatus: UploadStatus | undefined): Status => {
@@ -112,7 +110,7 @@
 	</div>
 </FullLayout>
 
-<style>
+<style lang="postcss">
 	.showDetailsInfoCard {
 		@apply md:row-span-8;
 	}

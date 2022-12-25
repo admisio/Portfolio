@@ -8,7 +8,7 @@
 	></svg
 >
 
-<style>
+<style lang="postcss">
 	svg {
 		@apply fill-current stroke-current;
 	}

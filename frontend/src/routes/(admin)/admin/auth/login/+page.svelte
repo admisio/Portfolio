@@ -48,7 +48,7 @@
 	</div>
 </SplitLayout>
 
-<style>
+<style lang="postcss">
 	.form {
 		@apply flex flex-col;
 		@apply mx-auto h-full w-[90%];

@@ -35,5 +35,5 @@
 	</div>
 </TextField>
 
-<style>
+<style lang="postcss">
 </style>

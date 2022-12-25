@@ -4,7 +4,7 @@
 
 <input on:click type="submit" {value} />
 
-<style>
+<style lang="postcss">
 	input {
 		@apply bg-sspsBlue hover:bg-sspsBlueDark 
         @apply @apply rounded-lg p-3 text-xl font-semibold 

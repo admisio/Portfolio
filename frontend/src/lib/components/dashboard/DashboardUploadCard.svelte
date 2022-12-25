@@ -1,7 +1,7 @@
 <script lang="ts">
 	import FileType from './FileType.svelte';
 	import debounce from 'just-debounce-it';
-	import { filedrop, type FileDropOptions } from 'filedrop-svelte';
+	import { filedrop, type FileDropOptions, type Files } from 'filedrop-svelte';
 	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { createEventDispatcher } from 'svelte';
 	import ProgressBar from './ProgressBar.svelte';
@@ -68,12 +68,8 @@
 		clearInterval(dashAnimationInterval);
 	};
 
-	type Dropped = {
-		accepted: Array<File>;
-		rejected: Array<File>;
-	};
 
-	const onFileDrop = (dropped: Dropped) => {
+	const onFileDrop = (dropped: Files) => {
 		console.log(dropped);
 		if (dropped.accepted.length > 0) {
 			fileDropped = true;
@@ -168,7 +164,7 @@
 				class="drag group"
 				on:mouseenter={dashAnimationStart}
 				on:mouseleave={dashAnimationStop}
-				style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
+				style={`background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' rx='9' ry='9'  stroke-opacity='50%' stroke='%23406280' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='${dashAnimationProgress}' stroke-linecap='square'/%3e%3c/svg%3e");`}
 			>
 				{#if error}
 					<span class="font-semibold text-red-600">{error}</span>
@@ -181,7 +177,7 @@
 	{/if}
 </div>
 
-<style>
+<style lang="postcss">
 	:global([type='file']) {
 		@apply hidden;
 	}

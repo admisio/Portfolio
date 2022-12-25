@@ -25,7 +25,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.bgImage {
 		@apply -z-20;
 		@apply min-w-screen absolute min-h-screen md:min-w-[50vw];

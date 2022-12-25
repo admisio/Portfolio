@@ -119,7 +119,7 @@
 	</div>
 </FullLayout>
 
-<style>
+<style lang="postcss">
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;

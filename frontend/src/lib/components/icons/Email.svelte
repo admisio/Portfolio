@@ -1,6 +1,6 @@
 <span>@</span>
 
-<style>
+<style lang="postcss">
 	span {
 		@apply flex items-center justify-center;
 		@apply text-sspsBlue text-center text-2xl;
