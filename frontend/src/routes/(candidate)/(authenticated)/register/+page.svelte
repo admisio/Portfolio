@@ -27,8 +27,8 @@
 		'Zpracování osobních údajů',
 		'Registrace',
 		'Něco o Vás',
-		'Kontakt na zákonného zástupce',
-		'Kontakt na druhého zákonného zástupce',
+		'Zákonný zástupce',
+		'Druhý zákonný zástupce',
 		'Poslední krok'
 	];
 
