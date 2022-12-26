@@ -2,7 +2,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use portfolio_core::Query;
 use portfolio_core::models::auth::AuthenticableTrait;
-use portfolio_core::models::candidate::ApplicationDetails;
+use portfolio_core::models::candidate::{ApplicationDetails, NewCandidateResponse};
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::candidate_service::CandidateService;
@@ -72,9 +72,13 @@ pub async fn logout(
 }
 
 #[get("/whoami")]
-pub async fn whoami(session: CandidateAuth) -> Result<String, Custom<String>> {
+pub async fn whoami(session: CandidateAuth) -> Result<Json<NewCandidateResponse>, Custom<String>> {
+    let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
-    Ok(candidate.application.to_string())
+    let response = NewCandidateResponse::from_encrypted(&private_key, candidate).await
+        .map_err(to_custom_error)?;
+
+    Ok(Json(response))
 }
 
 // TODO: use put instead of post???
@@ -254,7 +258,7 @@ pub async fn download_portfolio(session: CandidateAuth) -> Result<Vec<u8>, Custo
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{crypto, models::candidate::ApplicationDetails, sea_orm::prelude::Uuid};
+    use portfolio_core::{crypto, models::candidate::{ApplicationDetails, NewCandidateResponse}, sea_orm::prelude::Uuid};
     use rocket::{
         http::{Cookie, Status},
         local::blocking::Client,
@@ -262,7 +266,7 @@ mod tests {
 
     use crate::{
         routes::admin::tests::admin_login,
-        test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD},
+        test::tests::{test_client, APPLICATION_ID, CANDIDATE_PASSWORD, PERSONAL_ID_NUMBER},
     };
 
     fn candidate_login(client: &Client) -> (Cookie, Cookie) {
@@ -294,7 +298,7 @@ mod tests {
             \"citizenship\": \"Czech Republic\",
             \"email\": \"magor@magor.cz\",
             \"sex\": \"MALE\",
-            \"personalIdNumber\": \"0000000000\",
+            \"personalIdNumber\": \"0101010000\",
             \"study\": \"KB\"
         },
         \"parents\": [
@@ -324,7 +328,10 @@ mod tests {
             .dispatch();
 
         assert_eq!(response.status(), Status::Ok);
-        assert_eq!(response.into_string().unwrap(), APPLICATION_ID.to_string());
+
+        let candidate = response.into_json::<NewCandidateResponse>().unwrap();
+        assert_eq!(candidate.application_id, APPLICATION_ID);
+        assert_eq!(candidate.personal_id_number, PERSONAL_ID_NUMBER);
     }
 
     #[test]

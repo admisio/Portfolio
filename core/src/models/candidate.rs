@@ -1,10 +1,19 @@
 use chrono::NaiveDate;
+use entity::candidate;
 use sea_orm::FromQueryResult;
 use serde::{Serialize, Deserialize};
 
 use crate::{error::ServiceError, database::query::candidate::CandidateResult, services::portfolio_service::SubmissionProgress};
 
 use super::candidate_details::decrypt_if_exists;
+
+/// Minimal candidate response containing database only not null fields
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NewCandidateResponse {
+    pub application_id: i32,
+    pub personal_id_number: String,
+}
 
 /// Create candidate (admin endpoint)
 /// Password change  (admin endpoint)
@@ -90,6 +99,18 @@ pub struct Row {
     pub second_parent_email: Option<String>,
 }
 
+impl NewCandidateResponse {
+    pub async fn from_encrypted(private_key: &String, c: candidate::Model) -> Result<Self, ServiceError> {
+        let id_number = decrypt_if_exists(private_key, Some(c.personal_identification_number)).await?;
+        Ok(
+            Self {
+                application_id: c.application,
+                personal_id_number: id_number,
+            }
+        )
+    }
+}
+
 impl BaseCandidateResponse {
     pub async fn from_encrypted(
         private_key: &String,
@@ -113,5 +134,4 @@ impl BaseCandidateResponse {
             }
         )
     }
-
 }
