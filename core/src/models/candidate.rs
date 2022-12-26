@@ -8,7 +8,7 @@ use crate::{error::ServiceError, database::query::candidate::CandidateResult, se
 use super::candidate_details::decrypt_if_exists;
 
 /// Minimal candidate response containing database only not null fields
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NewCandidateResponse {
     pub application_id: i32,
