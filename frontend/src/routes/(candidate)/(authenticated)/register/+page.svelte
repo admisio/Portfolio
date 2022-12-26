@@ -239,6 +239,7 @@
 			case 1:
 				if (
 					$typedErrors['candidate']['name'] ||
+					$typedErrors['candidate']['surname'] ||
 					$typedErrors['candidate']['email'] ||
 					$typedErrors['candidate']['telephone']
 				) {
@@ -362,7 +363,7 @@
 				<div class="flex flex-col">
 					<span class="field">
 						<NameField
-							error={$typedErrors['candidate']['name']}
+							error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
 							on:change={handleChange}
 							bind:valueName={$form.candidate.name}
 							bind:valueSurname={$form.candidate.surname}
