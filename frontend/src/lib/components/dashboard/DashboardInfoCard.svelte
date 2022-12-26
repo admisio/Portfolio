@@ -7,7 +7,8 @@
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
 	import InfoButton from './InfoButton.svelte';
 	import { candidateData } from '$lib/stores/candidate';
-	import tippy from 'tippy.js';
+	import tippy, {sticky} from 'tippy.js';
+	import { goto } from '$app/navigation';
 
 	export let title: string;
 	export let status: Status;
@@ -58,6 +59,10 @@
 			console.log(e);
 		}
 	};
+
+	const editDetails = async () => {
+		goto('/register?edit=true')
+	}
 </script>
 
 <div class="card flex flex-col">
@@ -86,52 +91,65 @@
 			</div>
 		</div>
 		{#if showDetails}
-			<div class="overflow-scroll">
-				<div
+			<div class="overflow-scroll flex justify-between">
+				<div>
+					<div
+						use:tippy={{
+							content: '<span>Vámi vyplněné osobní údaje</span>',
+							allowHTML: true,
+							placement: 'top',
+							showOnCreate: false,
+							delay: 0
+						}}
+						class="mt-4 flex flex-col justify-between leading-10"
+					>
+						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
+						<span
+							>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
+							></span
+						>
+						<span
+							>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
+							></span
+						>
+						<span
+							>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
+							></span
+						>
+						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
+					</div>
+					<div
+						use:tippy={{
+							content: '<span>Vámi vyplněné osobní údaje</span>',
+							allowHTML: true,
+							placement: 'top',
+							showOnCreate: false,
+							delay: 0
+						}}
+						class="mt-4 flex flex-col leading-10"
+					>
+						{#each $candidateData.parents as parent}
+							<div class="flex flex-col">
+								<span class="text-sspsBlue text-xl font-bold"
+									>{parent.name + ' ' + parent.surname}</span
+								>
+								<span>Email: <span class="font-bold">{parent.email}</span></span>
+								<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+							</div>
+						{/each}
+					</div>
+				</div>
+				<span
 					use:tippy={{
-						content: '<span>Vámi vyplněné osobní údaje</span>',
-						allowHTML: true,
+						content: 'Upravit osobní údaje',
 						placement: 'top',
 						showOnCreate: false,
-						delay: 0
+						sticky: true,
+						plugins: [sticky]
 					}}
-					class="mt-4 flex flex-col justify-between leading-10"
-				>
-					<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
-					<span
-						>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
-						></span
-					>
-					<span
-						>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
-						></span
-					>
-					<span
-						>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
-						></span
-					>
-					<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
-				</div>
-				<div
-					use:tippy={{
-						content: '<span>Vámi vyplněné osobní údaje</span>',
-						allowHTML: true,
-						placement: 'top',
-						showOnCreate: false,
-						delay: 0
-					}}
-					class="mt-4 flex flex-col leading-10"
-				>
-					{#each $candidateData.parents as parent}
-						<div class="flex flex-col">
-							<span class="text-sspsBlue text-xl font-bold"
-								>{parent.name + ' ' + parent.surname}</span
-							>
-							<span>Email: <span class="font-bold">{parent.email}</span></span>
-							<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
-						</div>
-					{/each}
-				</div>
+				 	on:click={(_) => editDetails()} on:keydown={(_) => editDetails()} class="mt-4 hover:cursor-pointer">
+					<svg class="w-10 h-10 stroke-sspsBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+				</span>
 			</div>
 		{/if}
 	</div>
