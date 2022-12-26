@@ -10,19 +10,25 @@
 
 	let value: string = '';
 
-	$: {
-		const parsed = value.trim().split(' ');
-		if (parsed.length > 1) {
-			valueName = parsed[0];
-			valueSurname = parsed[1];
-		}
+	if (valueName && valueSurname) {
+		value = `${valueName} ${valueSurname}`;
+	} else if (valueName) {
+		value = valueName;
 	}
 
-	onMount(() => {
-		if (valueName && valueSurname) {
-			value = `${valueName} ${valueSurname}`;
+	$: {
+		const parsed = value.trim().split(' ');
+		if (parsed.length == 2) {
+			valueName = parsed[0];
+			valueSurname = parsed[1];
+		} else if (parsed.length > 2) {
+			valueName = parsed[0];
+			valueSurname = parsed[parsed.length - 1];
+		} else {
+			valueName = parsed[0];
+			valueSurname = '';
 		}
-	});
+	}
 
 	export let error: string = '';
 </script>

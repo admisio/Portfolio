@@ -27,8 +27,8 @@
 		'Zpracování osobních údajů',
 		'Registrace',
 		'Něco o Vás',
-		'Kontakt na zákonného zástupce',
-		'Kontakt na druhého zákonného zástupce',
+		'Zákonný zástupce',
+		'Druhý zákonný zástupce',
 		'Poslední krok'
 	];
 
@@ -239,6 +239,7 @@
 			case 1:
 				if (
 					$typedErrors['candidate']['name'] ||
+					$typedErrors['candidate']['surname'] ||
 					$typedErrors['candidate']['email'] ||
 					$typedErrors['candidate']['telephone']
 				) {
@@ -362,7 +363,7 @@
 				<div class="flex flex-col">
 					<span class="field">
 						<NameField
-							error={$typedErrors['candidate']['name']}
+							error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
 							on:change={handleChange}
 							bind:valueName={$form.candidate.name}
 							bind:valueSurname={$form.candidate.surname}
@@ -391,7 +392,7 @@
 			<h1 class="title mt-8">{pageTexts[2]}</h1>
 			<p class="description mt-8 block text-center">
 				Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
-				přijímací řízení. Všechny údaje jsou důležité a bez nich se registrace nezdaří.
+				přijímací řízení. Všechny údaje jsou důležité.
 			</p>
 			<div class="flex w-full flex-col">
 				<span class="field">
@@ -507,7 +508,7 @@
 		{:else if pageIndex === 5}
 			<h1 class="title mt-8">{pageTexts[5]}</h1>
 			<p class="description mt-8 block text-center">
-				Zadejte prosím své občanství, rodné číslo a obor na který se hlásíte.
+				Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který se hlásíte. 
 			</p>
 			<div class="flex w-full flex-row md:flex-col">
 				<span class="field">
