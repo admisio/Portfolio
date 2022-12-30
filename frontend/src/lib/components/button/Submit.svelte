@@ -1,8 +1,20 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	export let value: string;
+
+	const dispatch = createEventDispatcher();
+
+	const handleKeyDown = (e: KeyboardEvent) => {
+		if (e.key === 'Enter') {
+			dispatch('click');
+		}
+	};
 </script>
 
 <input on:click type="submit" {value} />
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <style lang="postcss">
 	input {
