@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { apiListCandidates } from '$lib/@api/admin';
+	import { apiDeleteCandidate, apiListCandidates } from '$lib/@api/admin';
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidatePreview } from '$lib/stores/candidate';
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 	import Fuse from 'fuse.js';
 	import type { PageServerData } from './$types';
+	import Delete from '$lib/components/button/Delete.svelte';
 
 	export let data: PageServerData;
 
@@ -64,6 +65,11 @@
 			candidatesTable = fuse.search(searchValue).map((result) => result.item);
 		}
 	};
+
+	const deleteCandidate = async (id: number | undefined) => {
+		if (id) await apiDeleteCandidate(id);
+		getCandidates();
+	}
 </script>
 
 {#if createCandidateModal}
@@ -118,6 +124,7 @@
 											Příjmení
 										</th>
 										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Obor </th>
+										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900" />
 									</tr>
 								</thead>
 								<tbody>
@@ -139,6 +146,9 @@
 											</td>
 											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
 												{candidate.study}
+											</td>
+											<td class="whitespace-nowrap px-6 py-4 text-sm">
+												<Delete on:delete={async () => await deleteCandidate(candidate.applicationId)} value="Odstranit" />
 											</td>
 										</tr>
 									{/each}
