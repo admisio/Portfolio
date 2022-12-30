@@ -14,7 +14,10 @@
 
 	const getCandidates = async (field?: string) => {
 		try {
-			candidates = await apiListCandidates(undefined, field);
+			candidates = await apiListCandidates(
+				undefined,
+				field ?? activeFilter !== 'Vše' ? activeFilter : ''
+			);
 		} catch {
 			console.log('error');
 		}
@@ -24,7 +27,7 @@
 
 	let filters: Array<Filter> = ['Vše', 'KBB', 'IT', 'GYM'];
 
-	let activeFilter: Filter = 'Vše';
+	let activeFilter: Filter = filters[0];
 
 	const changeFilter = (filter: Filter) => {
 		activeFilter = filter;
@@ -69,7 +72,7 @@
 	const deleteCandidate = async (id: number | undefined) => {
 		if (id) await apiDeleteCandidate(id);
 		getCandidates();
-	}
+	};
 </script>
 
 {#if createCandidateModal}
@@ -148,7 +151,10 @@
 												{candidate.study}
 											</td>
 											<td class="whitespace-nowrap px-6 py-4 text-sm">
-												<Delete on:delete={async () => await deleteCandidate(candidate.applicationId)} value="Odstranit" />
+												<Delete
+													on:delete={async () => await deleteCandidate(candidate.applicationId)}
+													value="Odstranit"
+												/>
 											</td>
 										</tr>
 									{/each}
