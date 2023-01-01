@@ -5,14 +5,19 @@
 
 	export let value: string;
 
-	let isPrepared = false;
+	export let id: number | undefined;
 
+	let isPrepared = false;
 
 	const buttonLogic = () => {
 		if (isPrepared) {
-			dispatch('delete');
+			dispatch('delete', {
+				id: id
+			});
 		} else {
-			dispatch('prepared');
+			dispatch('prepared', {
+				id: id
+			});
 			isPrepared = true;
 			setTimeout(() => {
 				isPrepared = false;
@@ -44,9 +49,8 @@
 	button {
 		@apply inline-flex items-center;
 		@apply bg-red-700;
-		@apply @apply rounded-lg p-3 text-xl font-semibold 
+		@apply @apply rounded-lg p-3 font-semibold 
         text-white transition-colors duration-300;
-		@apply w-full;
 
 		animation: none !important;
 	}

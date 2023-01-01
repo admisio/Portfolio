@@ -7,6 +7,7 @@
 	import Fuse from 'fuse.js';
 	import type { PageServerData } from './$types';
 	import Delete from '$lib/components/button/Delete.svelte';
+	import Table from '$lib/components/admin/table/Table.svelte';
 
 	export let data: PageServerData;
 
@@ -112,58 +113,7 @@
 				</div>
 			{/if}
 
-			<div class="flex flex-col">
-				<div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-					<div class="inline-block min-w-full py-4 sm:px-6 lg:px-8">
-						<div class="overflow-hidden rounded-md border-2  border-[#dfe0e9] ">
-							<table class="min-w-full text-center ">
-								<thead class="bg-[#f6f4f4] ">
-									<tr>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
-											Ev. č. přihlásky
-										</th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Jméno </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900">
-											Příjmení
-										</th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900"> Obor </th>
-										<th scope="col" class="px-6 py-4 text-sm font-medium text-gray-900" />
-									</tr>
-								</thead>
-								<tbody>
-									{#each candidatesTable as candidate}
-										<tr class="border-b bg-white hover:cursor-pointer">
-											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
-												><a
-													target="_blank"
-													rel="noreferrer"
-													href="/admin/candidate/{candidate.applicationId}"
-													>{candidate.applicationId}</a
-												></td
-											>
-											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-												{candidate.name}
-											</td>
-											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-												{candidate.surname}
-											</td>
-											<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-												{candidate.study}
-											</td>
-											<td class="whitespace-nowrap px-6 py-4 text-sm">
-												<Delete
-													on:delete={async () => await deleteCandidate(candidate.applicationId)}
-													value="Odstranit"
-												/>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
+				<Table candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
 		</div>
 	</div>
 </div>
