@@ -29,6 +29,16 @@ export const apiCreateCandidate = async (data: CreateCandidate): Promise<CreateC
 	}
 };
 
+// Deletes candidate /admin/candidate/{id}
+export const apiDeleteCandidate = async (id: number): Promise<string> => {
+	try {
+		const res = await axios.delete(API_URL + `/admin/candidate/${id}`, { withCredentials: true });
+		return res.data;
+	} catch (e) {
+		throw errorHandler(e, 'Candidate creation failed');
+	}
+};
+
 // Reset candidate password /admin/candidate/{id}/reset_password
 export const apiResetCandidatePassword = async (id: number): Promise<CreateCandidateLogin> => {
 	try {
