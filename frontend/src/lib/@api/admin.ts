@@ -120,3 +120,23 @@ export const apiFetchCandidate = async (id: number, fetchSsr?: Fetch): Promise<C
 		throw errorHandler(e, 'Failed to fetch candidate data');
 	}
 };
+
+// SSR compatible
+// List all candidates /admin/list/candidates
+export const apiListCandidatesCSV = async (
+	fetchSsr?: Fetch,
+): Promise<Blob> => {
+	const apiFetch = fetchSsr || fetch;
+	try {
+		const res = await apiFetch(API_URL + '/admin/list/candidates_csv', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		if (res.status != 200) {
+			throw Error(await res.text());
+		}
+		return await res.blob();
+	} catch (e) {
+		throw errorHandler(e, 'List candidates CSV failed');
+	}
+};
