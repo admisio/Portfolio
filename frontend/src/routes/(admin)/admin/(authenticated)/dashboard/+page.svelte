@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { apiDeleteCandidate, apiListCandidates } from '$lib/@api/admin';
+	import { apiDeleteCandidate, apiListCandidates, apiListCandidatesCSV } from '$lib/@api/admin';
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidatePreview } from '$lib/stores/candidate';
@@ -74,6 +74,19 @@
 		if (id) await apiDeleteCandidate(id);
 		getCandidates();
 	};
+
+	const downloadCSV = async () => {
+		try {
+			const csvBlob = await apiListCandidatesCSV();
+			const url = window.URL.createObjectURL(new Blob([csvBlob]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'UCHAZECI' + '.csv');
+			link.click();
+		} catch (e) {
+			console.log(e);
+		}
+	}
 </script>
 
 {#if createCandidateModal}
@@ -99,8 +112,13 @@
 				<TextField on:keyup={search} bind:value={searchValue} placeholder="Hledat" />
 				<button
 					on:click={openCreateCandidateModal}
-					class="bg-sspsBlue hover:bg-sspsBlueDark ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
+					class="bg-gray-500 hover:bg-gray-600 ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
 					>Nový uchazeč</button
+				>
+				<button
+					on:click={downloadCSV}
+					class="bg-gray-500 hover:bg-gray-600 ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
+					>CSV</button
 				>
 			</div>
 			{#if scrollTop > 200}
@@ -113,7 +131,7 @@
 				</div>
 			{/if}
 
-				<Table candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
+			<Table candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
 		</div>
 	</div>
 </div>
