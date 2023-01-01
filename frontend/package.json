@@ -1,6 +1,6 @@
 {
 	"name": "portfolio-frontend",
-	"version": "0.0.1",
+	"version": "0.9.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -16,9 +16,9 @@
 		"@playwright/test": "1.25.0",
 		"@sveltejs/adapter-node": "1.0.0",
 		"@sveltejs/kit": "1.0.1",
-		"@typescript-eslint/eslint-plugin": "^5.47.0",
-		"@typescript-eslint/parser": "^5.47.0",
-		"eslint": "^8.30.0",
+		"@typescript-eslint/eslint-plugin": "^5.47.1",
+		"@typescript-eslint/parser": "^5.47.1",
+		"eslint": "^8.31.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte3": "^4.0.0",
 		"prettier": "^2.8.1",
@@ -35,7 +35,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"axios": "^1.2.1",
+		"axios": "^1.2.2",
 		"dotenv": "^16.0.3",
 		"filedrop-svelte": "^0.1.2",
 		"fuse.js": "^6.6.2",
