@@ -2019,14 +2019,14 @@ dependencies = [
 
 [[package]]
 name = "portfolio"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "portfolio-api",
 ]
 
 [[package]]
 name = "portfolio-api"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -2057,7 +2057,7 @@ dependencies = [
 
 [[package]]
 name = "portfolio-core"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "aes-gcm-siv",
  "age",
@@ -2087,7 +2087,7 @@ dependencies = [
 
 [[package]]
 name = "portfolio-entity"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -2096,7 +2096,7 @@ dependencies = [
 
 [[package]]
 name = "portfolio-migration"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "portfolio-entity",
