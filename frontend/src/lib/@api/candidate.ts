@@ -12,7 +12,6 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 			method: 'POST',
 			credentials: 'include'
 		});
-		return await res.json();
 	} catch (e) {
 		throw errorHandler(e, 'Logout failed');
 	}
