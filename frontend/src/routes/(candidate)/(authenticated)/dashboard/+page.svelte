@@ -16,7 +16,7 @@
 		UploadStatus,
 		type Status
 	} from '$lib/stores/portfolio';
-	import { candidateData } from '$lib/stores/candidate';
+	import { baseCandidateData, candidateData } from '$lib/stores/candidate';
 
 	export let data: PageData;
 
@@ -25,6 +25,7 @@
 
 	$: candidateData.set(data.candidate);
 	$: submissionProgress.set(data.submission);
+	$: baseCandidateData.set(data.whoami);
 
 	const getUploadStatus = (progressStatus: UploadStatus | undefined): Status => {
 		switch (progressStatus) {

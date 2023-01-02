@@ -6,7 +6,7 @@
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
 	import InfoButton from './InfoButton.svelte';
-	import { candidateData } from '$lib/stores/candidate';
+	import { baseCandidateData, candidateData } from '$lib/stores/candidate';
 	import tippy, {sticky} from 'tippy.js';
 	import { goto } from '$app/navigation';
 
@@ -103,6 +103,8 @@
 						}}
 						class="mt-4 flex flex-col justify-between leading-10"
 					>
+						<span>Ev. č. přihlášky: <span class="font-bold">{$baseCandidateData.applicationId}</span></span>
+						<span>Obor: <span class="font-bold">{$candidateData.candidate.study}</span></span>
 						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span
 							>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
@@ -162,7 +164,7 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply px-7 py-10;
+		@apply px-7 py-10 <2xl:px-5 <2xl:py-5;
 
 		@apply transition-all duration-300;
 	}
