@@ -80,7 +80,7 @@
 
 <span
 	use:tippy={{
-		content: 'Upravit osobní údaje',
+		content: 'Odhlásit se',
 		placement: 'top',
 		showOnCreate: false,
 		sticky: true,
