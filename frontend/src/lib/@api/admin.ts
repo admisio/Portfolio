@@ -13,7 +13,7 @@ export const apiLogin = async (data: AdminLogin): Promise<number> => {
 	try {
 		await axios.post(API_URL + '/admin/login', data, { withCredentials: true });
 		return data.adminId;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Login failed');
 	}
 };
@@ -24,7 +24,7 @@ export const apiCreateCandidate = async (data: CreateCandidate): Promise<CreateC
 	try {
 		const res = await axios.post(API_URL + '/admin/create', data, { withCredentials: true });
 		return res.data;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Candidate creation failed');
 	}
 };
@@ -48,7 +48,7 @@ export const apiResetCandidatePassword = async (id: number): Promise<CreateCandi
 			{ withCredentials: true }
 		);
 		return res.data;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Candidate creation failed');
 	}
 };
@@ -60,7 +60,7 @@ export const apiGetCandidatePortfolio = async (id: number): Promise<Blob> => {
 			credentials: 'include'
 		});
 		return await res.blob();
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Candidate portfolio failed');
 	}
 };
