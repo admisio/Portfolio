@@ -6,8 +6,9 @@
 	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
 	import Fuse from 'fuse.js';
 	import type { PageServerData } from './$types';
-	import Delete from '$lib/components/button/Delete.svelte';
 	import Table from '$lib/components/admin/table/Table.svelte';
+
+	import bacgkround from "$lib/assets/background.jpg";
 
 	export let data: PageServerData;
 
@@ -97,6 +98,9 @@
 {/if}
 
 <div>
+	<header class="w-full h-14">
+		<img class="h-12 w-full object-cover filter blur-sm" src={bacgkround} alt="Background">
+	</header>
 	<div class="flex flex-row">
 		<div class="list fixed">
 			{#each filters as filter}
