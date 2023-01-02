@@ -1,5 +1,5 @@
 import axios, { type AxiosProgressEvent } from 'axios';
-import type { CandidateData, CandidateLogin } from '$lib/stores/candidate';
+import type { CandidateData, CandidateLogin, CreateCandidate } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
 import DOMPurify from 'isomorphic-dompurify';
@@ -12,7 +12,6 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 			method: 'POST',
 			credentials: 'include'
 		});
-		return await res.json();
 	} catch (e) {
 		throw errorHandler(e, 'Logout failed');
 	}
@@ -52,7 +51,7 @@ export const apiFetchSubmissionProgress = async (fetchSsr?: Fetch): Promise<Subm
 	}
 };
 
-export const apiWhoami = async (fetchSsr?: Fetch): Promise<string> => {
+export const apiWhoami = async (fetchSsr?: Fetch): Promise<CreateCandidate> => {
 	const apiFetch = fetchSsr || fetch;
 	try {
 		console.log(API_URL + '/candidate/whoami');
@@ -63,7 +62,7 @@ export const apiWhoami = async (fetchSsr?: Fetch): Promise<string> => {
 		if (res.status != 200) {
 			throw Error(await res.text());
 		}
-		return await res.text();
+		return await res.json();
 	} catch (e) {
 		throw errorHandler(e, 'Failed to fetch whoami');
 	}
