@@ -1,10 +1,11 @@
 <script lang="ts">
+	import type { ApiError } from '$lib/@api';
 	import { apiCreateCandidate } from '$lib/@api/admin';
 	import type { CreateCandidate, CreateCandidateLogin } from '$lib/stores/candidate';
 	import { createEventDispatcher } from 'svelte';
-	import Modal from '../Modal.svelte';
-	import IdField from '../textfield/IdField.svelte';
-	import NumberField from '../textfield/NumberField.svelte';
+	import Modal from '../../Modal.svelte';
+	import IdField from '../../textfield/IdField.svelte';
+	import NumberField from '../../textfield/NumberField.svelte';
 
 	let isOpened = true;
 
@@ -12,6 +13,8 @@
 	let personalId: string = '';
 
 	let login: CreateCandidateLogin;
+
+	let error: string = '';
 
 	const dispatch = createEventDispatcher();
 
@@ -23,8 +26,9 @@
 		try {
 			login = await apiCreateCandidate(data);
 			dispatch('created');
-		} catch (e) {
-			console.log(e);
+		} catch (e: unknown) {
+			console.error(e);
+			error = (e as ApiError).msg;
 		}
 	};
 
@@ -42,6 +46,11 @@
 				<h1 class="text-sspsBlue text-3xl font-semibold">{login.password}</h1>
 			{:else}
 				<h1 class="text-sspsBlue text-3xl font-semibold">Registrace nového uchazeče</h1>
+				{#if error}
+					<div class="my-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+						<span class="block sm:inline">{error}</span>
+					</div>
+				{/if}
 				<h3 class="my-4">Evidenčni číslo přihlášky</h3>
 				<NumberField bind:value={applicationId} />
 				<h3 class="my-4">Rodné číslo</h3>

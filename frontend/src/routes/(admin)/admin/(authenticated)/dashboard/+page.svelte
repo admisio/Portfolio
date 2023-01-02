@@ -3,7 +3,7 @@
 	import Home from '$lib/components/icons/Home.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { CandidatePreview } from '$lib/stores/candidate';
-	import CreateCandidateModal from '$lib/components/admin/CreateCandidateModal.svelte';
+	import CreateCandidateModal from '$lib/components/admin/modal/CreateCandidateModal.svelte';
 	import Fuse from 'fuse.js';
 	import type { PageServerData } from './$types';
 	import Table from '$lib/components/admin/table/Table.svelte';
