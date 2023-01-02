@@ -170,6 +170,7 @@ async fn start() -> Result<(), rocket::Error> {
         panic!("Error: {}", err);
     }
 
+    dotenv::dotenv().unwrap();
     rocket().launch().await.map(|_| ())
 }
 
