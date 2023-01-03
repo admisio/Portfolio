@@ -1,13 +1,18 @@
 <script lang="ts">
 	import debounce from 'just-debounce-it';
 
-	import { apiDeltePortfolio, apiGetPortfolio, apiLogout, apiSubmitPortfolio } from '$lib/@api/candidate';
+	import {
+		apiDeltePortfolio,
+		apiGetPortfolio,
+		apiLogout,
+		apiSubmitPortfolio
+	} from '$lib/@api/candidate';
 	import Circles from '$lib/components/icons/Circles.svelte';
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
 	import InfoButton from './InfoButton.svelte';
 	import { baseCandidateData, candidateData } from '$lib/stores/candidate';
-	import tippy, {sticky} from 'tippy.js';
+	import tippy, { sticky } from 'tippy.js';
 	import { goto } from '$app/navigation';
 
 	export let title: string;
@@ -61,19 +66,19 @@
 	};
 
 	const editDetails = async () => {
-		goto('/register?edit=true')
-	}
+		goto('/register?edit=true');
+	};
 
 	const logout = async () => {
 		await apiLogout();
-		goto("/auth/login");
-	}
+		goto('/auth/login');
+	};
 </script>
 
 <div class="card flex flex-col">
 	<div class="infoBar <2xl:flex-col flex flex-row-reverse">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
-		<div class="mr-4 <2xl:mr-1">
+		<div class="<2xl:mr-1 mr-4">
 			<div on:click on:keydown class="flex flex-col">
 				<div class="<2xl:ml-auto <2xl:flex-row <2xl:my-2 flex flex-col">
 					<InfoButton
@@ -89,7 +94,7 @@
 	<div class="relative my-2 flex flex-col overflow-hidden">
 		<div>
 			<div class="mt-[5%] flex flex-col">
-				<div class="flex justify-between"> 
+				<div class="flex justify-between">
 					<h3>{title}</h3>
 					<span
 						on:click={logout}
@@ -101,15 +106,28 @@
 							sticky: true,
 							plugins: [sticky]
 						}}
-						class="<2xl:hidden hover:cursor-pointer">
-						<svg class="w-10 h-10 stroke-sspsBlueDark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+						class="<2xl:hidden hover:cursor-pointer"
+					>
+						<svg
+							class="stroke-sspsBlueDark h-10 w-10"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+							/></svg
+						>
 					</span>
 				</div>
 				<slot />
 			</div>
 		</div>
 		{#if showDetails}
-			<div class="overflow-scroll flex justify-between">
+			<div class="flex justify-between overflow-scroll">
 				<div>
 					<div
 						use:tippy={{
@@ -121,7 +139,10 @@
 						}}
 						class="mt-4 flex flex-col justify-between leading-10"
 					>
-						<span>Ev. č. přihlášky: <span class="font-bold">{$baseCandidateData.applicationId}</span></span>
+						<span
+							>Ev. č. přihlášky: <span class="font-bold">{$baseCandidateData.applicationId}</span
+							></span
+						>
 						<span>Obor: <span class="font-bold">{$candidateData.candidate.study}</span></span>
 						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span
@@ -133,10 +154,12 @@
 							></span
 						>
 						<span
-							>Rodné číslo: <span class="font-bold">{$candidateData.candidate.personalIdNumber}</span
+							>Rodné číslo: <span class="font-bold"
+								>{$candidateData.candidate.personalIdNumber}</span
 							></span
 						>
-						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
+						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
+						>
 					</div>
 					<div
 						use:tippy={{
@@ -167,8 +190,23 @@
 						sticky: true,
 						plugins: [sticky]
 					}}
-				 	on:click={(_) => editDetails()} on:keydown={(_) => editDetails()} class="mt-4 hover:cursor-pointer">
-					<svg class="w-10 h-10 stroke-sspsBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+					on:click={(_) => editDetails()}
+					on:keydown={(_) => editDetails()}
+					class="mt-4 hover:cursor-pointer"
+				>
+					<svg
+						class="stroke-sspsBlue h-10 w-10"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+						/></svg
+					>
 				</span>
 			</div>
 		{/if}
@@ -182,7 +220,7 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply px-7 py-10 <2xl:px-5 <2xl:py-5;
+		@apply <2xl:px-5 <2xl:py-5 px-7 py-10;
 
 		@apply transition-all duration-300;
 	}

@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ cookies, fetch }) => {
 		});
 		return {
 			whoami: whoami
-		}
+		};
 	} else {
 		throw redirect(302, '/auth/logout');
 	}

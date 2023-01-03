@@ -123,9 +123,7 @@ export const apiFetchCandidate = async (id: number, fetchSsr?: Fetch): Promise<C
 
 // SSR compatible
 // List all candidates /admin/list/candidates
-export const apiListCandidatesCSV = async (
-	fetchSsr?: Fetch,
-): Promise<Blob> => {
+export const apiListCandidatesCSV = async (fetchSsr?: Fetch): Promise<Blob> => {
 	const apiFetch = fetchSsr || fetch;
 	try {
 		const res = await apiFetch(API_URL + '/admin/list/candidates_csv', {

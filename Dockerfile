@@ -10,4 +10,5 @@ COPY --from=builder /portfolio/target/release/portfolio /usr/local/bin/portfolio
 VOLUME ["/portfolio"]
 WORKDIR /portfolio
 
+EXPOSE 8000
 ENTRYPOINT ["portfolio"]

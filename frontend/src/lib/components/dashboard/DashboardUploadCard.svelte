@@ -68,7 +68,6 @@
 		clearInterval(dashAnimationInterval);
 	};
 
-
 	const onFileDrop = (dropped: Files) => {
 		console.log(dropped);
 		if (dropped.accepted.length > 0) {

@@ -26,6 +26,7 @@
 		try {
 			login = await apiCreateCandidate(data);
 			dispatch('created');
+			error = '';
 		} catch (e: unknown) {
 			console.error(e);
 			error = (e as ApiError).msg;
@@ -47,7 +48,10 @@
 			{:else}
 				<h1 class="text-sspsBlue text-3xl font-semibold">Registrace nového uchazeče</h1>
 				{#if error}
-					<div class="my-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+					<div
+						class="relative my-2 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+						role="alert"
+					>
 						<span class="block sm:inline">{error}</span>
 					</div>
 				{/if}

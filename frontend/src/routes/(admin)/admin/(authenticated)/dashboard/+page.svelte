@@ -8,7 +8,7 @@
 	import type { PageServerData } from './$types';
 	import Table from '$lib/components/admin/table/Table.svelte';
 
-	import bacgkround from "$lib/assets/background.jpg";
+	import bacgkround from '$lib/assets/background.jpg';
 
 	export let data: PageServerData;
 
@@ -87,7 +87,7 @@
 		} catch (e) {
 			console.log(e);
 		}
-	}
+	};
 </script>
 
 {#if createCandidateModal}
@@ -98,8 +98,8 @@
 {/if}
 
 <div>
-	<header class="w-full h-14">
-		<img class="h-12 w-full object-cover filter blur-sm" src={bacgkround} alt="Background">
+	<header class="h-14 w-full">
+		<img class="h-12 w-full object-cover blur-sm filter" src={bacgkround} alt="Background" />
 	</header>
 	<div class="flex flex-row">
 		<div class="list fixed">
@@ -116,12 +116,12 @@
 				<TextField on:keyup={search} bind:value={searchValue} placeholder="Hledat" />
 				<button
 					on:click={openCreateCandidateModal}
-					class="bg-gray-500 hover:bg-gray-600 ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
+					class="ml-3 w-2/5 rounded-lg bg-gray-500 p-3 py-4 text-xl font-semibold text-white transition-colors duration-300 hover:bg-gray-600"
 					>Nový uchazeč</button
 				>
 				<button
 					on:click={downloadCSV}
-					class="bg-gray-500 hover:bg-gray-600 ml-3 w-2/5 rounded-lg p-3 py-4 text-xl font-semibold text-white transition-colors duration-300"
+					class="ml-3 w-2/5 rounded-lg bg-gray-500 p-3 py-4 text-xl font-semibold text-white transition-colors duration-300 hover:bg-gray-600"
 					>CSV</button
 				>
 			</div>
