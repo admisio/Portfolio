@@ -82,7 +82,7 @@
 		{/each}
 	</div>
 	<div class="dashboard dashboardMobile">
-		<div class="name md:my-10 mx-auto w-[90%]">
+		<div class="name mx-auto w-[90%] md:my-10">
 			<DashboardInfoCard
 				status={getUploadStatus($submissionProgress.status)}
 				title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}

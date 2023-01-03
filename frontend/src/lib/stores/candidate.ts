@@ -43,7 +43,7 @@ export interface CreateCandidateLogin extends CreateCandidate {
 	password: string;
 }
 
-export const baseCandidateData= writable<CreateCandidate>({
+export const baseCandidateData = writable<CreateCandidate>({
 	applicationId: 0,
 	personalIdNumber: ''
 });

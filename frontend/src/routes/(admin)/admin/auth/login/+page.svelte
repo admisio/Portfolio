@@ -34,7 +34,7 @@
 		<p class="text-sspsGray mt-8 text-center font-light">
 			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
 		</p>
-		<div class="mt-8 flex w-4/5 lg:w-3/5 flex-col">
+		<div class="mt-8 flex w-4/5 flex-col lg:w-3/5">
 			<span>
 				<TextField bind:value={adminIdValue} placeholder="Admin id" type="number" />
 			</span>
