@@ -26,6 +26,7 @@
 		try {
 			login = await apiCreateCandidate(data);
 			dispatch('created');
+			error = '';
 		} catch (e: unknown) {
 			console.error(e);
 			error = (e as ApiError).msg;
