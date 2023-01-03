@@ -123,8 +123,8 @@
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
-		@apply h-[90vh] w-[90vw] md:h-4/5 md:w-4/5;
-		@apply rounded-3xl;
+		@apply h-full w-full md:h-4/5 md:w-4/5;
+		@apply md:rounded-3xl;
 		@apply bg-white;
 	}
 	input {
