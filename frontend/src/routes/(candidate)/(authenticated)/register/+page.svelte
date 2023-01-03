@@ -332,8 +332,8 @@
 
 <SplitLayout>
 	<div class="form relative">
-		<div class="overflow-scroll h-[65%] md:h-auto absolute bottom-3/12 flex flex-col w-full">
-			<div class="h-32 w-32 <md:hidden self-center mb-4">
+		<div class="overflow-scroll md:h-auto absolute bottom-3/12 flex flex-col w-full">
+			<div class="h-32 w-32 <md:h-24 <md:w-24 self-center mb-4">
 				<SchoolBadge />
 			</div>
 		<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden"></form>
