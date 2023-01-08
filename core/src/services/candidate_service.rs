@@ -10,35 +10,8 @@ use crate::{
     Mutation, Query, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse}, auth::AuthenticableTrait}, utils::db::get_recipients,
 };
 
-use super::{session_service::SessionService, application_service::ApplicationService, portfolio_service::PortfolioService};
+use super::{session_service::SessionService, portfolio_service::PortfolioService};
 
-// TODO validation
-
-/* pub struct FieldOfStudy {
-    pub short_name: String,
-    pub full_name: String,
-    pub code: i32,
-}
-
-impl FieldOfStudy {
-    pub fn new(short_name: String, full_name: String, code: i32) -> Self {
-        Self {
-            short_name,
-            full_name,
-            code,
-        }
-    }
-
-    pub fn code_str(&self) -> String {
-        format!("{:04}", self.code)
-    }
-}
-
-pub enum FieldsOfStudy {
-    KB(FieldOfStudy),
-    IT(FieldOfStudy),
-    G(FieldOfStudy),
-} */
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -136,17 +109,15 @@ impl CandidateService {
             .decrypt(admin_private_key).await?;
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
 
-        let candidate = Mutation::add_candidate_details(db, candidate, enc_details.candidate).await?;
+        Mutation::add_candidate_details(db, candidate, enc_details.candidate).await?;
         for i in 0..enc_details.parents.len() {
             Mutation::add_parent_details(db, parents[i].clone(), enc_details.parents[i].clone()).await?;
         }
 
-        let details = ApplicationService::decrypt_all_details(priv_key_plain_text, db, candidate).await?;
-
         Ok(
             CreateCandidateResponse {
                 application_id: id,
-                personal_id_number: personal_id_number,
+                personal_id_number,
                 password: new_password_plain,
             }
         )

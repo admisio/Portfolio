@@ -15,6 +15,12 @@ impl Mutation {
         .await
     }
 
+    pub async fn delete_parent(db: &DbConn, parent: Model) -> Result<DeleteResult, DbErr> {
+        parent
+            .delete(db)
+            .await
+    }
+
     pub async fn add_parent_details(
         db: &DbConn,
         parent: Model,

@@ -237,7 +237,6 @@ impl From<&parent::Model> for EncryptedParentDetails {
             telephone: EncryptedString::try_from(&parent.telephone).ok(),
             email: EncryptedString::try_from(&parent.email).ok(),
         }
-        
     }
 }
 
