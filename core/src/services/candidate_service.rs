@@ -10,35 +10,8 @@ use crate::{
     Mutation, Query, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse}, auth::AuthenticableTrait}, utils::db::get_recipients,
 };
 
-use super::{session_service::SessionService, application_service::ApplicationService, portfolio_service::PortfolioService};
+use super::{session_service::SessionService, portfolio_service::PortfolioService};
 
-// TODO validation
-
-/* pub struct FieldOfStudy {
-    pub short_name: String,
-    pub full_name: String,
-    pub code: i32,
-}
-
-impl FieldOfStudy {
-    pub fn new(short_name: String, full_name: String, code: i32) -> Self {
-        Self {
-            short_name,
-            full_name,
-            code,
-        }
-    }
-
-    pub fn code_str(&self) -> String {
-        format!("{:04}", self.code)
-    }
-}
-
-pub enum FieldsOfStudy {
-    KB(FieldOfStudy),
-    IT(FieldOfStudy),
-    G(FieldOfStudy),
-} */
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -111,36 +84,40 @@ impl CandidateService {
         let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
 
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
-        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text, 
+        let encrypted_priv_key = crypto::encrypt_password(priv_key_plain_text.clone(), 
             new_password_plain.to_string()
         ).await?;
+
 
         Self::delete_old_sessions(db, &candidate, 0).await?;
         let candidate = Mutation::update_candidate_password_and_keys(db,
              candidate,
              new_password_hash,
-             pubkey,
+             pubkey.clone(),
              encrypted_priv_key
         ).await?;
+
         
         // user might no have filled his details yet, but personal id number is filled from beginning
         let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
             .decrypt(&admin_private_key)
             .await?;
+
+        let recipients = get_recipients(db, &pubkey).await?;
         
-        let enc_details_opt = EncryptedApplicationDetails::try_from(
-            (&candidate, parents)
-        );
-        
-        if let Ok(enc_details) = enc_details_opt {
-            let application_details = enc_details.decrypt(admin_private_key).await?;
-            ApplicationService::add_all_details(db, candidate, &application_details).await?;
+        let dec_details = EncryptedApplicationDetails::from((&candidate, parents.clone()))
+            .decrypt(admin_private_key).await?;
+        let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
+
+        Mutation::update_candidate_details(db, candidate, enc_details.candidate).await?;
+        for i in 0..enc_details.parents.len() {
+            Mutation::add_parent_details(db, parents[i].clone(), enc_details.parents[i].clone()).await?;
         }
 
         Ok(
             CreateCandidateResponse {
                 application_id: id,
-                personal_id_number: personal_id_number,
+                personal_id_number,
                 password: new_password_plain,
             }
         )
@@ -160,7 +137,7 @@ impl CandidateService {
         recipients: &Vec<String>,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
-        let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
+        let model = Mutation::update_candidate_details(db, candidate, enc_details).await?;
         Ok(model)
     }
 

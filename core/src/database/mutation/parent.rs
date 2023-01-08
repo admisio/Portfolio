@@ -15,16 +15,22 @@ impl Mutation {
         .await
     }
 
+    pub async fn delete_parent(db: &DbConn, parent: Model) -> Result<DeleteResult, DbErr> {
+        parent
+            .delete(db)
+            .await
+    }
+
     pub async fn add_parent_details(
         db: &DbConn,
         parent: Model,
         enc_parent: EncryptedParentDetails,
     ) -> Result<Model, sea_orm::DbErr> {
         let mut parent: parent::ActiveModel = parent.into();
-        parent.name = Set(Some(enc_parent.name.into()));
-        parent.surname = Set(Some(enc_parent.surname.into()));
-        parent.telephone = Set(Some(enc_parent.telephone.into()));
-        parent.email = Set(Some(enc_parent.email.into()));
+        parent.name = Set(enc_parent.name.map(|e| e.into()));
+        parent.surname = Set(enc_parent.surname.map(|e| e.into()));
+        parent.telephone = Set(enc_parent.telephone.map(|e| e.into()));
+        parent.email = Set(enc_parent.email.map(|e| e.into()));
 
         parent.updated_at = Set(chrono::offset::Local::now().naive_local());
 

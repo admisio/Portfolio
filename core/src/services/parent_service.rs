@@ -22,10 +22,11 @@ impl ParentService {
         parents_details: &Vec<ParentDetails>,
         recipients: &Vec<String>,
     ) -> Result<Vec<parent::Model>, ServiceError> {
-        let found_parents = Query::find_candidate_parents(db, ref_candidate).await?;
-        if found_parents.len() > 2 {
+        if parents_details.len() > 2 {
             return Err(ServiceError::ParentOverflow);
         }
+        
+        let found_parents = Query::find_candidate_parents(db, ref_candidate).await?;
 
         let mut result = vec![];
         for i in 0..parents_details.len() {
@@ -36,6 +37,11 @@ impl ParentService {
             let enc_details = EncryptedParentDetails::new(&parents_details[i], recipients).await?;
             let parent = Mutation::add_parent_details(db, found_parent, enc_details.clone()).await?;
             result.push(parent);
+        }
+
+        // delete parents that are not in the form
+        for i in parents_details.len()..found_parents.len() {
+            Mutation::delete_parent(db, found_parents[i].to_owned()).await?;
         }
 
         Ok(result)
