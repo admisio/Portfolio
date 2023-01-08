@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    image: "postgres:15"
+    environment:
+      POSTGRES_USER: REDACTED
+      POSTGRES_PASSWORD: REDACTED
+      POSTGRES_DB: postgres
+    volumes:
+        - ./data-postgres:/var/lib/postgresql/data
+    networks:
+       - db
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.routers.adminer.entrypoints=web"
+      - "traefik.http.routers.adminer.rule=Host(`portfolio.ssps.cz`) && PathPrefix(`/adminer/`)"
+      - "traefik.http.routers.adminer.middlewares=adminer-stripprefix,adminer-auth"
+      - "traefik.http.middlewares.adminer-stripprefix.stripprefix.prefixes=/adminer"
+      # REDACTED
+      - "traefik.http.middlewares.adminer-auth.basicauth.users=REDACTED:REDACTED"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - traefik_proxy
+      - db
+  backend:
+    image: "ghcr.io/eetagent/portfolio_backend:latest"
+    container_name: backend
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.rule=Host(`portfolio.ssps.cz`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.middlewares=backend-stripprefix"
+      - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+    environment:
+      ROCKET_ADDRESS: "0.0.0.0"
+      ROCKET_PORT: "8000"
+      ROCKET_SECRET_KEY: "REDACTED"
+      PORTFOLIO_DATABASE_URL: "postgres://REDACTED:REDACTED@postgres:5432/postgres"
+      DATABASE_URL: "postgres://REDACTED:REDACTED@postgres:5432/postgres"
+    volumes:
+        - ./data-backend:/portfolio
+    depends_on:
+       - postgres
+    networks:
+       - traefik_proxy
+       - db
+       - app
+  frontend:
+    image: "ghcr.io/eetagent/portfolio_frontend:latest"
+    container_name: frontend
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.rule=Host(`portfolio.ssps.cz`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    environment:
+      PORTFOLIO_API_HOST: "backend:8000"
+    depends_on:
+       - backend
+    networks:
+       - traefik_proxy
+       - app
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
+  db:
+  app:
