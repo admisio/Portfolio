@@ -26,7 +26,7 @@ impl Mutation {
             .insert(db)
             .await?;
 
-        info!("CANDIDATE CREATED");
+        info!("CANDIDATE {} CREATED", application_id);
         Ok(insert)
     }
 
@@ -60,11 +60,12 @@ impl Mutation {
         Ok(update)
     }
 
-    pub async fn add_candidate_details(
+    pub async fn update_candidate_details(
         db: &DbConn,
         user: candidate::Model,
         enc_candidate: EncryptedCandidateDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
+        let application = user.application;
         let mut user: candidate::ActiveModel = user.into();
         user.name = Set(enc_candidate.name.map(|e| e.into()));
         user.surname = Set(enc_candidate.surname.map(|e| e.into()));
@@ -82,7 +83,7 @@ impl Mutation {
 
         let update = user.update(db).await?;
 
-        info!("CANDIDATE DETAILS ADDED");
+        info!("CANDIDATE {} DETAILS UPDATED", application);
 
         Ok(update)
     }
@@ -140,7 +141,7 @@ mod tests {
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_string()],
         ).await.unwrap();
 
-        Mutation::add_candidate_details(&db, candidate, encrypted_details.candidate).await.unwrap();
+        Mutation::update_candidate_details(&db, candidate, encrypted_details.candidate).await.unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, APPLICATION_ID)
         .await

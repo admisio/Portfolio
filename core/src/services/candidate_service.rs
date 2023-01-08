@@ -109,7 +109,7 @@ impl CandidateService {
             .decrypt(admin_private_key).await?;
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
 
-        Mutation::add_candidate_details(db, candidate, enc_details.candidate).await?;
+        Mutation::update_candidate_details(db, candidate, enc_details.candidate).await?;
         for i in 0..enc_details.parents.len() {
             Mutation::add_parent_details(db, parents[i].clone(), enc_details.parents[i].clone()).await?;
         }
@@ -137,7 +137,7 @@ impl CandidateService {
         recipients: &Vec<String>,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
-        let model = Mutation::add_candidate_details(db, candidate, enc_details).await?;
+        let model = Mutation::update_candidate_details(db, candidate, enc_details).await?;
         Ok(model)
     }
 
