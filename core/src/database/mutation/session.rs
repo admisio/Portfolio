@@ -1,5 +1,5 @@
 use chrono::{Utc, Duration, NaiveDateTime};
-use ::entity::{session, candidate};
+use ::entity::session;
 use sea_orm::{*, prelude::Uuid};
 
 use crate::Mutation;
