@@ -108,7 +108,6 @@ pub async fn get_details(
     let private_key = session.get_private_key();
     let candidate: entity::candidate::Model = session.into();
 
-    // let handle = tokio::spawn(async move {
     let details = ApplicationService::decrypt_all_details(private_key, db, candidate)
         .await
         .map(|x| Json(x))

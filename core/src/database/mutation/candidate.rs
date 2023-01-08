@@ -48,6 +48,7 @@ impl Mutation {
         pub_key: String,
         priv_key_enc: String,
     ) -> Result<candidate::Model, DbErr> {
+        let application = candidate.application;
         let mut candidate: candidate::ActiveModel = candidate.into();
         candidate.code = Set(new_password_hash);
         candidate.public_key = Set(pub_key);
@@ -55,7 +56,7 @@ impl Mutation {
 
         let update = candidate.update(db).await?;
 
-        warn!("CANDIDATE PASSWORD CHANGED");
+        warn!("CANDIDATE {} PASSWORD CHANGED", application);
         Ok(update)
     }
 
@@ -65,17 +66,17 @@ impl Mutation {
         enc_candidate: EncryptedCandidateDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let mut user: candidate::ActiveModel = user.into();
-        user.name = Set(Some(enc_candidate.name.into()));
-        user.surname = Set(Some(enc_candidate.surname.into()));
-        user.birthplace = Set(Some(enc_candidate.birthplace.into()));
-        user.birthdate = Set(Some(enc_candidate.birthdate.into()));
-        user.address = Set(Some(enc_candidate.address.into()));
-        user.telephone = Set(Some(enc_candidate.telephone.into()));
-        user.citizenship = Set(Some(enc_candidate.citizenship.into()));
-        user.email = Set(Some(enc_candidate.email.into()));
-        user.sex = Set(Some(enc_candidate.sex.into()));
-        user.personal_identification_number = Set(enc_candidate.personal_id_number.into()); // TODO: do not set this here, it is already set in the create_candidate mutation???
-        user.study = Set(Some(enc_candidate.study.into()));
+        user.name = Set(enc_candidate.name.map(|e| e.into()));
+        user.surname = Set(enc_candidate.surname.map(|e| e.into()));
+        user.birthplace = Set(enc_candidate.birthplace.map(|e| e.into()));
+        user.birthdate = Set(enc_candidate.birthdate.map(|e| e.into()));
+        user.address = Set(enc_candidate.address.map(|e| e.into()));
+        user.telephone = Set(enc_candidate.telephone.map(|e| e.into()));
+        user.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
+        user.email = Set(enc_candidate.email.map(|e| e.into()));
+        user.sex = Set(enc_candidate.sex.map(|e| e.into()));
+        user.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
+        user.study = Set(enc_candidate.study.map(|e| e.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
 
