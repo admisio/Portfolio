@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [dependencies]
 chrono = "^0.4"
-async-trait = "0.1.60"
+async-trait = "^0.1"
 
 [dependencies.sea-orm]
 version = "^0.10"
