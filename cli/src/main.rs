@@ -235,6 +235,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .required(true),
                 )
         )
+        .subcommand(
+            Command::new("admin")
+                .about("Create admin")
+                .arg(
+                    arg!(
+                        -p --password <PASWORD> "Password"
+                    )
+                    .required(true)
+                ),
+        )
         .get_matches();
 
     match clap.subcommand() {
@@ -329,6 +339,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             println!("{}", result);
+        }
+        Some(("admin", sub_matches)) => {
+            let input = sub_matches.get_one::<String>("password").unwrap();
+
+            let (pubkey, priv_key) = crypto::create_identity();
+            
+            let priv_key = crypto::encrypt_password(priv_key, input.to_string())
+                .await
+                .unwrap();
+
+            let password_hash = crypto::hash_password(input.to_string())
+                .await
+                .unwrap();
+
+        
+            println!("{}", pubkey);
+            println!("{}", priv_key);
+            println!("{}", password_hash);
         }
         _ => unreachable!("Exhausted list of subcommands and subcommand_required prevents `None`"),
     }
