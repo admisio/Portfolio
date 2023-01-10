@@ -167,6 +167,20 @@ impl EncryptedCandidateDetails {
             }
         )
     }
+
+    pub fn is_filled(&self) -> bool {
+        self.name.is_some() &&
+        self.surname.is_some() &&
+        self.birthplace.is_some() &&
+        self.birthdate.is_some() &&
+        self.address.is_some() &&
+        self.telephone.is_some() &&
+        self.citizenship.is_some() &&
+        self.email.is_some() &&
+        self.sex.is_some() &&
+        self.personal_id_number.is_some() &&
+        self.study.is_some()
+    }
 }
 impl From<&candidate::Model> for EncryptedCandidateDetails {
     fn from(
@@ -226,6 +240,13 @@ impl EncryptedParentDetails {
             }
         )
     }
+
+    pub fn is_filled(&self) -> bool {
+        self.name.is_some() &&
+        self.surname.is_some() &&
+        self.telephone.is_some() &&
+        self.email.is_some()
+    }
 }
 impl From<&parent::Model> for EncryptedParentDetails {
     fn from(
@@ -271,6 +292,11 @@ impl EncryptedApplicationDetails {
             candidate: decrypted_candidate,
             parents: decrypted_parents,
         })
+    }
+
+    pub fn is_filled(&self) -> bool {
+        self.candidate.is_filled() &&
+        self.parents.iter().all(|p| p.is_filled())
     }
 }
 

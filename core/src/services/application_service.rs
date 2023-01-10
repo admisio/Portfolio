@@ -49,7 +49,12 @@ impl ApplicationService {
         let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::from((&candidate, parents));
 
-        enc_details.decrypt(private_key).await
+        if enc_details.is_filled() {
+            enc_details.decrypt(private_key).await
+        } else {
+            Err(ServiceError::Forbidden)
+        }
+
     }
     
 }

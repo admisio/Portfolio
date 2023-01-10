@@ -167,19 +167,6 @@ impl CandidateService {
         ).await
     }
 
-    pub fn is_candidate_info(candidate: &candidate::Model) -> bool {
-        candidate.name.is_some()
-            && candidate.surname.is_some()
-            && candidate.birthplace.is_some()
-            && candidate.birthdate.is_some()
-            && candidate.address.is_some()
-            && candidate.telephone.is_some()
-            && candidate.citizenship.is_some()
-            && candidate.email.is_some()
-            && candidate.sex.is_some()
-            && candidate.study.is_some()
-    }
-
     async fn decrypt_private_key(
         candidate: candidate::Model,
         password: String,
