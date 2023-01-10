@@ -4,3 +4,4 @@ pub mod admin_service;
 pub mod parent_service;
 pub mod application_service;
 pub mod portfolio_service;
+pub mod email_service;

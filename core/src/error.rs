@@ -64,6 +64,14 @@ pub enum ServiceError {
     CsvError(#[from] csv::Error),
     #[error("Csv into inner error")]
     CsvIntoInnerError,
+    #[error("Email error")]
+    EmailError(#[from] lettre::error::Error),
+    #[error("Email format error")]
+    EmailFormatError(#[from] lettre::address::AddressError),
+    #[error("Email transport builder error")]
+    EmailTransportError(#[from] lettre::transport::smtp::Error),
+    #[error("Environment variable error")]
+    EnvVarError(#[from] std::env::VarError)
 }
 
 impl ServiceError {
@@ -101,6 +109,10 @@ impl ServiceError {
             ServiceError::ZipError(_) => 500,
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
+            ServiceError::EmailError(_) => 500,
+            ServiceError::EmailFormatError(_) => 400,
+            ServiceError::EmailTransportError(_) => 500,
+            ServiceError::EnvVarError(_) => 500,
         }
     }
 
