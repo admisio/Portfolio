@@ -15,7 +15,8 @@ serde = { version = "^1.0", features = ["derive"] }
 # csv
 csv = "^1.1"
 
-async-trait = "^0.1"
+# email
+lettre = "^0.10.1"
 
 # error
 thiserror = "^1.0"
@@ -27,6 +28,7 @@ dotenv = "^0.15"
 tokio = "^1.24"
 futures = "^0.3"
 async-compat = "^0.2"
+async-trait = "^0.1"
 
 # file identifier
 infer = "^0.12"
