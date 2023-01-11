@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { apiLogin } from '$lib/@api/candidate';
+	import { SvelteToast, toast } from '@zerodevx/svelte-toast'
 
 	let applicationId = Number($page.params.code);
 	let codeValueMobile: string = '';
@@ -34,11 +35,12 @@
 			}
 		}
 		codeValueMobile = codeValueArray.join('');
+		
+		if (codeValueArray.length === 12) {
+			submit();
+		}
 	};
 
-	$: if (codeValueArray.length === 12) {
-		submit();
-	}
 
 	const submit = async () => {
 		try {
@@ -46,8 +48,14 @@
 			goto('/dashboard');
 		} catch (e) {
 			console.error(e);
+			toast.push('Neplatné heslo!', {
+				theme: {
+					'--toastColor': 'mintcream',
+					'--toastBackground': '#b91c1c',
+					'--toastBarBackground': '#7f1d1d'
+				}	
+			})
 		}
-		// alert('ApplicationId: ' + applicationId + '; Password: ' + codeValueMobile);
 	};
 
 	const onPaste = (e: ClipboardEvent) => {
@@ -77,6 +85,7 @@
 <FullLayout>
 	<div class="modal">
 		<img class="mx-auto" src={woman} alt="" />
+		<SvelteToast></SvelteToast>
 		<div class="flex items-center justify-center">
 			<input bind:value={codeValueMobile} type="text" class="codeInputMobile" />
 			{#each [1, 2, 3, 4] as value}
