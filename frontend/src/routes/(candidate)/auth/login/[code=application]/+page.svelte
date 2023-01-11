@@ -36,7 +36,7 @@
 		}
 		codeValueMobile = codeValueArray.join('');
 		
-		if (codeValueArray.length === 12) {
+		if (codeValueArray.length == 12) {
 			submit();
 		}
 	};

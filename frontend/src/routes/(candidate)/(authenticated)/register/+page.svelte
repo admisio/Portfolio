@@ -14,6 +14,7 @@
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { PageData } from './$types';
+	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	import { createForm } from 'svelte-forms-lib';
 	import type { Writable } from 'svelte/store';
@@ -199,7 +200,14 @@
 							values.candidate.birthdate
 						)
 					) {
-						alert('Rodné číslo neodpovídá oficiální specifikaci či datumu narození'); // TODO: alerts
+						// alert('Rodné číslo neodpovídá oficiální specifikaci či datumu narození'); // TODO: alerts
+						toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+							theme: {
+								'--toastColor': 'mintcream',
+								'--toastBackground': '#b91c1c',
+								'--toastBarBackground': '#7f1d1d'
+							}	
+						})
 						throw new Error('Rodné číslo neodpovídá datumu narození');
 					}
 				}
@@ -332,6 +340,7 @@
 </script>
 
 <SplitLayout>
+	<SvelteToast></SvelteToast>
 	<div class="form relative">
 		<div class="bottom-3/12 absolute flex w-full flex-col overflow-scroll md:h-auto">
 			<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
