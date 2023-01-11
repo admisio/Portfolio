@@ -67,6 +67,7 @@
 		for (const el of codeElementArray) {
 			el.blur();
 		}
+		submit();
 	};
 
 	onMount(() => {
