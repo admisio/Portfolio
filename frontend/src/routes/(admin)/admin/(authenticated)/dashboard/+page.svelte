@@ -9,44 +9,52 @@
 	import Table from '$lib/components/admin/table/Table.svelte';
 
 	import bacgkround from '$lib/assets/background.jpg';
+	import Logout from '$lib/components/icons/Logout.svelte';
+	import { goto } from '$app/navigation';
 
 	export let data: PageServerData;
 
 	let candidates: Array<CandidatePreview> = data.preview;
 
-	const getCandidates = async (field?: string) => {
+	const getCandidates = async () => {
 		try {
-			candidates = await apiListCandidates(
-				undefined,
-				field ?? activeFilter !== 'Vše' ? activeFilter : ''
-			);
+			candidates = await apiListCandidates(undefined, activeFilter.filter);
 		} catch {
 			console.log('error');
 		}
 	};
 
-	type Filter = 'Vše' | 'KBB' | 'IT' | 'GYM';
+	type Class = 'Vše' | 'KBB' | 'IT' | 'GYM';
 
-	let filters: Array<Filter> = ['Vše', 'KBB', 'IT', 'GYM'];
+	type Filter = {
+		class: Class;
+		filter: string | undefined;
+	};
+
+	let filters: Array<Filter> = [
+		{
+			class: 'Vše',
+			filter: undefined
+		},
+		{
+			class: 'KBB',
+			filter: 'KB'
+		},
+		{
+			class: 'IT',
+			filter: 'IT'
+		},
+		{
+			class: 'GYM',
+			filter: 'G'
+		}
+	];
 
 	let activeFilter: Filter = filters[0];
 
-	const changeFilter = (filter: Filter) => {
+	const changeFilter = async (filter: Filter) => {
 		activeFilter = filter;
-		switch (activeFilter) {
-			case 'Vše':
-				getCandidates();
-				break;
-			case 'KBB':
-				getCandidates('KB');
-				break;
-			case 'IT':
-				getCandidates('IT');
-				break;
-			case 'GYM':
-				getCandidates('G');
-				break;
-		}
+		await getCandidates();
 	};
 
 	let scrollTop = 0;
@@ -88,6 +96,10 @@
 			console.log(e);
 		}
 	};
+
+	const logout = async () => {
+		goto('/admin/auth/logout');
+	};
 </script>
 
 {#if createCandidateModal}
@@ -98,7 +110,7 @@
 {/if}
 
 <div>
-	<header class="h-14 w-full">
+	<header class="absolute h-14 w-full">
 		<img class="h-12 w-full object-cover blur-sm filter" src={bacgkround} alt="Background" />
 	</header>
 	<div class="flex flex-row">
@@ -106,12 +118,17 @@
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
-					<button on:click={() => changeFilter(filter)}>{filter}</button>
+					<button on:click={() => changeFilter(filter)}>{filter.class}</button>
 				</div>
 			{/each}
 		</div>
 		<div class="body relative overflow-scroll">
-			<h1 class="text-3xl font-semibold">Uchazeči</h1>
+			<div class="flex items-center">
+				<h1 class="text-3xl font-semibold">Uchazeči</h1>
+				<button class="ml-2" on:click={logout}>
+					<Logout />
+				</button>
+			</div>
 			<div class="controls my-8">
 				<TextField on:keyup={search} bind:value={searchValue} placeholder="Hledat" />
 				<button
@@ -157,14 +174,14 @@
 		@apply flex items-center;
 		@apply rounded-xl;
 
-		@apply transition-all duration-300;
+		@apply transition-all duration-200;
 
 		@apply hover:bg-sspsBlue focus:bg-sspsBlue;
 		@apply hover:text-white focus:text-white;
 	}
 
 	.list div :global(path) {
-		@apply transition-all duration-300;
+		@apply transition-all duration-100;
 	}
 
 	.list div:hover :global(path) {
@@ -194,7 +211,7 @@
 	.body {
 		@apply h-full w-full;
 		@apply float-left overflow-hidden;
-		@apply my-6 mx-12 ml-[27rem];
+		@apply my-6 mx-12 mt-16 ml-[27rem];
 	}
 
 	.body .controls {
