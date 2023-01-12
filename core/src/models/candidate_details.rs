@@ -43,9 +43,18 @@ pub struct EncryptedApplicationDetails {
 impl EncryptedString {
     pub async fn new(s: &str, recipients: &Vec<String>) -> Result<Self, ServiceError> {
         let recipients = recipients.iter().map(|s| &**s).collect();
-        match crypto::encrypt_password_with_recipients(&s, &recipients).await {
-            Ok(encrypted) => Ok(Self(encrypted)),
-            Err(_) => Err(ServiceError::CryptoEncryptFailed),
+        let encrypted_string = crypto::encrypt_password_with_recipients(&s, &recipients).await?;
+        Ok(Self(encrypted_string))
+    }
+
+    pub async fn new_option(s: &str, recipients: &Vec<String>) -> Result<Option<Self>, ServiceError> {
+        match s.is_empty() {
+            true => Ok(None),
+            false => {
+                let recipients = recipients.iter().map(|s| &**s).collect();
+                let encrypted_s = crypto::encrypt_password_with_recipients(&s, &recipients).await?;
+                Ok(Some(Self(encrypted_s)))
+            },
         }
     }
 
@@ -109,30 +118,30 @@ impl EncryptedCandidateDetails {
     ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let d = tokio::try_join!(
-            EncryptedString::new(&form.name, recipients),
-            EncryptedString::new(&form.surname, recipients),
-            EncryptedString::new(&form.birthplace, recipients),
-            EncryptedString::new(&birthdate_str, recipients),
-            EncryptedString::new(&form.address, recipients),
-            EncryptedString::new(&form.telephone, recipients),
-            EncryptedString::new(&form.citizenship, recipients),
-            EncryptedString::new(&form.email, recipients),
-            EncryptedString::new(&form.sex, recipients),
-            EncryptedString::new(&form.personal_id_number, recipients),
+            EncryptedString::new_option(&form.name, recipients),
+            EncryptedString::new_option(&form.surname, recipients),
+            EncryptedString::new_option(&form.birthplace, recipients),
+            EncryptedString::new_option(&birthdate_str, recipients),
+            EncryptedString::new_option(&form.address, recipients),
+            EncryptedString::new_option(&form.telephone, recipients),
+            EncryptedString::new_option(&form.citizenship, recipients),
+            EncryptedString::new_option(&form.email, recipients),
+            EncryptedString::new_option(&form.sex, recipients),
+            EncryptedString::new_option(&form.personal_id_number, recipients),
         )?;
 
         Ok(
             EncryptedCandidateDetails {
-                name: Some(d.0),
-                surname: Some(d.1),
-                birthplace: Some(d.2),
-                birthdate: Some(d.3),
-                address: Some(d.4),
-                telephone: Some(d.5),
-                citizenship: Some(d.6),
-                email: Some(d.7),
-                sex: Some(d.8),
-                personal_id_number: Some(d.9),
+                name: d.0,
+                surname: d.1,
+                birthplace: d.2,
+                birthdate: d.3,
+                address: d.4,
+                telephone: d.5,
+                citizenship: d.6,
+                email: d.7,
+                sex: d.8,
+                personal_id_number: d.9,
                 study: Some(form.study.clone()),
             }
         )
@@ -208,18 +217,18 @@ impl EncryptedParentDetails {
         recipients: &Vec<String>,
     ) -> Result<EncryptedParentDetails, ServiceError> {
         let d = tokio::try_join!(
-            EncryptedString::new(&form.name, recipients),
-            EncryptedString::new(&form.surname, recipients),
-            EncryptedString::new(&form.telephone, recipients),
-            EncryptedString::new(&form.email, recipients),
+            EncryptedString::new_option(&form.name, recipients),
+            EncryptedString::new_option(&form.surname, recipients),
+            EncryptedString::new_option(&form.telephone, recipients),
+            EncryptedString::new_option(&form.email, recipients),
         )?;
 
         Ok(
             EncryptedParentDetails {
-                name: Some(d.0),
-                surname: Some(d.1),
-                telephone: Some(d.2),
-                email: Some(d.3),
+                name: d.0,
+                surname: d.1,
+                telephone: d.2,
+                email: d.3,
             }
         )
     }
