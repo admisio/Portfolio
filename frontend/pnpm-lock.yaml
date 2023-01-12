@@ -2,7 +2,7 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@zerodevx/svelte-toast':
-    specifier: 1.0.0-rc.1
+    specifier: ^1.0.0-rc.1
     version: 1.0.0-rc.1
   axios:
     specifier: ^1.2.2

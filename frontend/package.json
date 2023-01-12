@@ -35,7 +35,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@zerodevx/svelte-toast": "1.0.0-rc.1",
+		"@zerodevx/svelte-toast": "^1.0.0-rc.1",
 		"axios": "^1.2.2",
 		"dotenv": "^16.0.3",
 		"filedrop-svelte": "^0.1.2",
