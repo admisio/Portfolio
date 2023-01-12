@@ -3,12 +3,8 @@ import * as dotenv from 'dotenv';
 
 export const handleFetch: HandleFetch = async ({ request, fetch, event }) => {
 	dotenv.config();
-
-	console.log(`SSR: handleFetch() BEFORE: ${request.method} ${request.url}`);
-
 	const cookie = event.request.headers.get('cookie') || '';
 
-	console.log(`SSR: handleFetch() cookie: ${cookie}`);
 
 	request.headers.set('cookie', cookie);
 
@@ -21,8 +17,6 @@ export const handleFetch: HandleFetch = async ({ request, fetch, event }) => {
 	url.pathname = url.pathname.replace(/^\/api/, '');
 
 	request = new Request(url, request);
-
-	console.log(`SSR: handleFetch() AFTER:  ${request.method} ${request.url}`);
 
 	return fetch(request);
 };
