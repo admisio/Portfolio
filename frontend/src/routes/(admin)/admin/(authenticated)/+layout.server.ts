@@ -7,7 +7,7 @@ export const load: LayoutServerLoad = async ({ cookies, fetch }) => {
 	const isAuthenticated = cookies.get('id');
 
 	if (isAuthenticated) {
-		const whoami = await apiWhoami(fetch).catch((e) => {
+		const whoami = await apiWhoami(fetch).catch(() => {
 			throw redirect(302, '/admin/auth/logout');
 		});
 		return {
