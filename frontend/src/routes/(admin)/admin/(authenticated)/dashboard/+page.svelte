@@ -98,11 +98,12 @@
 {/if}
 
 <div>
-	<header class="h-14 w-full">
+	<header class="absolute h-14 w-full">
 		<img class="h-12 w-full object-cover blur-sm filter" src={bacgkround} alt="Background" />
 	</header>
 	<div class="flex flex-row">
 		<div class="list fixed">
+
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
@@ -194,7 +195,7 @@
 	.body {
 		@apply h-full w-full;
 		@apply float-left overflow-hidden;
-		@apply my-6 mx-12 ml-[27rem];
+		@apply my-6 mt-14 mx-12 ml-[27rem];
 	}
 
 	.body .controls {
