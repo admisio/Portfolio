@@ -12,6 +12,7 @@
 	let codeValueMobile: string = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
+	let isError: boolean = false;
 
 	$: {
 		codeValueMobile = codeValueMobile.toUpperCase();
@@ -19,7 +20,7 @@
 		console.log(codeValueArray);
 	}
 
-	const inputDesktopOnKeyDown = (index: number, e: KeyboardEvent) => {
+	const inputDesktopOnKeyDown = async (index: number, e: KeyboardEvent) => {
 		if (e.key === 'Backspace') {
 			codeValueArray[index] = '';
 			if (codeElementArray[index - 1]) {
@@ -36,13 +37,16 @@
 		}
 		codeValueMobile = codeValueArray.join('');
 		
-		if (codeValueArray.length == 12) {
-			submit();
+		if (codeValueArray.filter((item) => item !== '').length === 12) {
+			await submit();
+		} else {
+			isError = false;
 		}
 	};
 
 
 	const submit = async () => {
+		console.log('submitting: ', codeValueArray);
 		try {
 			await apiLogin({ applicationId, password: codeValueMobile });
 			goto('/dashboard');
@@ -55,19 +59,23 @@
 					'--toastBarBackground': '#7f1d1d'
 				}	
 			})
+			isError = true;
 		}
 	};
 
-	const onPaste = (e: ClipboardEvent) => {
+	const onPaste = async (e: ClipboardEvent) => {
 		e.preventDefault();
-		const text = e.clipboardData?.getData('text/plain');
+		const text = e.clipboardData?.getData('text/plain').slice(0, 12);
 		if (text) {
 			codeValueMobile = text;
+			codeValueArray = text.split('');
 		}
 		for (const el of codeElementArray) {
 			el.blur();
 		}
-		submit();
+		if (codeValueArray.filter((item) => item !== '').length === 12) {
+			await submit();
+		}
 	};
 
 	onMount(() => {
@@ -92,6 +100,7 @@
 			{#each [1, 2, 3, 4] as value}
 				<input
 					class="codeInputDesktop"
+					class:error={isError}
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
 					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
@@ -103,6 +112,7 @@
 			{#each [5, 6, 7, 8] as value}
 				<input
 					class="codeInputDesktop"
+					class:error={isError}
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
 					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
@@ -114,6 +124,7 @@
 			{#each [9, 10, 11, 12] as value}
 				<input
 					class="codeInputDesktop"
+					class:error={isError}
 					bind:this={codeElementArray[value - 1]}
 					bind:value={codeValueArray[value - 1]}
 					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
@@ -130,6 +141,9 @@
 </FullLayout>
 
 <style lang="postcss">
+	.error {
+		@apply border-red-700;
+	}
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
@@ -152,6 +166,6 @@
 	.codeInputDesktop {
 		@apply hidden;
 		@apply mr-1 md:mr-2;
-		@apply sm:h-15 2xl:w-18 2xl:h-22 sm:w-12 sm:text-xl md:block md:h-20 md:w-16 md:text-4xl xl:h-20 xl:w-16 xl:p-0;
+		@apply sm:h-15 2xl:w-18 2xl:h-22 sm:w-12 sm:text-xl xl:text-2xl md:block md:h-20 md:w-16 md:text-4xl xl:h-20 xl:w-16 xl:p-0;
 	}
 </style>
