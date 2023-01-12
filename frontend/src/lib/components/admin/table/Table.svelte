@@ -22,7 +22,7 @@
 					<tbody>
 						{#each candidates as candidate}
 							<tr class="border-b bg-white hover:cursor-pointer">
-								<td class="text-gray-900 hover:text-sspsBlue hover:font-bold"
+								<td class="hover:text-sspsBlue text-gray-900 hover:font-bold"
 									><a
 										target="_blank"
 										rel="noreferrer"

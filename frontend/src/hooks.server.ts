@@ -12,7 +12,7 @@ export const handleFetch: HandleFetch = async ({ request, fetch, event }) => {
 
 	const url = new URL(request.url);
 
-	url.protocol = "http:";
+	url.protocol = 'http:';
 
 	url.host = process.env.PORTFOLIO_API_HOST ?? '127.0.0.1:8000';
 

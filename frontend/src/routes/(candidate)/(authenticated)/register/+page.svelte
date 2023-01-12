@@ -122,15 +122,15 @@
 	});
 
 	type FormErrorType = {
-		[K in keyof typeof formInitialValues]: typeof formInitialValues[K] extends Record<
+		[K in keyof typeof formInitialValues]: (typeof formInitialValues)[K] extends Record<
 			string,
 			unknown
 		>
 			? {
-					[K2 in keyof typeof formInitialValues[K]]: string;
+					[K2 in keyof (typeof formInitialValues)[K]]: string;
 			  }
-			: typeof formInitialValues[K] extends Array<Record<string, unknown>>
-			? Array<{ [K3 in keyof typeof formInitialValues[K][number]]: string }>
+			: (typeof formInitialValues)[K] extends Array<Record<string, unknown>>
+			? Array<{ [K3 in keyof (typeof formInitialValues)[K][number]]: string }>
 			: string;
 	};
 
@@ -206,8 +206,8 @@
 								'--toastColor': 'mintcream',
 								'--toastBackground': '#b91c1c',
 								'--toastBarBackground': '#7f1d1d'
-							}	
-						})
+							}
+						});
 						throw new Error('Rodné číslo neodpovídá datumu narození');
 					}
 				}
@@ -340,7 +340,7 @@
 </script>
 
 <SplitLayout>
-	<SvelteToast></SvelteToast>
+	<SvelteToast />
 	<div class="form relative">
 		<div class="bottom-3/12 absolute flex w-full flex-col md:h-auto">
 			<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
