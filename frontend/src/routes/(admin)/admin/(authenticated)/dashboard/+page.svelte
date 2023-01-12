@@ -16,39 +16,45 @@
 
 	let candidates: Array<CandidatePreview> = data.preview;
 
-	const getCandidates = async (field?: string) => {
+	const getCandidates = async () => {
 		try {
-			candidates = await apiListCandidates(
-				undefined,
-				field ?? activeFilter !== 'Vše' ? activeFilter : ''
-			);
+			candidates = await apiListCandidates(undefined, activeFilter.filter);
 		} catch {
 			console.log('error');
 		}
 	};
 
-	type Filter = 'Vše' | 'KBB' | 'IT' | 'GYM';
+	type Class = 'Vše' | 'KBB' | 'IT' | 'GYM';
 
-	let filters: Array<Filter> = ['Vše', 'KBB', 'IT', 'GYM'];
+	type Filter = {
+		class: Class;
+		filter: string | undefined;
+	};
+
+	let filters: Array<Filter> = [
+		{
+			class: 'Vše',
+			filter: undefined
+		},
+		{
+			class: 'KBB',
+			filter: 'KB'
+		},
+		{
+			class: 'IT',
+			filter: 'IT'
+		},
+		{
+			class: 'GYM',
+			filter: 'G'
+		}
+	];
 
 	let activeFilter: Filter = filters[0];
 
-	const changeFilter = (filter: Filter) => {
+	const changeFilter = async (filter: Filter) => {
 		activeFilter = filter;
-		switch (activeFilter) {
-			case 'Vše':
-				getCandidates();
-				break;
-			case 'KBB':
-				getCandidates('KB');
-				break;
-			case 'IT':
-				getCandidates('IT');
-				break;
-			case 'GYM':
-				getCandidates('G');
-				break;
-		}
+		await getCandidates();
 	};
 
 	let scrollTop = 0;
@@ -112,7 +118,7 @@
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
-					<button on:click={() => changeFilter(filter)}>{filter}</button>
+					<button on:click={() => changeFilter(filter)}>{filter.class}</button>
 				</div>
 			{/each}
 		</div>
