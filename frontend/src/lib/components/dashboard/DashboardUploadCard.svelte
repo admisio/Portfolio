@@ -86,7 +86,7 @@
 	};
 
 	const FileDropOptions: FileDropOptions = {
-		accept: filetype === 'PDF' ? 'application/pdf' : 'application/zip',
+		accept: filetype === 'PDF' ? '.pdf' : '.zip',
 		maxSize: filesize * 1_000_000,
 		multiple: false,
 		windowDrop: false
