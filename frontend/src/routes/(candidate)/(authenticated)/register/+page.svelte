@@ -333,7 +333,7 @@
 
 <SplitLayout>
 	<div class="form relative">
-		<div class="bottom-3/12 absolute flex w-full flex-col overflow-scroll md:h-auto">
+		<div class="bottom-3/12 absolute flex w-full flex-col md:h-auto">
 			<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
 				<SchoolBadge />
 			</div>
