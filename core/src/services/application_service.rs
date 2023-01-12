@@ -42,7 +42,7 @@ impl ApplicationService {
                  form.candidate.email.to_owned(),
                  form.candidate.surname.to_owned(),
                  form.candidate.email.to_owned(),
-            );
+            )?;
             tokio::spawn(async move {
                 EmailService::send_email(email).await.ok();
             });

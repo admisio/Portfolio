@@ -1,15 +1,16 @@
 use lettre::{Message, transport::smtp::authentication::Credentials, SmtpTransport, Transport};
 
-use crate::{error::ServiceError};
+use crate::error::ServiceError;
 
-pub type EmailBody = String;
+const MAILBOX: &str = "Příjímací řízení SSPŠaG <portfolio@ssps.cz>";
 
-pub struct RegistrationEmail {
-    pub recipient_application: i32,
-    pub recipient_name: String,
-    pub recipient_surname: String,
-    pub recipient_email: String,
-}
+const REGISTRATION_SUBJECT: &str = "Smíchovská střední průmyslová škola a gymnázium - Potvrzení registrace";
+const SUBMISSION_SUBJECT: &str = "Smíchovská střední průmyslová škola a gymnázium - Odevzdání portfolia";
+
+const REGISTRATION_EMAIL: &str = include_str!("../../../templates/registration_email.txt");
+const SUBMISSION_EMAIL: &str = include_str!("../../../templates/submission_email.txt");
+
+pub struct RegistrationEmail(Message);
 
 impl RegistrationEmail {
     pub fn new(
@@ -17,31 +18,56 @@ impl RegistrationEmail {
         recipient_name: String,
         recipient_surname: String,
         recipient_email: String,
-    ) -> Self {
-        Self {
-            recipient_application,
-            recipient_name,
-            recipient_surname,
-            recipient_email,
-        }
-    }
-}
+    ) -> Result<Self, ServiceError> {
+        let message = Message::builder()
+            .from(MAILBOX.parse()?)
+            .to(MAILBOX.parse()?)
+            .cc(format!("{} {} <{}>", recipient_name, recipient_surname, recipient_email).parse()?)
+            .subject(REGISTRATION_SUBJECT)
+            .body(REGISTRATION_EMAIL.replace("{APPLICATION}", &recipient_application.to_string()))?;
 
-impl PortfolioEmail for RegistrationEmail {
-    fn to_message(self) -> Result<Message, ServiceError> {
         Ok(
-            Message::builder()
-                .from("Přijímačky SSPŠ <portfolio@ssps.cz>".parse()?)
-                .to("Přijímačky SSPŠ <portfolio@ssps.cz>".parse()?)
-                .cc(format!("{} {} <{}>", self.recipient_name, self.recipient_surname, self.recipient_email).parse()?)
-                .subject("Potvrzení registrace")
-                .body(self.recipient_application.to_string())?
+            Self(message)
         )
     }
 }
 
+impl PortfolioEmail for RegistrationEmail {
+    fn into_message(self) -> Message {
+        self.0
+    }
+}
+
+pub struct SubmissionEmail(Message);
+
+impl SubmissionEmail {
+    pub fn new(
+        recipient_application: i32,
+        recipient_name: String,
+        recipient_surname: String,
+        recipient_email: String,
+    ) -> Result<Self, ServiceError> {
+        let message = Message::builder()
+            .from(MAILBOX.parse()?)
+            .to(MAILBOX.parse()?)
+            .cc(format!("{} {} <{}>", recipient_name, recipient_surname, recipient_email).parse()?)
+            .subject(SUBMISSION_SUBJECT)
+            .body(SUBMISSION_EMAIL.replace("{APPLICATION}", &recipient_application.to_string()))?;
+
+        Ok(
+            Self(message)
+        )
+    }
+}
+
+impl PortfolioEmail for SubmissionEmail {
+    fn into_message(self) -> Message {
+        self.0
+    }
+}
+
 pub trait PortfolioEmail {
-    fn to_message(self) -> Result<Message, ServiceError>;
+    fn into_message(self) -> Message;
 }
 
 
@@ -49,7 +75,7 @@ pub struct EmailService;
 
 impl EmailService {
     pub async fn send_email<T>(email: T) -> Result<(), ServiceError> where T: PortfolioEmail {
-        let email = email.to_message()?;
+        let email = email.into_message();
 
         let username = std::env::var("PORTFOLIO_EMAIL_USERNAME")?;
         let password = std::env::var("PORTFOLIO_EMAIL_PASSWORD")?;
@@ -69,12 +95,7 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test_send_registration_email() {
-        let email = RegistrationEmail {
-            recipient_application: 1,
-            recipient_name: "Sebastian".to_string(),
-            recipient_surname: "Pravda".to_string(),
-            recipient_email: "portfolio@ssps.cz".to_string(),
-        };
+        let email = RegistrationEmail::new(1, "Sebastian".to_string(), "Pravda".to_string(), "portfolio@ssps.cz".to_string()).unwrap();
         EmailService::send_email(email).await.unwrap();
     }
 }
