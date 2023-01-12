@@ -44,8 +44,6 @@ impl ApplicationService {
         db: &DbConn,
         candidate: candidate::Model,
     ) -> Result<ApplicationDetails, ServiceError>  {
-        println!("Decrypting all details: privkey: {}", private_key);
-
         let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::from((&candidate, parents));
 
