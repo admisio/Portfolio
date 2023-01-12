@@ -9,6 +9,8 @@
 	import Table from '$lib/components/admin/table/Table.svelte';
 
 	import bacgkround from '$lib/assets/background.jpg';
+	import Logout from '$lib/components/icons/Logout.svelte';
+	import { goto } from '$app/navigation';
 
 	export let data: PageServerData;
 
@@ -88,6 +90,10 @@
 			console.log(e);
 		}
 	};
+
+	const logout = async () => {
+		goto('/admin/auth/logout');
+	};
 </script>
 
 {#if createCandidateModal}
@@ -103,7 +109,6 @@
 	</header>
 	<div class="flex flex-row">
 		<div class="list fixed">
-
 			{#each filters as filter}
 				<div class:selected={filter === activeFilter}>
 					<Home />
@@ -112,7 +117,12 @@
 			{/each}
 		</div>
 		<div class="body relative overflow-scroll">
-			<h1 class="text-3xl font-semibold">Uchazeči</h1>
+			<div class="flex items-center">
+				<h1 class="text-3xl font-semibold">Uchazeči</h1>
+				<button class="ml-2" on:click={logout}>
+					<Logout />
+				</button>
+			</div>
 			<div class="controls my-8">
 				<TextField on:keyup={search} bind:value={searchValue} placeholder="Hledat" />
 				<button
@@ -195,7 +205,7 @@
 	.body {
 		@apply h-full w-full;
 		@apply float-left overflow-hidden;
-		@apply my-6 mt-14 mx-12 ml-[27rem];
+		@apply my-6 mx-12 mt-16 ml-[27rem];
 	}
 
 	.body .controls {
