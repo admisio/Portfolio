@@ -174,14 +174,14 @@
 		@apply flex items-center;
 		@apply rounded-xl;
 
-		@apply transition-all duration-300;
+		@apply transition-all duration-200;
 
 		@apply hover:bg-sspsBlue focus:bg-sspsBlue;
 		@apply hover:text-white focus:text-white;
 	}
 
 	.list div :global(path) {
-		@apply transition-all duration-300;
+		@apply transition-all duration-100;
 	}
 
 	.list div:hover :global(path) {
