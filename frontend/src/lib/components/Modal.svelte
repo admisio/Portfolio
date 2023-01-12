@@ -33,7 +33,7 @@
 	}
 
 	.modal {
-		@apply absolute;
+		@apply fixed;
 		@apply p-4;
 		@apply rounded-xl;
 		@apply transform:
