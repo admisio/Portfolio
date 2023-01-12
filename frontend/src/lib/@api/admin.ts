@@ -8,6 +8,22 @@ import type {
 import axios from 'axios';
 import { API_URL, errorHandler, type Fetch } from '.';
 
+export const apiWhoami = async (fetchSsr?: Fetch): Promise<CreateCandidate> => {
+	const apiFetch = fetchSsr || fetch;
+	try {
+		const res = await apiFetch(API_URL + '/admin/whoami', {
+			method: 'GET',
+			credentials: 'include'
+		});
+		if (res.status != 200) {
+			throw Error(await res.text());
+		}
+		return await res.json();
+	} catch (e) {
+		throw errorHandler(e, 'Failed to fetch whoami');
+	}
+};
+
 // Login as admin /admin/login
 export const apiLogin = async (data: AdminLogin): Promise<number> => {
 	try {
