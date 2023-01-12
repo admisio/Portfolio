@@ -32,7 +32,7 @@
 		</div>
 		<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">Přihlášení</h1>
 		<p class="text-sspsGray mt-8 text-center font-light">
-			Lorem ipsum dolor sit amet, consectetuer adipiscing elit.<br /> Fusce suscipit libero eget elit.
+			Administrátoská sekce aplikace<br /> Přístup povolen pouze pro oprávněné osoby!
 		</p>
 		<div class="mt-8 flex w-4/5 flex-col lg:w-3/5">
 			<span>
