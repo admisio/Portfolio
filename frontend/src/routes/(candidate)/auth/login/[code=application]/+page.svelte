@@ -17,32 +17,31 @@
 	$: {
 		codeValueMobile = codeValueMobile.toUpperCase();
 		codeValueArray = codeValueMobile.split('');
-		console.log(codeValueArray);
 	}
 
 	const inputDesktopOnKeyDown = async (index: number, e: KeyboardEvent) => {
 		if (e.key === 'Backspace') {
+			e.preventDefault();
 			codeValueArray[index] = '';
-			if (codeElementArray[index - 1]) {
-				codeElementArray[index - 1].focus();
-			}
+			const prevElement = codeElementArray[index - 1];
+			if (prevElement) codeElementArray[index - 1].focus();
 		} else {
-			if (e.key.length > 1) {
-				return;
-			}
+			if (e.key.length > 1 || e.metaKey || e.ctrlKey) return;
+			e.preventDefault();
 			codeValueArray[index] = e.key.toUpperCase();
-			if (codeElementArray[index + 1]) {
-				codeElementArray[index + 1].focus();
-			}
+			const nextElement = codeElementArray[index + 1];
+			if (nextElement) codeElementArray[index + 1].focus();
 		}
 		codeValueMobile = codeValueArray.join('');
+	};
 
-		if (codeValueArray.filter((item) => item !== '').length === 12) {
-			await submit();
+	$: {
+		if (codeValueMobile.length === 12) {
+			submit();
 		} else {
 			isError = false;
 		}
-	};
+	}
 
 	const submit = async () => {
 		console.log('submitting: ', codeValueArray);
@@ -65,15 +64,9 @@
 	const onPaste = async (e: ClipboardEvent) => {
 		e.preventDefault();
 		const text = e.clipboardData?.getData('text/plain').slice(0, 12);
-		if (text) {
-			codeValueMobile = text;
-			codeValueArray = text.split('');
-		}
+		if (text) codeValueMobile = text;
 		for (const el of codeElementArray) {
 			el.blur();
-		}
-		if (codeValueArray.filter((item) => item !== '').length === 12) {
-			await submit();
 		}
 	};
 
@@ -92,7 +85,7 @@
 
 <FullLayout>
 	<div class="modal">
-		<img class="mx-auto" src={woman} alt="" />
+		<img class="mx-auto" src={woman} alt="Woman Avatar" />
 		<SvelteToast />
 		<div class="flex items-center justify-center">
 			<input
@@ -101,37 +94,37 @@
 				type="text"
 				class="codeInputMobile"
 			/>
-			{#each [1, 2, 3, 4] as value}
+			{#each [0, 1, 2, 3] as value}
 				<input
 					class="codeInputDesktop"
 					class:error={isError}
-					bind:this={codeElementArray[value - 1]}
-					bind:value={codeValueArray[value - 1]}
-					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					bind:this={codeElementArray[value]}
+					bind:value={codeValueArray[value]}
+					on:keydown={(e) => inputDesktopOnKeyDown(value, e)}
 					on:paste|preventDefault={(e) => onPaste(e)}
 					type="text"
 				/>
 			{/each}
 			<span class="separater" />
-			{#each [5, 6, 7, 8] as value}
+			{#each [4, 5, 6, 7] as value}
 				<input
 					class="codeInputDesktop"
 					class:error={isError}
-					bind:this={codeElementArray[value - 1]}
-					bind:value={codeValueArray[value - 1]}
-					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					bind:this={codeElementArray[value]}
+					bind:value={codeValueArray[value]}
+					on:keydown={(e) => inputDesktopOnKeyDown(value, e)}
 					on:paste|preventDefault={(e) => onPaste(e)}
 					type="text"
 				/>
 			{/each}
 			<span class="separater" />
-			{#each [9, 10, 11, 12] as value}
+			{#each [8, 9, 10, 11] as value}
 				<input
 					class="codeInputDesktop"
 					class:error={isError}
-					bind:this={codeElementArray[value - 1]}
-					bind:value={codeValueArray[value - 1]}
-					on:keydown={(e) => inputDesktopOnKeyDown(value - 1, e)}
+					bind:this={codeElementArray[value]}
+					bind:value={codeValueArray[value]}
+					on:keydown={(e) => inputDesktopOnKeyDown(value, e)}
 					on:paste|preventDefault={(e) => onPaste(e)}
 					type="text"
 				/>
@@ -146,7 +139,7 @@
 
 <style lang="postcss">
 	.error {
-		@apply border-red-700;
+		@apply border-red-700 !important;
 	}
 	.modal {
 		@apply flex flex-col items-center justify-center;
