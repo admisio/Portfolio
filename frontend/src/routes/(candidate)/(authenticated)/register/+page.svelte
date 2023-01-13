@@ -47,6 +47,10 @@
 			birthdate: '',
 			sex: '',
 			address: '',
+			street: '',
+			houseNumber: '',
+			city: '',
+			zip: '',
 			citizenship: '',
 			personalIdNumber: '',
 			study: ''
@@ -83,10 +87,11 @@
 				.required()
 				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
 			sex: yup.string(),
-			address: yup
-				.string()
-				.required()
-				.matches(/^[A-zÀ-ú]+\s[0-9]+,\s?[A-zÀ-ú]+,\s?[0-9]{3}\s[0-9]{2}$/),
+			address: yup.string(),
+			street: yup.string().required(),
+			houseNumber: yup.number().required(),
+			city: yup.string().required(),
+			zip: yup.string().required(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
 			study: yup.string().required()
@@ -192,10 +197,12 @@
 	};
 
 	const onSubmit = async (values: CandidateData) => {
+		console.log('submit clicked')
 		if (pageIndex === pageCount) {
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
+				console.log('submitting values', values);
 				if (values.candidate.citizenship === 'Česká republika') {
 					if (
 						!isPersonalIdNumberWithBirthdateValid(
@@ -228,6 +235,11 @@
 				values.parents = values.parents.filter(
 					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
 				);
+				// @ts-ignore
+				let addressArray: Array<string> = [values.candidate.street + ' ' + values.candidate.houseNumber, values.candidate.city, values.candidate.zip];
+				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
+				// @ts-ignore
+				delete values.candidate.street;delete values.candidate.houseNumber;delete values.candidate.city;delete values.candidate.zip;
 
 				await apiFillDetails(values);
 				goto('/dashboard');
@@ -267,7 +279,11 @@
 				if (
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['birthdate'] ||
-					$typedErrors['candidate']['address']
+					$typedErrors['candidate']['street'] ||
+					$typedErrors['candidate']['houseNumber'] ||
+					$typedErrors['candidate']['city'] ||
+					$typedErrors['candidate']['zip']
+					// $typedErrors['candidate']['address']
 				) {
 					return true;
 				}
@@ -321,7 +337,11 @@
 		form.set({
 			gdpr: true,
 			candidate: {
-				...details.candidate
+				...details.candidate,
+				street: details.candidate.address.split(',')[0].split(' ')[0],
+				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
+				city: details.candidate.address.split(',')[1],
+				zip: details.candidate.address.split(',')[2]
 			},
 			parents: [
 				{
@@ -408,18 +428,61 @@
 					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 					přijímací řízení. Všechny údaje jsou důležité.
 				</p>
-				<div class="flex w-full flex-col">
-					<span class="field">
-						<TextField
-							error={$typedErrors['candidate']['address']}
+				<div class="flex field">
+					<!-- <span>
+						<TextField 
+							error={$typedErrors['candidate']['street']}
 							on:change={handleChange}
-							bind:value={$form.candidate.address}
+							bind:value={$form.candidate.street}
 							type="text"
-							placeholder="Adresa trvalého bydliště"
-							helperText="Uveďte ulici, č.p., město, PSČ"
+							placeholder="Ulice"
+							helperText="Uveďte ulici (např. Preslova)."
+						/>
+					</span> -->
+					<span class="w-[66%]">
+						<NameField
+							error={$typedErrors['candidate']['street'] || $typedErrors['candidate']['houseNumber']}
+							on:change={handleChange}
+							bind:valueName={$form.candidate.street}
+							bind:valueSurname={$form.candidate.houseNumber}
+							placeholder="Ulice a č. p."
+							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
+							
 						/>
 					</span>
-					<span class="field">
+					<!-- <span class="ml-2">
+						<TextField
+							error={$typedErrors['candidate']['houseNumber']}
+							on:change={handleChange}
+							bind:value={$form.candidate.houseNumber}
+							type="text"
+							placeholder="č. p."
+							helperText="Uveďte číslo popisné. (např. 72)"
+						/>
+					</span> -->
+					<span class="ml-2 w-[33%]">
+						<TextField
+							error={$typedErrors['candidate']['zip']}
+							on:change={handleChange}
+							bind:value={$form.candidate.zip}
+							type="number"
+							placeholder="PSČ"
+							helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+						/>
+					</span>
+				</div>
+				<div class="flex field">
+					<span>
+						<TextField
+							error={$typedErrors['candidate']['city']}
+							on:change={handleChange}
+							bind:value={$form.candidate.city}
+							type="text"
+							placeholder="Město"
+							helperText="Město"
+						/>
+					</span>
+					<span class="ml-2">
 						<TextField
 							error={$typedErrors['candidate']['birthplace']}
 							on:change={handleChange}
