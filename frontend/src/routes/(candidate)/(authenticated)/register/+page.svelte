@@ -47,6 +47,10 @@
 			birthdate: '',
 			sex: '',
 			address: '',
+			street: '',
+			houseNumber: '',
+			city: '',
+			zip: '',
 			citizenship: '',
 			personalIdNumber: '',
 			study: ''
@@ -83,7 +87,14 @@
 				.required()
 				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
 			sex: yup.string(),
-			address: yup.string().required(),
+			address: yup.string(),
+			street: yup.string().required(),
+			houseNumber: yup
+				.string()
+				.required()
+				.matches(/^[0-9]+(\/[0-9]+)?$/),
+			city: yup.string().required(),
+			zip: yup.string().required(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
 			study: yup.string().required()
@@ -225,6 +236,11 @@
 				values.parents = values.parents.filter(
 					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
 				);
+				// @ts-ignore
+				let addressArray: Array<string> = [values.candidate.street + ' ' + values.candidate.houseNumber, values.candidate.city, values.candidate.zip];
+				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
+				// @ts-ignore
+				delete values.candidate.street;delete values.candidate.houseNumber;delete values.candidate.city;delete values.candidate.zip;
 
 				await apiFillDetails(values);
 				goto('/dashboard');
@@ -264,7 +280,11 @@
 				if (
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['birthdate'] ||
-					$typedErrors['candidate']['address']
+					$typedErrors['candidate']['street'] ||
+					$typedErrors['candidate']['houseNumber'] ||
+					$typedErrors['candidate']['city'] ||
+					$typedErrors['candidate']['zip']
+					// $typedErrors['candidate']['address']
 				) {
 					return true;
 				}
@@ -318,7 +338,11 @@
 		form.set({
 			gdpr: true,
 			candidate: {
-				...details.candidate
+				...details.candidate,
+				street: details.candidate.address.split(',')[0].split(' ')[0],
+				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
+				city: details.candidate.address.split(',')[1],
+				zip: details.candidate.address.split(',')[2]
 			},
 			parents: [
 				{
@@ -405,18 +429,41 @@
 					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 					přijímací řízení. Všechny údaje jsou důležité.
 				</p>
-				<div class="flex w-full flex-col">
-					<span class="field">
-						<TextField
-							error={$typedErrors['candidate']['address']}
+				<div class="flex field">
+					<span class="w-[66%]">
+						<NameField
+							error={$typedErrors['candidate']['street'] || $typedErrors['candidate']['houseNumber']}
 							on:change={handleChange}
-							bind:value={$form.candidate.address}
-							type="text"
-							placeholder="Adresa trvalého bydliště"
-							helperText="Uveďte ulici, č.p., město, PSČ"
+							bind:valueName={$form.candidate.street}
+							bind:valueSurname={$form.candidate.houseNumber}
+							placeholder="Ulice a č. p."
+							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
+							
 						/>
 					</span>
-					<span class="field">
+					<span class="ml-2 w-[33%]">
+						<TextField
+							error={$typedErrors['candidate']['zip']}
+							on:change={handleChange}
+							bind:value={$form.candidate.zip}
+							type="number"
+							placeholder="PSČ"
+							helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+						/>
+					</span>
+				</div>
+				<div class="flex field">
+					<span>
+						<TextField
+							error={$typedErrors['candidate']['city']}
+							on:change={handleChange}
+							bind:value={$form.candidate.city}
+							type="text"
+							placeholder="Město"
+							helperText="Uveďte město"
+						/>
+					</span>
+					<span class="ml-2">
 						<TextField
 							error={$typedErrors['candidate']['birthplace']}
 							on:change={handleChange}

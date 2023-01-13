@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import TextField from './TextField.svelte';
 
-	let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
+	export let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
 	export let placeholder: string = '';
 
 	export let valueName: string = '';
