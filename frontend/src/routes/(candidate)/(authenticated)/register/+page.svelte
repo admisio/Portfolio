@@ -200,12 +200,10 @@
 	};
 
 	const onSubmit = async (values: CandidateData) => {
-		console.log('submit clicked')
 		if (pageIndex === pageCount) {
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
-				console.log('submitting values', values);
 				if (values.candidate.citizenship === 'Česká republika') {
 					if (
 						!isPersonalIdNumberWithBirthdateValid(
@@ -432,16 +430,6 @@
 					přijímací řízení. Všechny údaje jsou důležité.
 				</p>
 				<div class="flex field">
-					<!-- <span>
-						<TextField 
-							error={$typedErrors['candidate']['street']}
-							on:change={handleChange}
-							bind:value={$form.candidate.street}
-							type="text"
-							placeholder="Ulice"
-							helperText="Uveďte ulici (např. Preslova)."
-						/>
-					</span> -->
 					<span class="w-[66%]">
 						<NameField
 							error={$typedErrors['candidate']['street'] || $typedErrors['candidate']['houseNumber']}
@@ -453,16 +441,6 @@
 							
 						/>
 					</span>
-					<!-- <span class="ml-2">
-						<TextField
-							error={$typedErrors['candidate']['houseNumber']}
-							on:change={handleChange}
-							bind:value={$form.candidate.houseNumber}
-							type="text"
-							placeholder="č. p."
-							helperText="Uveďte číslo popisné. (např. 72)"
-						/>
-					</span> -->
 					<span class="ml-2 w-[33%]">
 						<TextField
 							error={$typedErrors['candidate']['zip']}
