@@ -152,7 +152,7 @@
 	input {
 		@apply text-sspsBlue text-center font-semibold;
 		@apply transition-colors duration-300;
-		@apply focus:border-sspsBlue hover:border-sspsBlue rounded-xl border border-2 bg-[#f8fafb] p-3 shadow-lg outline-none md:caret-transparent;
+		@apply focus:border-sspsBlue hover:border-sspsBlue rounded-xl border border-2 bg-[#f8fafb] p-3 shadow-lg outline-none caret-sspsBlueDark
 	}
 	.separater {
 		@apply bg-sspsBlue mr-2 hidden h-2 w-8 md:block;
