@@ -83,7 +83,10 @@
 				.required()
 				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
 			sex: yup.string(),
-			address: yup.string().required(),
+			address: yup
+				.string()
+				.required()
+				.matches(/^[A-zÀ-ú]+\s[0-9]+,\s?[A-zÀ-ú]+,\s?[0-9]{3}\s[0-9]{2}$/),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
 			study: yup.string().required()
