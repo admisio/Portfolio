@@ -89,7 +89,10 @@
 			sex: yup.string(),
 			address: yup.string(),
 			street: yup.string().required(),
-			houseNumber: yup.number().required(),
+			houseNumber: yup
+				.string()
+				.required()
+				.matches(/^[0-9]+(\/[0-9]+)?$/),
 			city: yup.string().required(),
 			zip: yup.string().required(),
 			citizenship: yup.string().required(),
