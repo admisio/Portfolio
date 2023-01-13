@@ -479,7 +479,7 @@
 							bind:value={$form.candidate.city}
 							type="text"
 							placeholder="Město"
-							helperText="Město"
+							helperText="Uveďte město"
 						/>
 					</span>
 					<span class="ml-2">
