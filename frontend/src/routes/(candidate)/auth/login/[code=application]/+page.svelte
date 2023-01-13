@@ -15,6 +15,7 @@
 	let isError: boolean = false;
 
 	$: {
+		codeValueMobile = codeValueMobile.slice(0, 12);
 		codeValueMobile = codeValueMobile.toUpperCase();
 		codeValueArray = codeValueMobile.split('');
 	}
