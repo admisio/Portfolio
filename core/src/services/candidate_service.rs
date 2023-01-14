@@ -97,16 +97,16 @@ pub mod tests {
     const APPLICATION_ID: i32 = 103151;
 
     #[tokio::test]
-    async fn test_list_candidates() {
+    async fn test_list_applications() {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
         let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
-        let candidates = CandidateService::list_candidates(&private_key, &db, None, None).await.unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db).await.unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = CandidateService::list_candidates(&private_key, &db, None, None).await.unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db).await.unwrap();
         assert_eq!(candidates.len(), 1);
     }
 
