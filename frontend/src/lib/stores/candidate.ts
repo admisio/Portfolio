@@ -41,12 +41,17 @@ export interface CreateCandidate {
 	personalIdNumber: string;
 }
 
+export interface BaseCandidate {
+	applications: Array<number>;
+	personalIdNumber: string;
+}
+
 export interface CreateCandidateLogin extends CreateCandidate {
 	password: string;
 }
 
-export const baseCandidateData = writable<CreateCandidate>({
-	applicationId: 0,
+export const baseCandidateData = writable<BaseCandidate>({
+	applications: [],
 	personalIdNumber: ''
 });
 

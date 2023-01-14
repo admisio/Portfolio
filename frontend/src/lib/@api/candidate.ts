@@ -1,5 +1,5 @@
 import axios, { type AxiosProgressEvent } from 'axios';
-import type { CandidateData, CandidateLogin, CreateCandidate } from '$lib/stores/candidate';
+import type { BaseCandidate, CandidateData, CandidateLogin, CreateCandidate } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
 import DOMPurify from 'isomorphic-dompurify';
@@ -51,7 +51,7 @@ export const apiFetchSubmissionProgress = async (fetchSsr?: Fetch): Promise<Subm
 	}
 };
 
-export const apiWhoami = async (fetchSsr?: Fetch): Promise<CreateCandidate> => {
+export const apiWhoami = async (fetchSsr?: Fetch): Promise<BaseCandidate> => {
 	const apiFetch = fetchSsr || fetch;
 	try {
 		console.log(API_URL + '/candidate/whoami');
