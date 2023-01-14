@@ -17,3 +17,4 @@ target/
 .env
 
 Rocket.toml
+output.log
