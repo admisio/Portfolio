@@ -71,6 +71,8 @@ mod tests {
                 email: "email".to_string(),
                 sex: "sex".to_string(),
                 personal_id_number: "personal_id_number".to_string(),
+                school_name: "school_name".to_string(),
+                health_insurance: "health_insurance".to_string(),
                 study: "study".to_string(),
             },
             parents: vec![ParentDetails {

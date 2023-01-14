@@ -298,6 +298,8 @@ mod tests {
             \"email\": \"magor@magor.cz\",
             \"sex\": \"MALE\",
             \"personalIdNumber\": \"0101010000\",
+            \"schoolName\": \"29988383\",
+            \"healthInsurance\": \"000\",
             \"study\": \"KB\"
         },
         \"parents\": [

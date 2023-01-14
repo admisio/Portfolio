@@ -24,6 +24,8 @@ pub struct EncryptedCandidateDetails {
     pub email: Option<EncryptedString>,
     pub sex: Option<EncryptedString>,
     pub personal_id_number: Option<EncryptedString>,
+    pub school_name: Option<EncryptedString>,
+    pub health_insurance: Option<EncryptedString>,
     pub study: Option<String>,
 }
 
@@ -128,6 +130,8 @@ impl EncryptedCandidateDetails {
             EncryptedString::new_option(&form.email, recipients),
             EncryptedString::new_option(&form.sex, recipients),
             EncryptedString::new_option(&form.personal_id_number, recipients),
+            EncryptedString::new_option(&form.school_name, recipients),
+            EncryptedString::new_option(&form.health_insurance, recipients),
         )?;
 
         Ok(
@@ -142,6 +146,8 @@ impl EncryptedCandidateDetails {
                 email: d.7,
                 sex: d.8,
                 personal_id_number: d.9,
+                school_name: d.10,
+                health_insurance: d.11,
                 study: Some(form.study.clone()),
             }
         )
@@ -159,6 +165,8 @@ impl EncryptedCandidateDetails {
             EncryptedString::decrypt_option(&self.email, priv_key),             // 7
             EncryptedString::decrypt_option(&self.sex, priv_key),               // 8
             EncryptedString::decrypt_option(&self.personal_id_number, priv_key),// 9
+            EncryptedString::decrypt_option(&self.school_name, priv_key),       // 10
+            EncryptedString::decrypt_option(&self.health_insurance, priv_key),  // 11
         )?;
 
         Ok(CandidateDetails {
@@ -172,6 +180,8 @@ impl EncryptedCandidateDetails {
                 email: d.7.unwrap_or_default(),
                 sex: d.8.unwrap_or_default(),
                 personal_id_number: d.9.unwrap_or_default(),
+                school_name: d.10.unwrap_or_default(),
+                health_insurance: d.11.unwrap_or_default(),
                 study: self.study.clone().unwrap_or_default(),
             }
         )
@@ -206,6 +216,8 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             email: EncryptedString::try_from(&candidate.email).ok(),
             sex: EncryptedString::try_from(&candidate.sex).ok(),
             personal_id_number: Some(EncryptedString::from(candidate.personal_identification_number.to_owned())),
+            school_name: EncryptedString::try_from(&candidate.school_name).ok(),
+            health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
             study: candidate.study.clone(),
         }
     }
@@ -342,6 +354,8 @@ impl TryFrom<Row> for EncryptedApplicationDetails {
                 email: EncryptedString::try_from(&cp.email).ok(),
                 sex: EncryptedString::try_from(&cp.sex).ok(),
                 personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
+                school_name: EncryptedString::try_from(&cp.school_name).ok(),
+                health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
                 study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet).ok(),
             },
             parents: vec![EncryptedParentDetails {
@@ -394,6 +408,8 @@ pub mod tests {
                 email: "email".to_string(),
                 sex: "sex".to_string(),
                 personal_id_number: "personal_id_number".to_string(),
+                school_name: "school_name".to_string(),
+                health_insurance: "health_insurance".to_string(),
                 study: "study".to_string(),
             },
             parents: vec![ParentDetails {

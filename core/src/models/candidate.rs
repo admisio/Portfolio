@@ -52,6 +52,8 @@ pub struct CandidateDetails {
     pub sex: String,
     pub study: String,
     pub personal_id_number: String,
+    pub school_name: String,
+    pub health_insurance: String,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -87,6 +89,8 @@ pub struct Row {
     pub sex: Option<String>,
     pub study: Option<String>,
     pub personal_identification_number: Option<String>,
+    pub school_name: Option<String>,
+    pub health_insurance: Option<String>,
 
     pub parent_name: Option<String>,
     pub parent_surname: Option<String>,
