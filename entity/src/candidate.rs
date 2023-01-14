@@ -20,8 +20,8 @@ pub struct Model {
     pub sex: Option<String>,
     pub study: Option<String>,
     pub personal_identification_number: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub personal_identification_number_hash: Option<String>,
+    pub school_name: Option<String>,
+    pub health_insurance: Option<String>,
     pub public_key: String,
     pub private_key: String,
     pub created_at: DateTime,

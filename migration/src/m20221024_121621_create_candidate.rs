@@ -31,7 +31,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Sex).string())
                     .col(ColumnDef::new(Candidate::Study).string())
                     .col(ColumnDef::new(Candidate::PersonalIdentificationNumber).string().not_null())
-                    .col(ColumnDef::new(Candidate::PersonalIdentificationNumberHash).text())
+                    .col(ColumnDef::new(Candidate::SchoolName).string())
+                    .col(ColumnDef::new(Candidate::HealthInsurance).string())
                     .col(ColumnDef::new(Candidate::PublicKey).string().not_null())
                     .col(ColumnDef::new(Candidate::PrivateKey).string().not_null())
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
@@ -65,7 +66,8 @@ pub enum Candidate {
     Sex,
     Study,
     PersonalIdentificationNumber,
-    PersonalIdentificationNumberHash,
+    SchoolName,
+    HealthInsurance,
     PublicKey,
     PrivateKey,
     CreatedAt,

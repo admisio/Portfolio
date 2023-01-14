@@ -16,6 +16,8 @@ impl From<(i32, ApplicationDetails)> for Row {
             email: Some(c.email),
             sex: Some(c.sex),
             study: Some(c.study),
+            health_insurance: Some(c.health_insurance),
+            school_name: Some(c.school_name),
             personal_identification_number: Some(c.personal_id_number),
 
             parent_name: d.parents.get(0).map(|p| p.name.clone()),
