@@ -43,6 +43,7 @@ pub mod tests {
         .unwrap();
 
         let application = ApplicationService::create(
+            &"".to_string(),
             db,
             APPLICATION_ID,
             &CANDIDATE_PASSWORD.to_string(),

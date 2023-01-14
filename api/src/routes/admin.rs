@@ -85,15 +85,16 @@ pub async fn hello(_session: AdminAuth) -> Result<String, Custom<String>> {
 #[post("/create", data = "<request>")]
 pub async fn create_candidate(
     conn: Connection<'_, Db>,
-    _session: AdminAuth,
+    session: AdminAuth,
     request: Json<RegisterRequest>,
 ) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
     let form = request.into_inner();
+    let private_key = session.get_private_key();
 
     let plain_text_password = random_12_char_string();
 
-    let application = ApplicationService::create(&db, form.application_id, &plain_text_password, form.personal_id_number.clone())
+    let application = ApplicationService::create(&private_key, &db, form.application_id, &plain_text_password, form.personal_id_number.clone())
         .await
         .map_err(to_custom_error)?;
 
@@ -161,10 +162,12 @@ pub async fn get_candidate(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let candidate = Query::find_candidate_by_id(db, id)
+    let application = Query::find_application_by_id(db, id)
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    let candidate = ApplicationService::find_related_candidate(db, application).await
+        .map_err(to_custom_error)?;
     
     let details = ApplicationService::decrypt_all_details(
         private_key,
@@ -187,10 +190,13 @@ pub async fn delete_candidate(
 ) -> Result<(), Custom<String>> {
     let db = conn.into_inner();
 
-    let candidate = Query::find_candidate_by_id(db, id)
+    let application = Query::find_application_by_id(db, id)
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    let candidate = ApplicationService::find_related_candidate(db, application).await.map_err(to_custom_error)?;
+
+    // TODO
     
     CandidateService::delete_candidate(db, candidate)
         .await
@@ -219,12 +225,19 @@ pub async fn reset_candidate_password(
 
 #[get("/candidate/<id>/portfolio")]
 pub async fn get_candidate_portfolio(
+    conn: Connection<'_, Db>,
     session: AdminAuth, 
     id: i32,
 ) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let portfolio = PortfolioService::get_portfolio(id, private_key)
+    let application = Query::find_application_by_id(db, id)
+        .await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
+        .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+
+    let portfolio = PortfolioService::get_portfolio(application.candidate_id, private_key)
         .await
         .map_err(to_custom_error)?;
 

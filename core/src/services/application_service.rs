@@ -18,6 +18,7 @@ impl ApplicationService {
     /// Encrypted private key
     /// Public key
     pub async fn create(
+        admin_private_key: &String,
         db: &DbConn,
         application_id: i32,
         plain_text_password: &String,
@@ -35,7 +36,6 @@ impl ApplicationService {
         {
             return Err(ServiceError::UserAlreadyExists);
         }
-
         
         let hashed_password = hash_password(plain_text_password.to_string()).await?;
         let (pubkey, priv_key_plain_text) = crypto::create_identity();
@@ -43,19 +43,19 @@ impl ApplicationService {
             priv_key_plain_text,
             plain_text_password.to_string()
         ).await?;
-
+        
         let recipients = get_recipients(db, &pubkey).await?;
         let enc_personal_id_number = EncryptedString::new(
             &personal_id_number,
             &recipients,
         ).await?;
-
-        let candidate = CandidateService::create(
+        
+        let candidate = Self::find_or_create_candidate_with_personal_id(
+            admin_private_key,
             db,
-            enc_personal_id_number.clone().to_string()
+            personal_id_number,
+            &enc_personal_id_number,
         ).await?;
-
-        println!("candidate: {:?}", candidate);
 
         let application = Mutation::create_application(
             db,
@@ -68,6 +68,41 @@ impl ApplicationService {
         ).await?;
             
         Ok(application)
+    }
+
+    async fn find_or_create_candidate_with_personal_id(
+        admin_private_key: &String,
+        db: &DbConn,
+        personal_id_number: String,
+        enc_personal_id_number: &EncryptedString,
+    ) -> Result<candidate::Model, ServiceError> {
+        let candidates = Query::list_candidates_full(db).await?;
+        let ids_decrypted = futures::future::join_all(
+        candidates.iter().map(|c| async {(
+                c.id,
+                EncryptedString::from(c.personal_identification_number.clone())
+                    .decrypt(admin_private_key)
+                    .await
+                    .unwrap_or_default(),
+            )}
+        ))
+            .await;
+
+        let found_ids: Vec<&(i32, String)> = ids_decrypted
+            .iter()
+            .filter(|(_, id)| id == &personal_id_number)
+            .collect();
+        // TODO: take the candidate id directly from the iterator
+        if found_ids.iter().any(|(_, personal_id)| personal_id == &personal_id_number) {
+            let candidate = Query::find_candidate_by_id(db, found_ids[0].0)
+                .await?
+                .ok_or(ServiceError::CandidateNotFound)?;
+            let candidate = Mutation::update_personal_id(db, candidate, &enc_personal_id_number.to_owned().to_string()).await?;
+            println!("Candidates linked!");
+            Ok(candidate)
+        } else {
+            CandidateService::create(db, enc_personal_id_number.to_owned().to_string()).await
+        }
     }
 
     fn is_application_id_valid(application_id: i32) -> bool {
@@ -368,7 +403,7 @@ mod tests {
 
         let secret_message = "trnka".to_string();
 
-        let application = ApplicationService::create(&db, 103100, &plain_text_password, "".to_string()).await.unwrap();
+        let application = ApplicationService::create(&"".to_string(), &db, 103100, &plain_text_password, "".to_string()).await.unwrap();
 
         let encrypted_message =
             crypto::encrypt_password_with_recipients(&secret_message, &vec![&application.public_key])

@@ -1,5 +1,5 @@
 use entity::{application, candidate};
-use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait, FromQueryResult, QuerySelect, JoinType, RelationTrait};
+use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait, FromQueryResult, QuerySelect, JoinType, RelationTrait, QueryFilter, ColumnTrait};
 
 #[derive(FromQueryResult, Clone)]
 pub struct ApplicationCandidateJoin {
@@ -51,5 +51,17 @@ impl Query {
             .into_model::<ApplicationCandidateJoin>()
             .all(db)
             .await
+    }
+
+    pub async fn find_applications_by_candidate_id(
+        db: &DbConn,
+        candidate_id: i32,
+    ) -> Result<Vec<application::Model>, DbErr> {
+        let applications = application::Entity::find()
+            .filter(application::Column::CandidateId.eq(candidate_id))
+            .all(db)
+            .await?;
+
+        Ok(applications)
     }
 }

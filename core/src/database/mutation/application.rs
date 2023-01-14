@@ -1,6 +1,6 @@
 use ::entity::application;
 use log::{info, warn};
-use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, EntityTrait, IntoActiveModel};
+use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, EntityTrait, IntoActiveModel, QueryFilter, ColumnTrait};
 
 use crate::Mutation;
 

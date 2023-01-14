@@ -7,6 +7,12 @@ use crate::Query;
 pub const PAGE_SIZE: u64 = 20;
 
 #[derive(FromQueryResult)]
+pub struct IdPersonalIdNumberJoin {
+    pub id: i32,
+    pub personal_id_number: String,
+}
+
+#[derive(FromQueryResult)]
 pub struct ApplicationId {
     application: i32,
 }
@@ -81,7 +87,16 @@ impl Query {
             .all(db)
             .await
     }
-    
+
+    pub async fn find_candidate_by_personal_id(
+        db: &DbConn,
+        personal_id: &str,
+    ) -> Result<Option<candidate::Model>, DbErr> {
+        Candidate::find()
+            .filter(candidate::Column::PersonalIdentificationNumber.eq(personal_id))
+            .one(db)
+            .await
+    }
 }
 
 #[cfg(test)]

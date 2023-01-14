@@ -141,6 +141,7 @@ pub mod tests {
 
         let plain_text_password = "test".to_string();
         let application = ApplicationService::create(
+            &"".to_string(),
             db,
             APPLICATION_ID,
             &plain_text_password,

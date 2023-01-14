@@ -72,6 +72,20 @@ impl Mutation {
 
         Ok(update)
     }
+
+    pub async fn update_personal_id(
+        db: &DbConn,
+        candidate: candidate::Model,
+        personal_id: &str,
+    ) -> Result<candidate::Model, DbErr> {
+        let mut candidate = candidate.into_active_model();
+        candidate.personal_identification_number = Set(personal_id.to_string());
+
+        candidate
+            .update(db)
+            .await
+
+    }
 }
 
 #[cfg(test)]
