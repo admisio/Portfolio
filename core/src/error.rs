@@ -18,6 +18,8 @@ pub enum ServiceError {
     UserAlreadyExists,
     #[error("Candidate not found")]
     CandidateNotFound,
+    #[error("Resource is locked")]
+    Locked,
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
@@ -69,7 +71,7 @@ pub enum ServiceError {
 impl ServiceError {
     pub fn code(&self) -> u16 {
         match self {
-            // 40X
+            // 4XX
             ServiceError::InvalidApplicationId => 400,
             ServiceError::ParentOverflow => 400,
             ServiceError::Unauthorized => 401,
@@ -79,6 +81,7 @@ impl ServiceError {
             ServiceError::CandidateNotFound => 404,
             ServiceError::IncompletePortfolio => 406,
             ServiceError::UserAlreadyExists => 409,
+            ServiceError::Locked => 423,
             // 500
             ServiceError::ParentNotFound => 500,
             ServiceError::DbError(_) => 500,

@@ -160,7 +160,7 @@ impl ApplicationService {
 
     pub async fn find_related_candidate(
         db: &DbConn,
-        application: application::Model,
+        application: &application::Model,
     ) -> Result<candidate::Model, ServiceError> {
         let candidate = Query::find_related_candidate(db, application).await?;
         if let Some(candidate) = candidate {
@@ -172,13 +172,13 @@ impl ApplicationService {
 
     pub async fn add_all_details(
         db: &DbConn,
-        public_key: &String,
+        application: &application::Model,
         candidate: candidate::Model,
         form: &ApplicationDetails,
     ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
 
-        let recipients = get_recipients(db, public_key).await?;
-        let candidate = CandidateService::add_candidate_details(db, candidate, &form.candidate, &recipients).await?;
+        let recipients = get_recipients(db, &application.public_key).await?;
+        let candidate = CandidateService::add_candidate_details(db, candidate, &form.candidate, &recipients, application.id).await?;
         let parents = ParentService::add_parents_details(db, &candidate, &form.parents, &recipients).await?;
         Ok(
             (
@@ -191,8 +191,15 @@ impl ApplicationService {
     pub async fn decrypt_all_details(
         private_key: String,
         db: &DbConn,
-        candidate: candidate::Model,
+        application: &application::Model,
+        restrict_access: bool,
     ) -> Result<ApplicationDetails, ServiceError>  {
+        let candidate = ApplicationService::find_related_candidate(db, application).await?;
+
+        if restrict_access && candidate.encrypted_by_id.is_some() && candidate.encrypted_by_id != Some(application.id) {
+            return Err(ServiceError::Locked)
+        }
+
         let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::from((&candidate, parents));
 

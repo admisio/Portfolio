@@ -48,9 +48,15 @@ impl CandidateService {
         candidate: candidate::Model,
         details: &CandidateDetails,
         recipients: &Vec<String>,
+        encrypted_by: i32,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
-        let model = Mutation::update_candidate_details(db, candidate, enc_details).await?;
+        let model = Mutation::update_candidate_details(
+            db,
+            candidate,
+            enc_details,
+            encrypted_by
+        ).await?;
         Ok(model)
     }
 
@@ -148,11 +154,11 @@ pub mod tests {
             "0000001111".to_string()
         ).await.unwrap();
 
-        let candidate= ApplicationService::find_related_candidate(db, application.to_owned()).await.unwrap();
+        let candidate= ApplicationService::find_related_candidate(db, &application).await.unwrap();
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db,  &application.public_key, candidate, &form)
+        let (candidate, parents) = ApplicationService::add_all_details(&db,  &application, candidate, &form)
             .await
             .unwrap();
 

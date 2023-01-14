@@ -44,11 +44,12 @@ impl Mutation {
 
     pub async fn update_candidate_details(
         db: &DbConn,
-        user: candidate::Model,
+        candidate: candidate::Model,
         enc_candidate: EncryptedCandidateDetails,
+        encrypted_by_id: i32,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
-        let application = user.id;
-        let mut candidate: candidate::ActiveModel = user.into();
+        let application = candidate.id;
+        let mut candidate: candidate::ActiveModel = candidate.into();
 
         candidate.name = Set(enc_candidate.name.map(|e| e.into()));
         candidate.surname = Set(enc_candidate.surname.map(|e| e.into()));
@@ -63,6 +64,7 @@ impl Mutation {
         candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
         candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
         candidate.study = Set(enc_candidate.study.map(|e| e.into()));
+        candidate.encrypted_by_id = Set(Some(encrypted_by_id));
 
         candidate.updated_at = Set(chrono::offset::Local::now().naive_local());
 
@@ -128,7 +130,7 @@ mod tests {
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_string()],
         ).await.unwrap();
 
-        let candidate = Mutation::update_candidate_details(&db, candidate, encrypted_details.candidate).await.unwrap();
+        let candidate = Mutation::update_candidate_details(&db, candidate, encrypted_details.candidate, 1).await.unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, candidate.id)
         .await

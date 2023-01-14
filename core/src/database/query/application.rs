@@ -27,7 +27,7 @@ impl Query {
 
     pub async fn find_related_candidate(
         db: &DbConn,
-        application: application::Model,
+        application: &application::Model,
     ) -> Result<Option<candidate::Model>, DbErr> {
         application
             .find_related(candidate::Entity)

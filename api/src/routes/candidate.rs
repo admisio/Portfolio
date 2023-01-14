@@ -77,7 +77,7 @@ pub async fn whoami(conn: Connection<'_, Db>, session: ApplicationAuth) -> Resul
 
     let private_key = session.get_private_key();
     let application: entity::application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, application.clone()).await.map_err(to_custom_error)?; // TODO
+    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
     println!("candidate: {:?}", candidate);
     let response = NewCandidateResponse::from_encrypted(&private_key, candidate).await
         .map_err(to_custom_error)?;
@@ -95,9 +95,9 @@ pub async fn post_details(
     let db = conn.into_inner();
     let form = details.into_inner();
     let application: application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, application.clone()).await.map_err(to_custom_error)?; // TODO
+    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
 
-    let _candidate_parent = ApplicationService::add_all_details(db, &application.public_key, candidate, &form)
+    let _candidate_parent = ApplicationService::add_all_details(db, &application, candidate, &form)
         .await
         .map_err(to_custom_error)?;
 
@@ -112,9 +112,13 @@ pub async fn get_details(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     let application: entity::application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, application.clone()).await.map_err(to_custom_error)?; // TODO
 
-    let details = ApplicationService::decrypt_all_details(private_key, db, candidate)
+    let details = ApplicationService::decrypt_all_details(
+        private_key,
+        db,
+        &application,
+        true
+    )
         .await
         .map(|x| Json(x))
         .map_err(to_custom_error);
@@ -218,7 +222,7 @@ pub async fn submit_portfolio(
     let db = conn.into_inner();
 
     let application: entity::application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, application.clone()).await.map_err(to_custom_error)?; // TODO
+    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
 
     let submit = PortfolioService::submit(&application.public_key, &candidate, &db).await;
 

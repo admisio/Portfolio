@@ -166,13 +166,12 @@ pub async fn get_candidate(
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
-    let candidate = ApplicationService::find_related_candidate(db, application).await
-        .map_err(to_custom_error)?;
     
     let details = ApplicationService::decrypt_all_details(
         private_key,
         db,
-        candidate
+        &application,
+        false,
     )
         .await
         .map_err(to_custom_error)?;
@@ -194,7 +193,7 @@ pub async fn delete_candidate(
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
-    let candidate = ApplicationService::find_related_candidate(db, application).await.map_err(to_custom_error)?;
+    let candidate = ApplicationService::find_related_candidate(db, &application).await.map_err(to_custom_error)?;
 
     // TODO
     
