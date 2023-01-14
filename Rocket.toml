@@ -1,5 +1,0 @@
-#[default]
-#template_dir = "api/templates/"
-
-[default.databases.sea_orm]
-#url = "postgres://root:root@localhost/rocket_example"
