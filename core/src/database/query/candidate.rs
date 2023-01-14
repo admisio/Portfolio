@@ -44,30 +44,6 @@ impl Query {
             .await
     }
 
-    pub async fn list_candidates_preview(
-        db: &DbConn,
-        field_of_study_opt: Option<String>,
-        page: Option<u64>,
-    ) -> Result<Vec<CandidateResult>, DbErr> {
-        let select = Candidate::find();
-        let query = if let Some(study) = field_of_study_opt {
-           select.filter(candidate::Column::Study.eq(study)) 
-        } else {
-            select
-        }
-            .order_by(candidate::Column::Id, Order::Asc)
-            .into_model::<CandidateResult>();
-
-        if let Some(page) = page {
-            query
-                .paginate(db, PAGE_SIZE)
-                .fetch_page(page).await
-        } else {
-            query
-                .all(db).await
-        }
-    }
-
     pub async fn list_candidates_full(
         db: &DbConn
     ) -> Result<Vec<candidate::Model>, DbErr> {

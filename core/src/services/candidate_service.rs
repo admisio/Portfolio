@@ -56,32 +56,6 @@ impl CandidateService {
         ).await?;
         Ok(model)
     }
-
-    pub async fn list_candidates(
-        private_key: &String,
-        db: &DbConn,
-        field_of_study: Option<String>,
-        page: Option<u64>,
-    ) -> Result<Vec<BaseCandidateResponse>, ServiceError> {
-
-        let candidates = Query::list_candidates_preview(
-            db,
-            field_of_study,
-            page
-        ).await?;
-
-        futures::future::try_join_all(
-            candidates
-                .iter()
-                .map(|c| async move {
-                    BaseCandidateResponse::from_encrypted(
-                        private_key,
-                        c.clone(),
-                    PortfolioService::get_submission_progress(c.application).await.ok()
-                ).await
-                })
-        ).await
-    }
 }
 
 #[cfg(test)]

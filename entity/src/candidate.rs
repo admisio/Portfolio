@@ -17,7 +17,6 @@ pub struct Model {
     pub citizenship: Option<String>,
     pub email: Option<String>,
     pub sex: Option<String>,
-    pub study: Option<String>,
     pub personal_identification_number: String,
     pub school_name: Option<String>,
     pub health_insurance: Option<String>,

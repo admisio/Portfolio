@@ -15,7 +15,7 @@ impl From<(i32, ApplicationDetails)> for Row {
             citizenship: Some(c.citizenship),
             email: Some(c.email),
             sex: Some(c.sex),
-            study: Some(c.study),
+            study: Some("TODO".to_string()),
             health_insurance: Some(c.health_insurance),
             school_name: Some(c.school_name),
             personal_identification_number: Some(c.personal_id_number),

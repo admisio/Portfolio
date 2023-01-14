@@ -10,7 +10,6 @@ pub struct ApplicationCandidateJoin {
     pub surname: Option<String>,
     pub email: Option<String>,
     pub telephone: Option<String>,
-    pub study: Option<String>,
 }
 
 use crate::Query;
@@ -47,7 +46,6 @@ impl Query {
             .column_as(candidate::Column::Surname, "surname")
             .column_as(candidate::Column::Email, "email")
             .column_as(candidate::Column::Telephone, "telephone")
-            .column_as(candidate::Column::Study, "study")
             .into_model::<ApplicationCandidateJoin>()
             .all(db)
             .await

@@ -26,7 +26,17 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Application::UpdatedAt).date_time().not_null())
                     .to_owned(),
             )
-            .await
+                .await?;
+
+        manager.create_index(
+            Index::create()
+                .name("idx_application_candidate_id")
+                .table(Application::Table)
+                .col(Application::CandidateId)
+                .to_owned(),
+        ).await?;
+
+        Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

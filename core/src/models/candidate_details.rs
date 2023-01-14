@@ -26,7 +26,6 @@ pub struct EncryptedCandidateDetails {
     pub personal_id_number: Option<EncryptedString>,
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
-    pub study: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -148,7 +147,6 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9,
                 school_name: d.10,
                 health_insurance: d.11,
-                study: Some(form.study.clone()),
             }
         )
     }
@@ -182,7 +180,6 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9.unwrap_or_default(),
                 school_name: d.10.unwrap_or_default(),
                 health_insurance: d.11.unwrap_or_default(),
-                study: self.study.clone().unwrap_or_default(),
             }
         )
     }
@@ -197,8 +194,7 @@ impl EncryptedCandidateDetails {
         self.citizenship.is_some() &&
         self.email.is_some() &&
         self.sex.is_some() &&
-        self.personal_id_number.is_some() &&
-        self.study.is_some()
+        self.personal_id_number.is_some()
     }
 }
 impl From<&candidate::Model> for EncryptedCandidateDetails {
@@ -218,7 +214,6 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             personal_id_number: Some(EncryptedString::from(candidate.personal_identification_number.to_owned())),
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
-            study: candidate.study.clone(),
         }
     }
 }
@@ -356,7 +351,6 @@ impl TryFrom<Row> for EncryptedApplicationDetails {
                 personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
                 school_name: EncryptedString::try_from(&cp.school_name).ok(),
                 health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
-                study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet).ok(),
             },
             parents: vec![EncryptedParentDetails {
                 name: EncryptedString::try_from(&cp.parent_name).ok(),
@@ -410,7 +404,6 @@ pub mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
-                study: "study".to_string(),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),
@@ -431,7 +424,6 @@ pub mod tests {
         assert_eq!(details.candidate.citizenship, "citizenship");
         assert_eq!(details.candidate.email, "email");
         assert_eq!(details.candidate.sex, "sex");
-        assert_eq!(details.candidate.study, "study");
         assert_eq!(details.candidate.personal_id_number, "personal_id_number");
         for parent in &details.parents {
             assert_eq!(parent.name, "parent_name");

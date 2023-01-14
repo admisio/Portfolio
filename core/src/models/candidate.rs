@@ -50,7 +50,6 @@ pub struct CandidateDetails {
     pub citizenship: String,
     pub email: String,
     pub sex: String,
-    pub study: String,
     pub personal_id_number: String,
     pub school_name: String,
     pub health_insurance: String,

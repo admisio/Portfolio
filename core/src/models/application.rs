@@ -14,7 +14,6 @@ pub struct ApplicationResponse {
     pub surname: String,
     pub email: String,
     pub telephone: String,
-    pub study: String,    
 }
 
 impl ApplicationResponse {
@@ -34,7 +33,6 @@ impl ApplicationResponse {
                 surname: surname.unwrap_or_default(),
                 email: email.unwrap_or_default(),
                 telephone:  telephone.unwrap_or_default(),
-                study: c.study.unwrap_or_default(),
                 candidate_id: c.candidate_id,
             }
         )

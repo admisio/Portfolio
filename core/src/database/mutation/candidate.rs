@@ -54,7 +54,6 @@ impl Mutation {
         candidate.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
         candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
         candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
-        candidate.study = Set(enc_candidate.study.map(|e| e.into()));
         candidate.encrypted_by_id = Set(Some(encrypted_by_id));
 
         candidate.updated_at = Set(chrono::offset::Local::now().naive_local());
@@ -127,6 +126,6 @@ mod tests {
         .await
         .unwrap().unwrap();
 
-        assert!(candidate.study.is_some());
+        assert!(candidate.name.is_some());
     }
 }

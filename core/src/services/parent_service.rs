@@ -71,7 +71,6 @@ mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
-                study: "study".to_string(),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),
