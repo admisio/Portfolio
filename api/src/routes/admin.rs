@@ -125,9 +125,6 @@ pub async fn list_candidates(
 
     }
 
-    /* let candidates = CandidateService::list_candidates(&private_key, db, field, page)
-        .await
-        .map_err(to_custom_error)?; */
     let candidates = ApplicationService::list_applications(&private_key, db)
         .await.map_err(to_custom_error)?;
 
@@ -207,19 +204,18 @@ pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     id: i32,
-) -> Result<(), Custom<String>> {
+) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     // TODO
-    /* let db = conn.into_inner();
+    let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let response = CandidateService::reset_password(private_key, db, id)
+    let response = ApplicationService::reset_password(private_key, db, id)
         .await
-        .map_err(to_custom_error)?; */
-
-        Ok(())
-    /* Ok(
+        .map_err(to_custom_error)?;
+    
+    Ok(
         Json(response)
-    ) */
+    )
 }
 
 #[get("/candidate/<id>/portfolio")]

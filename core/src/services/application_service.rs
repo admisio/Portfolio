@@ -3,7 +3,7 @@ use chrono::Duration;
 use entity::{candidate, parent, application, session};
 use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
-use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::{EncryptedApplicationDetails}, models::{candidate::ApplicationDetails, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
+use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::{EncryptedApplicationDetails}, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
 use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService};
 
@@ -235,16 +235,16 @@ impl ApplicationService {
     }
 
     // TODO
-    /* pub async fn reset_password(
+    pub async fn reset_password(
         admin_private_key: String,
         db: &DbConn,
         id: i32,
     ) -> Result<CreateCandidateResponse, ServiceError> {
-        let candidate = Query::find_candidate_by_id(db, id).await?
+        let application = Query::find_application_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
+        let candidate = ApplicationService::find_related_candidate(db, &application).await?;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
-
-            
+       
         let new_password_plain = crypto::random_12_char_string();
         let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
 
@@ -254,9 +254,9 @@ impl ApplicationService {
         ).await?;
 
 
-        Self::delete_old_sessions(db, &candidate, 0).await?;
-        let candidate = Mutation::update_candidate_password_and_keys(db,
-             candidate,
+        Self::delete_old_sessions(db, &application, 0).await?;
+        let application = Mutation::update_application_password_and_keys(db,
+             application,
              new_password_hash,
              pubkey.clone(),
              encrypted_priv_key
@@ -264,7 +264,7 @@ impl ApplicationService {
 
         
         // user might no have filled his details yet, but personal id number is filled from beginning
-        let personal_id_number = EncryptedString::from(candidate.personal_identification_number.clone())
+        let personal_id_number = EncryptedString::from(application.personal_id_number.clone())
             .decrypt(&admin_private_key)
             .await?;
 
@@ -274,7 +274,12 @@ impl ApplicationService {
             .decrypt(admin_private_key).await?;
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
 
-        Mutation::update_candidate_details(db, candidate, enc_details.candidate).await?;
+        Mutation::update_candidate_details(db, 
+            candidate,
+            enc_details.candidate,
+            application.id
+        ).await?;
+
         for i in 0..enc_details.parents.len() {
             Mutation::add_parent_details(db, parents[i].clone(), enc_details.parents[i].clone()).await?;
         }
@@ -286,7 +291,7 @@ impl ApplicationService {
                 password: new_password_plain,
             }
         )
-    } */
+    }
 }
 
 #[async_trait]

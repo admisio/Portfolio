@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::{database::query::application::ApplicationCandidateJoin, services::portfolio_service::SubmissionProgress, error::ServiceError};
+use crate::{database::query::application::ApplicationCandidateJoin, error::ServiceError};
 
 use super::candidate_details::EncryptedString;
 
