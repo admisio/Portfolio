@@ -46,6 +46,7 @@ impl ApplicationService {
     
 
         let (candidate, enc_personal_id_number) = Self::find_or_create_candidate_with_personal_id(
+            application_id,
             admin_private_key,
             db,
             personal_id_number,
@@ -67,6 +68,7 @@ impl ApplicationService {
     }
 
     async fn find_or_create_candidate_with_personal_id(
+        application_id: i32,
         admin_private_key: &String,
         db: &DbConn,
         personal_id_number: String,
@@ -100,9 +102,13 @@ impl ApplicationService {
             let mut linked_applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate.id)
                 .await?
                 .iter()
+                .filter(|a| a.id.to_string()[0..3] != application_id.to_string()[0..3])
                 .map(|a| a.public_key.to_owned())
                 .collect();
 
+            if linked_applications_pubkeys.is_empty() {
+                return Err(ServiceError::InvalidApplicationId);
+            }
             if linked_applications_pubkeys.len() > 1 {
                 return Err(ServiceError::TooManyApplications);
             }
