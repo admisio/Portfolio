@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_12_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -114,7 +114,7 @@ pub async fn list_candidates(
     session: AdminAuth,
     field: Option<String>,
     page: Option<u64>,
-) -> Result<Json<Vec<BaseCandidateResponse>>, Custom<String>> {
+) -> Result<Json<Vec<ApplicationResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     if let Some(field) = field.clone() {
@@ -124,9 +124,11 @@ pub async fn list_candidates(
 
     }
 
-    let candidates = CandidateService::list_candidates(&private_key, db, field, page)
+    /* let candidates = CandidateService::list_candidates(&private_key, db, field, page)
         .await
-        .map_err(to_custom_error)?;
+        .map_err(to_custom_error)?; */
+    let candidates = ApplicationService::list_applications(&private_key, db)
+        .await.map_err(to_custom_error)?;
 
     Ok(
         Json(candidates)

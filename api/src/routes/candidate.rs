@@ -6,7 +6,6 @@ use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::models::candidate::{ApplicationDetails, NewCandidateResponse};
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
-use portfolio_core::services::candidate_service::CandidateService;
 use portfolio_core::services::portfolio_service::{PortfolioService, SubmissionProgress};
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
@@ -127,9 +126,9 @@ pub async fn upload_cover_letter(
     session: ApplicationAuth,
     letter: Letter,
 ) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::add_cover_letter_to_cache(candidate.id, letter.into())
+    PortfolioService::add_cover_letter_to_cache(application.candidate_id, letter.into())
         .await
         .map_err(to_custom_error)?;
 
@@ -138,9 +137,9 @@ pub async fn upload_cover_letter(
 
 #[delete("/cover_letter")]
 pub async fn delete_cover_letter(session: ApplicationAuth) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::delete_cover_letter_from_cache(candidate.id)
+    PortfolioService::delete_cover_letter_from_cache(application.candidate_id)
         .await
         .map_err(to_custom_error)?;
 
@@ -152,9 +151,9 @@ pub async fn upload_portfolio_letter(
     session: ApplicationAuth,
     letter: Letter,
 ) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::add_portfolio_letter_to_cache(candidate.id, letter.into())
+    PortfolioService::add_portfolio_letter_to_cache(application.candidate_id, letter.into())
         .await
         .map_err(to_custom_error)?;
 
@@ -165,7 +164,7 @@ pub async fn upload_portfolio_letter(
 pub async fn delete_portfolio_letter(session: ApplicationAuth) -> Result<(), Custom<String>> {
     let candidate: entity::application::Model = session.into();
 
-    PortfolioService::delete_portfolio_letter_from_cache(candidate.id)
+    PortfolioService::delete_portfolio_letter_from_cache(candidate.candidate_id)
         .await
         .map_err(to_custom_error)?;
 
@@ -177,9 +176,9 @@ pub async fn upload_portfolio_zip(
     session: ApplicationAuth,
     portfolio: Portfolio,
 ) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::add_portfolio_zip_to_cache(candidate.id, portfolio.into())
+    PortfolioService::add_portfolio_zip_to_cache(application.candidate_id, portfolio.into())
         .await
         .map_err(to_custom_error)?;
 
@@ -188,9 +187,9 @@ pub async fn upload_portfolio_zip(
 
 #[delete("/portfolio_zip")]
 pub async fn delete_portfolio_zip(session: ApplicationAuth) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::delete_portfolio_zip_from_cache(candidate.id)
+    PortfolioService::delete_portfolio_zip_from_cache(application.candidate_id)
         .await
         .map_err(to_custom_error)?;
 
@@ -201,9 +200,9 @@ pub async fn delete_portfolio_zip(session: ApplicationAuth) -> Result<(), Custom
 pub async fn submission_progress(
     session: ApplicationAuth,
 ) -> Result<Json<SubmissionProgress>, Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    let progress = PortfolioService::get_submission_progress(candidate.id)
+    let progress = PortfolioService::get_submission_progress(application.candidate_id)
         .await
         .map(|x| Json(x))
         .map_err(to_custom_error);
@@ -242,9 +241,9 @@ pub async fn submit_portfolio(
 pub async fn delete_portfolio(
     session: ApplicationAuth,
 ) -> Result<(), Custom<String>> {
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    PortfolioService::delete_portfolio(candidate.id)
+    PortfolioService::delete_portfolio(application.candidate_id)
         .await
         .map_err(to_custom_error)?;
 
@@ -254,9 +253,9 @@ pub async fn delete_portfolio(
 #[get("/download")]
 pub async fn download_portfolio(session: ApplicationAuth) -> Result<Vec<u8>, Custom<String>> {
     let private_key = session.get_private_key();
-    let candidate: entity::application::Model = session.into();
+    let application: entity::application::Model = session.into();
 
-    let file = PortfolioService::get_portfolio(candidate.id, private_key)
+    let file = PortfolioService::get_portfolio(application.candidate_id, private_key)
         .await
         .map_err(to_custom_error);
 

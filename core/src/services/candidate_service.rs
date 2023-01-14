@@ -30,14 +30,14 @@ impl CandidateService {
         )
             .await?;
         
-        PortfolioService::create_user_dir(candidate.application).await?;
+        PortfolioService::create_user_dir(candidate.id).await?;
 
             
         Ok(candidate)
     }
 
     pub async fn delete_candidate(db: &DbConn, candidate: candidate::Model) -> Result<(), ServiceError> {
-        PortfolioService::delete_candidate_root(candidate.application).await?;
+        PortfolioService::delete_candidate_root(candidate.id).await?;
 
         Mutation::delete_candidate(db, candidate).await?;
         Ok(())

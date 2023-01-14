@@ -108,7 +108,7 @@ impl NewCandidateResponse {
         let id_number = EncryptedString::from(c.personal_identification_number).decrypt(private_key).await?;
         Ok(
             Self {
-                application_id: c.application,
+                application_id: c.id,
                 personal_id_number: id_number,
             }
         )

@@ -18,7 +18,7 @@ impl Mutation {
             .insert(db)
             .await?;
 
-        info!("CANDIDATE {} CREATED", candidate.application);
+        info!("CANDIDATE {} CREATED", candidate.id);
         Ok(candidate)
     }
 
@@ -35,7 +35,7 @@ impl Mutation {
         db: &DbConn,
         candidate: candidate::Model,
     ) -> Result<DeleteResult, DbErr> {
-        let application = candidate.application;
+        let application = candidate.id;
         let delete = candidate.delete(db).await?;
 
         warn!("CANDIDATE {} DELETED", application);
@@ -47,7 +47,7 @@ impl Mutation {
         user: candidate::Model,
         enc_candidate: EncryptedCandidateDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
-        let application = user.application;
+        let application = user.id;
         let mut candidate: candidate::ActiveModel = user.into();
 
         candidate.name = Set(enc_candidate.name.map(|e| e.into()));
@@ -92,7 +92,7 @@ mod tests {
         .await
         .unwrap();
 
-        let candidate = Query::find_candidate_by_id(&db, candidate.application)
+        let candidate = Query::find_candidate_by_id(&db, candidate.id)
             .await
             .unwrap();
         assert!(candidate.is_some());
@@ -116,7 +116,7 @@ mod tests {
 
         let candidate = Mutation::update_candidate_details(&db, candidate, encrypted_details.candidate).await.unwrap();
 
-        let candidate = Query::find_candidate_by_id(&db, candidate.application)
+        let candidate = Query::find_candidate_by_id(&db, candidate.id)
         .await
         .unwrap().unwrap();
 

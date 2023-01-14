@@ -49,7 +49,7 @@ impl Query {
         } else {
             select
         }
-            .order_by(candidate::Column::Application, Order::Asc)
+            .order_by(candidate::Column::Id, Order::Asc)
             .into_model::<CandidateResult>();
 
         if let Some(page) = page {
@@ -66,7 +66,7 @@ impl Query {
         db: &DbConn
     ) -> Result<Vec<candidate::Model>, DbErr> {
         Candidate::find()
-            .order_by(candidate::Column::Application, Order::Asc)
+            .order_by(candidate::Column::Id, Order::Asc)
             .all(db)
             .await
     }
@@ -75,8 +75,8 @@ impl Query {
         db: &DbConn,
     ) -> Result<Vec<ApplicationId>, DbErr> {
         Candidate::find()
-            .order_by(candidate::Column::Application, Order::Asc)
-            .column(candidate::Column::Application)
+            .order_by(candidate::Column::Id, Order::Asc)
+            .column(candidate::Column::Id)
             .into_model::<ApplicationId>()
             .all(db)
             .await
@@ -97,7 +97,7 @@ mod tests {
     async fn test_find_candidate_by_id() {
         let db = get_memory_sqlite_connection().await;
         let candidate = candidate::ActiveModel {
-            application: Set(103158),
+            id: Set(103158),
             personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
@@ -107,7 +107,7 @@ mod tests {
         .await
         .unwrap();
 
-        let candidate = Query::find_candidate_by_id(&db, candidate.application)
+        let candidate = Query::find_candidate_by_id(&db, candidate.id)
             .await
             .unwrap();
         assert!(candidate.is_some());

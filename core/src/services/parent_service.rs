@@ -32,7 +32,7 @@ impl ParentService {
         for i in 0..parents_details.len() {
             let found_parent = match found_parents.get(i) {
                 Some(parent) => parent.to_owned(),
-                None => ParentService::create(db, ref_candidate.application).await?,
+                None => ParentService::create(db, ref_candidate.id).await?,
             };
             let enc_details = EncryptedParentDetails::new(&parents_details[i], recipients).await?;
             let parent = Mutation::add_parent_details(db, found_parent, enc_details.clone()).await?;
@@ -94,8 +94,8 @@ mod tests {
     async fn create_parent_test() {
         let db = get_memory_sqlite_connection().await;
         let candidate = CandidateService::create(&db, "".to_string()).await.unwrap();
-        super::ParentService::create(&db, candidate.application).await.unwrap();
-        super::ParentService::create(&db, candidate.application).await.unwrap();
+        super::ParentService::create(&db, candidate.id).await.unwrap();
+        super::ParentService::create(&db, candidate.id).await.unwrap();
     }
 
     /* #[tokio::test]

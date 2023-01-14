@@ -12,7 +12,7 @@ impl MigrationTrait for Migration {
                     .table(Candidate::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Candidate::Application)
+                        ColumnDef::new(Candidate::Id)
                             .integer()
                             .not_null()
                             .primary_key()
@@ -49,7 +49,7 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 pub enum Candidate {
     Table,
-    Application,
+    Id,
     Name,
     Surname,
     BirthSurname,

@@ -45,7 +45,7 @@ mod tests {
         const APPLICATION_ID: i32 = 103158;
 
         candidate::ActiveModel {
-            application: Set(APPLICATION_ID),
+            id: Set(APPLICATION_ID),
             personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),

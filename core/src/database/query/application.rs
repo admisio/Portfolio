@@ -1,5 +1,17 @@
 use entity::{application, candidate};
-use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait};
+use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait, FromQueryResult, QuerySelect, JoinType, RelationTrait};
+
+#[derive(FromQueryResult, Clone)]
+pub struct ApplicationCandidateJoin {
+    pub application_id: i32,
+    // pub personal_id_number: String,
+    pub candidate_id: i32,
+    pub name: Option<String>,
+    pub surname: Option<String>,
+    pub email: Option<String>,
+    pub telephone: Option<String>,
+    pub study: Option<String>,
+}
 
 use crate::Query;
 
@@ -20,6 +32,24 @@ impl Query {
         application
             .find_related(candidate::Entity)
             .one(db)
+            .await
+    }
+
+    pub async fn list_applications(
+        db: &DbConn,
+    ) -> Result<Vec<ApplicationCandidateJoin>, DbErr> {
+        application::Entity::find()
+            // .column_as(application::Column::Id, "application_id")
+            .join(JoinType::InnerJoin, application::Relation::Candidate.def())
+            .column_as(application::Column::Id, "application_id")
+            .column_as(candidate::Column::Id, "candidate_id")
+            .column_as(candidate::Column::Name, "name")
+            .column_as(candidate::Column::Surname, "surname")
+            .column_as(candidate::Column::Email, "email")
+            .column_as(candidate::Column::Telephone, "telephone")
+            .column_as(candidate::Column::Study, "study")
+            .into_model::<ApplicationCandidateJoin>()
+            .all(db)
             .await
     }
 }

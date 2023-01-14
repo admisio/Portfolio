@@ -41,7 +41,7 @@ pub async fn export(
 
     let candidates_with_parents = Query::list_candidates_full(&db).await?;
     for candidate in candidates_with_parents {
-        let application = candidate.application;
+        let application = candidate.id;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
         let row: Row = match EncryptedApplicationDetails::try_from((&candidate, parents)) {

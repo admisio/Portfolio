@@ -11,7 +11,7 @@ impl MigrationTrait for Migration {
         manager.create_foreign_key(ForeignKey::create()
             .name("candidate_fk")
             .from(Application::Table, Application::CandidateId)
-            .to(Candidate::Table, Candidate::Application)
+            .to(Candidate::Table, Candidate::Id)
             .on_delete(ForeignKeyAction::Cascade)
             .on_update(ForeignKeyAction::Cascade)
             .to_owned()).await

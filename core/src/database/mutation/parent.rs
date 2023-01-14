@@ -56,7 +56,7 @@ mod tests {
         .await
         .unwrap();
 
-        let new_parent = Mutation::create_parent(&db, candidate.application).await.unwrap();
+        let new_parent = Mutation::create_parent(&db, candidate.id).await.unwrap();
 
         let parent = Query::find_parent_by_id(&db, new_parent.id).await.unwrap();
         assert!(parent.is_some());
@@ -73,7 +73,7 @@ mod tests {
         .await
         .unwrap();
 
-        let parent = Mutation::create_parent(&db, candidate.application).await.unwrap();
+        let parent = Mutation::create_parent(&db, candidate.id).await.unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),

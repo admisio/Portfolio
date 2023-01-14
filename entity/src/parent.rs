@@ -21,7 +21,7 @@ pub enum Relation {
     #[sea_orm(
         belongs_to = "super::candidate::Entity",
         from = "Column::Application",
-        to = "super::candidate::Column::Application",
+        to = "super::candidate::Column::Id",
         on_update = "Cascade",
         on_delete = "Cascade"
     )]
