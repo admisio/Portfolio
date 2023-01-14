@@ -510,7 +510,7 @@ pub mod tests {
         let db = get_memory_sqlite_connection().await;
         let _admin = insert_test_admin(&db).await;
 
-        let (candidate, parents) = put_user_data(&db).await;
+        let (application, candidate, parents) = put_user_data(&db).await;
 
         let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, parents)).unwrap();
 

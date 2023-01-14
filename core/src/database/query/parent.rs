@@ -46,9 +46,6 @@ mod tests {
 
         candidate::ActiveModel {
             application: Set(APPLICATION_ID),
-            code: Set("test".to_string()),
-            public_key: Set("test".to_string()),
-            private_key: Set("test".to_string()),
             personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),

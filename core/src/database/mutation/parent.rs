@@ -49,20 +49,14 @@ mod tests {
     async fn test_create_parent() {
         let db = get_memory_sqlite_connection().await;
 
-        const APPLICATION_ID: i32 = 103158;
-
-        Mutation::create_candidate(
+        let candidate = Mutation::create_candidate(
             &db,
-            APPLICATION_ID,
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
+            "".to_string(),
         )
         .await
         .unwrap();
 
-        let new_parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
+        let new_parent = Mutation::create_parent(&db, candidate.application).await.unwrap();
 
         let parent = Query::find_parent_by_id(&db, new_parent.id).await.unwrap();
         assert!(parent.is_some());
@@ -72,20 +66,14 @@ mod tests {
     async fn test_add_candidate_details() {
         let db = get_memory_sqlite_connection().await;
 
-        const APPLICATION_ID: i32 = 103158;
-
-        Mutation::create_candidate(
+        let candidate = Mutation::create_candidate(
             &db,
-            APPLICATION_ID,
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
+            "".to_string(),
         )
         .await
         .unwrap();
 
-        let parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
+        let parent = Mutation::create_parent(&db, candidate.application).await.unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),

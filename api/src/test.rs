@@ -42,14 +42,21 @@ pub mod tests {
         .await
         .unwrap();
 
-        ApplicationService::create_candidate_with_parent(
+        let application = ApplicationService::create(
             db,
             APPLICATION_ID,
+            &CANDIDATE_PASSWORD.to_string(),
+            PERSONAL_ID_NUMBER.to_string())
+            .await.unwrap();
+
+        /* ApplicationService::create_candidate_with_parent(
+            db,
+            application,
             &CANDIDATE_PASSWORD.to_string(),
             PERSONAL_ID_NUMBER.to_string(),
         )
         .await
-        .unwrap();
+        .unwrap(); */
     }
 
     pub fn test_client() -> &'static Mutex<Client> {

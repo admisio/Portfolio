@@ -6,3 +6,4 @@ pub mod parent;
 pub mod session;
 pub mod admin_session;
 pub mod session_trait;
+pub mod application;

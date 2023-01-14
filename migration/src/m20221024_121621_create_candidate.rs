@@ -16,9 +16,8 @@ impl MigrationTrait for Migration {
                             .integer()
                             .not_null()
                             .primary_key()
-                            .unique_key(),
+                            .auto_increment(),
                     )
-                    .col(ColumnDef::new(Candidate::Code).string().not_null())
                     .col(ColumnDef::new(Candidate::Name).string())
                     .col(ColumnDef::new(Candidate::Surname).string())
                     .col(ColumnDef::new(Candidate::BirthSurname).string())
@@ -33,8 +32,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::PersonalIdentificationNumber).string().not_null())
                     .col(ColumnDef::new(Candidate::SchoolName).string())
                     .col(ColumnDef::new(Candidate::HealthInsurance).string())
-                    .col(ColumnDef::new(Candidate::PublicKey).string().not_null())
-                    .col(ColumnDef::new(Candidate::PrivateKey).string().not_null())
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Candidate::UpdatedAt).date_time().not_null())
                     .to_owned(),
@@ -53,7 +50,6 @@ impl MigrationTrait for Migration {
 pub enum Candidate {
     Table,
     Application,
-    Code,
     Name,
     Surname,
     BirthSurname,
@@ -68,8 +64,6 @@ pub enum Candidate {
     PersonalIdentificationNumber,
     SchoolName,
     HealthInsurance,
-    PublicKey,
-    PrivateKey,
     CreatedAt,
     UpdatedAt,
 }

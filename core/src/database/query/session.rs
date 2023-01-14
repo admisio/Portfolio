@@ -1,7 +1,7 @@
 use crate::Query;
 
 use ::entity::prelude::AdminSession;
-use ::entity::{candidate, admin, admin_session};
+use ::entity::{candidate, admin, admin_session, application};
 use ::entity::{session, session::Entity as Session};
 use sea_orm::prelude::Uuid;
 use sea_orm::*;
@@ -21,8 +21,8 @@ impl Query {
         AdminSession::find_by_id(uuid).one(db).await
     }
 
-    pub async fn find_related_candidate_sessions(db: &DbConn, candidate: &candidate::Model) -> Result<Vec<session::Model>, DbErr> {
-        candidate.find_related(Session)
+    pub async fn find_related_application_sessions(db: &DbConn, application: &application::Model) -> Result<Vec<session::Model>, DbErr> {
+        application.find_related(Session)
             .order_by_asc(session::Column::UpdatedAt)
             .all(db)
             .await
@@ -38,11 +38,12 @@ impl Query {
 
 #[cfg(test)]
 mod tests {
-    use entity::{session, admin, candidate, admin_session};
+    use entity::{session, admin, candidate, admin_session, application};
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
+    use crate::services::candidate_service::tests::put_user_data;
     use crate::utils::db::get_memory_sqlite_connection;
-    use crate::Query;
+    use crate::{Query, Mutation};
 
     #[tokio::test]
     async fn test_find_session_by_uuid() {
@@ -70,23 +71,11 @@ mod tests {
 
         const APPLICATION_ID: i32 = 103158;
 
-        let candidate = candidate::ActiveModel {
-            application: Set(APPLICATION_ID),
-            code: Set("test".to_string()),
-            public_key: Set("test".to_string()),
-            private_key: Set("test".to_string()),
-            personal_identification_number: Set("test".to_string()),
-            created_at: Set(chrono::offset::Local::now().naive_local()),
-            updated_at: Set(chrono::offset::Local::now().naive_local()),
-            ..Default::default()
-        }
-            .insert(&db)
-            .await
-            .unwrap();
+        let (application, _, _) = put_user_data(&db).await;
 
         session::ActiveModel {
             id: Set(Uuid::new_v4()),
-            candidate_id: Set(Some(APPLICATION_ID)),
+            candidate_id: Set(Some(application.id)),
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
@@ -126,7 +115,7 @@ mod tests {
             .await
             .unwrap();
 
-        let sessions = Query::find_related_candidate_sessions(&db, &candidate).await.unwrap();
+        let sessions = Query::find_related_application_sessions(&db, &application).await.unwrap();
         assert_eq!(sessions.len(), 1);
 
         let sessions = Query::find_related_admin_sessions(&db, &admin).await.unwrap();

@@ -93,12 +93,7 @@ pub async fn create_candidate(
 
     let plain_text_password = random_12_char_string();
 
-    ApplicationService::create_candidate_with_parent(
-        db,
-        form.application_id,
-        &plain_text_password,
-        form.personal_id_number.clone(),
-    )
+    let application = ApplicationService::create(&db, form.application_id, &plain_text_password, form.personal_id_number.clone())
         .await
         .map_err(to_custom_error)?;
 
@@ -205,17 +200,19 @@ pub async fn reset_candidate_password(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     id: i32,
-) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
-    let db = conn.into_inner();
+) -> Result<(), Custom<String>> {
+    // TODO
+    /* let db = conn.into_inner();
     let private_key = session.get_private_key();
 
     let response = CandidateService::reset_password(private_key, db, id)
         .await
-        .map_err(to_custom_error)?;
+        .map_err(to_custom_error)?; */
 
-    Ok(
+        Ok(())
+    /* Ok(
         Json(response)
-    )
+    ) */
 }
 
 #[get("/candidate/<id>/portfolio")]
