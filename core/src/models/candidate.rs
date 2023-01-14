@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use entity::candidate;
+use entity::{candidate, application};
 use sea_orm::FromQueryResult;
 use serde::{Serialize, Deserialize};
 
@@ -11,7 +11,7 @@ use super::candidate_details::EncryptedString;
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NewCandidateResponse {
-    pub application_id: i32,
+    pub applications: Vec<i32>,
     pub personal_id_number: String,
 }
 
@@ -103,11 +103,12 @@ pub struct Row {
 }
 
 impl NewCandidateResponse {
-    pub async fn from_encrypted(private_key: &String, c: candidate::Model) -> Result<Self, ServiceError> {
+    pub async fn from_encrypted(applications: Vec<application::Model>, private_key: &String, c: candidate::Model) -> Result<Self, ServiceError> {
         let id_number = EncryptedString::from(c.personal_identification_number).decrypt(private_key).await?;
+        let applications = applications.iter().map(|a| a.id).collect();
         Ok(
             Self {
-                application_id: c.id,
+                applications,
                 personal_id_number: id_number,
             }
         )

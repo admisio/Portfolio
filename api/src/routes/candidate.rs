@@ -2,6 +2,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use entity::application;
 use portfolio_core::Query;
+use portfolio_core::error::ServiceError;
 use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::models::candidate::{ApplicationDetails, NewCandidateResponse};
 use portfolio_core::sea_orm::prelude::Uuid;
@@ -77,9 +78,11 @@ pub async fn whoami(conn: Connection<'_, Db>, session: ApplicationAuth) -> Resul
 
     let private_key = session.get_private_key();
     let application: entity::application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
-    println!("candidate: {:?}", candidate);
-    let response = NewCandidateResponse::from_encrypted(&private_key, candidate).await
+    let candidate = ApplicationService::find_related_candidate(&db, &application)
+        .await.map_err(to_custom_error)?; // TODO more compact
+    let applications = Query::find_applications_by_candidate_id(&db, candidate.id)
+        .await.map_err(|e| to_custom_error(ServiceError::DbError(e)))?; 
+    let response = NewCandidateResponse::from_encrypted(applications, &private_key, candidate).await
         .map_err(to_custom_error)?;
 
     Ok(Json(response))
