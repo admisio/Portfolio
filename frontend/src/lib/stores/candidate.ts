@@ -13,6 +13,8 @@ export interface CandidateData {
 		sex: string;
 		study: string;
 		personalIdNumber: string;
+		schoolName: string;
+		healthInsurance: string;
 	};
 	parents: Array<{
 		name: string;
@@ -60,7 +62,9 @@ export const candidateData = writable<CandidateData>({
 		email: '',
 		sex: '',
 		study: '',
-		personalIdNumber: ''
+		personalIdNumber: '',
+		schoolName: '',
+		healthInsurance: ''
 	},
 	parents: []
 });

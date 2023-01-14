@@ -53,6 +53,8 @@
 			zip: '',
 			citizenship: '',
 			personalIdNumber: '',
+			schoolName: '',
+			healthInsurance: '',
 			study: ''
 		},
 		parents: [
@@ -97,6 +99,8 @@
 			zip: yup.string().required(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
+			schoolName: yup.string().required(),
+			healthInsurance: yup.number().required(),
 			study: yup.string().required()
 		}),
 		parents: yup.array().of(
@@ -313,7 +317,9 @@
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
-					$typedErrors['candidate']['study']
+					$typedErrors['candidate']['schoolName'] ||
+					$typedErrors['candidate']['healthInsurance'] ||
+					$typedErrors['candidate']['study'] 
 				) {
 					return true;
 				}
@@ -569,7 +575,7 @@
 					Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který
 					se hlásíte.
 				</p>
-				<div class="flex w-full flex-row md:flex-col">
+				<div class="flex w-full flex-col">
 					<span class="field">
 						<SelectField
 							error={$typedErrors['candidate']['citizenship']}
@@ -579,13 +585,39 @@
 							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 						/>
 					</span>
-					<span class="field ml-2 md:ml-0">
-						<TextField
-							on:change={handleChange}
-							type="text"
-							placeholder="Evidenční číslo přihlášky"
-						/>
-					</span>
+					<div class="field flex flex-row">
+						
+						<span>
+							{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
+								<TextField
+									error={$typedErrors['candidate']['schoolName']}
+									on:change={handleChange}
+									type="number"
+									bind:value={$form.candidate.schoolName}
+									placeholder="IZO školy"
+								/>
+							{:else}
+								<TextField
+									error={$typedErrors['candidate']['schoolName']}
+									on:change={handleChange}
+									type="text"
+									bind:value={$form.candidate.schoolName}
+									placeholder="Název školy"
+								/>
+							{/if}
+						</span>
+		
+						<span>
+							<TextField
+								error={$typedErrors['candidate']['healthInsurance']}
+								on:change={handleChange}
+								type="text"
+								bind:value={$form.candidate.healthInsurance}
+								placeholder="Číslo zdravotní pojišťovny"
+							/>
+						</span>
+
+					</div>
 				</div>
 				<div class="field flex items-center justify-center">
 					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
