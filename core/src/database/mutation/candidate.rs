@@ -66,25 +66,25 @@ impl Mutation {
         enc_candidate: EncryptedCandidateDetails,
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let application = user.application;
-        let mut user: candidate::ActiveModel = user.into();
-        
-        user.name = Set(enc_candidate.name.map(|e| e.into()));
-        user.surname = Set(enc_candidate.surname.map(|e| e.into()));
-        user.birthplace = Set(enc_candidate.birthplace.map(|e| e.into()));
-        user.birthdate = Set(enc_candidate.birthdate.map(|e| e.into()));
-        user.address = Set(enc_candidate.address.map(|e| e.into()));
-        user.telephone = Set(enc_candidate.telephone.map(|e| e.into()));
-        user.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
-        user.email = Set(enc_candidate.email.map(|e| e.into()));
-        user.sex = Set(enc_candidate.sex.map(|e| e.into()));
-        user.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
-        user.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
-        user.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
-        user.study = Set(enc_candidate.study.map(|e| e.into()));
+        let mut candidate: candidate::ActiveModel = user.into();
 
-        user.updated_at = Set(chrono::offset::Local::now().naive_local());
+        candidate.name = Set(enc_candidate.name.map(|e| e.into()));
+        candidate.surname = Set(enc_candidate.surname.map(|e| e.into()));
+        candidate.birthplace = Set(enc_candidate.birthplace.map(|e| e.into()));
+        candidate.birthdate = Set(enc_candidate.birthdate.map(|e| e.into()));
+        candidate.address = Set(enc_candidate.address.map(|e| e.into()));
+        candidate.telephone = Set(enc_candidate.telephone.map(|e| e.into()));
+        candidate.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
+        candidate.email = Set(enc_candidate.email.map(|e| e.into()));
+        candidate.sex = Set(enc_candidate.sex.map(|e| e.into()));
+        candidate.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
+        candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
+        candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
+        candidate.study = Set(enc_candidate.study.map(|e| e.into()));
 
-        let update = user.update(db).await?;
+        candidate.updated_at = Set(chrono::offset::Local::now().naive_local());
+
+        let update = candidate.update(db).await?;
 
         info!("CANDIDATE {} DETAILS UPDATED", application);
 
