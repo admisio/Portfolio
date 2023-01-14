@@ -43,19 +43,15 @@ impl ApplicationService {
             priv_key_plain_text,
             plain_text_password.to_string()
         ).await?;
-        
-        let recipients = get_recipients(db, &pubkey).await?;
-        let enc_personal_id_number = EncryptedString::new(
-            &personal_id_number,
-            &recipients,
-        ).await?;
-        
-        let candidate = Self::find_or_create_candidate_with_personal_id(
+    
+
+        let (candidate, enc_personal_id_number) = Self::find_or_create_candidate_with_personal_id(
             admin_private_key,
             db,
             personal_id_number,
-            &enc_personal_id_number,
+            &pubkey,
         ).await?;
+        
 
         let application = Mutation::create_application(
             db,
@@ -74,8 +70,9 @@ impl ApplicationService {
         admin_private_key: &String,
         db: &DbConn,
         personal_id_number: String,
-        enc_personal_id_number: &EncryptedString,
-    ) -> Result<candidate::Model, ServiceError> {
+        pubkey: &String,
+        // enc_personal_id_number: &EncryptedString,
+    ) -> Result<(candidate::Model, String), ServiceError> {
         let candidates = Query::list_candidates_full(db).await?;
         let ids_decrypted = futures::future::join_all(
         candidates.iter().map(|c| async {(
@@ -92,16 +89,44 @@ impl ApplicationService {
             .iter()
             .filter(|(_, id)| id == &personal_id_number)
             .collect();
-        // TODO: take the candidate id directly from the iterator
+        
+        let mut recipients = get_recipients(db, pubkey).await?;
+            
         if found_ids.iter().any(|(_, personal_id)| personal_id == &personal_id_number) {
             let candidate = Query::find_candidate_by_id(db, found_ids[0].0)
                 .await?
                 .ok_or(ServiceError::CandidateNotFound)?;
+                
+            let mut linked_applications_pubkeys = Query::find_applications_by_candidate_id(db, candidate.id)
+                .await?
+                .iter()
+                .map(|a| a.public_key.to_owned())
+                .collect();
+
+            recipients.append(&mut linked_applications_pubkeys);
+
+                
+            let enc_personal_id_number = EncryptedString::new(
+                &personal_id_number,
+                &recipients,
+            ).await?;
+
             let candidate = Mutation::update_personal_id(db, candidate, &enc_personal_id_number.to_owned().to_string()).await?;
             println!("Candidates linked!");
-            Ok(candidate)
+            Ok(
+                (candidate, enc_personal_id_number.to_string())
+            )
         } else {
-            CandidateService::create(db, enc_personal_id_number.to_owned().to_string()).await
+            let enc_personal_id_number = EncryptedString::new(
+                &personal_id_number,
+                &recipients,
+            ).await?;
+            Ok(
+                (
+                    CandidateService::create(db, enc_personal_id_number.to_owned().to_string()).await?,
+                    enc_personal_id_number.to_string(),
+                )
+            )
         }
     }
 
