@@ -158,8 +158,9 @@
 								>{$candidateData.candidate.personalIdNumber}</span
 							></span
 						>
-						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
-						>
+						<span>IČO/Název školy: <span class="font-bold">{$candidateData.candidate.schoolName}</span></span>
+						<span>Číslo zdravotní pojišťovny: <span class="font-bold">{$candidateData.candidate.healthInsurance}</span></span>
+						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
 					</div>
 					<div
 						use:tippy={{
