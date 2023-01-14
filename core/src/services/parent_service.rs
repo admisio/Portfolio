@@ -54,9 +54,7 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails}, services::{candidate_service::CandidateService, application_service::ApplicationService}, crypto};
-
-    use super::ParentService;
+    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}}, services::{candidate_service::CandidateService}};
 
     pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {

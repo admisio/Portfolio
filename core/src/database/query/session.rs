@@ -1,7 +1,7 @@
 use crate::Query;
 
 use ::entity::prelude::AdminSession;
-use ::entity::{candidate, admin, admin_session, application};
+use ::entity::{admin, admin_session, application};
 use ::entity::{session, session::Entity as Session};
 use sea_orm::prelude::Uuid;
 use sea_orm::*;
@@ -38,12 +38,12 @@ impl Query {
 
 #[cfg(test)]
 mod tests {
-    use entity::{session, admin, candidate, admin_session, application};
+    use entity::{session, admin, admin_session};
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
     use crate::services::candidate_service::tests::put_user_data;
     use crate::utils::db::get_memory_sqlite_connection;
-    use crate::{Query, Mutation};
+    use crate::{Query};
 
     #[tokio::test]
     async fn test_find_session_by_uuid() {

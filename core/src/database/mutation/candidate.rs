@@ -22,15 +22,6 @@ impl Mutation {
         Ok(candidate)
     }
 
-    pub async fn find_related_application(
-        db: &DbConn,
-        candidate: candidate::Model,
-    ) -> Result<Option<application::Model>, DbErr> {
-        candidate.find_related(application::Entity)
-            .one(db)
-            .await
-    }
-
     pub async fn delete_candidate(
         db: &DbConn,
         candidate: candidate::Model,

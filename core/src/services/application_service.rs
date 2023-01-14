@@ -5,7 +5,7 @@ use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
 use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::{EncryptedApplicationDetails}, models::{candidate::ApplicationDetails, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
-use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::PortfolioService};
+use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -138,24 +138,6 @@ impl ApplicationService {
         }
         let field_of_study_prefix = &s[0..3];
         FIELD_OF_STUDY_PREFIXES.contains(&field_of_study_prefix)
-    }
-
-    pub async fn create_candidate_with_parent( // uchazeč s maminkou 👩‍🍼
-        db: &DbConn,
-        application: application::Model,
-        plain_text_password: &String,
-        personal_id_number: String,
-    ) -> Result<(application::Model, candidate::Model, parent::Model), ServiceError> {
-        let candidate = CandidateService::create(db, personal_id_number).await?;
-        let parent = ParentService::create(db, candidate.id).await?;
-        let application = Mutation::update_candidate_fk(db, application, candidate.id).await?;
-        Ok( 
-            (
-                application,
-                candidate,
-                parent
-            )
-        )
     }
 
     pub async fn find_related_candidate(

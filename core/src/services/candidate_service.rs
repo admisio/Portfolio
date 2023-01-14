@@ -1,16 +1,13 @@
-use async_trait::async_trait;
-use chrono::Duration;
-use entity::{candidate, session, application};
-use sea_orm::{prelude::Uuid, DbConn, IntoActiveModel};
+use entity::candidate;
+use sea_orm::DbConn;
 
 use crate::{
-    models::{candidate_details::{EncryptedApplicationDetails, EncryptedString, EncryptedCandidateDetails}, candidate::CandidateDetails},
-    crypto::{self, hash_password},
+    models::{candidate_details::EncryptedCandidateDetails, candidate::CandidateDetails},
     error::ServiceError,
-    Mutation, Query, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse}, auth::AuthenticableTrait}, utils::db::get_recipients,
+    Mutation, Query, models::candidate::BaseCandidateResponse,
 };
 
-use super::{session_service::SessionService, portfolio_service::PortfolioService};
+use super::{portfolio_service::PortfolioService};
 
 pub struct CandidateService;
 
@@ -93,7 +90,7 @@ pub mod tests {
 
     use crate::models::candidate_details::tests::assert_all_application_details;
     use crate::utils::db::get_memory_sqlite_connection;
-    use crate::{crypto, services::candidate_service::CandidateService, Mutation};
+    use crate::{crypto};
 
     use crate::models::candidate_details::EncryptedApplicationDetails;
     use entity::{application, candidate, parent, admin};
@@ -172,7 +169,7 @@ pub mod tests {
     #[tokio::test]
     async fn test_put_user_data() {
         let db = get_memory_sqlite_connection().await;
-        let (application, candidate, parents) = put_user_data(&db).await;
+        let (_, candidate, parents) = put_user_data(&db).await;
         assert!(candidate.name.is_some());
         assert!(parents[0].name.is_some());
     }
