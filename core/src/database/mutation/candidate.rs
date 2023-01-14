@@ -67,6 +67,7 @@ impl Mutation {
     ) -> Result<candidate::Model, sea_orm::DbErr> {
         let application = user.application;
         let mut user: candidate::ActiveModel = user.into();
+        
         user.name = Set(enc_candidate.name.map(|e| e.into()));
         user.surname = Set(enc_candidate.surname.map(|e| e.into()));
         user.birthplace = Set(enc_candidate.birthplace.map(|e| e.into()));
@@ -77,6 +78,8 @@ impl Mutation {
         user.email = Set(enc_candidate.email.map(|e| e.into()));
         user.sex = Set(enc_candidate.sex.map(|e| e.into()));
         user.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
+        user.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
+        user.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
         user.study = Set(enc_candidate.study.map(|e| e.into()));
 
         user.updated_at = Set(chrono::offset::Local::now().naive_local());
