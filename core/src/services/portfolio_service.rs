@@ -8,7 +8,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::{error::ServiceError, Query, crypto};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum SubmissionProgress {
     NoneInCache,
     SomeInCache(Vec<FileType>),
@@ -50,7 +50,7 @@ impl Serialize for SubmissionProgress {
 }
 
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, PartialEq, Clone)]
 pub enum FileType {
     CoverLetterPdf = 1,
     PortfolioLetterPdf = 2,
@@ -216,17 +216,7 @@ impl PortfolioService {
 
     /// Returns true if portfolio is ready to be moved to the final directory
     async fn is_portfolio_prepared(candidate_id: i32) -> bool {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
-
-        let filenames = vec![FileType::CoverLetterPdf, FileType::PortfolioLetterPdf, FileType::PortfolioZip];
-        for filename in filenames {
-            if !tokio::fs::metadata(
-                cache_path.join(filename.as_str())
-            ).await.is_ok() {
-                return false;
-            }
-        }
-        true
+        Self::get_submission_progress(candidate_id).await.ok() == Some(SubmissionProgress::AllInCache)
     }
 
     // Delete single item from cache
@@ -306,10 +296,14 @@ impl PortfolioService {
         writer.close().await?;
         archive.shutdown().await?;
 
+        let applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate_id)
+            .await?.iter().map(|a| a.public_key.to_owned()).collect();
         let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
         let mut admin_public_keys_refrence: Vec<&str> = admin_public_keys.iter().map(|s| &**s).collect();
-        let mut recipients = vec![&**public_key];
+
+        let mut recipients = vec![];
         recipients.append(&mut admin_public_keys_refrence);
+        recipients.append(&mut applications_pubkeys.iter().map(|s| &**s).collect());
 
         let final_path = path.join(FileType::PortfolioZip.as_str());
 

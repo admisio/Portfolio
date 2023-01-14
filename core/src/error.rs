@@ -20,6 +20,8 @@ pub enum ServiceError {
     CandidateNotFound,
     #[error("Resource is locked")]
     Locked,
+    #[error("Too many applications")]
+    TooManyApplications,
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
@@ -82,6 +84,7 @@ impl ServiceError {
             ServiceError::IncompletePortfolio => 406,
             ServiceError::UserAlreadyExists => 409,
             ServiceError::Locked => 423,
+            ServiceError::TooManyApplications => 409,
             // 500
             ServiceError::ParentNotFound => 500,
             ServiceError::DbError(_) => 500,

@@ -97,11 +97,15 @@ impl ApplicationService {
                 .await?
                 .ok_or(ServiceError::CandidateNotFound)?;
                 
-            let mut linked_applications_pubkeys = Query::find_applications_by_candidate_id(db, candidate.id)
+            let mut linked_applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate.id)
                 .await?
                 .iter()
                 .map(|a| a.public_key.to_owned())
                 .collect();
+
+            if linked_applications_pubkeys.len() > 1 {
+                return Err(ServiceError::TooManyApplications);
+            }
 
             recipients.append(&mut linked_applications_pubkeys);
 
