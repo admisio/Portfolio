@@ -2155,14 +2155,14 @@ dependencies = [
 
 [[package]]
 name = "portfolio"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "portfolio-api",
 ]
 
 [[package]]
 name = "portfolio-api"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -2193,7 +2193,7 @@ dependencies = [
 
 [[package]]
 name = "portfolio-core"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "aes-gcm-siv",
  "age",
