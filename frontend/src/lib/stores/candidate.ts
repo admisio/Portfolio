@@ -28,7 +28,7 @@ export interface CandidatePreview {
 	applicationId?: number;
 	name?: string;
 	surname?: string;
-	study?: string;
+	fieldOfStudy?: string;
 }
 
 export interface CandidateLogin {
