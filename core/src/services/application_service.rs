@@ -105,6 +105,7 @@ impl ApplicationService {
                 Self::find_linkable_candidate(db, 
                     application_id,
                     *candidate_id,
+                    pubkey,
                     personal_id_number
                 ).await?
             )
@@ -128,6 +129,7 @@ impl ApplicationService {
         db: &DbConn,
         new_application_id: i32,
         candidate_id: i32,
+        pubkey: &String,
         personal_id_number: String,
     ) -> Result<(candidate::Model, String), ServiceError> {
         let candidate = Query::find_candidate_by_id(db, candidate_id)
@@ -147,7 +149,7 @@ impl ApplicationService {
         }
 
         let mut recipients = Query::get_all_admin_public_keys(db).await?;
-        recipients.append(&mut vec![linked_application.public_key.to_owned()]);
+        recipients.append(&mut vec![linked_application.public_key.to_owned(), pubkey.to_owned()]);
 
             
         let enc_personal_id_number = EncryptedString::new(
