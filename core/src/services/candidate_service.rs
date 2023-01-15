@@ -27,7 +27,7 @@ impl CandidateService {
         )
             .await?;
         
-        // PortfolioService::create_user_dir(candidate.id).await?;
+        PortfolioService::create_user_dir(candidate.id).await?;
 
             
         Ok(candidate)

@@ -64,7 +64,7 @@ impl ApplicationService {
             encrypted_priv_key,
         ).await?;
 
-        PortfolioService::create_user_dir(application.id).await?;
+        // PortfolioService::create_user_dir(application.id).await?;
             
         Ok(application)
     }
