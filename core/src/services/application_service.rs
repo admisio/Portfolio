@@ -64,7 +64,13 @@ impl ApplicationService {
             encrypted_priv_key,
         ).await?;
 
-        // PortfolioService::create_user_dir(application.id).await?;
+        let applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+        if applications.len() >= 3 {
+            for application in applications {
+                ApplicationService::delete(db, application).await?;
+            }
+            return Err(ServiceError::InternalServerError);
+        }
             
         Ok(application)
     }
@@ -93,42 +99,18 @@ impl ApplicationService {
             .iter()
             .filter(|(_, id)| id == &personal_id_number)
             .collect();
-        
-        let mut recipients = get_recipients(db, pubkey).await?;
             
         if found_ids.iter().any(|(_, personal_id)| personal_id == &personal_id_number) {
-            let candidate = Query::find_candidate_by_id(db, found_ids[0].0)
-                .await?
-                .ok_or(ServiceError::CandidateNotFound)?;
-                
-            let mut linked_applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate.id)
-                .await?
-                .iter()
-                .filter(|a| a.id.to_string()[0..3] != application_id.to_string()[0..3])
-                .map(|a| a.public_key.to_owned())
-                .collect();
-
-            if linked_applications_pubkeys.is_empty() {
-                return Err(ServiceError::InvalidApplicationId);
-            }
-            if linked_applications_pubkeys.len() > 1 {
-                return Err(ServiceError::TooManyApplications);
-            }
-
-            recipients.append(&mut linked_applications_pubkeys);
-
-                
-            let enc_personal_id_number = EncryptedString::new(
-                &personal_id_number,
-                &recipients,
-            ).await?;
-
-            let candidate = Mutation::update_personal_id(db, candidate, &enc_personal_id_number.to_owned().to_string()).await?;
-            println!("Candidates linked!");
             Ok(
-                (candidate, enc_personal_id_number.to_string())
+                Self::find_linkable_candidate(db, 
+                    application_id,
+                    found_ids[0].0,
+                    personal_id_number
+                ).await?
             )
         } else {
+            let recipients = get_recipients(db, pubkey).await?;
+
             let enc_personal_id_number = EncryptedString::new(
                 &personal_id_number,
                 &recipients,
@@ -140,6 +122,44 @@ impl ApplicationService {
                 )
             )
         }
+    }
+
+    async fn find_linkable_candidate(
+        db: &DbConn,
+        new_application_id: i32,
+        candidate_id: i32,
+        personal_id_number: String,
+    ) -> Result<(candidate::Model, String), ServiceError> {
+        let candidate = Query::find_candidate_by_id(db, candidate_id)
+            .await?
+            .ok_or(ServiceError::CandidateNotFound)?;
+                
+        let linked_applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+
+        if linked_applications.len() > 1 {
+            return Err(ServiceError::TooManyApplications);
+        }
+
+        let linked_application = linked_applications.first().ok_or(ServiceError::CandidateNotFound)?;//TODO
+
+        if linked_application.id.to_string()[0..3] == new_application_id.to_string()[0..3] {
+            return Err(ServiceError::TooManyFieldsForOnePerson);
+        }
+
+        let mut recipients = Query::get_all_admin_public_keys(db).await?;
+        recipients.append(&mut vec![linked_application.public_key.to_owned()]);
+
+            
+        let enc_personal_id_number = EncryptedString::new(
+            &personal_id_number,
+            &recipients,
+        ).await?;
+
+        let candidate = Mutation::update_personal_id(db, candidate, &enc_personal_id_number.to_owned().to_string()).await?;
+        println!("APPLICATIONS {} AND {} ARE LINKED (CANDIDATE {})", new_application_id, linked_application.id, candidate.id);
+        Ok(
+            (candidate, enc_personal_id_number.to_string())
+        )
     }
 
     pub async fn delete(db: &DbConn, application: application::Model) -> Result<(), ServiceError> {

@@ -22,6 +22,10 @@ pub enum ServiceError {
     Locked,
     #[error("Too many applications")]
     TooManyApplications,
+    #[error("Too many fields for one person")]
+    TooManyFieldsForOnePerson,
+    #[error("Internal server error")]
+    InternalServerError,
     #[error("Parrent not found")]
     ParentNotFound,
     #[error("Database error")]
@@ -84,8 +88,10 @@ impl ServiceError {
             ServiceError::IncompletePortfolio => 406,
             ServiceError::UserAlreadyExists => 409,
             ServiceError::Locked => 423,
+            ServiceError::TooManyFieldsForOnePerson => 409,
             ServiceError::TooManyApplications => 409,
             // 500
+            ServiceError::InternalServerError => 500,
             ServiceError::ParentNotFound => 500,
             ServiceError::DbError(_) => 500,
             ServiceError::UserNotFoundBySessionId => 500,
