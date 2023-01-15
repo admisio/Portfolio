@@ -28,11 +28,11 @@
 <style lang="postcss">
 	.bgImage {
 		@apply -z-20;
-		@apply min-w-screen absolute min-h-full md:min-w-[50vw];
+		@apply min-w-screen fixed min-h-full md:min-w-[50vw];
 		@apply bg-cover bg-no-repeat;
 	}
 	.bgOverlay {
-		@apply min-w-screen absolute -z-10 min-h-full md:min-w-[50vw];
+		@apply min-w-screen fixed -z-10 min-h-full md:min-w-[50vw];
 		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
 		@apply bg-cover;
 	}
@@ -48,7 +48,7 @@
 		@apply p-7;
 	}
 	.view {
-		@apply z-10 overflow-scroll;
+		@apply z-10;
 		@apply absolute top-0 right-0 bottom-0 left-0 m-auto md:top-auto md:bottom-auto md:left-auto md:m-0;
 		@apply md:h-screen md:w-[50vw];
 		@apply md:my-auto;

@@ -29,12 +29,12 @@
 	}
 	.bgImage {
 		@apply -z-20;
-		@apply min-w-screen absolute min-h-screen min-w-full;
+		@apply min-w-screen fixed min-h-screen min-w-full;
 		@apply bg-cover bg-no-repeat;
 		background-position: 55%;
 	}
 	.bgOverlay {
-		@apply min-w-screen absolute -z-10 min-h-screen;
+		@apply min-w-screen fixed -z-10 min-h-screen;
 		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
 		@apply bg-cover;
 	}
@@ -50,7 +50,7 @@
 		@apply p-7;
 	}
 	.view {
-		@apply z-10 overflow-scroll;
+		@apply z-10;
 		@apply top-0 right-0 bottom-0 left-0 m-auto h-screen w-screen;
 	}
 	.content {
