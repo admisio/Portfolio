@@ -394,35 +394,14 @@
 			</div>
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
-				{#if !detailsFilledByAnotherAccount}
-					<form on:submit={handleSubmit}>
-						<h1 class="title mt-8">Propojení účtů</h1>
-						<p class="description mt-8 block text-center">
-							Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě přihlášky. 
-							Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
-						</p>
-						<div class="field">
-							<AccountLinkCheckBox
-								applications={baseCandidateDetails.applications}
-								bind:linkOk={$form.linkOk}
-								bind:linkError={$form.linkError}
-								on:change={handleChange}
-								error={$typedErrors['linkOk']}
-							/>
-						</div>
-					</form>
-				{:else}
 				<form on:submit={handleSubmit}>
-					<h1 class="title mt-8">Údaje již vyplněny</h1>
+					<h1 class="title mt-8">Propojení účtů</h1>
 					<p class="description mt-8 block text-center">
-						Vaše osobní údaje již byly vyplněny přes Váš druhý účet ({baseCandidateDetails.encryptedBy}).
-						Vaše údaje byly zaznamenány a Vaše přihlášky byly propojeny.
+						Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě přihlášky. 
+						Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
 					</p>
 					<div class="field">
 						<AccountLinkCheckBox
-							title1="Chci svoje údaje vyplnit znovu"
-							title2="Chci použít údaje z přihlášky"
-							description1="Pokud chcete vyplnit údaje znovu, můžete je vyplnit v rámci tohoto formuláře."
 							applications={baseCandidateDetails.applications}
 							bind:linkOk={$form.linkOk}
 							bind:linkError={$form.linkError}
@@ -431,7 +410,6 @@
 						/>
 					</div>
 				</form>
-				{/if}
 			{:else if pageIndex === 1}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[0]}</h1>

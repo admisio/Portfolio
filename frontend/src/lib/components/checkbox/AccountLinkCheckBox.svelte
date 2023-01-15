@@ -1,11 +1,17 @@
+
 <script lang="ts">
 	export let linkOk: boolean = false;
 	export let linkError: boolean = false;
 	export let applications: Array<number>;
-	export let title1: string = `Ano, podával/a jsem dvě přihlášky na dva obory SSPŠaG (${applications[0]} a ${applications[1]})`;
-	export let title2: string = `Ne, přihlášku na SSPŠaG jsem podával/a jen jednou`;
-	export let description1 = 'Vše je v pořádku';
-	export let description2 = 'Co se děje?';
+		
+	let title1 = `Ano, podával/a jsem dvě přihlášky na dva obory SSPŠaG (${applications[0]} a ${applications[1]})`;
+	let title2 = `Ne, přihlášku na SSPŠaG jsem podával/a jen jednu (${applications[0]})`;
+
+	if (applications.length === 1) {
+		title1 = `Ano, přihlášku na SSPŠaG jsem podával/a jen jednu (${applications[0]})`;
+		title2 = `Ne, přihlášku na SSPŠaG jsem podával více přihlášek`;
+	}
+
 
 	$: console.log(linkOk, linkError);
 
@@ -35,11 +41,11 @@
 	<label for="linkOk" class="peer-checked:border-sspsBlue peer-checked:text-gray-600" class:error>
 		<div class="block">
 			<span class="text-2xl">📜</span>
-
+			
 			<div class="w-full text-lg font-semibold">
-				{title1}
+			{title1}	
 			</div>
-			<div class="w-full text-sm">{description1}</div>
+			<div class="w-full text-sm">Vše je v pořádku</div>
 		</div>
 	</label>
 </div>
@@ -62,7 +68,7 @@
 			<div class="w-full text-lg font-semibold">
 				{title2}
 			</div>
-			<div class="w-full text-sm">{description2}?</div>
+			<div class="w-full text-sm">Co se děje?</div>
 		</div>
 	</label>
 </div>
