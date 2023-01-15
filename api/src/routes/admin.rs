@@ -109,12 +109,13 @@ pub async fn create_candidate(
     )
 }
 
+#[allow(unused_variables)]
 #[get("/candidates?<field>&<page>")]
 pub async fn list_candidates(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     field: Option<String>,
-    page: Option<u64>,
+    page: Option<u64>, 
 ) -> Result<Json<Vec<ApplicationResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
