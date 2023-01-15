@@ -60,7 +60,6 @@ pub enum Candidate {
     Citizenship,
     Email,
     Sex,
-    Study,
     PersonalIdentificationNumber,
     SchoolName,
     HealthInsurance,
