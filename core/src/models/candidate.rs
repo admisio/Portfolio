@@ -44,6 +44,7 @@ pub struct NewCandidateResponse {
     pub personal_id_number: String,
     pub details_filled: bool,
     pub encrypted_by: Option<i32>,
+    pub field_of_study: String,
 }
 
 /// Create candidate (admin endpoint)
@@ -97,6 +98,7 @@ impl NewCandidateResponse {
         private_key: &String,
         c: candidate::Model,
     ) -> Result<Self, ServiceError> {
+        let field_of_study = FieldOfStudy::from(current_application).into();
         let id_number = EncryptedString::from(c.personal_identification_number.to_owned())
             .decrypt(private_key)
             .await?;
@@ -109,6 +111,7 @@ impl NewCandidateResponse {
             personal_id_number: id_number,
             details_filled: encrypted_details.is_filled(),
             encrypted_by: c.encrypted_by_id,
+            field_of_study,
         })
     }
 }
