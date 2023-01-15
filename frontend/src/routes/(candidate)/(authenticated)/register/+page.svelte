@@ -20,10 +20,11 @@
 	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
+	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 
-	const pageCount = 5;
+	const pageCount = 6;
 	let pageIndex = 0;
-	let pagesFilled = [false, false, false, false, false];
+	let pagesFilled = [false, false, false, false, false, false];
 	let pageTexts = [
 		'Zpracování osobních údajů',
 		'Registrace',
@@ -35,9 +36,15 @@
 
 	export let data: PageData;
 	let details = data.candidate;
+	let baseCandidateDetails = data.whoami;
+
+	let detailsFilledByAnotherAccount = baseCandidateDetails.encryptedBy !== null &&
+		 baseCandidateDetails.currentApplication !== baseCandidateDetails.encryptedBy;
 
 	const formInitialValues = {
 		gdpr: false,
+		linkOk: false,
+		linkError: false,
 		candidate: {
 			name: '',
 			surname: '',
@@ -75,6 +82,8 @@
 
 	const formValidationSchema = yup.object().shape({
 		gdpr: yup.boolean().oneOf([true]),
+		linkOk: yup.boolean().oneOf([true]),
+		linkError: yup.boolean().oneOf([false]),
 		candidate: yup.object().shape({
 			name: yup.string().required(),
 			surname: yup.string().required(),
@@ -265,11 +274,16 @@
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
 			case 0:
-				if ($typedErrors['gdpr']) {
+				if ($typedErrors['linkOk'] || $typedErrors['linkError']) {
 					return true;
 				}
 				break;
 			case 1:
+				if ($typedErrors['gdpr']) {
+					return true;
+				}
+				break;
+			case 2:
 				if (
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['surname'] ||
@@ -280,7 +294,7 @@
 				}
 				break;
 
-			case 2:
+			case 3:
 				if (
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['birthdate'] ||
@@ -293,7 +307,7 @@
 					return true;
 				}
 				break;
-			case 3:
+			case 4:
 				if (
 					$typedErrors['parents'][0]['name'] ||
 					$typedErrors['parents'][0]['surname'] ||
@@ -303,7 +317,7 @@
 					return true;
 				}
 				break;
-			case 4:
+			case 5:
 				if (
 					$typedErrors['parents'][1]['name'] ||
 					$typedErrors['parents'][1]['surname'] ||
@@ -313,7 +327,7 @@
 					return true;
 				}
 				break;
-			case 5:
+			case 6:
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
@@ -343,6 +357,8 @@
 		);
 		form.set({
 			gdpr: true,
+			linkOk: true,
+			linkError: false,
 			candidate: {
 				...details.candidate,
 				street: details.candidate.address.split(',')[0].split(' ')[0],
@@ -364,8 +380,8 @@
 				}
 			]
 		});
-		pageIndex = 1; // skip gdpr page
-		pageTexts[1] = 'Úprava osobních údajů';
+		pageIndex = 2; // skip gdpr page
+		pageTexts[2] = 'Úprava osobních údajů';
 	}
 </script>
 
@@ -378,6 +394,45 @@
 			</div>
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
+				{#if !detailsFilledByAnotherAccount}
+					<form on:submit={handleSubmit}>
+						<h1 class="title mt-8">Propojení účtů</h1>
+						<p class="description mt-8 block text-center">
+							Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě přihlášky. 
+							Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
+						</p>
+						<div class="field">
+							<AccountLinkCheckBox
+								applications={baseCandidateDetails.applications}
+								bind:linkOk={$form.linkOk}
+								bind:linkError={$form.linkError}
+								on:change={handleChange}
+								error={$typedErrors['linkOk']}
+							/>
+						</div>
+					</form>
+				{:else}
+				<form on:submit={handleSubmit}>
+					<h1 class="title mt-8">Údaje již vyplněny</h1>
+					<p class="description mt-8 block text-center">
+						Vaše osobní údaje již byly vyplněny přes Váš druhý účet ({baseCandidateDetails.encryptedBy}).
+						Vaše údaje byly zaznamenány a Vaše přihlášky byly propojeny.
+					</p>
+					<div class="field">
+						<AccountLinkCheckBox
+							title1="Chci svoje údaje vyplnit znovu"
+							title2="Chci použít údaje z přihlášky"
+							description1="Pokud chcete vyplnit údaje znovu, můžete je vyplnit v rámci tohoto formuláře."
+							applications={baseCandidateDetails.applications}
+							bind:linkOk={$form.linkOk}
+							bind:linkError={$form.linkError}
+							on:change={handleChange}
+							error={$typedErrors['linkOk']}
+						/>
+					</div>
+				</form>
+				{/if}
+			{:else if pageIndex === 1}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[0]}</h1>
 					<p class="description mt-8 block text-center">
@@ -394,7 +449,7 @@
 						/>
 					</div>
 				</form>
-			{:else if pageIndex === 1}
+			{:else if pageIndex === 2}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
@@ -429,7 +484,7 @@
 						</span>
 					</div>
 				</form>
-			{:else if pageIndex === 2}
+			{:else if pageIndex === 3}
 				<h1 class="title mt-8">{pageTexts[2]}</h1>
 				<p class="description mt-8 block text-center">
 					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
@@ -505,7 +560,7 @@
 						/>
 					</div>
 				</div>
-			{:else if pageIndex === 3}
+			{:else if pageIndex === 4}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
 					Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
@@ -537,7 +592,7 @@
 						/>
 					</span>
 				</div>
-			{:else if pageIndex === 4}
+			{:else if pageIndex === 5}
 				<h1 class="title mt-8">{pageTexts[4]}</h1>
 				<p class="description mt-8 block text-center">
 					Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
@@ -569,7 +624,7 @@
 						/>
 					</span>
 				</div>
-			{:else if pageIndex === 5}
+			{:else if pageIndex === 6}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
 				<p class="description mt-8 block text-center">
 					Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který
