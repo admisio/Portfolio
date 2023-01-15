@@ -232,7 +232,7 @@ pub async fn submit_portfolio(
     let application: entity::application::Model = session.into();
     let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
 
-    let submit = PortfolioService::submit(&application.public_key, &candidate, &db).await;
+    let submit = PortfolioService::submit(&candidate, &db).await;
 
     if submit.is_err() {
         let e = submit.err().unwrap();

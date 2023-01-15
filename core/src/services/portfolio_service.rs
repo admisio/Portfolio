@@ -258,7 +258,7 @@ impl PortfolioService {
 
 
     /// Move files from cache to final directory and delete cache afterwards
-    pub async fn submit(public_key: &String, candidate: &candidate::Model, db: &DbConn) -> Result<(), ServiceError> {
+    pub async fn submit(candidate: &candidate::Model, db: &DbConn) -> Result<(), ServiceError> {
         let candidate_id = candidate.id;
         let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
         let cache_path = path.join("cache");
@@ -621,7 +621,7 @@ mod tests {
         PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
         PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
 
-        PortfolioService::submit(&application.public_key, &candidate, &db).await.unwrap();
+        PortfolioService::submit(&candidate, &db).await.unwrap();
         
         assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
 
@@ -640,7 +640,7 @@ mod tests {
         PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
         PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
 
-        PortfolioService::submit(&application.public_key, &candidate, &db).await.unwrap();
+        PortfolioService::submit(&candidate, &db).await.unwrap();
         
         assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
 
@@ -663,7 +663,7 @@ mod tests {
         PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
         PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
 
-        PortfolioService::submit(&application.public_key, &candidate, &db).await.unwrap();
+        PortfolioService::submit(&candidate, &db).await.unwrap();
         
         assert!(PortfolioService::is_portfolio_submitted(candidate.id).await);
 
@@ -675,7 +675,7 @@ mod tests {
         PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
         PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
 
-        PortfolioService::submit(&application.public_key, &candidate, &db).await.unwrap();
+        PortfolioService::submit(&candidate, &db).await.unwrap();
 
         tokio::fs::remove_file(application_dir.join("PORTFOLIO.age")).await.unwrap();
         
@@ -706,7 +706,7 @@ mod tests {
             .await
             .unwrap();
 
-        PortfolioService::submit(&application.public_key, &candidate, &db)
+        PortfolioService::submit(&candidate, &db)
             .await
             .unwrap();
 
