@@ -56,10 +56,10 @@ mod tests {
         .await
         .unwrap();
 
-        let new_parent = Mutation::create_parent(&db, candidate.id).await.unwrap();
+        Mutation::create_parent(&db, candidate.id).await.unwrap();
 
-        let parent = Query::find_parent_by_id(&db, new_parent.id).await.unwrap();
-        assert!(parent.is_some());
+        let parents = Query::find_candidate_parents(&db, &candidate).await.unwrap();
+        assert!(parents.get(0).is_some());
     }
 
     #[tokio::test]
@@ -82,15 +82,14 @@ mod tests {
         .await
         .unwrap();
 
-        let parent = Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
+        Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
             .await
             .unwrap();
 
-        let parent = Query::find_parent_by_id(&db, parent.id)
+        let parents = Query::find_candidate_parents(&db, &candidate)
             .await
-            .unwrap()
             .unwrap();
 
-        assert!(parent.surname.is_some());
+        assert!(parents[0].surname.is_some());
     }
 }

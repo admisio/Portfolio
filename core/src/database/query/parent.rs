@@ -2,23 +2,12 @@
 use entity::candidate;
 use entity::parent;
 use entity::parent::Model;
-use entity::parent::Entity;
 use sea_orm::ModelTrait;
 use sea_orm::{DbConn, DbErr};
-use sea_orm::EntityTrait;
 
 use crate::Query;
 
 impl Query {
-    #[deprecated(note = "Use find_candidate_parents instead")]
-    pub async fn find_parent_by_id(
-        db: &DbConn,
-        id: i32,
-    ) -> Result<Option<Model>, DbErr> {
-
-        Entity::find_by_id(id).one(db).await
-    }
-
     pub async fn find_candidate_parents(
         db: &DbConn,
         candidate: &candidate::Model,
