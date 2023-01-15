@@ -3,7 +3,7 @@ use chrono::NaiveDate;
 use entity::{candidate, parent};
 use futures::future;
 
-use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError};
+use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
 use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow};
 
@@ -171,7 +171,7 @@ impl EncryptedCandidateDetails {
                 name: d.0.unwrap_or_default(),
                 surname: d.1.unwrap_or_default(),
                 birthplace: d.2.unwrap_or_default(),
-                birthdate: NaiveDate::parse_from_str(&d.3.unwrap_or_default(), NAIVE_DATE_FMT).unwrap_or(NaiveDate::from_ymd(1, 1, 1)),
+                birthdate: parse_naive_date_from_opt_str(d.3, NAIVE_DATE_FMT)?,
                 address: d.4.unwrap_or_default(),
                 telephone: d.5.unwrap_or_default(),
                 citizenship: d.6.unwrap_or_default(),

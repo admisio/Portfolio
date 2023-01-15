@@ -28,6 +28,8 @@ pub enum ServiceError {
     InternalServerError,
     #[error("Parrent not found")]
     ParentNotFound,
+    #[error("Invalid date")]
+    InvalidDate,
     #[error("Database error")]
     DbError(#[from] sea_orm::DbErr),
     #[error("Too many parents")]
@@ -92,6 +94,7 @@ impl ServiceError {
             ServiceError::TooManyApplications => 409,
             // 500
             ServiceError::InternalServerError => 500,
+            ServiceError::InvalidDate => 500,
             ServiceError::ParentNotFound => 500,
             ServiceError::DbError(_) => 500,
             ServiceError::UserNotFoundBySessionId => 500,
