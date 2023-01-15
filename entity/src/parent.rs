@@ -7,7 +7,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub application: i32,
+    pub candidate_id: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
     pub telephone: Option<String>,
@@ -20,7 +20,7 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::candidate::Entity",
-        from = "Column::Application",
+        from = "Column::CandidateId",
         to = "super::candidate::Column::Id",
         on_update = "Cascade",
         on_delete = "Cascade"

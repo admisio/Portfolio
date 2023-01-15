@@ -6,7 +6,7 @@ use sea_orm::*;
 impl Mutation {
     pub async fn create_parent(db: &DbConn, application_id: i32) -> Result<Model, DbErr> {
         parent::ActiveModel {
-            application: Set(application_id),
+            candidate_id: Set(application_id),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()

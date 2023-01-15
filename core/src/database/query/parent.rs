@@ -42,10 +42,10 @@ mod tests {
     async fn test_find_parent_by_id() {
         let db = get_memory_sqlite_connection().await;
 
-        const APPLICATION_ID: i32 = 103158;
+        const CANDIDATE_ID: i32 = 103158;
 
         candidate::ActiveModel {
-            id: Set(APPLICATION_ID),
+            id: Set(CANDIDATE_ID),
             personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
@@ -55,7 +55,7 @@ mod tests {
         .await
         .unwrap();
         let parent = parent::ActiveModel {
-            application: Set(APPLICATION_ID),
+            candidate_id: Set(CANDIDATE_ID),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
@@ -64,7 +64,7 @@ mod tests {
         .await
         .unwrap();
 
-        let parent =  Query::find_candidate_by_id(&db, parent.application)
+        let parent =  Query::find_candidate_by_id(&db, parent.candidate_id)
             .await
             .unwrap();
         assert!(parent.is_some());

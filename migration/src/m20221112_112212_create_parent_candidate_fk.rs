@@ -10,7 +10,7 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager.create_foreign_key(ForeignKey::create()
             .name("candidate_fk")
-            .from(Parent::Table, Parent::Application)
+            .from(Parent::Table, Parent::CandidateId)
             .to(Candidate::Table, Candidate::Id)
             .on_delete(ForeignKeyAction::Cascade)
             .on_update(ForeignKeyAction::Cascade)
