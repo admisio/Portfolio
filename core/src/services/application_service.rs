@@ -215,13 +215,8 @@ impl ApplicationService {
         private_key: String,
         db: &DbConn,
         application: &application::Model,
-        restrict_access: bool,
     ) -> Result<ApplicationDetails, ServiceError>  {
         let candidate = ApplicationService::find_related_candidate(db, application).await?;
-
-        /* if restrict_access && candidate.encrypted_by_id.is_some() && candidate.encrypted_by_id != Some(application.id) {
-            return Err(ServiceError::Locked)
-        } */
 
         let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::from((&candidate, parents));

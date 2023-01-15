@@ -124,8 +124,7 @@ pub async fn get_details(
     let details = ApplicationService::decrypt_all_details(
         private_key,
         db,
-        &application,
-        true
+        &application
     )
         .await
         .map(|x| Json(x))

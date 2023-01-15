@@ -167,8 +167,7 @@ pub async fn get_candidate(
     let details = ApplicationService::decrypt_all_details(
         private_key,
         db,
-        &application,
-        false,
+        &application
     )
         .await
         .map_err(to_custom_error)?;
