@@ -3,9 +3,9 @@ use chrono::Duration;
 use entity::{candidate, parent, application, session};
 use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
-use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::{EncryptedApplicationDetails}, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
+use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::EncryptedApplicationDetails, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
-use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::PortfolioService};
+use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -419,10 +419,11 @@ impl AuthenticableTrait for ApplicationService {
     }
 }
 
-mod tests {
-    use crate::{utils::db::get_memory_sqlite_connection, services::{application_service::ApplicationService}, crypto};
+#[cfg(test)]
+mod application_tests {
+    use crate::{services::{application_service::ApplicationService, candidate_service::tests::put_user_data}, utils::db::get_memory_sqlite_connection, crypto, models::auth::AuthenticableTrait};
+    use crate::services::admin_service::admin_tests::create_admin;
 
-    const APPLICATION_ID: i32 = 103151;
     #[tokio::test]
     async fn test_application_id_validation() {
         assert!(ApplicationService::is_application_id_valid(101_101));
@@ -435,29 +436,28 @@ mod tests {
     }
 
     // TODO
-    /* #[tokio::test]
+    #[tokio::test]
     async fn test_password_reset() {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
-        let (candidate, _parent) = put_user_data(&db).await;
+        let (application, _, _) = put_user_data(&db).await;
 
         let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
 
         assert!(
-            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
+            ApplicationService::login(&db, application.id, "test".to_string(), "127.0.0.1".to_string()).await.is_ok()
         );
 
-        let new_password = CandidateService::reset_password(private_key, &db, candidate.application).await.unwrap().password;
+        let new_password = ApplicationService::reset_password(private_key, &db, application.id).await.unwrap().password;
 
         assert!(
-            CandidateService::login(&db, candidate.application, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
+            ApplicationService::login(&db, application.id, "test".to_string(), "127.0.0.1".to_string()).await.is_err()
         );
         
         assert!(
-            CandidateService::login(&db, candidate.application, new_password, "127.0.0.1".to_string()).await.is_ok()
+            ApplicationService::login(&db, application.id, new_password, "127.0.0.1".to_string()).await.is_ok()
         );
-
-    } */
+    }
 
     #[tokio::test]
     async fn test_encrypt_decrypt_private_key_with_passphrase() {

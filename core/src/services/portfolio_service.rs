@@ -614,7 +614,7 @@ mod tests {
     #[serial]
     async fn test_add_portfolio() {
         let db = get_memory_sqlite_connection().await;
-        let (application, candidate, _) = put_user_data(&db).await;
+        let (_, candidate, _) = put_user_data(&db).await;
         
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(candidate.id).await;
 
@@ -633,7 +633,7 @@ mod tests {
     #[serial]
     async fn test_delete_portfolio() {
         let db = get_memory_sqlite_connection().await;
-        let (application, candidate, _) = put_user_data(&db).await;
+        let (_, candidate, _) = put_user_data(&db).await;
 
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(candidate.id).await;
 
@@ -657,7 +657,7 @@ mod tests {
     async fn test_is_portfolio_submitted() {
         let db = get_memory_sqlite_connection().await;
 
-        let (application, candidate, _) = put_user_data(&db).await;
+        let (_, candidate, _) = put_user_data(&db).await;
         let (temp_dir, _, _) = create_data_store_temp_dir(candidate.id).await;
 
         PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0]).await.unwrap();

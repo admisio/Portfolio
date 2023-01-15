@@ -63,11 +63,12 @@ pub mod tests {
     use sea_orm::DbConn;
 
     use crate::models::candidate_details::tests::assert_all_application_details;
+    use crate::services::admin_service::admin_tests::create_admin;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{crypto};
 
     use crate::models::candidate_details::EncryptedApplicationDetails;
-    use entity::{application, candidate, parent, admin};
+    use entity::{application, candidate, parent};
 
     use crate::services::application_service::ApplicationService;
 
@@ -88,33 +89,8 @@ pub mod tests {
     }
 
     #[cfg(test)]
-    async fn create_admin(db: &DbConn) -> admin::Model {
-        use chrono::Utc;
-        use sea_orm::{Set, ActiveModelTrait};
-
-        let password = "admin".to_string();
-        let (pubkey, priv_key) = crypto::create_identity();
-        let enc_priv_key = crypto::encrypt_password(priv_key, password).await.unwrap();
-
-        let admin = admin::ActiveModel {
-            name: Set("admin".to_string()),
-            public_key: Set(pubkey),
-            private_key: Set(enc_priv_key),
-            password: Set("admin".to_string()),
-            created_at: Set(Utc::now().naive_utc()),
-            updated_at: Set(Utc::now().naive_utc()),
-            ..Default::default()
-        }
-            .insert(db)
-            .await
-            .unwrap();
-
-        admin
-    }
-
-    #[cfg(test)]
     pub async fn put_user_data(db: &DbConn) -> (application::Model, candidate::Model, Vec<parent::Model>) {
-        use crate::models::candidate_details::tests::APPLICATION_DETAILS;
+        use crate::{models::candidate_details::tests::APPLICATION_DETAILS, services::parent_service::ParentService};
 
         let plain_text_password = "test".to_string();
         let application = ApplicationService::create(
@@ -126,6 +102,7 @@ pub mod tests {
         ).await.unwrap();
 
         let candidate= ApplicationService::find_related_candidate(db, &application).await.unwrap();
+        ParentService::create(db, candidate.id).await.unwrap();
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 

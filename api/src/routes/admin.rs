@@ -94,7 +94,7 @@ pub async fn create_candidate(
 
     let plain_text_password = random_12_char_string();
 
-    let application = ApplicationService::create(&private_key, &db, form.application_id, &plain_text_password, form.personal_id_number.clone())
+    ApplicationService::create(&private_key, &db, form.application_id, &plain_text_password, form.personal_id_number.clone())
         .await
         .map_err(to_custom_error)?;
 

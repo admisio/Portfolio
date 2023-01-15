@@ -1,11 +1,9 @@
 use chrono::NaiveDate;
 use entity::{application, candidate};
-use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    database::query::candidate::CandidateResult, error::ServiceError,
-    services::portfolio_service::SubmissionProgress,
+    error::ServiceError,
 };
 
 use super::candidate_details::{EncryptedString, EncryptedCandidateDetails};

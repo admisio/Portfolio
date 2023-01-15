@@ -1,6 +1,6 @@
 use crate::{Mutation, models::candidate_details::{EncryptedCandidateDetails}};
 
-use ::entity::{candidate::{self}, application};
+use ::entity::candidate;
 use log::{info, warn};
 use sea_orm::*;
 

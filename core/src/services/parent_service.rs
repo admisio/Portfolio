@@ -54,7 +54,7 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}}, services::{candidate_service::CandidateService}};
+    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
 
     pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {
@@ -95,26 +95,18 @@ mod tests {
         super::ParentService::create(&db, candidate.id).await.unwrap();
     }
 
-    /* #[tokio::test]
+    #[tokio::test]
     async fn add_parent_details_test() {
         let db = get_memory_sqlite_connection().await;
         let plain_text_password = "test".to_string();
-        let application = ApplicationService::create(&db, 103151, &plain_text_password, "0000001111".to_string()).await.unwrap();
-        let (application, candidate, _parent) = ApplicationService::create_candidate_with_parent(
-            &db,
-            application,
-            &plain_text_password,
-            "".to_string(),
-        )
-            .await
-            .ok()
-            .unwrap();
+        // let application = ApplicationService::create(&"".to_string(), &db, 103100, &plain_text_password, "".to_string()).await.unwrap();
+        let (application, candidate, _) = put_user_data(&db).await;
 
-        ParentService::create(&db, 103101).await.unwrap();
+        ParentService::create(&db, candidate.id).await.unwrap();
 
         let form = APPLICATION_DETAILS_TWO_PARENTS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db, &application.public_key, candidate, &form)
+        let (candidate, parents) = ApplicationService::add_all_details(&db, &application, candidate, &form)
             .await
             .unwrap();
 
@@ -134,8 +126,7 @@ mod tests {
         assert_eq!(dec_details.candidate.citizenship, form.candidate.citizenship);
         assert_eq!(dec_details.candidate.email, form.candidate.email);
         assert_eq!(dec_details.candidate.sex, form.candidate.sex);
-        assert_eq!(dec_details.candidate.personal_id_number, form.candidate.personal_id_number);
-        assert_eq!(dec_details.candidate.study, form.candidate.study);
+        assert_eq!(dec_details.candidate.personal_id_number, "0000001111".to_string());
 
         assert_eq!(dec_details.parents.len(), form.parents.len());
         for i in 0..dec_details.parents.len() {
@@ -144,8 +135,5 @@ mod tests {
             assert_eq!(dec_details.parents[i].telephone, form.parents[i].telephone);
             assert_eq!(dec_details.parents[i].email, form.parents[i].email);
         }
-
-
-        
-    } */
+    }
 }
