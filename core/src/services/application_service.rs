@@ -278,17 +278,27 @@ impl ApplicationService {
              encrypted_priv_key
         ).await?;
 
-        
         // user might no have filled his details yet, but personal id number is filled from beginning
         let personal_id_number = EncryptedString::from(application.personal_id_number.clone())
             .decrypt(&admin_private_key)
             .await?;
-
-        let recipients = get_recipients(db, &pubkey).await?;
+        
+        let applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+        let mut recipients = vec![]; 
+        let mut admin_public_keys = Query::get_all_admin_public_keys(db).await?;
+        recipients.append(&mut admin_public_keys);
+        recipients.append(&mut applications.iter().map(|a| a.public_key.to_owned()).collect());
         
         let dec_details = EncryptedApplicationDetails::from((&candidate, parents.clone()))
             .decrypt(admin_private_key).await?;
+
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
+
+        let candidate = Mutation::update_personal_id(db,
+            candidate,
+            &enc_details.candidate.personal_id_number.to_owned()
+                .ok_or(ServiceError::CandidateDetailsNotSet)?.to_string()
+        ).await?;
 
         Mutation::update_candidate_details(db, 
             candidate,
