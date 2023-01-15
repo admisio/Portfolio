@@ -82,7 +82,12 @@ pub async fn whoami(conn: Connection<'_, Db>, session: ApplicationAuth) -> Resul
         .await.map_err(to_custom_error)?; // TODO more compact
     let applications = Query::find_applications_by_candidate_id(&db, candidate.id)
         .await.map_err(|e| to_custom_error(ServiceError::DbError(e)))?; 
-    let response = NewCandidateResponse::from_encrypted(applications, &private_key, candidate).await
+    let response = NewCandidateResponse::from_encrypted(
+        application.id,
+        applications,
+        &private_key,
+        candidate
+    ).await
         .map_err(to_custom_error)?;
 
     Ok(Json(response))

@@ -1,18 +1,24 @@
 use chrono::NaiveDate;
-use entity::{candidate, application};
+use entity::{application, candidate};
 use sea_orm::FromQueryResult;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{error::ServiceError, database::query::candidate::CandidateResult, services::portfolio_service::SubmissionProgress};
+use crate::{
+    database::query::candidate::CandidateResult, error::ServiceError,
+    services::portfolio_service::SubmissionProgress,
+};
 
-use super::candidate_details::EncryptedString;
+use super::candidate_details::{EncryptedString, EncryptedCandidateDetails};
 
 /// Minimal candidate response containing database only not null fields
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NewCandidateResponse {
+    pub current_application: i32,
     pub applications: Vec<i32>,
     pub personal_id_number: String,
+    pub details_filled: bool,
+    pub encrypted_by: Option<i32>,
 }
 
 /// Create candidate (admin endpoint)
@@ -103,15 +109,25 @@ pub struct Row {
 }
 
 impl NewCandidateResponse {
-    pub async fn from_encrypted(applications: Vec<application::Model>, private_key: &String, c: candidate::Model) -> Result<Self, ServiceError> {
-        let id_number = EncryptedString::from(c.personal_identification_number).decrypt(private_key).await?;
+    pub async fn from_encrypted(
+        current_application: i32,
+        applications: Vec<application::Model>,
+        private_key: &String,
+        c: candidate::Model,
+    ) -> Result<Self, ServiceError> {
+        let id_number = EncryptedString::from(c.personal_identification_number.to_owned())
+            .decrypt(private_key)
+            .await?;
         let applications = applications.iter().map(|a| a.id).collect();
-        Ok(
-            Self {
-                applications,
-                personal_id_number: id_number,
-            }
-        )
+        let encrypted_details = EncryptedCandidateDetails::from(&c);
+
+        Ok(Self {
+            current_application,
+            applications,
+            personal_id_number: id_number,
+            details_filled: encrypted_details.is_filled(),
+            encrypted_by: c.encrypted_by_id,
+        })
     }
 }
 
@@ -121,21 +137,31 @@ impl BaseCandidateResponse {
         c: CandidateResult,
         progress: Option<SubmissionProgress>,
     ) -> Result<Self, ServiceError> {
-        let name = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key).await?;
-        let surname = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.surname).ok(), private_key).await?;
-        let email = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key).await?;
-        let telephone = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.telephone).ok(), private_key).await?;
-
-        Ok(
-            Self {
-                application_id: c.application,
-                name: name.unwrap_or_default(),
-                surname: surname.unwrap_or_default(),
-                email: email.unwrap_or_default(),
-                telephone:  telephone.unwrap_or_default(),
-                study: c.study.unwrap_or_default(),
-                progress: progress.unwrap_or(SubmissionProgress::NoneInCache),
-            }
+        let name =
+            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key)
+                .await?;
+        let surname = EncryptedString::decrypt_option(
+            &EncryptedString::try_from(&c.surname).ok(),
+            private_key,
         )
+        .await?;
+        let email =
+            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key)
+                .await?;
+        let telephone = EncryptedString::decrypt_option(
+            &EncryptedString::try_from(&c.telephone).ok(),
+            private_key,
+        )
+        .await?;
+
+        Ok(Self {
+            application_id: c.application,
+            name: name.unwrap_or_default(),
+            surname: surname.unwrap_or_default(),
+            email: email.unwrap_or_default(),
+            telephone: telephone.unwrap_or_default(),
+            study: c.study.unwrap_or_default(),
+            progress: progress.unwrap_or(SubmissionProgress::NoneInCache),
+        })
     }
 }
