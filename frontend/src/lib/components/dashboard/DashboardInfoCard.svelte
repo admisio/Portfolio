@@ -66,13 +66,13 @@
 	};
 
 	const getField = (id: number) => {
-		if (id.toString().startsWith("101")) {
+		if (id.toString().startsWith('101')) {
 			return 'G';
-		 } else if (id.toString().startsWith("102")) {
+		} else if (id.toString().startsWith('102')) {
 			return 'IT';
-		 } else  {
+		} else {
 			return 'KB';
-		 }
+		}
 	};
 
 	const editDetails = async () => {
@@ -155,7 +155,7 @@
 						>
 						{#if $baseCandidateData.applications.length > 1}
 							<span
-								>Ev. č. přihlášky ({getField($baseCandidateData.applications[1])}): 
+								>Ev. č. přihlášky ({getField($baseCandidateData.applications[1])}):
 								<span class="font-bold">{$baseCandidateData.applications[1]}</span></span
 							>
 						{/if}
@@ -173,9 +173,17 @@
 								>{$candidateData.candidate.personalIdNumber}</span
 							></span
 						>
-						<span>IČO/Název školy: <span class="font-bold">{$candidateData.candidate.schoolName}</span></span>
-						<span>Číslo zdravotní pojišťovny: <span class="font-bold">{$candidateData.candidate.healthInsurance}</span></span>
-						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span>
+						<span
+							>IČO/Název školy: <span class="font-bold">{$candidateData.candidate.schoolName}</span
+							></span
+						>
+						<span
+							>Číslo zdravotní pojišťovny: <span class="font-bold"
+								>{$candidateData.candidate.healthInsurance}</span
+							></span
+						>
+						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
+						>
 					</div>
 					<div
 						use:tippy={{

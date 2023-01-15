@@ -1,5 +1,10 @@
 import axios, { type AxiosProgressEvent } from 'axios';
-import type { BaseCandidate, CandidateData, CandidateLogin, CreateCandidate } from '$lib/stores/candidate';
+import type {
+	BaseCandidate,
+	CandidateData,
+	CandidateLogin,
+	CreateCandidate
+} from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
 import DOMPurify from 'isomorphic-dompurify';

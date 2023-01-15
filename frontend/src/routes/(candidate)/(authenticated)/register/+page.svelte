@@ -38,9 +38,6 @@
 	let details = data.candidate;
 	let baseCandidateDetails = data.whoami;
 
-	let detailsFilledByAnotherAccount = baseCandidateDetails.encryptedBy !== null &&
-		 baseCandidateDetails.currentApplication !== baseCandidateDetails.encryptedBy;
-
 	const formInitialValues = {
 		gdpr: false,
 		linkOk: false,
@@ -61,7 +58,7 @@
 			citizenship: '',
 			personalIdNumber: '',
 			schoolName: '',
-			healthInsurance: '',
+			healthInsurance: ''
 		},
 		parents: [
 			{
@@ -108,7 +105,7 @@
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
 			schoolName: yup.string().required(),
-			healthInsurance: yup.number().required(),
+			healthInsurance: yup.number().required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -251,7 +248,7 @@
 				let addressArray: Array<string> = [values.candidate.street + ' ' + values.candidate.houseNumber, values.candidate.city, values.candidate.zip];
 				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
 				// @ts-ignore
-				delete values.candidate.street;delete values.candidate.houseNumber;delete values.candidate.city;delete values.candidate.zip;
+				delete values.candidate.street; delete values.candidate.houseNumber; delete values.candidate.city; delete values.candidate.zip;
 
 				await apiFillDetails(values);
 				goto('/dashboard');
@@ -397,8 +394,8 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">Propojení účtů</h1>
 					<p class="description mt-8 block text-center">
-						Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě přihlášky. 
-						Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
+						Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě
+						přihlášky. Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
 					</p>
 					<div class="field">
 						<AccountLinkCheckBox
@@ -468,16 +465,16 @@
 					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
 					přijímací řízení. Všechny údaje jsou důležité.
 				</p>
-				<div class="flex field">
+				<div class="field flex">
 					<span class="w-[66%]">
 						<NameField
-							error={$typedErrors['candidate']['street'] || $typedErrors['candidate']['houseNumber']}
+							error={$typedErrors['candidate']['street'] ||
+								$typedErrors['candidate']['houseNumber']}
 							on:change={handleChange}
 							bind:valueName={$form.candidate.street}
 							bind:valueSurname={$form.candidate.houseNumber}
 							placeholder="Ulice a č. p."
 							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
-							
 						/>
 					</span>
 					<span class="ml-2 w-[33%]">
@@ -491,7 +488,7 @@
 						/>
 					</span>
 				</div>
-				<div class="flex field">
+				<div class="field flex">
 					<span>
 						<TextField
 							error={$typedErrors['candidate']['city']}
@@ -619,7 +616,6 @@
 						/>
 					</span>
 					<div class="field flex flex-row">
-						
 						<span>
 							{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
 								<TextField
@@ -639,7 +635,7 @@
 								/>
 							{/if}
 						</span>
-		
+
 						<span class="ml-2">
 							<TextField
 								error={$typedErrors['candidate']['healthInsurance']}
@@ -649,7 +645,6 @@
 								placeholder="Číslo zdravotní pojišťovny"
 							/>
 						</span>
-
 					</div>
 				</div>
 				<div class="field flex items-center justify-center">
