@@ -386,9 +386,12 @@
 	<SvelteToast />
 	<div class="form relative">
 		<div class="bottom-3/12 absolute flex w-full flex-col md:h-auto">
-			<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
-				<SchoolBadge />
-			</div>
+			<!-- TODO: Find different way how to display SchoolBadge -->
+			{#if pageIndex > 0}
+				<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
+					<SchoolBadge />
+				</div>
+			{/if}
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
