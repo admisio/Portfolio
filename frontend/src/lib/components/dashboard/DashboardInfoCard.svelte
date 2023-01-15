@@ -159,7 +159,6 @@
 								<span class="font-bold">{$baseCandidateData.applications[1]}</span></span
 							>
 						{/if}
-						<span>Obor: <span class="font-bold">{$candidateData.candidate.study}</span></span>
 						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span
 							>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
