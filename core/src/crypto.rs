@@ -5,7 +5,7 @@ use argon2::{
 };
 use async_compat::CompatExt;
 use base64::Engine;
-use base64::engine::general_purpose;
+use base64::engine::general_purpose::STANDARD as base64;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
 use secrecy::ExposeSecret;
@@ -125,14 +125,14 @@ pub async fn encrypt_password(
     })
     .await??;
 
-    Ok(general_purpose::STANDARD.encode(hash))
+    Ok(base64.encode(hash))
 }
 
 pub async fn decrypt_password(
     password_cipher_text: String,
     key: String,
 ) -> Result<String, ServiceError> {
-    let input = general_purpose::STANDARD.decode(password_cipher_text)?;
+    let input = base64.decode(password_cipher_text)?;
     let plain = tokio::task::spawn_blocking(move || {
         let aes_key_nonce = convert_key_aes256(&key);
 
@@ -166,7 +166,7 @@ pub async fn encrypt_password_age(
 
     encrypt_writer.close().await?;
 
-    Ok(general_purpose::STANDARD.encode(encrypt_buffer))
+    Ok(base64.encode(encrypt_buffer))
 }
 
 #[deprecated(note = "Too slow, use AES instead")]
@@ -174,7 +174,7 @@ pub async fn decrypt_password_age(
     password_encrypted: &str,
     key: &str,
 ) -> Result<String, ServiceError> {
-    let encrypted = general_purpose::STANDARD.decode(password_encrypted)?;
+    let encrypted = base64.decode(password_encrypted)?;
 
     let decryptor = match age::Decryptor::new_async(&encrypted[..]).await? {
         age::Decryptor::Passphrase(d) => d,
@@ -265,14 +265,14 @@ pub async fn encrypt_password_with_recipients(
     )
     .await?;
 
-    Ok(general_purpose::STANDARD.encode(encrypt_buffer))
+    Ok(base64.encode(encrypt_buffer))
 }
 
 pub async fn decrypt_password_with_private_key(
     password_encrypted: &str,
     key: &str,
 ) -> Result<String, ServiceError> {
-    let encrypted = general_purpose::STANDARD.decode(password_encrypted)?;
+    let encrypted = base64.decode(password_encrypted)?;
 
     let mut decrypt_buffer = Vec::new();
 
@@ -340,7 +340,8 @@ pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
 
 #[cfg(test)]
 mod tests {
-    use base64::{engine::general_purpose, Engine};
+    use base64::Engine;
+    use base64::engine::general_purpose::STANDARD as base64;
 
     #[test]
     fn test_random_12_char_string() {
@@ -410,7 +411,7 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(general_purpose::STANDARD.decode(encrypted).is_ok());
+        assert!(base64.decode(encrypted).is_ok());
     }
 
     #[tokio::test]
@@ -437,7 +438,7 @@ mod tests {
         #[allow(deprecated)]
         let encrypted = super::encrypt_password_age(PASSWORD, KEY).await.unwrap();
 
-        assert!(general_purpose::STANDARD.decode(encrypted).is_ok());
+        assert!(base64.decode(encrypted).is_ok());
     }
 
     #[tokio::test]
@@ -470,7 +471,7 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(general_purpose::STANDARD.decode(encrypted).is_ok());
+        assert!(base64.decode(encrypted).is_ok());
     }
 
     #[tokio::test]
@@ -484,7 +485,7 @@ mod tests {
                 .await
                 .unwrap();
 
-        assert!(general_purpose::STANDARD.decode(encrypted).is_ok());
+        assert!(base64.decode(encrypted).is_ok());
     }
 
     #[tokio::test]
