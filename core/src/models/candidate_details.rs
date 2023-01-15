@@ -193,7 +193,7 @@ impl EncryptedCandidateDetails {
         self.telephone.is_some() &&
         self.citizenship.is_some() &&
         self.email.is_some() &&
-        self.sex.is_some() &&
+        // self.sex.is_some() &&
         self.personal_id_number.is_some()
     }
 }
