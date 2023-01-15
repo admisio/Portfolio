@@ -31,19 +31,6 @@ pub struct CreateCandidateResponse {
     pub password: String,
 }
 
-/// List candidates (admin endpoint)
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BaseCandidateResponse {
-    pub application_id: i32,
-    pub name: String,
-    pub surname: String,
-    pub email: String,
-    pub telephone: String,
-    pub study: String,
-    pub progress: SubmissionProgress,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CandidateDetails {
@@ -127,41 +114,6 @@ impl NewCandidateResponse {
             personal_id_number: id_number,
             details_filled: encrypted_details.is_filled(),
             encrypted_by: c.encrypted_by_id,
-        })
-    }
-}
-
-impl BaseCandidateResponse {
-    pub async fn from_encrypted(
-        private_key: &String,
-        c: CandidateResult,
-        progress: Option<SubmissionProgress>,
-    ) -> Result<Self, ServiceError> {
-        let name =
-            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key)
-                .await?;
-        let surname = EncryptedString::decrypt_option(
-            &EncryptedString::try_from(&c.surname).ok(),
-            private_key,
-        )
-        .await?;
-        let email =
-            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key)
-                .await?;
-        let telephone = EncryptedString::decrypt_option(
-            &EncryptedString::try_from(&c.telephone).ok(),
-            private_key,
-        )
-        .await?;
-
-        Ok(Self {
-            application_id: c.application,
-            name: name.unwrap_or_default(),
-            surname: surname.unwrap_or_default(),
-            email: email.unwrap_or_default(),
-            telephone: telephone.unwrap_or_default(),
-            study: c.study.unwrap_or_default(),
-            progress: progress.unwrap_or(SubmissionProgress::NoneInCache),
         })
     }
 }
