@@ -43,21 +43,6 @@ impl Mutation {
         Ok(delete)
     }
 
-    pub async fn update_candidate_fk(
-        db: &DbConn,
-        application: application::Model,
-        candidate_id: i32,
-    ) -> Result<application::Model, DbErr> {
-        let application_id = application.id;
-        let mut application = application.into_active_model();
-        application.candidate_id = Set(candidate_id);
-
-        let update = application.update(db).await?;
-
-        warn!("CANDIDATE {} FK UPDATED", application_id);
-        Ok(update)
-    }
-
     pub async fn update_application_password_and_keys(
         db: &DbConn,
         application: application::Model,
