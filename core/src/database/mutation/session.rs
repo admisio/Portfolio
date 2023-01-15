@@ -14,7 +14,7 @@ impl Mutation {
     ) -> Result<session::Model, DbErr> {
         session::ActiveModel {
             id: Set(random_uuid),
-            candidate_id: Set(Some(candidate_id)),
+            candidate_id: Set(candidate_id),
             ip_address: Set(ip_addr),
             created_at: Set(Utc::now().naive_local()),
             expires_at: Set(Utc::now()

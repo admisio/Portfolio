@@ -56,7 +56,7 @@ impl AuthenticableTrait for AdminService {
             return Err(ServiceError::ExpiredSession);
         }
 
-        let admin = Query::find_admin_by_id(db, session.admin_id.unwrap())
+        let admin = Query::find_admin_by_id(db, session.admin_id)
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 

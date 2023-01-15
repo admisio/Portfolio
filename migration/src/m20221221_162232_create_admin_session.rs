@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(AdminSession::AdminId).integer())
+                    .col(ColumnDef::new(AdminSession::AdminId).integer().not_null())
                     .col(ColumnDef::new(AdminSession::IpAddress).string().not_null())
                     .col(ColumnDef::new(AdminSession::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(AdminSession::ExpiresAt).date_time().not_null())

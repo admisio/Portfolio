@@ -75,7 +75,7 @@ mod tests {
 
         session::ActiveModel {
             id: Set(Uuid::new_v4()),
-            candidate_id: Set(Some(application.id)),
+            candidate_id: Set(application.id),
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
@@ -104,7 +104,7 @@ mod tests {
 
         admin_session::ActiveModel {
             id: Set(Uuid::new_v4()),
-            admin_id: Set(Some(ADMIN_ID)),
+            admin_id: Set(ADMIN_ID),
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),

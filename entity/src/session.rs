@@ -9,7 +9,7 @@ use crate::session_trait::UserSession;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub candidate_id: Option<i32>,
+    pub candidate_id: i32,
     pub ip_address: String,
     pub created_at: DateTime,
     pub expires_at: DateTime,

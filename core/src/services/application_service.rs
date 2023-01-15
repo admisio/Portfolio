@@ -373,7 +373,7 @@ impl AuthenticableTrait for ApplicationService {
 
         Self::extend_session_duration_to_14_days(db, session.clone()).await?;
 
-        let application = Query::find_application_by_id(db, session.candidate_id.unwrap())
+        let application = Query::find_application_by_id(db, session.candidate_id)
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
