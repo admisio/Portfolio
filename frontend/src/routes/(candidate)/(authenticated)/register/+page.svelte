@@ -62,7 +62,6 @@
 			personalIdNumber: '',
 			schoolName: '',
 			healthInsurance: '',
-			study: ''
 		},
 		parents: [
 			{
@@ -110,7 +109,6 @@
 			personalIdNumber: yup.string().required(),
 			schoolName: yup.string().required(),
 			healthInsurance: yup.number().required(),
-			study: yup.string().required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -332,8 +330,7 @@
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
 					$typedErrors['candidate']['schoolName'] ||
-					$typedErrors['candidate']['healthInsurance'] ||
-					$typedErrors['candidate']['study'] 
+					$typedErrors['candidate']['healthInsurance']
 				) {
 					return true;
 				}
@@ -640,7 +637,7 @@
 							{/if}
 						</span>
 		
-						<span>
+						<span class="ml-2">
 							<TextField
 								error={$typedErrors['candidate']['healthInsurance']}
 								on:change={handleChange}
@@ -668,15 +665,6 @@
 							placeholder="Rodné číslo"
 						/>
 					{/if}
-					<span class="ml-2">
-						<SelectField
-							error={$typedErrors['candidate']['study']}
-							on:change={handleChange}
-							bind:value={$form.candidate.study}
-							placeholder="Obor"
-							options={['KB', 'IT', 'G']}
-						/>
-					</span>
 				</div>
 			{/if}
 		</div>
