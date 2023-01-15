@@ -195,8 +195,7 @@ impl ApplicationService {
         candidate: candidate::Model,
         form: &ApplicationDetails,
     ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
-
-        let mut recipients = get_recipients(db, &application.public_key).await?;
+        let mut recipients = Query::get_all_admin_public_keys(db).await?;
         let applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
         recipients.append(&mut applications.iter().map(|a| a.public_key.to_owned()).collect());
 

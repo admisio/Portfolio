@@ -297,12 +297,13 @@ impl PortfolioService {
         archive.shutdown().await?;
 
         let applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate_id)
-            .await?.iter().map(|a| a.public_key.to_owned()).collect();
+            .await?
+            .iter()
+            .map(|a| a.public_key.to_owned()).collect();
         let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
-        let mut admin_public_keys_refrence: Vec<&str> = admin_public_keys.iter().map(|s| &**s).collect();
 
         let mut recipients = vec![];
-        recipients.append(&mut admin_public_keys_refrence);
+        recipients.append(&mut admin_public_keys.iter().map(|s| &**s).collect());
         recipients.append(&mut applications_pubkeys.iter().map(|s| &**s).collect());
 
         let final_path = path.join(FileType::PortfolioZip.as_str());
