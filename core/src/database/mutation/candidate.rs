@@ -51,7 +51,7 @@ impl Mutation {
         candidate.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
         candidate.email = Set(enc_candidate.email.map(|e| e.into()));
         candidate.sex = Set(enc_candidate.sex.map(|e| e.into()));
-        candidate.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
+        // candidate.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
         candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
         candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
         candidate.encrypted_by_id = Set(Some(encrypted_by_id));
