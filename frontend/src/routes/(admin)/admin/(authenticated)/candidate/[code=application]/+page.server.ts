@@ -17,7 +17,6 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 			citizenship: '',
 			email: '',
 			sex: '',
-			study: '',
 			personalIdNumber: '',
 			schoolName: '',
 			healthInsurance: ''

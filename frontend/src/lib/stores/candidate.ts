@@ -11,7 +11,6 @@ export interface CandidateData {
 		citizenship: string;
 		email: string;
 		sex: string;
-		study: string;
 		personalIdNumber: string;
 		schoolName: string;
 		healthInsurance: string;
@@ -71,7 +70,6 @@ export const candidateData = writable<CandidateData>({
 		citizenship: '',
 		email: '',
 		sex: '',
-		study: '',
 		personalIdNumber: '',
 		schoolName: '',
 		healthInsurance: ''
