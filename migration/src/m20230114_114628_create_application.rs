@@ -17,6 +17,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Application::FieldOfStudy).string().not_null())
                     .col(ColumnDef::new(Application::CandidateId).integer().not_null())
                     .col(ColumnDef::new(Application::Password).string().not_null())
                     .col(ColumnDef::new(Application::PublicKey).string().not_null())
@@ -51,6 +52,7 @@ impl MigrationTrait for Migration {
 pub enum Application {
     Table,
     Id,
+    FieldOfStudy,
     Password,
     PersonalIdNumber,
     PublicKey,

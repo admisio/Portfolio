@@ -79,12 +79,12 @@ pub mod tests {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
         let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
-        let candidates = ApplicationService::list_applications(&private_key, &db).await.unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = ApplicationService::list_applications(&private_key, &db).await.unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db, None, None).await.unwrap();
         assert_eq!(candidates.len(), 1);
     }
 

@@ -100,11 +100,11 @@ impl ApplicationService {
             .filter(|(_, id)| id == &personal_id_number)
             .collect();
             
-        if found_ids.iter().any(|(_, personal_id)| personal_id == &personal_id_number) {
+        if let Some((candidate_id, _)) = found_ids.first() {
             Ok(
                 Self::find_linkable_candidate(db, 
                     application_id,
-                    found_ids[0].0,
+                    *candidate_id,
                     personal_id_number
                 ).await?
             )
@@ -230,8 +230,11 @@ impl ApplicationService {
     pub async fn list_applications(
         private_key: &String,
         db: &DbConn,
+        field_of_study: Option<String>,
+        page: Option<u64>,
+
     ) -> Result<Vec<ApplicationResponse>, ServiceError> {
-        let applications = Query::list_applications(db).await?;
+        let applications = Query::list_applications(db, field_of_study, page).await?;
 
         futures::future::try_join_all(
             applications

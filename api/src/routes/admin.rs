@@ -123,10 +123,9 @@ pub async fn list_candidates(
         if !(field == "KB".to_string() || field == "IT".to_string() || field == "G") {
             return Err(Custom(Status::BadRequest, "Invalid field of study".to_string()));
         }
-
     }
 
-    let candidates = ApplicationService::list_applications(&private_key, db)
+    let candidates = ApplicationService::list_applications(&private_key, db, field, page)
         .await.map_err(to_custom_error)?;
 
     Ok(

@@ -8,6 +8,33 @@ use crate::{
 
 use super::candidate_details::{EncryptedString, EncryptedCandidateDetails};
 
+pub enum FieldOfStudy {
+    G,
+    IT,
+    KB,
+}
+
+impl Into<String> for FieldOfStudy {
+    fn into(self) -> String {
+        match self {
+            FieldOfStudy::G => "G".to_string(),
+            FieldOfStudy::IT => "IT".to_string(),
+            FieldOfStudy::KB => "KB".to_string(),
+        }
+    }
+}
+
+impl From<i32> for FieldOfStudy {
+    fn from(id: i32) -> Self {
+        match &id.to_string().as_str()[0..3] {
+            "101" => FieldOfStudy::G,
+            "102" => FieldOfStudy::IT,
+            "103" => FieldOfStudy::KB,
+            _ => panic!("Invalid field of study id"), // TODO: handle using TryFrom
+        }
+    }
+}
+
 /// Minimal candidate response containing database only not null fields
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

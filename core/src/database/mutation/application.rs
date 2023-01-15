@@ -2,7 +2,7 @@ use ::entity::application;
 use log::{info, warn};
 use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, IntoActiveModel, DeleteResult, ModelTrait};
 
-use crate::Mutation;
+use crate::{Mutation, models::candidate::FieldOfStudy};
 
 impl Mutation {
     pub async fn create_application(
@@ -14,8 +14,10 @@ impl Mutation {
         pubkey: String,
         encrypted_priv_key: String,
     ) -> Result<application::Model, DbErr> {
+        let field_of_study = FieldOfStudy::from(application_id);
         let insert = application::ActiveModel {
             id: Set(application_id),
+            field_of_study: Set(field_of_study.into()),
             personal_id_number: Set(enc_personal_id_number),
             password: Set(hashed_password),
             candidate_id: Set(candidate_id),
@@ -23,7 +25,6 @@ impl Mutation {
             private_key: Set(encrypted_priv_key),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
-            ..Default::default()
         }
             .insert(db)
             .await?;
