@@ -4,7 +4,7 @@ use sea_orm::DbConn;
 use crate::{
     models::{candidate_details::EncryptedCandidateDetails, candidate::CandidateDetails},
     error::ServiceError,
-    Mutation, Query, models::candidate::BaseCandidateResponse,
+    Mutation,
 };
 
 use super::{portfolio_service::PortfolioService};
@@ -27,7 +27,7 @@ impl CandidateService {
         )
             .await?;
         
-        PortfolioService::create_user_dir(candidate.id).await?;
+        // PortfolioService::create_user_dir(candidate.id).await?;
 
             
         Ok(candidate)

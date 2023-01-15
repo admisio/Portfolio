@@ -5,7 +5,7 @@ use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
 use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::{EncryptedApplicationDetails}, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
-use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService};
+use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::PortfolioService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -63,6 +63,8 @@ impl ApplicationService {
             pubkey,
             encrypted_priv_key,
         ).await?;
+
+        PortfolioService::create_user_dir(application.id).await?;
             
         Ok(application)
     }
@@ -169,7 +171,11 @@ impl ApplicationService {
         form: &ApplicationDetails,
     ) -> Result<(candidate::Model, Vec<parent::Model>), ServiceError> {
 
-        let recipients = get_recipients(db, &application.public_key).await?;
+        let mut recipients = get_recipients(db, &application.public_key).await?;
+        let applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+        recipients.append(&mut applications.iter().map(|a| a.public_key.to_owned()).collect());
+
+
         let candidate = CandidateService::add_candidate_details(db, candidate, &form.candidate, &recipients, application.id).await?;
         let parents = ParentService::add_parents_details(db, &candidate, &form.parents, &recipients).await?;
         Ok(
@@ -188,9 +194,9 @@ impl ApplicationService {
     ) -> Result<ApplicationDetails, ServiceError>  {
         let candidate = ApplicationService::find_related_candidate(db, application).await?;
 
-        if restrict_access && candidate.encrypted_by_id.is_some() && candidate.encrypted_by_id != Some(application.id) {
+        /* if restrict_access && candidate.encrypted_by_id.is_some() && candidate.encrypted_by_id != Some(application.id) {
             return Err(ServiceError::Locked)
-        }
+        } */
 
         let parents = Query::find_candidate_parents(db, &candidate).await?;
         let enc_details = EncryptedApplicationDetails::from((&candidate, parents));
