@@ -3,9 +3,9 @@ use chrono::NaiveDate;
 use entity::{candidate, parent};
 use futures::future;
 
-use crate::{crypto, models::candidate::{Row, ApplicationDetails}, error::ServiceError};
+use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError};
 
-use super::candidate::{CandidateDetails, ParentDetails};
+use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -331,11 +331,11 @@ impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetai
     }
 }
 
-impl TryFrom<Row> for EncryptedApplicationDetails {
+impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        cp: Row,
+        cp: ApplicationRow,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails {

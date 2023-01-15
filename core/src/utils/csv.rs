@@ -1,7 +1,12 @@
-use sea_orm::{DbConn};
-use crate::{error::ServiceError, models::candidate_details::{EncryptedApplicationDetails}, Query, models::candidate::{Row, ApplicationDetails}};
+use crate::{
+    error::ServiceError,
+    models::candidate_details::EncryptedApplicationDetails,
+    models::{application::ApplicationRow, candidate::ApplicationDetails},
+    Query, services::application_service::ApplicationService,
+};
+use sea_orm::DbConn;
 
-impl From<(i32, ApplicationDetails)> for Row {
+impl From<(i32, ApplicationDetails)> for ApplicationRow {
     fn from((application, d): (i32, ApplicationDetails)) -> Self {
         let c = d.candidate;
         Self {
@@ -15,7 +20,6 @@ impl From<(i32, ApplicationDetails)> for Row {
             citizenship: Some(c.citizenship),
             email: Some(c.email),
             sex: Some(c.sex),
-            study: Some("TODO".to_string()),
             health_insurance: Some(c.health_insurance),
             school_name: Some(c.school_name),
             personal_identification_number: Some(c.personal_id_number),
@@ -33,33 +37,29 @@ impl From<(i32, ApplicationDetails)> for Row {
     }
 }
 
-pub async fn export(
-    db: &DbConn,
-    private_key: String,
-) -> Result<Vec<u8>, ServiceError> {
+pub async fn export(db: &DbConn, private_key: String) -> Result<Vec<u8>, ServiceError> {
     let mut wtr = csv::Writer::from_writer(vec![]);
 
-    let candidates_with_parents = Query::list_candidates_full(&db).await?;
-    for candidate in candidates_with_parents {
-        let application = candidate.id;
+    let applications = Query::list_applications_compact(&db).await?;
+    for application in applications {
+        let candidate = ApplicationService::find_related_candidate(db, &application).await?;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
-        let row: Row = match EncryptedApplicationDetails::try_from((&candidate, parents)) {
-            Ok(d) => Row::from(
-                d
-                    .decrypt(private_key.to_string())
+        let row: ApplicationRow = match EncryptedApplicationDetails::try_from((&candidate, parents))
+        {
+            Ok(d) => ApplicationRow::from(
+                d.decrypt(private_key.to_string())
                     .await
-                    .map(|d| (application, d))?
+                    .map(|d| (application.id, d))?,
             ),
 
-            Err(_) => Row {
-                application,
+            Err(_) => ApplicationRow {
+                application: application.id,
                 ..Default::default()
-            }
+            },
         };
         wtr.serialize(row)?;
     }
-    wtr
-        .into_inner()
+    wtr.into_inner()
         .map_err(|_| ServiceError::CsvIntoInnerError)
 }

@@ -51,6 +51,15 @@ impl Query {
             .await
     }
 
+    pub async fn list_applications_compact(
+        db: &DbConn,
+    ) -> Result<Vec<application::Model>, DbErr> {
+        application::Entity::find()
+            .join(JoinType::InnerJoin, application::Relation::Candidate.def())
+            .all(db)
+            .await
+    }
+
     pub async fn find_applications_by_candidate_id(
         db: &DbConn,
         candidate_id: i32,

@@ -38,3 +38,32 @@ impl ApplicationResponse {
         )
     }
 }
+
+/// CSV export (admin endpoint)
+#[derive(Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationRow {
+    pub application: i32,
+    pub name: Option<String>,
+    pub surname: Option<String>,
+    pub birthplace: Option<String>,
+    pub birthdate: Option<String>,
+    pub address: Option<String>,
+    pub telephone: Option<String>,
+    pub citizenship: Option<String>,
+    pub email: Option<String>,
+    pub sex: Option<String>,
+    pub personal_identification_number: Option<String>,
+    pub school_name: Option<String>,
+    pub health_insurance: Option<String>,
+
+    pub parent_name: Option<String>,
+    pub parent_surname: Option<String>,
+    pub parent_telephone: Option<String>,
+    pub parent_email: Option<String>,
+
+    pub second_parent_name: Option<String>,
+    pub second_parent_surname: Option<String>,
+    pub second_parent_telephone: Option<String>,
+    pub second_parent_email: Option<String>,
+}
