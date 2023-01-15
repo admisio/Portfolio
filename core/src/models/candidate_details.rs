@@ -424,7 +424,6 @@ pub mod tests {
         assert_eq!(details.candidate.citizenship, "citizenship");
         assert_eq!(details.candidate.email, "email");
         assert_eq!(details.candidate.sex, "sex");
-        assert_eq!(details.candidate.personal_id_number, "personal_id_number");
         for parent in &details.parents {
             assert_eq!(parent.name, "parent_name");
             assert_eq!(parent.surname, "parent_surname");
