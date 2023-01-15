@@ -1,6 +1,6 @@
 use ::entity::application;
 use log::{info, warn};
-use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, IntoActiveModel};
+use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, IntoActiveModel, DeleteResult, ModelTrait};
 
 use crate::Mutation;
 
@@ -30,6 +30,17 @@ impl Mutation {
 
         info!("APPLICATION {} CREATED", application_id);
         Ok(insert)
+    }
+
+    pub async fn delete_application(
+        db: &DbConn,
+        application: application::Model,
+    ) -> Result<DeleteResult, DbErr> {
+        let application_id = application.id;
+        let delete = application.delete(db).await?;
+
+        warn!("APPLICATION {} DELETED", application_id);
+        Ok(delete)
     }
 
     pub async fn update_candidate_fk(

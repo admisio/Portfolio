@@ -192,11 +192,16 @@ pub async fn delete_candidate(
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
     let candidate = ApplicationService::find_related_candidate(db, &application).await.map_err(to_custom_error)?;
 
-    // TODO
+    ApplicationService::delete(db, application).await.map_err(to_custom_error)?;
+
+    let remaining_applications = Query::find_applications_by_candidate_id(db, candidate.id).await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?;
+
+    if remaining_applications.is_empty() {
+        CandidateService::delete_candidate(db, candidate).await.map_err(to_custom_error)?;
+    }
     
-    CandidateService::delete_candidate(db, candidate)
-        .await
-        .map_err(to_custom_error)
+    Ok(())
 }
 
 #[post("/candidate/<id>/reset_password")]

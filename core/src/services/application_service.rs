@@ -142,6 +142,11 @@ impl ApplicationService {
         }
     }
 
+    pub async fn delete(db: &DbConn, application: application::Model) -> Result<(), ServiceError> {
+        Mutation::delete_application(db, application).await?;
+        Ok(())
+    }
+
     fn is_application_id_valid(application_id: i32) -> bool {
         let s = &application_id.to_string();
         if s.len() <= 3 {
