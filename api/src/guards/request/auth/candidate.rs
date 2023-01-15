@@ -1,7 +1,7 @@
-use entity::candidate::Model as Candidate;
+use entity::application::Model as Application;
 use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::sea_orm::prelude::Uuid;
-use portfolio_core::services::candidate_service::CandidateService;
+use portfolio_core::services::application_service::ApplicationService;
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{FromRequest, Request};
@@ -9,26 +9,26 @@ use rocket::request::{FromRequest, Request};
 use crate::logging::format_request;
 use crate::pool::Db;
 
-pub struct CandidateAuth(Candidate, String);
+pub struct ApplicationAuth(Application, String);
 
-impl Into<Candidate> for CandidateAuth {
-    fn into(self) -> Candidate {
+impl Into<Application> for ApplicationAuth {
+    fn into(self) -> Application {
         self.0
     }
 }
 
-impl CandidateAuth {
+impl ApplicationAuth {
     pub fn get_private_key(&self) -> String {
         self.1.clone()
     }
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for CandidateAuth {
+impl<'r> FromRequest<'r> for ApplicationAuth {
     type Error = Option<String>;
     async fn from_request(
         req: &'r Request<'_>,
-    ) -> Outcome<CandidateAuth, (Status, Self::Error), ()> {
+    ) -> Outcome<ApplicationAuth, (Status, Self::Error), ()> {
         let cookie_id = req.cookies().get_private("id");
         let cookie_private_key = req.cookies().get_private("key");
 
@@ -50,12 +50,12 @@ impl<'r> FromRequest<'r> for CandidateAuth {
             Err(_) => return Outcome::Failure((Status::BadRequest, None)),
         };
 
-        let session = CandidateService::auth(conn, uuid).await;
+        let session = ApplicationService::auth(conn, uuid).await;
 
         match session {
             Ok(model) => {
-                info!("{}: CANDIDATE {} AUTHENTICATED", format_request(req), model.application);
-                Outcome::Success(CandidateAuth(model, private_key.to_string().to_string()))
+                info!("{}: CANDIDATE {} AUTHENTICATED", format_request(req), model.id);
+                Outcome::Success(ApplicationAuth(model, private_key.to_string().to_string()))
             },
             Err(e) => {
                 info!("{}: CANDIDATE {} AUTHENTICATION FAILED", format_request(req), e);

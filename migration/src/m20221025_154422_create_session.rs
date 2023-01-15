@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                             .unique_key()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Session::CandidateId).integer())
+                    .col(ColumnDef::new(Session::CandidateId).integer().not_null())
                     .col(ColumnDef::new(Session::IpAddress).string().not_null())
                     .col(ColumnDef::new(Session::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Session::ExpiresAt).date_time().not_null())

@@ -65,6 +65,16 @@
 		}
 	};
 
+	const getField = (id: number) => {
+		if (id.toString().startsWith("101")) {
+			return 'G';
+		 } else if (id.toString().startsWith("102")) {
+			return 'IT';
+		 } else  {
+			return 'KB';
+		 }
+	};
+
 	const editDetails = async () => {
 		goto('/register?edit=true');
 	};
@@ -140,9 +150,15 @@
 						class="mt-4 flex flex-col justify-between leading-10"
 					>
 						<span
-							>Ev. č. přihlášky: <span class="font-bold">{$baseCandidateData.applicationId}</span
-							></span
+							>Ev. č. přihlášky ({getField($baseCandidateData.applications[0])}):
+							<span class="font-bold">{$baseCandidateData.applications[0]}</span></span
 						>
+						{#if $baseCandidateData.applications.length > 1}
+							<span
+								>Ev. č. přihlášky ({getField($baseCandidateData.applications[1])}): 
+								<span class="font-bold">{$baseCandidateData.applications[1]}</span></span
+							>
+						{/if}
 						<span>Obor: <span class="font-bold">{$candidateData.candidate.study}</span></span>
 						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span

@@ -5,9 +5,8 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "candidate")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub application: i32,
-    pub code: String,
+    #[sea_orm(primary_key)]
+    pub id: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
     pub birth_surname: Option<String>,
@@ -18,27 +17,25 @@ pub struct Model {
     pub citizenship: Option<String>,
     pub email: Option<String>,
     pub sex: Option<String>,
-    pub study: Option<String>,
     pub personal_identification_number: String,
     pub school_name: Option<String>,
     pub health_insurance: Option<String>,
-    pub public_key: String,
-    pub private_key: String,
+    pub encrypted_by_id: Option<i32>,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::session::Entity")]
-    Session,
+    #[sea_orm(has_many = "super::application::Entity")]
+    Application,
     #[sea_orm(has_many = "super::parent::Entity")]
     Parent,
 }
 
-impl Related<super::session::Entity> for Entity {
+impl Related<super::application::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Session.def()
+        Relation::Application.def()
     }
 }
 

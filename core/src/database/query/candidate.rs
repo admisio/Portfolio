@@ -7,6 +7,12 @@ use crate::Query;
 pub const PAGE_SIZE: u64 = 20;
 
 #[derive(FromQueryResult)]
+pub struct IdPersonalIdNumberJoin {
+    pub id: i32,
+    pub personal_id_number: String,
+}
+
+#[derive(FromQueryResult)]
 pub struct ApplicationId {
     application: i32,
 }
@@ -38,35 +44,11 @@ impl Query {
             .await
     }
 
-    pub async fn list_candidates_preview(
-        db: &DbConn,
-        field_of_study_opt: Option<String>,
-        page: Option<u64>,
-    ) -> Result<Vec<CandidateResult>, DbErr> {
-        let select = Candidate::find();
-        let query = if let Some(study) = field_of_study_opt {
-           select.filter(candidate::Column::Study.eq(study)) 
-        } else {
-            select
-        }
-            .order_by(candidate::Column::Application, Order::Asc)
-            .into_model::<CandidateResult>();
-
-        if let Some(page) = page {
-            query
-                .paginate(db, PAGE_SIZE)
-                .fetch_page(page).await
-        } else {
-            query
-                .all(db).await
-        }
-    }
-
     pub async fn list_candidates_full(
         db: &DbConn
     ) -> Result<Vec<candidate::Model>, DbErr> {
         Candidate::find()
-            .order_by(candidate::Column::Application, Order::Asc)
+            .order_by(candidate::Column::Id, Order::Asc)
             .all(db)
             .await
     }
@@ -75,13 +57,22 @@ impl Query {
         db: &DbConn,
     ) -> Result<Vec<ApplicationId>, DbErr> {
         Candidate::find()
-            .order_by(candidate::Column::Application, Order::Asc)
-            .column(candidate::Column::Application)
+            .order_by(candidate::Column::Id, Order::Asc)
+            .column(candidate::Column::Id)
             .into_model::<ApplicationId>()
             .all(db)
             .await
     }
-    
+
+    pub async fn find_candidate_by_personal_id(
+        db: &DbConn,
+        personal_id: &str,
+    ) -> Result<Option<candidate::Model>, DbErr> {
+        Candidate::find()
+            .filter(candidate::Column::PersonalIdentificationNumber.eq(personal_id))
+            .one(db)
+            .await
+    }
 }
 
 #[cfg(test)]
@@ -97,10 +88,7 @@ mod tests {
     async fn test_find_candidate_by_id() {
         let db = get_memory_sqlite_connection().await;
         let candidate = candidate::ActiveModel {
-            application: Set(103158),
-            code: Set("test".to_string()),
-            public_key: Set("test".to_string()),
-            private_key: Set("test".to_string()),
+            id: Set(103158),
             personal_identification_number: Set("test".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
@@ -110,7 +98,7 @@ mod tests {
         .await
         .unwrap();
 
-        let candidate = Query::find_candidate_by_id(&db, candidate.application)
+        let candidate = Query::find_candidate_by_id(&db, candidate.id)
             .await
             .unwrap();
         assert!(candidate.is_some());

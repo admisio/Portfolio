@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(
-                        ColumnDef::new(Parent::Application)
+                        ColumnDef::new(Parent::CandidateId)
                             .integer()
                             .not_null()
                     )
@@ -45,7 +45,7 @@ impl MigrationTrait for Migration {
 pub enum Parent {
     Id,
     Table,
-    Application,
+    CandidateId,
     Name,
     Surname,
     Telephone,

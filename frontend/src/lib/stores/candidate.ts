@@ -41,13 +41,23 @@ export interface CreateCandidate {
 	personalIdNumber: string;
 }
 
+export interface BaseCandidate {
+	currentApplication: number;
+	applications: Array<number>;
+	personalIdNumber: string;
+	detailsFilled: boolean;
+	encryptedBy?: number;
+}
+
 export interface CreateCandidateLogin extends CreateCandidate {
 	password: string;
 }
 
-export const baseCandidateData = writable<CreateCandidate>({
-	applicationId: 0,
-	personalIdNumber: ''
+export const baseCandidateData = writable<BaseCandidate>({
+	currentApplication: 0,
+	applications: [],
+	personalIdNumber: '',
+	detailsFilled: false
 });
 
 export const candidateData = writable<CandidateData>({

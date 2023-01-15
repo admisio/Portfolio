@@ -1,6 +1,6 @@
 use sea_orm_migration::prelude::*;
 
-use crate::{m20221025_154422_create_session::Session, m20230114_114628_create_application::Application};
+use crate::{m20221024_121621_create_candidate::Candidate, m20230114_114628_create_application::Application};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -9,9 +9,9 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager.create_foreign_key(ForeignKey::create()
-            .name("user_fk")
-            .from(Session::Table, Session::CandidateId)
-            .to(Application::Table, Application::Id)
+            .name("candidate_fk")
+            .from(Application::Table, Application::CandidateId)
+            .to(Candidate::Table, Candidate::Id)
             .on_delete(ForeignKeyAction::Cascade)
             .on_update(ForeignKeyAction::Cascade)
             .to_owned()).await
@@ -19,8 +19,8 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager.drop_foreign_key(ForeignKey::drop()
-            .name("user_fk")
-            .table(Session::Table)
+            .name("candidate_fk")
+            .table(Application::Table)
             .to_owned()).await
     }
 }

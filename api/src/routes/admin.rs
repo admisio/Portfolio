@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_12_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{BaseCandidateResponse, CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
+    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -85,20 +85,16 @@ pub async fn hello(_session: AdminAuth) -> Result<String, Custom<String>> {
 #[post("/create", data = "<request>")]
 pub async fn create_candidate(
     conn: Connection<'_, Db>,
-    _session: AdminAuth,
+    session: AdminAuth,
     request: Json<RegisterRequest>,
 ) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
     let form = request.into_inner();
+    let private_key = session.get_private_key();
 
     let plain_text_password = random_12_char_string();
 
-    ApplicationService::create_candidate_with_parent(
-        db,
-        form.application_id,
-        &plain_text_password,
-        form.personal_id_number.clone(),
-    )
+    ApplicationService::create(&private_key, &db, form.application_id, &plain_text_password, form.personal_id_number.clone())
         .await
         .map_err(to_custom_error)?;
 
@@ -113,25 +109,24 @@ pub async fn create_candidate(
     )
 }
 
+#[allow(unused_variables)]
 #[get("/candidates?<field>&<page>")]
 pub async fn list_candidates(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     field: Option<String>,
-    page: Option<u64>,
-) -> Result<Json<Vec<BaseCandidateResponse>>, Custom<String>> {
+    page: Option<u64>, 
+) -> Result<Json<Vec<ApplicationResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     if let Some(field) = field.clone() {
         if !(field == "KB".to_string() || field == "IT".to_string() || field == "G") {
             return Err(Custom(Status::BadRequest, "Invalid field of study".to_string()));
         }
-
     }
 
-    let candidates = CandidateService::list_candidates(&private_key, db, field, page)
-        .await
-        .map_err(to_custom_error)?;
+    let candidates = ApplicationService::list_applications(&private_key, db, field, page)
+        .await.map_err(to_custom_error)?;
 
     Ok(
         Json(candidates)
@@ -164,7 +159,7 @@ pub async fn get_candidate(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let candidate = Query::find_candidate_by_id(db, id)
+    let application = Query::find_application_by_id(db, id)
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
@@ -172,7 +167,7 @@ pub async fn get_candidate(
     let details = ApplicationService::decrypt_all_details(
         private_key,
         db,
-        candidate
+        &application
     )
         .await
         .map_err(to_custom_error)?;
@@ -190,14 +185,22 @@ pub async fn delete_candidate(
 ) -> Result<(), Custom<String>> {
     let db = conn.into_inner();
 
-    let candidate = Query::find_candidate_by_id(db, id)
+    let application = Query::find_application_by_id(db, id)
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+    let candidate = ApplicationService::find_related_candidate(db, &application).await.map_err(to_custom_error)?;
+
+    ApplicationService::delete(db, application).await.map_err(to_custom_error)?;
+
+    let remaining_applications = Query::find_applications_by_candidate_id(db, candidate.id).await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?;
+
+    if remaining_applications.is_empty() {
+        CandidateService::delete_candidate(db, candidate).await.map_err(to_custom_error)?;
+    }
     
-    CandidateService::delete_candidate(db, candidate)
-        .await
-        .map_err(to_custom_error)
+    Ok(())
 }
 
 #[post("/candidate/<id>/reset_password")]
@@ -206,13 +209,14 @@ pub async fn reset_candidate_password(
     session: AdminAuth,
     id: i32,
 ) -> Result<Json<CreateCandidateResponse>, Custom<String>> {
+    // TODO
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let response = CandidateService::reset_password(private_key, db, id)
+    let response = ApplicationService::reset_password(private_key, db, id)
         .await
         .map_err(to_custom_error)?;
-
+    
     Ok(
         Json(response)
     )
@@ -220,12 +224,19 @@ pub async fn reset_candidate_password(
 
 #[get("/candidate/<id>/portfolio")]
 pub async fn get_candidate_portfolio(
+    conn: Connection<'_, Db>,
     session: AdminAuth, 
     id: i32,
 ) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let portfolio = PortfolioService::get_portfolio(id, private_key)
+    let application = Query::find_application_by_id(db, id)
+        .await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
+        .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
+
+    let portfolio = PortfolioService::get_portfolio(application.candidate_id, private_key)
         .await
         .map_err(to_custom_error)?;
 

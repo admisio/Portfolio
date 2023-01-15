@@ -13,7 +13,7 @@ impl Mutation {
     ) -> Result<admin_session::Model, DbErr> {
         admin_session::ActiveModel {
             id: Set(random_uuid),
-            admin_id: Set(Some(admin_id)),
+            admin_id: Set(admin_id),
             ip_address: Set(ip_addr),
             created_at: Set(Utc::now().naive_local()),
             expires_at: Set(Utc::now()

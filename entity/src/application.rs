@@ -3,15 +3,16 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
-#[sea_orm(table_name = "parent")]
+#[sea_orm(table_name = "application")]
 pub struct Model {
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: i32,
     pub candidate_id: i32,
-    pub name: Option<String>,
-    pub surname: Option<String>,
-    pub telephone: Option<String>,
-    pub email: Option<String>,
+    pub field_of_study: String,
+    pub password: String,
+    pub public_key: String,
+    pub private_key: String,
+    pub personal_id_number: String,
     pub created_at: DateTime,
     pub updated_at: DateTime,
 }
@@ -26,11 +27,19 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Candidate,
+    #[sea_orm(has_many = "super::session::Entity")]
+    Session,
 }
 
 impl Related<super::candidate::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Candidate.def()
+    }
+}
+
+impl Related<super::session::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Session.def()
     }
 }
 

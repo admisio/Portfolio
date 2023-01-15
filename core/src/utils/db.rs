@@ -1,4 +1,4 @@
-use entity::admin_session;
+use entity::{admin_session, application};
 use sea_orm::DbConn;
 
 use crate::Query;
@@ -22,15 +22,17 @@ pub async fn get_memory_sqlite_connection() -> sea_orm::DbConn {
 
     let schema = Schema::new(DbBackend::Sqlite);
     let stmt: TableCreateStatement = schema.create_table_from_entity(candidate::Entity);
-    let stmt2: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
+    let stmt2: TableCreateStatement = schema.create_table_from_entity(application::Entity);
     let stmt3: TableCreateStatement = schema.create_table_from_entity(session::Entity);
-    let stmt4: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
+    let stmt4: TableCreateStatement = schema.create_table_from_entity(admin::Entity);
     let stmt5: TableCreateStatement = schema.create_table_from_entity(admin_session::Entity);
+    let stmt6: TableCreateStatement = schema.create_table_from_entity(parent::Entity);
     db.execute(db.get_database_backend().build(&stmt)).await.unwrap();
     db.execute(db.get_database_backend().build(&stmt2)).await.unwrap();
     db.execute(db.get_database_backend().build(&stmt3)).await.unwrap();
     db.execute(db.get_database_backend().build(&stmt4)).await.unwrap();
     db.execute(db.get_database_backend().build(&stmt5)).await.unwrap();
+    db.execute(db.get_database_backend().build(&stmt6)).await.unwrap();
     db
 }
 

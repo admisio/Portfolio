@@ -12,13 +12,12 @@ impl MigrationTrait for Migration {
                     .table(Candidate::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Candidate::Application)
+                        ColumnDef::new(Candidate::Id)
                             .integer()
                             .not_null()
                             .primary_key()
-                            .unique_key(),
+                            .auto_increment(),
                     )
-                    .col(ColumnDef::new(Candidate::Code).string().not_null())
                     .col(ColumnDef::new(Candidate::Name).string())
                     .col(ColumnDef::new(Candidate::Surname).string())
                     .col(ColumnDef::new(Candidate::BirthSurname).string())
@@ -29,12 +28,10 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Citizenship).string())
                     .col(ColumnDef::new(Candidate::Email).string())
                     .col(ColumnDef::new(Candidate::Sex).string())
-                    .col(ColumnDef::new(Candidate::Study).string())
                     .col(ColumnDef::new(Candidate::PersonalIdentificationNumber).string().not_null())
                     .col(ColumnDef::new(Candidate::SchoolName).string())
                     .col(ColumnDef::new(Candidate::HealthInsurance).string())
-                    .col(ColumnDef::new(Candidate::PublicKey).string().not_null())
-                    .col(ColumnDef::new(Candidate::PrivateKey).string().not_null())
+                    .col(ColumnDef::new(Candidate::EncryptedById).integer())
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Candidate::UpdatedAt).date_time().not_null())
                     .to_owned(),
@@ -52,8 +49,7 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 pub enum Candidate {
     Table,
-    Application,
-    Code,
+    Id,
     Name,
     Surname,
     BirthSurname,
@@ -64,12 +60,10 @@ pub enum Candidate {
     Citizenship,
     Email,
     Sex,
-    Study,
     PersonalIdentificationNumber,
     SchoolName,
     HealthInsurance,
-    PublicKey,
-    PrivateKey,
+    EncryptedById,
     CreatedAt,
     UpdatedAt,
 }

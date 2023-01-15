@@ -56,7 +56,7 @@ impl AuthenticableTrait for AdminService {
             return Err(ServiceError::ExpiredSession);
         }
 
-        let admin = Query::find_admin_by_id(db, session.admin_id.unwrap())
+        let admin = Query::find_admin_by_id(db, session.admin_id)
             .await?
             .ok_or(ServiceError::CandidateNotFound)?;
 
@@ -104,15 +104,35 @@ impl AuthenticableTrait for AdminService {
 }
 
 #[cfg(test)]
-mod admin_tests {
-    use chrono::Local;
+pub mod admin_tests {
+    use chrono::{Local, Utc};
     use entity::admin;
     use sea_orm::{Set, ActiveModelTrait};
-
+    
     use crate::{utils::db::get_memory_sqlite_connection, error::ServiceError};
-
+    
     use super::*;
-
+    
+    pub async fn create_admin(db: &DbConn) -> admin::Model {    
+        let password = "admin".to_string();
+        let (pubkey, priv_key) = crypto::create_identity();
+        let enc_priv_key = crypto::encrypt_password(priv_key, password).await.unwrap();
+    
+        let admin = admin::ActiveModel {
+            name: Set("admin".to_string()),
+            public_key: Set(pubkey),
+            private_key: Set(enc_priv_key),
+            password: Set("admin".to_string()),
+            created_at: Set(Utc::now().naive_utc()),
+            updated_at: Set(Utc::now().naive_utc()),
+            ..Default::default()
+        }
+            .insert(db)
+            .await
+            .unwrap();
+    
+        admin
+    }
 
     #[tokio::test]
     async fn test_admin_login() -> Result<(), ServiceError> {

@@ -6,7 +6,7 @@ use sea_orm::*;
 impl Mutation {
     pub async fn create_parent(db: &DbConn, application_id: i32) -> Result<Model, DbErr> {
         parent::ActiveModel {
-            application: Set(application_id),
+            candidate_id: Set(application_id),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
@@ -49,43 +49,31 @@ mod tests {
     async fn test_create_parent() {
         let db = get_memory_sqlite_connection().await;
 
-        const APPLICATION_ID: i32 = 103158;
-
-        Mutation::create_candidate(
+        let candidate = Mutation::create_candidate(
             &db,
-            APPLICATION_ID,
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
+            "".to_string(),
         )
         .await
         .unwrap();
 
-        let new_parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
+        Mutation::create_parent(&db, candidate.id).await.unwrap();
 
-        let parent = Query::find_parent_by_id(&db, new_parent.id).await.unwrap();
-        assert!(parent.is_some());
+        let parents = Query::find_candidate_parents(&db, &candidate).await.unwrap();
+        assert!(parents.get(0).is_some());
     }
 
     #[tokio::test]
     async fn test_add_candidate_details() {
         let db = get_memory_sqlite_connection().await;
 
-        const APPLICATION_ID: i32 = 103158;
-
-        Mutation::create_candidate(
+        let candidate = Mutation::create_candidate(
             &db,
-            APPLICATION_ID,
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
+            "".to_string(),
         )
         .await
         .unwrap();
 
-        let parent = Mutation::create_parent(&db, APPLICATION_ID).await.unwrap();
+        let parent = Mutation::create_parent(&db, candidate.id).await.unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
@@ -94,15 +82,14 @@ mod tests {
         .await
         .unwrap();
 
-        let parent = Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
+        Mutation::add_parent_details(&db, parent, encrypted_details.parents[0].clone())
             .await
             .unwrap();
 
-        let parent = Query::find_parent_by_id(&db, parent.id)
+        let parents = Query::find_candidate_parents(&db, &candidate)
             .await
-            .unwrap()
             .unwrap();
 
-        assert!(parent.surname.is_some());
+        assert!(parents[0].surname.is_some());
     }
 }

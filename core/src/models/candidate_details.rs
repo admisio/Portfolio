@@ -3,9 +3,9 @@ use chrono::NaiveDate;
 use entity::{candidate, parent};
 use futures::future;
 
-use crate::{crypto, models::candidate::{Row, ApplicationDetails}, error::ServiceError};
+use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
-use super::candidate::{CandidateDetails, ParentDetails};
+use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -26,7 +26,6 @@ pub struct EncryptedCandidateDetails {
     pub personal_id_number: Option<EncryptedString>,
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
-    pub study: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -148,7 +147,6 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9,
                 school_name: d.10,
                 health_insurance: d.11,
-                study: Some(form.study.clone()),
             }
         )
     }
@@ -173,7 +171,7 @@ impl EncryptedCandidateDetails {
                 name: d.0.unwrap_or_default(),
                 surname: d.1.unwrap_or_default(),
                 birthplace: d.2.unwrap_or_default(),
-                birthdate: NaiveDate::parse_from_str(&d.3.unwrap_or_default(), NAIVE_DATE_FMT).unwrap_or(NaiveDate::from_ymd(1, 1, 1)),
+                birthdate: parse_naive_date_from_opt_str(d.3, NAIVE_DATE_FMT)?,
                 address: d.4.unwrap_or_default(),
                 telephone: d.5.unwrap_or_default(),
                 citizenship: d.6.unwrap_or_default(),
@@ -182,7 +180,6 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9.unwrap_or_default(),
                 school_name: d.10.unwrap_or_default(),
                 health_insurance: d.11.unwrap_or_default(),
-                study: self.study.clone().unwrap_or_default(),
             }
         )
     }
@@ -196,9 +193,8 @@ impl EncryptedCandidateDetails {
         self.telephone.is_some() &&
         self.citizenship.is_some() &&
         self.email.is_some() &&
-        self.sex.is_some() &&
-        self.personal_id_number.is_some() &&
-        self.study.is_some()
+        // self.sex.is_some() &&
+        self.personal_id_number.is_some()
     }
 }
 impl From<&candidate::Model> for EncryptedCandidateDetails {
@@ -218,7 +214,6 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             personal_id_number: Some(EncryptedString::from(candidate.personal_identification_number.to_owned())),
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
-            study: candidate.study.clone(),
         }
     }
 }
@@ -336,11 +331,11 @@ impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetai
     }
 }
 
-impl TryFrom<Row> for EncryptedApplicationDetails {
+impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
     type Error = ServiceError;
 
     fn try_from(
-        cp: Row,
+        cp: ApplicationRow,
     ) -> Result<Self, Self::Error> {
         Ok(EncryptedApplicationDetails {
             candidate: EncryptedCandidateDetails {
@@ -356,7 +351,6 @@ impl TryFrom<Row> for EncryptedApplicationDetails {
                 personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
                 school_name: EncryptedString::try_from(&cp.school_name).ok(),
                 health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
-                study: cp.study.ok_or(ServiceError::CandidateDetailsNotSet).ok(),
             },
             parents: vec![EncryptedParentDetails {
                 name: EncryptedString::try_from(&cp.parent_name).ok(),
@@ -410,7 +404,6 @@ pub mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
-                study: "study".to_string(),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),
@@ -431,8 +424,6 @@ pub mod tests {
         assert_eq!(details.candidate.citizenship, "citizenship");
         assert_eq!(details.candidate.email, "email");
         assert_eq!(details.candidate.sex, "sex");
-        assert_eq!(details.candidate.study, "study");
-        assert_eq!(details.candidate.personal_id_number, "personal_id_number");
         for parent in &details.parents {
             assert_eq!(parent.name, "parent_name");
             assert_eq!(parent.surname, "parent_surname");
@@ -510,7 +501,7 @@ pub mod tests {
         let db = get_memory_sqlite_connection().await;
         let _admin = insert_test_admin(&db).await;
 
-        let (candidate, parents) = put_user_data(&db).await;
+        let (_, candidate, parents) = put_user_data(&db).await;
 
         let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, parents)).unwrap();
 
