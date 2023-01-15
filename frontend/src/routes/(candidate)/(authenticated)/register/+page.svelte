@@ -715,11 +715,6 @@
 		@apply mx-auto h-full w-[90%];
 		@apply items-center justify-center;
 	}
-	.form > form {
-		@apply flex flex-col;
-		@apply w-full;
-		@apply items-center justify-center;
-	}
 	.dot {
 		@apply @apply hover:bg-sspsBlue @apply 
 		bg-sspsGray ml-2 h-4
