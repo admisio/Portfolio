@@ -49,13 +49,14 @@ mod tests {
     async fn test_find_session_by_uuid() {
         let db = get_memory_sqlite_connection().await;
 
+        let (application, _, _) = put_user_data(&db).await;
         let session = session::ActiveModel {
             id: Set(Uuid::new_v4()),
+            candidate_id: Set(application.id),
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
-            updated_at: Set(chrono::offset::Local::now().naive_local()),
-            ..Default::default()
+            updated_at: Set(chrono::offset::Local::now().naive_local())
         }
         .insert(&db)
         .await
