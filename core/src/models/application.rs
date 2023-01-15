@@ -14,6 +14,7 @@ pub struct ApplicationResponse {
     pub surname: String,
     pub email: String,
     pub telephone: String,
+    pub field_of_study: Option<String>,
 }
 
 impl ApplicationResponse {
@@ -25,7 +26,6 @@ impl ApplicationResponse {
         let surname = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.surname).ok(), private_key).await?;
         let email = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key).await?;
         let telephone = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.telephone).ok(), private_key).await?;
-
         Ok(
             Self {
                 application_id: c.application_id,
@@ -34,6 +34,7 @@ impl ApplicationResponse {
                 email: email.unwrap_or_default(),
                 telephone:  telephone.unwrap_or_default(),
                 candidate_id: c.candidate_id,
+                field_of_study: c.field_of_study,
             }
         )
     }

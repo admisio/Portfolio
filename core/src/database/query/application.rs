@@ -12,6 +12,7 @@ pub struct ApplicationCandidateJoin {
     pub surname: Option<String>,
     pub email: Option<String>,
     pub telephone: Option<String>,
+    pub field_of_study: Option<String>,
 }
 
 use crate::{Query};
