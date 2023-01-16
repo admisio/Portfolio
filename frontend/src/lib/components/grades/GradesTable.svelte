@@ -9,7 +9,17 @@
 <script lang="ts">
 	import GradesRow, { type Grade, type Semester } from './GradesRow.svelte';
 
-	let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
+	let gradesLocal: Array<Grade> = [
+		{ subject: 'Chování', semesters: {} },
+		{ subject: 'Český jazyk', semesters: {} },
+		{ subject: 'Matematika', semesters: {} },
+		{ subject: 'Anglický jazyk', semesters: {} },
+		{ subject: 'Chemie', semesters: {} },
+		{ subject: 'Fyzika', semesters: {} },
+		{ subject: 'Dějepis', semesters: {} },
+		{ subject: 'Tělesná výchova', semesters: {} }
+	];
+	/*let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
 		return {
 			subject: '',
 			semesters: {
@@ -19,7 +29,7 @@
 				'2/9': undefined
 			}
 		};
-	});
+	});*/
 
 	export let error: string | Array<unknown> = '';
 
