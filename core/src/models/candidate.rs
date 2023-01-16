@@ -6,7 +6,7 @@ use crate::{
     error::ServiceError,
 };
 
-use super::candidate_details::{EncryptedString, EncryptedCandidateDetails};
+use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList};
 
 pub enum FieldOfStudy {
     G,
@@ -57,7 +57,7 @@ pub struct CreateCandidateResponse {
     pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CandidateDetails {
     pub name: String,
@@ -72,8 +72,9 @@ pub struct CandidateDetails {
     pub personal_id_number: String,
     pub school_name: String,
     pub health_insurance: String,
+    pub grades: GradeList,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentDetails {
     pub name: String,
@@ -83,7 +84,7 @@ pub struct ParentDetails {
 }
 
 /// Candidate details (admin and candidate endpoints)
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ApplicationDetails {
     // Candidate

@@ -54,7 +54,7 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
+    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails, grade::GradeList}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
 
     pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {
@@ -71,6 +71,7 @@ mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
+                grades: GradeList::from(vec![]),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),

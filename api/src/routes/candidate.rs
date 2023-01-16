@@ -317,7 +317,8 @@ mod tests {
             \"sex\": \"MALE\",
             \"personalIdNumber\": \"0101010000\",
             \"schoolName\": \"29988383\",
-            \"healthInsurance\": \"000\"
+            \"healthInsurance\": \"000\",
+            \"grades\": []
         },
         \"parents\": [
             {
@@ -376,8 +377,7 @@ mod tests {
 
         assert_eq!(response.status(), Status::Ok);
 
-        let details_resp: ApplicationDetails =
-            serde_json::from_str(&response.into_string().unwrap()).unwrap();
+        let details_resp: ApplicationDetails = serde_json::from_str(&response.into_string().unwrap()).unwrap();
         assert_eq!(details_orig, details_resp);
     }
 

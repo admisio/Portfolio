@@ -48,7 +48,7 @@ impl CandidateService {
         encrypted_by: i32,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
-        let model = Mutation::update_candidate_details(
+        let model = Mutation::update_candidate_opt_details(
             db,
             candidate,
             enc_details,
