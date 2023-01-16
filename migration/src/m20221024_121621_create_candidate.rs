@@ -32,6 +32,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::SchoolName).string())
                     .col(ColumnDef::new(Candidate::HealthInsurance).string())
                     .col(ColumnDef::new(Candidate::GradesJson).string())
+                    .col(ColumnDef::new(Candidate::TestLanguage).string())
                     .col(ColumnDef::new(Candidate::EncryptedById).integer())
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
                     .col(ColumnDef::new(Candidate::UpdatedAt).date_time().not_null())
@@ -65,6 +66,7 @@ pub enum Candidate {
     SchoolName,
     HealthInsurance,
     GradesJson,
+    TestLanguage,
     EncryptedById,
     CreatedAt,
     UpdatedAt,

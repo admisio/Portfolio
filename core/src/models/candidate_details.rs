@@ -27,6 +27,7 @@ pub struct EncryptedCandidateDetails {
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
     pub grades_json: Option<EncryptedString>,
+    pub test_language: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -151,6 +152,7 @@ impl EncryptedCandidateDetails {
                 school_name: d.10,
                 health_insurance: d.11,
                 grades_json: d.12,
+                test_language: Some(form.test_language.to_owned()),
             }
         )
     }
@@ -186,6 +188,7 @@ impl EncryptedCandidateDetails {
                 school_name: d.10.unwrap_or_default(),
                 health_insurance: d.11.unwrap_or_default(),
                 grades: GradeList::from_opt_str(d.12).unwrap_or_default(),
+                test_language: self.test_language.to_owned().unwrap_or_default().to_string(),
             }
         )
     }
@@ -221,6 +224,7 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
             grades_json: EncryptedString::try_from(&candidate.grades_json).ok(),
+            test_language: candidate.test_language.to_owned(),
         }
     }
 }
@@ -359,6 +363,7 @@ impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
                 school_name: EncryptedString::try_from(&cp.school_name).ok(),
                 health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
                 grades_json: None, // TODO
+                test_language: None // TODO
             },
             parents: vec![EncryptedParentDetails {
                 name: EncryptedString::try_from(&cp.parent_name).ok(),
@@ -413,6 +418,7 @@ pub mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
+                test_language: "test_language".to_string(),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),
