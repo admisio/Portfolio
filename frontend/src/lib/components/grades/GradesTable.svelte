@@ -7,11 +7,9 @@
 </script>
 
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-
 	import GradesRow, { type Grade, type Semester } from './GradesRow.svelte';
 
-	let gradesLocal: Array<Grade> = Array.from({ length: 1 }, () => {
+	let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
 		return {
 			subject: '',
 			semesters: {
@@ -26,8 +24,6 @@
 	export let error: string | Array<unknown> = '';
 
 	export let grades: Array<GradeBackend>;
-
-	const dispatch = createEventDispatcher();
 
 	// Convert local Grade type to expanded GradesBackend type
 	const convertGrades = () => {
@@ -49,7 +45,6 @@
 				}
 			}
 			grades = [...gradesTemp];
-			dispatch('change', grades);
 		});
 	};
 </script>
@@ -63,7 +58,9 @@
 		<span class="ml-0.5 w-1/6 text-center">2/9</span>
 	</div>
 	{#each gradesLocal as _, i}
-		<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
+		<div class="mb-1">
+			<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
+		</div>
 	{/each}
 	<button
 		class:isError={error.length > 0}
