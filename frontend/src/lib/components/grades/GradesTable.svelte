@@ -49,14 +49,14 @@
 	};
 </script>
 
-<div class="mx-auto mt-8 flex max-h-[22rem] w-full flex-col overflow-scroll lg:w-4/5">
-	<div class="flex text-gray-400">
-		<span class="w-1/2 text-center">Známky</span>
-		<span class="ml-0.5 w-1/6 text-center">1/8</span>
-		<span class="ml-0.5 w-1/6 text-center">2/8</span>
-		<span class="ml-0.5 w-1/6 text-center">1/9</span>
-		<span class="ml-0.5 w-1/6 text-center">2/9</span>
-	</div>
+<div class="mx-auto mt-8 flex text-gray-400 lg:w-4/5">
+	<span class="w-1/2 text-center">Známky</span>
+	<span class="ml-0.5 w-1/6 text-center">1/8</span>
+	<span class="ml-0.5 w-1/6 text-center">2/8</span>
+	<span class="ml-0.5 w-1/6 text-center">1/9</span>
+	<span class="ml-0.5 w-1/6 text-center">2/9</span>
+</div>
+<div class="mx-auto flex max-h-[22rem] w-full flex-col overflow-scroll lg:w-4/5">
 	{#each gradesLocal as _, i}
 		<div class="mb-1">
 			<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
