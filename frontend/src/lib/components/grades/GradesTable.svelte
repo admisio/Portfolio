@@ -36,7 +36,7 @@
 	export let grades: Array<GradeBackend>;
 
 	// Convert local Grade type to expanded GradesBackend type
-	const convertGrades = () => {
+	const convertGradeToGradeBackend = () => {
 		// Delay to wait for select to be updated
 		setTimeout(() => {
 			const gradesTemp: Array<GradeBackend> = [];
@@ -57,6 +57,23 @@
 			grades = [...gradesTemp];
 		});
 	};
+
+	const convertGradeBackendToGrade = (gradesBackend: Array<GradeBackend>) => {
+		const grades: Array<Grade> = [];
+		for (let index = 0; index < gradesBackend.length; index++) {
+			const gradeBackend = gradesBackend[index];
+			let grade = grades.find((g) => g.subject === gradeBackend.subject);
+			if (!grade) {
+				grade = {
+					subject: gradeBackend.subject,
+					semesters: {}
+				};
+				grades.push(grade);
+			}
+			grade.semesters[gradeBackend.semester] = gradeBackend.grade.toString();
+		}
+		return grades;
+	};
 </script>
 
 <div class="mx-auto mt-8 flex text-gray-400 lg:w-4/5">
@@ -69,7 +86,11 @@
 <div class="mx-auto flex max-h-[22rem] w-full flex-col overflow-scroll lg:w-4/5">
 	{#each gradesLocal as _, i}
 		<div class="mb-1">
-			<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
+			<GradesRow
+				on:keyup={convertGradeToGradeBackend}
+				on:change={convertGradeToGradeBackend}
+				bind:grade={gradesLocal[i]}
+			/>
 		</div>
 	{/each}
 	<button
