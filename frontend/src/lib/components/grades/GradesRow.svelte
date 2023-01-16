@@ -14,9 +14,9 @@
 </script>
 
 <div class="flex">
-	<input bind:value={grade.subject} type="text" />
+	<input class="w-1/2" on:keyup bind:value={grade.subject} type="text" />
 	{#each SEMESTERS as semester}
-		<select bind:value={grade.semesters[semester]} name="">
+		<select class="ml-0.5 w-1/6" on:change bind:value={grade.semesters[semester]} name="">
 			<option value="" />
 			<option value="1">1</option>
 			<option value="2">2</option>
