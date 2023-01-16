@@ -59,7 +59,8 @@
 			citizenship: '',
 			personalIdNumber: '',
 			schoolName: '',
-			healthInsurance: ''
+			healthInsurance: '',
+			grades: []
 		},
 		parents: [
 			{
@@ -106,7 +107,20 @@
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string().required(),
 			schoolName: yup.string().required(),
-			healthInsurance: yup.number().required()
+			healthInsurance: yup.number().required(),
+			grades: yup
+				.array()
+				.min(1)
+				.of(
+					yup
+						.object()
+						.shape({
+							subject: yup.string().required(),
+							grade: yup.number().required(),
+							semester: yup.string().required()
+						})
+						.required()
+				)
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -272,7 +286,7 @@
 		}
 	};
 
-	const { form, errors, handleSubmit, handleChange } = createForm({
+	const { form, errors, handleSubmit, handleChange, updateValidateField } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: formValidationSchema,
 
@@ -371,7 +385,8 @@
 				street: details.candidate.address.split(',')[0].split(' ')[0],
 				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
 				city: details.candidate.address.split(',')[1],
-				zip: details.candidate.address.split(',')[2]
+				zip: details.candidate.address.split(',')[2],
+				grades: []
 			},
 			parents: [
 				{
@@ -390,8 +405,6 @@
 		pageIndex = 2; // skip gdpr page
 		pageTexts[2] = 'Úprava osobních údajů';
 	}
-
-	let test = 8;
 </script>
 
 <SplitLayout>
@@ -684,7 +697,21 @@
 				<p class="description mt-8 block text-center">
 					Přidejte prosím přepis Vaších známek z posledních dvou let studia
 				</p>
-				<GradesTable />
+				<GradesTable
+					error={$typedErrors['candidate']['grades']}
+					on:change={(event) => {
+						//@ts-ignore
+						const mockEvent = {
+							target: {
+								name: 'candidate.grades',
+								value: event.detail
+							}
+						};
+						//@ts-ignore
+						handleChange(mockEvent);
+					}}
+					bind:grades={$form.candidate.grades}
+				/>
 			{/if}
 		</div>
 		<div class="bottom-1/12 absolute w-full">

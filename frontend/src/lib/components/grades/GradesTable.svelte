@@ -7,9 +7,11 @@
 </script>
 
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	import GradesRow, { type Grade, type Semester } from './GradesRow.svelte';
 
-	let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
+	let gradesLocal: Array<Grade> = Array.from({ length: 1 }, () => {
 		return {
 			subject: '',
 			semesters: {
@@ -21,27 +23,35 @@
 		};
 	});
 
+	export let error: string = '';
+
 	export let grades: Array<GradeBackend>;
 
+	const dispatch = createEventDispatcher();
+
 	// Convert local Grade type to expanded GradesBackend type
-	$: {
-		const gradesTemp: Array<GradeBackend> = [];
-		for (let index = 0; index < gradesLocal.length; index++) {
-			const grade = gradesLocal[index];
-			for (const semester in grade.semesters) {
-				const semesterTyped = semester as Semester;
-				if (grade.semesters[semesterTyped] && grade.subject) {
-					const gradeString = grade.semesters[semesterTyped]!;
-					gradesTemp.push({
-						subject: grade.subject,
-						grade: Number(gradeString),
-						semester: semesterTyped
-					});
+	const convertGrades = () => {
+		// Delay to wait for select to be updated
+		setTimeout(() => {
+			const gradesTemp: Array<GradeBackend> = [];
+			for (let index = 0; index < gradesLocal.length; index++) {
+				const grade = gradesLocal[index];
+				for (const semester in grade.semesters) {
+					const semesterTyped = semester as Semester;
+					if (grade.semesters[semesterTyped] && grade.subject) {
+						const gradeString = grade.semesters[semesterTyped]!;
+						gradesTemp.push({
+							subject: grade.subject,
+							grade: Number(gradeString),
+							semester: semesterTyped
+						});
+					}
 				}
 			}
-		}
-		grades = gradesTemp;
-	}
+			grades = [...gradesTemp];
+			dispatch('change', grades);
+		});
+	};
 </script>
 
 <div class="mx-auto mt-8 flex max-h-[22rem] w-full flex-col overflow-scroll lg:w-4/5">
@@ -53,9 +63,10 @@
 		<span class="ml-0.5 w-1/6 text-center">2/9</span>
 	</div>
 	{#each gradesLocal as _, i}
-		<GradesRow bind:grade={gradesLocal[i]} />
+		<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
 	{/each}
 	<button
+		class:isError={error}
 		class="ml-auto w-24 rounded-full bg-gray-400 p-1 text-xl text-white transition-colors duration-300 hover:bg-gray-500"
 		on:click={() => {
 			gradesLocal = [
@@ -82,4 +93,7 @@
 </div>
 
 <style lang="postcss">
+	.isError {
+		@apply bg-red-500;
+	}
 </style>
