@@ -286,7 +286,7 @@
 		}
 	};
 
-	const { form, errors, handleSubmit, handleChange, updateValidateField } = createForm({
+	const { form, errors, handleSubmit, handleChange } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: formValidationSchema,
 
