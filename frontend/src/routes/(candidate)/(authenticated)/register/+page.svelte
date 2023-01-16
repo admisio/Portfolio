@@ -120,7 +120,7 @@
 							semester: yup.string().required()
 						})
 						.required()
-				)
+				).required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -286,7 +286,7 @@
 		}
 	};
 
-	const { form, errors, handleSubmit, handleChange } = createForm({
+	const { form, errors, handleSubmit } = createForm({
 		initialValues: formInitialValues,
 		validationSchema: formValidationSchema,
 
@@ -359,6 +359,9 @@
 					return true;
 				}
 				break;
+			case 7:
+				if ($typedErrors["candidate"]["grades"].length > 0) return true;
+				break;
 			default:
 				return false;
 		}
@@ -430,7 +433,6 @@
 							applications={baseCandidateDetails.applications}
 							bind:linkOk={$form.linkOk}
 							bind:linkError={$form.linkError}
-							on:change={handleChange}
 							error={$typedErrors['linkOk']}
 						/>
 					</div>
@@ -446,7 +448,6 @@
 					</p>
 					<div class="field">
 						<GdprCheckBox
-							on:change={handleChange}
 							bind:value={$form.gdpr}
 							error={$typedErrors['gdpr']}
 						/>
@@ -463,7 +464,6 @@
 						<span class="field">
 							<NameField
 								error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
-								on:change={handleChange}
 								bind:valueName={$form.candidate.name}
 								bind:valueSurname={$form.candidate.surname}
 								placeholder="Jméno a příjmení"
@@ -472,7 +472,6 @@
 						<span class="field">
 							<EmailField
 								error={$typedErrors['candidate']['email']}
-								on:change={handleChange}
 								bind:value={$form.candidate.email}
 								placeholder="E-mail"
 							/>
@@ -480,7 +479,6 @@
 						<span class="field">
 							<TelephoneField
 								error={$typedErrors['candidate']['telephone']}
-								on:change={handleChange}
 								bind:value={$form.candidate.telephone}
 								placeholder="Telefon"
 							/>
@@ -498,7 +496,6 @@
 						<NameField
 							error={$typedErrors['candidate']['street'] ||
 								$typedErrors['candidate']['houseNumber']}
-							on:change={handleChange}
 							bind:valueName={$form.candidate.street}
 							bind:valueSurname={$form.candidate.houseNumber}
 							placeholder="Ulice a č. p."
@@ -508,7 +505,6 @@
 					<span class="ml-2 w-[33%]">
 						<TextField
 							error={$typedErrors['candidate']['zip']}
-							on:change={handleChange}
 							bind:value={$form.candidate.zip}
 							type="number"
 							placeholder="PSČ"
@@ -520,7 +516,6 @@
 					<span>
 						<TextField
 							error={$typedErrors['candidate']['city']}
-							on:change={handleChange}
 							bind:value={$form.candidate.city}
 							type="text"
 							placeholder="Město"
@@ -530,7 +525,6 @@
 					<span class="ml-2">
 						<TextField
 							error={$typedErrors['candidate']['birthplace']}
-							on:change={handleChange}
 							bind:value={$form.candidate.birthplace}
 							type="text"
 							placeholder="Místo narození"
@@ -547,7 +541,6 @@
 				<div class="field flex items-center">
 					<TextField
 						error={$typedErrors['candidate']['birthdate']}
-						on:change={handleChange}
 						bind:value={$form.candidate.birthdate}
 						type="text"
 						placeholder="Datum narození"
@@ -556,7 +549,6 @@
 					<div class="ml-2">
 						<SelectField
 							error={$typedErrors['candidate']['sex']}
-							on:change={handleChange}
 							bind:value={$form.candidate.sex}
 							options={['Žena', 'Muž']}
 							placeholder="Pohlaví"
@@ -572,7 +564,6 @@
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
-							on:change={handleChange}
 							bind:valueName={$form.parents[0].name}
 							bind:valueSurname={$form.parents[0].surname}
 							placeholder="Jméno a příjmení zákonného zástupce"
@@ -581,7 +572,6 @@
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][0]['email']}
-							on:change={handleChange}
 							bind:value={$form.parents[0].email}
 							placeholder="E-mail zákonného zástupce"
 						/>
@@ -589,7 +579,6 @@
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][0]['telephone']}
-							on:change={handleChange}
 							bind:value={$form.parents[0].telephone}
 							placeholder="Telefon zákonného zástupce"
 						/>
@@ -604,7 +593,6 @@
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
-							on:change={handleChange}
 							bind:valueName={$form.parents[1].name}
 							bind:valueSurname={$form.parents[1].surname}
 							placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
@@ -613,7 +601,6 @@
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][1]['email']}
-							on:change={handleChange}
 							bind:value={$form.parents[1].email}
 							placeholder="E-mail zákonného zástupce (nepovinné)"
 						/>
@@ -621,7 +608,6 @@
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][1]['telephone']}
-							on:change={handleChange}
 							bind:value={$form.parents[1].telephone}
 							placeholder="Telefon zákonného zástupce (nepovinné)"
 						/>
@@ -637,7 +623,6 @@
 					<span class="field">
 						<SelectField
 							error={$typedErrors['candidate']['citizenship']}
-							on:change={handleChange}
 							bind:value={$form.candidate.citizenship}
 							placeholder="Občanství"
 							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
@@ -648,7 +633,6 @@
 							{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
 								<TextField
 									error={$typedErrors['candidate']['schoolName']}
-									on:change={handleChange}
 									type="number"
 									bind:value={$form.candidate.schoolName}
 									placeholder="IZO školy"
@@ -656,7 +640,6 @@
 							{:else}
 								<TextField
 									error={$typedErrors['candidate']['schoolName']}
-									on:change={handleChange}
 									type="text"
 									bind:value={$form.candidate.schoolName}
 									placeholder="Název školy"
@@ -667,7 +650,6 @@
 						<span class="ml-2">
 							<TextField
 								error={$typedErrors['candidate']['healthInsurance']}
-								on:change={handleChange}
 								type="text"
 								bind:value={$form.candidate.healthInsurance}
 								placeholder="Číslo zdravotní pojišťovny"
@@ -679,14 +661,12 @@
 					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
 						<IdField
 							error={$typedErrors['candidate']['personalIdNumber']}
-							on:change={handleChange}
 							bind:value={$form.candidate.personalIdNumber}
 							placeholder="Rodné číslo"
 						/>
 					{:else}
 						<TextField
 							error={$typedErrors['candidate']['personalIdNumber']}
-							on:change={handleChange}
 							bind:value={$form.candidate.personalIdNumber}
 							placeholder="Rodné číslo"
 						/>
@@ -699,17 +679,6 @@
 				</p>
 				<GradesTable
 					error={$typedErrors['candidate']['grades']}
-					on:change={(event) => {
-						//@ts-ignore
-						const mockEvent = {
-							target: {
-								name: 'candidate.grades',
-								value: event.detail
-							}
-						};
-						//@ts-ignore
-						handleChange(mockEvent);
-					}}
 					bind:grades={$form.candidate.grades}
 				/>
 			{/if}

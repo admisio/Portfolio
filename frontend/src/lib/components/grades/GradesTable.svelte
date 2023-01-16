@@ -23,7 +23,7 @@
 		};
 	});
 
-	export let error: string = '';
+	export let error: string | Array<unknown> = '';
 
 	export let grades: Array<GradeBackend>;
 
@@ -66,7 +66,7 @@
 		<GradesRow on:keyup={convertGrades} on:change={convertGrades} bind:grade={gradesLocal[i]} />
 	{/each}
 	<button
-		class:isError={error}
+		class:isError={error.length > 0}
 		class="ml-auto w-24 rounded-full bg-gray-400 p-1 text-xl text-white transition-colors duration-300 hover:bg-gray-500"
 		on:click={() => {
 			gradesLocal = [
@@ -81,13 +81,6 @@
 					}
 				}
 			];
-		}}>+</button
-	>
-	<button
-		class="ml-auto w-24 rounded-full bg-gray-400 p-1 text-xl text-white transition-colors duration-300 hover:bg-gray-500"
-		on:click={() => {
-			alert(JSON.stringify(gradesLocal));
-			alert(JSON.stringify(grades));
 		}}>+</button
 	>
 </div>
