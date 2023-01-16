@@ -1,9 +1,8 @@
-
 <script lang="ts">
 	export let linkOk: boolean = false;
 	export let linkError: boolean = false;
 	export let applications: Array<number>;
-		
+
 	let title1 = `Ano, podával/a jsem dvě přihlášky na dva obory SSPŠaG (${applications[0]} a ${applications[1]})`;
 	let title2 = `Ne, přihlášku na SSPŠaG jsem podával/a jen jednu (${applications[0]})`;
 
@@ -12,19 +11,18 @@
 		title2 = `Ne, přihlášku na SSPŠaG jsem podával více přihlášek`;
 	}
 
-
 	$: console.log(linkOk, linkError);
 
 	export let error: string = '';
 
 	const switchSelection = (id: number) => {
 		if (id === 0) {
-            linkOk = true;
-            linkError = false;
-        } else {
-            linkOk = false;
-            linkError = true;
-        }
+			linkOk = true;
+			linkError = false;
+		} else {
+			linkOk = false;
+			linkError = true;
+		}
 	};
 </script>
 
@@ -41,9 +39,9 @@
 	<label for="linkOk" class="peer-checked:border-sspsBlue peer-checked:text-gray-600" class:error>
 		<div class="block">
 			<span class="text-2xl">📜</span>
-			
+
 			<div class="w-full text-lg font-semibold">
-			{title1}	
+				{title1}
 			</div>
 			<div class="w-full text-sm">Vše je v pořádku</div>
 		</div>
@@ -58,10 +56,7 @@
 		checked={linkError}
 		class="peer hidden"
 	/>
-	<label
-		for="linkError"
-		class="peer-checked:border-sspsBlue peer-checked:text-gray-600"
-	>
+	<label for="linkError" class="peer-checked:border-sspsBlue peer-checked:text-gray-600">
 		<div class="block">
 			<span class="text-2xl">📜</span>
 

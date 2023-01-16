@@ -36,7 +36,7 @@
 									{candidate.surname}
 								</td>
 								<td class="text-gray-900">
-									{candidate.study}
+									{candidate.fieldOfStudy}
 								</td>
 								<td class="text-sm">
 									<Delete id={candidate.applicationId} on:delete value="Odstranit" />

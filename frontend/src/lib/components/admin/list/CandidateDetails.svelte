@@ -63,10 +63,6 @@
 							<td class="px-2 py-2">{candidate.email}</td>
 						</tr>
 						<tr>
-							<td class="px-2 py-2 font-semibold text-gray-500">Obor</td>
-							<td class="px-2 py-2">{candidate.study}</td>
-						</tr>
-						<tr>
 							<td class="px-2 py-2 font-semibold text-gray-500">Rodné číslo</td>
 							<td class="px-2 py-2">{candidate.personalIdNumber}</td>
 						</tr>
