@@ -21,10 +21,11 @@
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
+	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 
-	const pageCount = 6;
+	const pageCount = 7;
 	let pageIndex = 0;
-	let pagesFilled = [false, false, false, false, false, false];
+	let pagesFilled = [false, false, false, false, false, false, false];
 	let pageTexts = [
 		'Zpracování osobních údajů',
 		'Registrace',
@@ -244,11 +245,23 @@
 				values.parents = values.parents.filter(
 					(x) => x.name !== '' && x.surname !== '' && x.email !== '' && x.telephone !== ''
 				);
-				// @ts-ignore
-				let addressArray: Array<string> = [values.candidate.street + ' ' + values.candidate.houseNumber, values.candidate.city, values.candidate.zip];
+				let addressArray: Array<string> = [
+					// @ts-ignore
+					values.candidate.street + ' ' + values.candidate.houseNumber,
+					// @ts-ignore
+					values.candidate.city,
+					// @ts-ignore
+					values.candidate.zip
+				];
 				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
 				// @ts-ignore
-				delete values.candidate.street; delete values.candidate.houseNumber; delete values.candidate.city; delete values.candidate.zip;
+				delete values.candidate.street;
+				// @ts-ignore
+				delete values.candidate.houseNumber;
+				// @ts-ignore
+				delete values.candidate.city;
+				// @ts-ignore
+				delete values.candidate.zip;
 
 				await apiFillDetails(values);
 				goto('/dashboard');
@@ -377,6 +390,8 @@
 		pageIndex = 2; // skip gdpr page
 		pageTexts[2] = 'Úprava osobních údajů';
 	}
+
+	let test = 8;
 </script>
 
 <SplitLayout>
@@ -384,7 +399,7 @@
 	<div class="form relative">
 		<div class="bottom-3/12 absolute flex w-full flex-col md:h-auto">
 			<!-- TODO: Find different way how to display SchoolBadge -->
-			{#if pageIndex > 0}
+			{#if pageIndex !== 0 && pageIndex !== 7}
 				<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
 					<SchoolBadge />
 				</div>
@@ -664,9 +679,15 @@
 						/>
 					{/if}
 				</div>
+			{:else if pageIndex === 7}
+				<h1 class="title mt-8">{pageTexts[5]}</h1>
+				<p class="description mt-8 block text-center">
+					Přidejte prosím přepis Vaších známek z posledních dvou let studia
+				</p>
+				<GradesTable />
 			{/if}
 		</div>
-		<div class="controls bottom-1/12 absolute w-full">
+		<div class="bottom-1/12 absolute w-full">
 			<div class="field">
 				<Submit
 					on:click={async (e) => {
