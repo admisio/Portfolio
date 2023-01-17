@@ -324,7 +324,7 @@ impl ApplicationService {
                 .ok_or(ServiceError::CandidateDetailsNotSet)?.to_string()
         ).await?;
 
-        Mutation::update_candidate_details(db, 
+        Mutation::update_candidate_opt_details(db, 
             candidate,
             enc_details.candidate,
             application.id

@@ -5,7 +5,7 @@ use futures::future;
 
 use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
-use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow};
+use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow, grade::GradeList};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -26,6 +26,7 @@ pub struct EncryptedCandidateDetails {
     pub personal_id_number: Option<EncryptedString>,
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
+    pub grades_json: Option<EncryptedString>,
 }
 
 #[derive(Debug, Clone)]
@@ -118,6 +119,7 @@ impl EncryptedCandidateDetails {
         recipients: &Vec<String>,
     ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
+        let grades_str = form.grades.to_string();
         let d = tokio::try_join!(
             EncryptedString::new_option(&form.name, recipients),
             EncryptedString::new_option(&form.surname, recipients),
@@ -131,6 +133,7 @@ impl EncryptedCandidateDetails {
             EncryptedString::new_option(&form.personal_id_number, recipients),
             EncryptedString::new_option(&form.school_name, recipients),
             EncryptedString::new_option(&form.health_insurance, recipients),
+            EncryptedString::new_option(&grades_str, recipients),
         )?;
 
         Ok(
@@ -147,6 +150,7 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9,
                 school_name: d.10,
                 health_insurance: d.11,
+                grades_json: d.12,
             }
         )
     }
@@ -165,6 +169,7 @@ impl EncryptedCandidateDetails {
             EncryptedString::decrypt_option(&self.personal_id_number, priv_key),// 9
             EncryptedString::decrypt_option(&self.school_name, priv_key),       // 10
             EncryptedString::decrypt_option(&self.health_insurance, priv_key),  // 11
+            EncryptedString::decrypt_option(&self.grades_json, priv_key),       // 12
         )?;
 
         Ok(CandidateDetails {
@@ -180,6 +185,7 @@ impl EncryptedCandidateDetails {
                 personal_id_number: d.9.unwrap_or_default(),
                 school_name: d.10.unwrap_or_default(),
                 health_insurance: d.11.unwrap_or_default(),
+                grades: GradeList::from_opt_str(d.12).unwrap_or_default(),
             }
         )
     }
@@ -214,6 +220,7 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             personal_id_number: Some(EncryptedString::from(candidate.personal_identification_number.to_owned())),
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
+            grades_json: EncryptedString::try_from(&candidate.grades_json).ok(),
         }
     }
 }
@@ -351,6 +358,7 @@ impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
                 personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
                 school_name: EncryptedString::try_from(&cp.school_name).ok(),
                 health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
+                grades_json: None, // TODO
             },
             parents: vec![EncryptedParentDetails {
                 name: EncryptedString::try_from(&cp.parent_name).ok(),
@@ -382,7 +390,7 @@ pub mod tests {
     use once_cell::sync::Lazy;
     use sea_orm::{DbConn, Set, ActiveModelTrait};
 
-    use crate::{crypto, models::candidate::{CandidateDetails, ParentDetails}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
+    use crate::{crypto, models::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -404,6 +412,7 @@ pub mod tests {
                 personal_id_number: "personal_id_number".to_string(),
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
+                grades: GradeList::from(vec![]),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),

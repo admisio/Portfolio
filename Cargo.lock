@@ -2216,6 +2216,7 @@ dependencies = [
  "sea-orm",
  "secrecy",
  "serde",
+ "serde_json",
  "serial_test",
  "thiserror",
  "tokio",

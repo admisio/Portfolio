@@ -33,7 +33,7 @@ impl Mutation {
         Ok(delete)
     }
 
-    pub async fn update_candidate_details(
+    pub async fn update_candidate_opt_details(
         db: &DbConn,
         candidate: candidate::Model,
         enc_candidate: EncryptedCandidateDetails,
@@ -51,9 +51,9 @@ impl Mutation {
         candidate.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
         candidate.email = Set(enc_candidate.email.map(|e| e.into()));
         candidate.sex = Set(enc_candidate.sex.map(|e| e.into()));
-        // candidate.personal_identification_number = Set(enc_candidate.personal_id_number.map(|e| e.into()).unwrap_or_default()); // TODO: do not set this here, it is already set in the create_candidate mutation???
         candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
         candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
+        candidate.grades_json = Set(enc_candidate.grades_json.map(|e| e.into()));
         candidate.encrypted_by_id = Set(Some(encrypted_by_id));
 
         candidate.updated_at = Set(chrono::offset::Local::now().naive_local());
@@ -120,7 +120,7 @@ mod tests {
             vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_string()],
         ).await.unwrap();
 
-        let candidate = Mutation::update_candidate_details(&db, candidate, encrypted_details.candidate, 1).await.unwrap();
+        let candidate = Mutation::update_candidate_opt_details(&db, candidate, encrypted_details.candidate, 1).await.unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, candidate.id)
         .await
