@@ -116,7 +116,7 @@
 						.object()
 						.shape({
 							subject: yup.string().required(),
-							grade: yup.number().required(),
+							value: yup.number().required(),
 							semester: yup.string().required()
 						})
 						.required()
@@ -278,9 +278,11 @@
 				delete values.candidate.zip;
 
 				await apiFillDetails(values);
+
 				goto('/dashboard');
 			} catch (e) {
 				values = oldValues;
+				$form = oldValues;
 				console.error('error while submitting data: ' + e);
 			}
 		}

@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 	export type GradeBackend = {
 		subject: string;
-		grade: number;
+		value: number;
 		semester: Semester;
 	};
 </script>
@@ -9,54 +9,9 @@
 <script lang="ts">
 	import GradesRow, { type Grade, type Semester } from './GradesRow.svelte';
 
-	let gradesLocal: Array<Grade> = [
-		{ subject: 'Chování', semesters: {} },
-		{ subject: 'Český jazyk', semesters: {} },
-		{ subject: 'Matematika', semesters: {} },
-		{ subject: 'Anglický jazyk', semesters: {} },
-		{ subject: 'Chemie', semesters: {} },
-		{ subject: 'Fyzika', semesters: {} },
-		{ subject: 'Dějepis', semesters: {} },
-		{ subject: 'Tělesná výchova', semesters: {} }
-	];
-	/*let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
-		return {
-			subject: '',
-			semesters: {
-				'1/8': undefined,
-				'2/8': undefined,
-				'1/9': undefined,
-				'2/9': undefined
-			}
-		};
-	});*/
-
 	export let error: string | Array<unknown> = '';
 
 	export let grades: Array<GradeBackend>;
-
-	// Convert local Grade type to expanded GradesBackend type
-	const convertGradeToGradeBackend = () => {
-		// Delay to wait for select to be updated
-		setTimeout(() => {
-			const gradesTemp: Array<GradeBackend> = [];
-			for (let index = 0; index < gradesLocal.length; index++) {
-				const grade = gradesLocal[index];
-				for (const semester in grade.semesters) {
-					const semesterTyped = semester as Semester;
-					if (grade.semesters[semesterTyped] && grade.subject) {
-						const gradeString = grade.semesters[semesterTyped]!;
-						gradesTemp.push({
-							subject: grade.subject,
-							grade: Number(gradeString),
-							semester: semesterTyped
-						});
-					}
-				}
-			}
-			grades = [...gradesTemp];
-		});
-	};
 
 	const convertGradeBackendToGrade = (gradesBackend: Array<GradeBackend>) => {
 		const grades: Array<Grade> = [];
@@ -70,9 +25,56 @@
 				};
 				grades.push(grade);
 			}
-			grade.semesters[gradeBackend.semester] = gradeBackend.grade.toString();
+			grade.semesters[gradeBackend.semester] = gradeBackend.value.toString();
 		}
 		return grades;
+	};
+	
+	let gradesLocal: Array<Grade> =
+		grades.length > 0
+			? convertGradeBackendToGrade(grades)
+			: [
+					{ subject: 'Chování', semesters: {} },
+					{ subject: 'Český jazyk', semesters: {} },
+					{ subject: 'Matematika', semesters: {} },
+					{ subject: 'Anglický jazyk', semesters: {} },
+					{ subject: 'Chemie', semesters: {} },
+					{ subject: 'Fyzika', semesters: {} },
+					{ subject: 'Dějepis', semesters: {} },
+					{ subject: 'Tělesná výchova', semesters: {} }
+			  ];
+	/*let gradesLocal: Array<Grade> = Array.from({ length: 8 }, () => {
+		return {
+			subject: '',
+			semesters: {
+				'1/8': undefined,
+				'2/8': undefined,
+				'1/9': undefined,
+				'2/9': undefined
+			}
+		};
+	});*/
+	// Convert local Grade type to expanded GradesBackend type
+	const convertGradeToGradeBackend = () => {
+		// Delay to wait for select to be updated
+		setTimeout(() => {
+			const gradesTemp: Array<GradeBackend> = [];
+			for (let index = 0; index < gradesLocal.length; index++) {
+				const grade = gradesLocal[index];
+				for (const semester in grade.semesters) {
+					const semesterTyped = semester as Semester;
+					if (grade.semesters[semesterTyped] && grade.subject) {
+						const gradeString = grade.semesters[semesterTyped]!;
+						gradesTemp.push({
+							subject: grade.subject,
+							value: Number(gradeString),
+							semester: semesterTyped
+						});
+					}
+				}
+			}
+			grades = [...gradesTemp];
+		});
 	};
 </script>
 
