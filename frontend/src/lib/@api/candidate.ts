@@ -3,7 +3,6 @@ import type {
 	BaseCandidate,
 	CandidateData,
 	CandidateLogin,
-	CreateCandidate
 } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
@@ -92,6 +91,14 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 		// @ts-ignore
 		data.candidate[key] = DOMPurify.sanitize(data.candidate[key]);
 	});
+	// Sanitize grades data
+	for (let index = 0; index < data.candidate.grades.length; index++) {
+		Object.keys(data.candidate.grades[index]).forEach((key) => {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			data.candidate.grades[index][key] = DOMPurify.sanitize(data.candidate.grades[index][key]);
+		});
+	}
 	// Sanitize parents data
 	for (let index = 0; index < data.parents.length; index++) {
 		Object.keys(data.parents[index]).forEach((key) => {
