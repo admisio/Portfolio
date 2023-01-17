@@ -87,6 +87,9 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 	Object.keys(data.candidate).forEach((key) => {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
+		if (typeof data.candidate[key] !== 'string' && typeof data.candidate[key] !== 'number') return;
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
 		data.candidate[key] = DOMPurify.sanitize(data.candidate[key]);
 	});
 	// Sanitize parents data
