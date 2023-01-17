@@ -1,9 +1,5 @@
 import axios, { type AxiosProgressEvent } from 'axios';
-import type {
-	BaseCandidate,
-	CandidateData,
-	CandidateLogin,
-} from '$lib/stores/candidate';
+import type { BaseCandidate, CandidateData, CandidateLogin } from '$lib/stores/candidate';
 import type { SubmissionProgress } from '$lib/stores/portfolio';
 import { API_URL, errorHandler, type Fetch } from '.';
 import DOMPurify from 'isomorphic-dompurify';
@@ -86,18 +82,14 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 	Object.keys(data.candidate).forEach((key) => {
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
-		if (typeof data.candidate[key] !== 'string' && typeof data.candidate[key] !== 'number') return;
+		if (typeof data.candidate[key] !== 'string') return;
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
 		data.candidate[key] = DOMPurify.sanitize(data.candidate[key]);
 	});
 	// Sanitize grades data
 	for (let index = 0; index < data.candidate.grades.length; index++) {
-		Object.keys(data.candidate.grades[index]).forEach((key) => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			data.candidate.grades[index][key] = DOMPurify.sanitize(data.candidate.grades[index][key]);
-		});
+		data.candidate.grades[index].subject = DOMPurify.sanitize(data.candidate.grades[index].subject);
 	}
 	// Sanitize parents data
 	for (let index = 0; index < data.parents.length; index++) {
