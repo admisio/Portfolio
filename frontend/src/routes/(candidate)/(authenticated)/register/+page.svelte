@@ -391,7 +391,8 @@
 				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
 				city: details.candidate.address.split(',')[1],
 				zip: details.candidate.address.split(',')[2],
-				grades: []
+				// @ts-ignore
+				grades: details.candidate.grades
 			},
 			parents: [
 				{
