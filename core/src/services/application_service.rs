@@ -1,11 +1,12 @@
 use async_trait::async_trait;
 use chrono::Duration;
 use entity::{candidate, parent, application, session};
+use log::warn;
 use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
-use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::EncryptedApplicationDetails, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::EncryptedString, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
+use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::EncryptedApplicationDetails, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::{EncryptedString, EncryptedCandidateDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
-use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService};
+use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::PortfolioService};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -165,7 +166,23 @@ impl ApplicationService {
     }
 
     pub async fn delete(db: &DbConn, application: application::Model) -> Result<(), ServiceError> {
+        let candidate = ApplicationService::find_related_candidate(db, &application).await?;
+        
+        let applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+        if applications.len() <= 1 &&
+            (EncryptedCandidateDetails::from(&candidate).is_filled() ||
+            PortfolioService::get_submission_progress(candidate.id).await?.index() > 1) {
+            warn!("FAILED TO DELETE APPLICATION {} (CANDIDATE {}) - LOCKED", application.id, candidate.id);
+            return Err(ServiceError::Forbidden);
+        }
+
         Mutation::delete_application(db, application).await?;
+
+        let remaining_applications = Query::find_applications_by_candidate_id(db, candidate.id).await?;
+        if remaining_applications.is_empty() {
+            CandidateService::delete_candidate(db, candidate).await?;
+        }
+    
         Ok(())
     }
 

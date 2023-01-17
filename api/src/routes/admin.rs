@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_12_char_string,
-    services::{admin_service::AdminService, candidate_service::CandidateService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
+    services::{admin_service::AdminService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -189,18 +189,12 @@ pub async fn delete_candidate(
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
-    let candidate = ApplicationService::find_related_candidate(db, &application).await.map_err(to_custom_error)?;
 
-    ApplicationService::delete(db, application).await.map_err(to_custom_error)?;
 
-    let remaining_applications = Query::find_applications_by_candidate_id(db, candidate.id).await
-        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?;
+    ApplicationService::delete(db, application)
+        .await
+        .map_err(to_custom_error)
 
-    if remaining_applications.is_empty() {
-        CandidateService::delete_candidate(db, candidate).await.map_err(to_custom_error)?;
-    }
-    
-    Ok(())
 }
 
 #[post("/candidate/<id>/reset_password")]
