@@ -319,7 +319,7 @@ mod tests {
             \"schoolName\": \"29988383\",
             \"healthInsurance\": \"000\",
             \"grades\": [],
-            \"test_language\": \"CZ\"
+            \"testLanguage\": \"CZ\"
         },
         \"parents\": [
             {
