@@ -16,6 +16,7 @@ export interface CandidateData {
 		schoolName: string;
 		healthInsurance: string;
 		grades: Array<GradeBackend>;
+		testLanguage: string;
 	};
 	parents: Array<{
 		name: string;
@@ -75,7 +76,8 @@ export const candidateData = writable<CandidateData>({
 		personalIdNumber: '',
 		schoolName: '',
 		healthInsurance: '',
-		grades: []
+		grades: [],
+		testLanguage: ''
 	},
 	parents: []
 });
