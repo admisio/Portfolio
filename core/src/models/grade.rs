@@ -12,7 +12,6 @@ pub struct GradeList(Vec<Grade>);
 
 impl GradeList {
     pub fn from_opt_str(grades: Option<String>) -> Option<Self> {
-        println!("grades: {:?}", grades);
         grades.map(
             |grades| serde_json::from_str(&grades).unwrap() // TODO: handle error
         )

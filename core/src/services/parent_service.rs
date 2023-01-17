@@ -72,6 +72,7 @@ mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
+                test_language: "test_language".to_string(),
             },
             parents: vec![ParentDetails {
                 name: "parent_name".to_string(),
@@ -128,6 +129,10 @@ mod tests {
         assert_eq!(dec_details.candidate.email, form.candidate.email);
         assert_eq!(dec_details.candidate.sex, form.candidate.sex);
         assert_eq!(dec_details.candidate.personal_id_number, "0000001111".to_string());
+        assert_eq!(dec_details.candidate.school_name, form.candidate.school_name);
+        assert_eq!(dec_details.candidate.health_insurance, form.candidate.health_insurance);
+        assert_eq!(dec_details.candidate.grades, form.candidate.grades);
+        assert_eq!(dec_details.candidate.test_language, form.candidate.test_language);
 
         assert_eq!(dec_details.parents.len(), form.parents.len());
         for i in 0..dec_details.parents.len() {

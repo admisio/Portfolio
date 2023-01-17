@@ -60,7 +60,8 @@
 			personalIdNumber: '',
 			schoolName: '',
 			healthInsurance: '',
-			grades: []
+			grades: [],
+			testLanguage: '',
 		},
 		parents: [
 			{
@@ -120,7 +121,8 @@
 							semester: yup.string().required()
 						})
 						.required()
-				).required()
+				).required(),
+			testLanguage: yup.string().required(),
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -623,14 +625,24 @@
 					se hlásíte.
 				</p>
 				<div class="flex w-full flex-col">
-					<span class="field">
-						<SelectField
-							error={$typedErrors['candidate']['citizenship']}
-							bind:value={$form.candidate.citizenship}
-							placeholder="Občanství"
-							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
-						/>
-					</span>
+					<div class="field flex w-full">
+						<span class="w-[50%]">
+							<SelectField
+								error={$typedErrors['candidate']['citizenship']}
+								bind:value={$form.candidate.citizenship}
+								placeholder="Občanství"
+								options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
+							/>
+						</span>
+						<span class="w-[50%] ml-2">
+							<SelectField
+								error={$typedErrors['candidate']['testLanguage']}
+								bind:value={$form.candidate.testLanguage}
+								placeholder="Jazyk odborných testů"
+								options={['Čeština', 'Angličtina']}
+							/>
+						</span>
+					</div>
 					<div class="field flex flex-row">
 						<span>
 							{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}

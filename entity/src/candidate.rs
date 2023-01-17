@@ -21,6 +21,7 @@ pub struct Model {
     pub school_name: Option<String>,
     pub health_insurance: Option<String>,
     pub grades_json: Option<String>,
+    pub test_language: Option<String>,
     pub encrypted_by_id: Option<i32>,
     pub created_at: DateTime,
     pub updated_at: DateTime,

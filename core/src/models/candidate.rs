@@ -73,6 +73,7 @@ pub struct CandidateDetails {
     pub school_name: String,
     pub health_insurance: String,
     pub grades: GradeList,
+    pub test_language: String,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
