@@ -6,7 +6,7 @@ use crate::{
     error::ServiceError,
 };
 
-use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList};
+use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList, school::School};
 
 pub enum FieldOfStudy {
     G,
@@ -73,6 +73,8 @@ pub struct CandidateDetails {
     pub school_name: String,
     pub health_insurance: String,
     pub grades: GradeList,
+    pub first_school: School,
+    pub second_school: School,
     pub test_language: String,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]

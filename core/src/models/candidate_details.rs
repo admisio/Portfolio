@@ -5,7 +5,7 @@ use futures::future;
 
 use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
-use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow, grade::GradeList};
+use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow, grade::GradeList, school::School};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -27,6 +27,8 @@ pub struct EncryptedCandidateDetails {
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
     pub grades_json: Option<EncryptedString>,
+    pub first_school: Option<EncryptedString>,
+    pub second_school: Option<EncryptedString>,
     pub test_language: Option<String>,
 }
 
@@ -121,6 +123,8 @@ impl EncryptedCandidateDetails {
     ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let grades_str = form.grades.to_string();
+        let (first_school_str, second_school_str) = 
+            (form.first_school.to_string(), form.second_school.to_string());
         let d = tokio::try_join!(
             EncryptedString::new_option(&form.name, recipients),
             EncryptedString::new_option(&form.surname, recipients),
@@ -135,6 +139,8 @@ impl EncryptedCandidateDetails {
             EncryptedString::new_option(&form.school_name, recipients),
             EncryptedString::new_option(&form.health_insurance, recipients),
             EncryptedString::new_option(&grades_str, recipients),
+            EncryptedString::new_option(&first_school_str, recipients),
+            EncryptedString::new_option(&second_school_str, recipients),
         )?;
 
         Ok(
@@ -152,6 +158,8 @@ impl EncryptedCandidateDetails {
                 school_name: d.10,
                 health_insurance: d.11,
                 grades_json: d.12,
+                first_school: d.13,
+                second_school: d.14,
                 test_language: Some(form.test_language.to_owned()),
             }
         )
@@ -172,7 +180,11 @@ impl EncryptedCandidateDetails {
             EncryptedString::decrypt_option(&self.school_name, priv_key),       // 10
             EncryptedString::decrypt_option(&self.health_insurance, priv_key),  // 11
             EncryptedString::decrypt_option(&self.grades_json, priv_key),       // 12
+            EncryptedString::decrypt_option(&self.first_school, priv_key),      // 13
+            EncryptedString::decrypt_option(&self.second_school, priv_key),     // 14
         )?;
+
+        println!("d: {:?}", d.12);
 
         Ok(CandidateDetails {
                 name: d.0.unwrap_or_default(),
@@ -188,6 +200,8 @@ impl EncryptedCandidateDetails {
                 school_name: d.10.unwrap_or_default(),
                 health_insurance: d.11.unwrap_or_default(),
                 grades: GradeList::from_opt_str(d.12).unwrap_or_default(),
+                first_school: School::from_opt_str(d.13).unwrap_or_default(),
+                second_school: School::from_opt_str(d.14).unwrap_or_default(),
                 test_language: self.test_language.to_owned().unwrap_or_default().to_string(),
             }
         )
@@ -224,6 +238,8 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
             grades_json: EncryptedString::try_from(&candidate.grades_json).ok(),
+            first_school: EncryptedString::try_from(&candidate.first_school).ok(),
+            second_school: EncryptedString::try_from(&candidate.second_school).ok(),
             test_language: candidate.test_language.to_owned(),
         }
     }
@@ -362,6 +378,8 @@ impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
                 personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
                 school_name: EncryptedString::try_from(&cp.school_name).ok(),
                 health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
+                first_school: None, // TODO
+                second_school: None, // TODO
                 grades_json: None, // TODO
                 test_language: None // TODO
             },
@@ -395,7 +413,7 @@ pub mod tests {
     use once_cell::sync::Lazy;
     use sea_orm::{DbConn, Set, ActiveModelTrait};
 
-    use crate::{crypto, models::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
+    use crate::{crypto, models::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList, school::School}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -418,6 +436,8 @@ pub mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
+                first_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"KB\"}".to_string())).unwrap(),
+                second_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"IT\"}".to_string())).unwrap(),
                 test_language: "test_language".to_string(),
             },
             parents: vec![ParentDetails {

@@ -319,6 +319,8 @@ mod tests {
             \"schoolName\": \"29988383\",
             \"healthInsurance\": \"000\",
             \"grades\": [],
+            \"firstSchool\": {\"name\": \"SSPŠ\", \"field\": \"KB\"},
+            \"secondSchool\": {\"name\": \"SSPŠ\", \"field\": \"IT\"},
             \"testLanguage\": \"CZ\"
         },
         \"parents\": [

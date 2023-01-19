@@ -54,6 +54,8 @@ impl Mutation {
         candidate.school_name = Set(enc_candidate.school_name.map(|e| e.into()));
         candidate.health_insurance = Set(enc_candidate.health_insurance.map(|e| e.into()));
         candidate.grades_json = Set(enc_candidate.grades_json.map(|e| e.into()));
+        candidate.first_school = Set(enc_candidate.first_school.map(|e| e.into()));
+        candidate.second_school = Set(enc_candidate.second_school.map(|e| e.into()));
         candidate.test_language = Set(enc_candidate.test_language.map(|s| s));
         candidate.encrypted_by_id = Set(Some(encrypted_by_id));
 
