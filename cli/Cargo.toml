@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 url = "^2.3"
-clap = { version = "^4.0", features = ["cargo"] }
+clap = { version = "^4.1", features = ["cargo"] }
 
 portfolio-entity = { path = "../entity" }
 portfolio-core = { path = "../core" }
