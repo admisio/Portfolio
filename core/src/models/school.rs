@@ -8,10 +8,17 @@ pub struct School {
 
 impl School {
     pub fn from_opt_str(school: Option<String>) -> Option<Self> {
-        println!("School: {:?}", school);
         school.map(
             |school| serde_json::from_str(&school).unwrap() // TODO: handle error
         )
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn field(&self) -> &str {
+        &self.field
     }
 }
 

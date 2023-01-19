@@ -58,6 +58,15 @@ pub struct ApplicationRow {
     pub school_name: Option<String>,
     pub health_insurance: Option<String>,
 
+    pub diploma_1_8: String,
+    pub diploma_2_8: String,
+    pub diploma_1_9: String,
+
+    pub first_school_name: Option<String>,
+    pub first_school_field: Option<String>,
+    pub second_school_name: Option<String>,
+    pub second_school_field: Option<String>,
+
     pub parent_name: Option<String>,
     pub parent_surname: Option<String>,
     pub parent_telephone: Option<String>,

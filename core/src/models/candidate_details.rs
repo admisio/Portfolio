@@ -184,8 +184,6 @@ impl EncryptedCandidateDetails {
             EncryptedString::decrypt_option(&self.second_school, priv_key),     // 14
         )?;
 
-        println!("d: {:?}", d.12);
-
         Ok(CandidateDetails {
                 name: d.0.unwrap_or_default(),
                 surname: d.1.unwrap_or_default(),

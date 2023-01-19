@@ -16,6 +16,23 @@ impl GradeList {
             |grades| serde_json::from_str(&grades).unwrap() // TODO: handle error
         )
     }
+
+    pub fn group_by_semester(&self) -> (GradeList, GradeList, GradeList) {
+        let mut first_semester = GradeList::default();
+        let mut second_semester = GradeList::default();
+        let mut third_semester = GradeList::default();
+
+        for grade in &self.0 {
+            match grade.semester.as_str() {
+                "1/8" => first_semester.0.push(grade.clone()),
+                "2/8" => second_semester.0.push(grade.clone()),
+                "1/9" => third_semester.0.push(grade.clone()),
+                _ => panic!("Invalid semester"),
+            }
+        }
+
+        (first_semester, second_semester, third_semester)
+    }
 }
 
 impl Default for GradeList {

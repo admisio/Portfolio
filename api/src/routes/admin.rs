@@ -256,7 +256,6 @@ pub mod tests {
             ))
             .dispatch();
 
-        println!("{:?}", response);
         (
             response.cookies().get("id").unwrap().to_owned(),
             response.cookies().get("key").unwrap().to_owned(),
