@@ -237,7 +237,7 @@ impl ApplicationService {
         let candidate = ApplicationService::find_related_candidate(db, application).await?;
 
         let parents = Query::find_candidate_parents(db, &candidate).await?;
-        let enc_details = EncryptedApplicationDetails::from((&candidate, parents));
+        let enc_details = EncryptedApplicationDetails::from((&candidate, &parents));
 
         if enc_details.is_filled() {
             enc_details.decrypt(private_key).await
@@ -330,7 +330,7 @@ impl ApplicationService {
         recipients.append(&mut admin_public_keys);
         recipients.append(&mut applications.iter().map(|a| a.public_key.to_owned()).collect());
         
-        let dec_details = EncryptedApplicationDetails::from((&candidate, parents.clone()))
+        let dec_details = EncryptedApplicationDetails::from((&candidate, &parents))
             .decrypt(admin_private_key).await?;
 
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;

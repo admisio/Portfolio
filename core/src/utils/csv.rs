@@ -57,7 +57,7 @@ pub async fn export(db: &DbConn, private_key: String) -> Result<Vec<u8>, Service
         let candidate = ApplicationService::find_related_candidate(db, &application).await?;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
-        let row: ApplicationRow = match EncryptedApplicationDetails::try_from((&candidate, parents))
+        let row: ApplicationRow = match EncryptedApplicationDetails::try_from((&candidate, &parents))
         {
             Ok(d) => ApplicationRow::from(
                 d.decrypt(private_key.to_string())

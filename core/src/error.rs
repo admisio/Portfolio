@@ -14,6 +14,8 @@ pub enum ServiceError {
     Forbidden,
     #[error("Session expired, please login again")]
     ExpiredSession,
+    #[error("Missing details")]
+    MissingDetails,
     #[error("User already exists")]
     UserAlreadyExists,
     #[error("Candidate not found")]
@@ -82,6 +84,7 @@ impl ServiceError {
             // 4XX
             ServiceError::InvalidApplicationId => 400,
             ServiceError::ParentOverflow => 400,
+            ServiceError::MissingDetails => 400,
             ServiceError::Unauthorized => 401,
             ServiceError::InvalidCredentials => 401,
             ServiceError::ExpiredSession => 401,

@@ -117,7 +117,7 @@ mod tests {
             .unwrap();
 
         let priv_key = crypto::decrypt_password(application.private_key.clone(), plain_text_password).await.unwrap();
-        let dec_details = EncryptedApplicationDetails::try_from((&candidate, parents))
+        let dec_details = EncryptedApplicationDetails::try_from((&candidate, &parents))
             .unwrap()
             .decrypt(priv_key)
             .await

@@ -358,9 +358,9 @@ impl EncryptedApplicationDetails {
     }
 }
 
-impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
+impl From<(&candidate::Model, &Vec<parent::Model>)> for EncryptedApplicationDetails {
     fn from(
-        (candidate, parents): (&candidate::Model, Vec<parent::Model>),
+        (candidate, parents): (&candidate::Model, &Vec<parent::Model>),
     ) -> Self {
         let enc_parents = parents.iter()
             .map(|m| EncryptedParentDetails::from(m))
@@ -509,7 +509,7 @@ pub mod tests {
 
         let (_, candidate, parents) = put_user_data(&db).await;
 
-        let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, parents)).unwrap();
+        let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, &parents)).unwrap();
 
         let application_details = encrypted_details
             .decrypt(PRIVATE_KEY.to_string()) // decrypt with admin's private key

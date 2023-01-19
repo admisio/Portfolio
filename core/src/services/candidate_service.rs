@@ -134,7 +134,7 @@ pub mod tests {
         let dec_priv_key = crypto::decrypt_password(application.private_key.clone(), password)
             .await
             .unwrap();
-        let enc_details = EncryptedApplicationDetails::try_from((&enc_candidate, enc_parent))
+        let enc_details = EncryptedApplicationDetails::try_from((&enc_candidate, &enc_parent))
             .ok()
             .unwrap();
         let dec_details = enc_details.decrypt(dec_priv_key).await.ok().unwrap();
