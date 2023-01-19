@@ -44,9 +44,11 @@ impl Mutation {
 
         candidate.name = Set(enc_candidate.name.map(|e| e.into()));
         candidate.surname = Set(enc_candidate.surname.map(|e| e.into()));
+        candidate.birth_surname = Set(enc_candidate.birth_surname.map(|e| e.into()));
         candidate.birthplace = Set(enc_candidate.birthplace.map(|e| e.into()));
         candidate.birthdate = Set(enc_candidate.birthdate.map(|e| e.into()));
         candidate.address = Set(enc_candidate.address.map(|e| e.into()));
+        candidate.letter_address = Set(enc_candidate.letter_address.map(|e| e.into()));
         candidate.telephone = Set(enc_candidate.telephone.map(|e| e.into()));
         candidate.citizenship = Set(enc_candidate.citizenship.map(|e| e.into()));
         candidate.email = Set(enc_candidate.email.map(|e| e.into()));

@@ -61,9 +61,11 @@ mod tests {
             candidate: CandidateDetails {
                 name: "name".to_string(),
                 surname: "surname".to_string(),
+                birth_surname: "birth_surname".to_string(),
                 birthplace: "birthplace".to_string(),
                 birthdate: chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 address: "address".to_string(),
+                letter_address: "letter_address".to_string(),
                 telephone: "telephone".to_string(),
                 citizenship: "citizenship".to_string(),
                 email: "email".to_string(),

@@ -62,9 +62,11 @@ pub struct CreateCandidateResponse {
 pub struct CandidateDetails {
     pub name: String,
     pub surname: String,
+    pub birth_surname: String,
     pub birthplace: String,
     pub birthdate: NaiveDate,
     pub address: String,
+    pub letter_address: String,
     pub telephone: String,
     pub citizenship: String,
     pub email: String,

@@ -308,9 +308,11 @@ mod tests {
         \"candidate\": {
             \"name\": \"idk\",
             \"surname\": \"idk\",
+            \"birthSurname\": \"surname\",
             \"birthplace\": \"Praha 1\",
             \"birthdate\": \"2015-09-18\",
             \"address\": \"Stefanikova jidelna\",
+            \"letterAddress\": \"Stefanikova jidelna\",
             \"telephone\": \"000111222333\",
             \"citizenship\": \"Czech Republic\",
             \"email\": \"magor@magor.cz\",

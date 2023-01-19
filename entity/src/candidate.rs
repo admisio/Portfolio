@@ -13,6 +13,7 @@ pub struct Model {
     pub birthplace: Option<String>,
     pub birthdate: Option<String>,
     pub address: Option<String>,
+    pub letter_address: Option<String>,
     pub telephone: Option<String>,
     pub citizenship: Option<String>,
     pub email: Option<String>,

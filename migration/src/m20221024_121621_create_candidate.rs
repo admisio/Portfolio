@@ -24,6 +24,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Birthplace).string())
                     .col(ColumnDef::new(Candidate::Birthdate).string())
                     .col(ColumnDef::new(Candidate::Address).string())
+                    .col(ColumnDef::new(Candidate::LetterAddress).string())
                     .col(ColumnDef::new(Candidate::Telephone).string())
                     .col(ColumnDef::new(Candidate::Citizenship).string())
                     .col(ColumnDef::new(Candidate::Email).string())
@@ -60,6 +61,7 @@ pub enum Candidate {
     Birthplace,
     Birthdate,
     Address,
+    LetterAddress,
     Telephone,
     Citizenship,
     Email,
