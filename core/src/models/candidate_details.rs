@@ -5,7 +5,7 @@ use futures::future;
 
 use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
-use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow, grade::GradeList, school::School};
+use super::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList, school::School};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -357,52 +357,6 @@ impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetai
         }
     }
 }
-
-impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
-    type Error = ServiceError;
-
-    fn try_from(
-        cp: ApplicationRow,
-    ) -> Result<Self, Self::Error> {
-        Ok(EncryptedApplicationDetails {
-            candidate: EncryptedCandidateDetails {
-                name: EncryptedString::try_from(&cp.name).ok(),
-                surname: EncryptedString::try_from(&cp.surname).ok(),
-                birthplace: EncryptedString::try_from(&cp.birthplace).ok(),
-                birthdate: EncryptedString::try_from(&cp.birthdate).ok(),
-                address: EncryptedString::try_from(&cp.address).ok(),
-                telephone: EncryptedString::try_from(&cp.telephone).ok(),
-                citizenship: EncryptedString::try_from(&cp.citizenship).ok(),
-                email: EncryptedString::try_from(&cp.email).ok(),
-                sex: EncryptedString::try_from(&cp.sex).ok(),
-                personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
-                school_name: EncryptedString::try_from(&cp.school_name).ok(),
-                health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
-                first_school: None, // TODO
-                second_school: None, // TODO
-                grades_json: None, // TODO
-                test_language: None // TODO
-            },
-            parents: vec![EncryptedParentDetails {
-                name: EncryptedString::try_from(&cp.parent_name).ok(),
-                surname: EncryptedString::try_from(&cp.parent_surname).ok(),
-                telephone: EncryptedString::try_from(&cp.parent_telephone).ok(),
-                email: EncryptedString::try_from(&cp.parent_email).ok(),
-            }]
-
-        })
-    }
-}
-
-/* pub async fn decrypt_if_exists(
-    private_key: &String,
-    encrypted_string: Option<String>,
-) -> Result<String, ServiceError> {
-    match EncryptedString::try_from(&encrypted_string) {
-        Ok(encrypted_string) => Ok(encrypted_string.decrypt(private_key).await?),
-        Err(_) => Ok(String::from("")),
-    }
-} */
 
 #[cfg(test)]
 pub mod tests {
