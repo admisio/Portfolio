@@ -1,12 +1,13 @@
 use chrono::NaiveDate;
 use entity::{application, candidate};
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::{
     error::ServiceError,
 };
 
-use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList};
+use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList, school::School};
 
 pub enum FieldOfStudy {
     G,
@@ -57,23 +58,46 @@ pub struct CreateCandidateResponse {
     pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Validate, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CandidateDetails {
+    #[validate(length(min = 1, max = 255))]
     pub name: String,
+    #[validate(length(min = 1, max = 255))]
     pub surname: String,
+    #[validate(length(min = 1, max = 255))]
+    pub birth_surname: String,
+    #[validate(length(min = 1, max = 255))]
     pub birthplace: String,
     pub birthdate: NaiveDate,
+    #[validate(length(min = 1, max = 255))]
     pub address: String,
+    pub letter_address: String,
+    #[validate(length(min = 1, max = 31))]
     pub telephone: String,
+    #[validate(length(min = 1, max = 255))]
     pub citizenship: String,
+    #[validate(email)]
     pub email: String,
     pub sex: String,
+    #[validate(length(min = 1, max = 255))]
     pub personal_id_number: String,
+    #[validate(length(min = 1, max = 255))]
     pub school_name: String,
+    #[validate(length(min = 1, max = 255))]
     pub health_insurance: String,
     pub grades: GradeList,
+    pub first_school: School,
+    pub second_school: School,
     pub test_language: String,
+}
+impl CandidateDetails {
+    pub fn validate_self(&self) -> Result<(), ServiceError> {
+        self.first_school.validate()?;
+        self.second_school.validate()?;
+        self.validate()
+            .map_err(ServiceError::ValidationError)
+    }
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]

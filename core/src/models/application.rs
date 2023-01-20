@@ -47,9 +47,11 @@ pub struct ApplicationRow {
     pub application: i32,
     pub name: Option<String>,
     pub surname: Option<String>,
+    pub birth_surname: Option<String>,
     pub birthplace: Option<String>,
     pub birthdate: Option<String>,
     pub address: Option<String>,
+    pub letter_address: Option<String>,
     pub telephone: Option<String>,
     pub citizenship: Option<String>,
     pub email: Option<String>,
@@ -57,6 +59,15 @@ pub struct ApplicationRow {
     pub personal_identification_number: Option<String>,
     pub school_name: Option<String>,
     pub health_insurance: Option<String>,
+
+    pub diploma_1_8: String,
+    pub diploma_2_8: String,
+    pub diploma_1_9: String,
+
+    pub first_school_name: Option<String>,
+    pub first_school_field: Option<String>,
+    pub second_school_name: Option<String>,
+    pub second_school_field: Option<String>,
 
     pub parent_name: Option<String>,
     pub parent_surname: Option<String>,

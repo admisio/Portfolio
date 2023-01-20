@@ -5,7 +5,7 @@ use futures::future;
 
 use crate::{crypto, models::candidate::{ApplicationDetails}, error::ServiceError, utils::date::parse_naive_date_from_opt_str};
 
-use super::{candidate::{CandidateDetails, ParentDetails}, application::ApplicationRow, grade::GradeList};
+use super::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList, school::School};
 
 pub const NAIVE_DATE_FMT: &str = "%Y-%m-%d";
 
@@ -16,9 +16,11 @@ pub struct EncryptedString(String);
 pub struct EncryptedCandidateDetails {
     pub name: Option<EncryptedString>,
     pub surname: Option<EncryptedString>,
+    pub birth_surname: Option<EncryptedString>,
     pub birthplace: Option<EncryptedString>,
     pub birthdate: Option<EncryptedString>,
     pub address: Option<EncryptedString>,
+    pub letter_address: Option<EncryptedString>,
     pub telephone: Option<EncryptedString>,
     pub citizenship: Option<EncryptedString>,
     pub email: Option<EncryptedString>,
@@ -27,6 +29,8 @@ pub struct EncryptedCandidateDetails {
     pub school_name: Option<EncryptedString>,
     pub health_insurance: Option<EncryptedString>,
     pub grades_json: Option<EncryptedString>,
+    pub first_school: Option<EncryptedString>,
+    pub second_school: Option<EncryptedString>,
     pub test_language: Option<String>,
 }
 
@@ -121,12 +125,16 @@ impl EncryptedCandidateDetails {
     ) -> Result<EncryptedCandidateDetails, ServiceError> {
         let birthdate_str = form.birthdate.format(NAIVE_DATE_FMT).to_string();
         let grades_str = form.grades.to_string();
+        let (first_school_str, second_school_str) = 
+            (form.first_school.to_string(), form.second_school.to_string());
         let d = tokio::try_join!(
             EncryptedString::new_option(&form.name, recipients),
             EncryptedString::new_option(&form.surname, recipients),
+            EncryptedString::new_option(&form.birth_surname, recipients),
             EncryptedString::new_option(&form.birthplace, recipients),
             EncryptedString::new_option(&birthdate_str, recipients),
             EncryptedString::new_option(&form.address, recipients),
+            EncryptedString::new_option(&form.letter_address, recipients),
             EncryptedString::new_option(&form.telephone, recipients),
             EncryptedString::new_option(&form.citizenship, recipients),
             EncryptedString::new_option(&form.email, recipients),
@@ -135,23 +143,29 @@ impl EncryptedCandidateDetails {
             EncryptedString::new_option(&form.school_name, recipients),
             EncryptedString::new_option(&form.health_insurance, recipients),
             EncryptedString::new_option(&grades_str, recipients),
+            EncryptedString::new_option(&first_school_str, recipients),
+            EncryptedString::new_option(&second_school_str, recipients),
         )?;
 
         Ok(
             EncryptedCandidateDetails {
                 name: d.0,
                 surname: d.1,
-                birthplace: d.2,
-                birthdate: d.3,
-                address: d.4,
-                telephone: d.5,
-                citizenship: d.6,
-                email: d.7,
-                sex: d.8,
-                personal_id_number: d.9,
-                school_name: d.10,
-                health_insurance: d.11,
-                grades_json: d.12,
+                birth_surname: d.2,
+                birthplace: d.3,
+                birthdate: d.4,
+                address: d.5,
+                letter_address: d.6,
+                telephone: d.7,
+                citizenship: d.8,
+                email: d.9,
+                sex: d.10,
+                personal_id_number: d.11,
+                school_name: d.12,
+                health_insurance: d.13,
+                grades_json: d.14,
+                first_school: d.15,
+                second_school: d.16,
                 test_language: Some(form.test_language.to_owned()),
             }
         )
@@ -161,33 +175,41 @@ impl EncryptedCandidateDetails {
         let d = tokio::try_join!(
             EncryptedString::decrypt_option(&self.name, priv_key),              // 0
             EncryptedString::decrypt_option(&self.surname, priv_key),           // 1
-            EncryptedString::decrypt_option(&self.birthplace, priv_key),        // 2
-            EncryptedString::decrypt_option(&self.birthdate, priv_key),         // 3
-            EncryptedString::decrypt_option(&self.address, priv_key),           // 4
-            EncryptedString::decrypt_option(&self.telephone, priv_key),         // 5
-            EncryptedString::decrypt_option(&self.citizenship, priv_key),       // 6
-            EncryptedString::decrypt_option(&self.email, priv_key),             // 7
-            EncryptedString::decrypt_option(&self.sex, priv_key),               // 8
-            EncryptedString::decrypt_option(&self.personal_id_number, priv_key),// 9
-            EncryptedString::decrypt_option(&self.school_name, priv_key),       // 10
-            EncryptedString::decrypt_option(&self.health_insurance, priv_key),  // 11
-            EncryptedString::decrypt_option(&self.grades_json, priv_key),       // 12
+            EncryptedString::decrypt_option(&self.birth_surname, priv_key),     // 2
+            EncryptedString::decrypt_option(&self.birthplace, priv_key),        // 3
+            EncryptedString::decrypt_option(&self.birthdate, priv_key),         // 4
+            EncryptedString::decrypt_option(&self.address, priv_key),           // 5
+            EncryptedString::decrypt_option(&self.letter_address, priv_key),    // 6
+            EncryptedString::decrypt_option(&self.telephone, priv_key),         // 7
+            EncryptedString::decrypt_option(&self.citizenship, priv_key),       // 8
+            EncryptedString::decrypt_option(&self.email, priv_key),             // 9
+            EncryptedString::decrypt_option(&self.sex, priv_key),               // 10
+            EncryptedString::decrypt_option(&self.personal_id_number, priv_key),// 11
+            EncryptedString::decrypt_option(&self.school_name, priv_key),       // 12
+            EncryptedString::decrypt_option(&self.health_insurance, priv_key),  // 13
+            EncryptedString::decrypt_option(&self.grades_json, priv_key),       // 14
+            EncryptedString::decrypt_option(&self.first_school, priv_key),      // 15
+            EncryptedString::decrypt_option(&self.second_school, priv_key),     // 16
         )?;
 
         Ok(CandidateDetails {
                 name: d.0.unwrap_or_default(),
                 surname: d.1.unwrap_or_default(),
-                birthplace: d.2.unwrap_or_default(),
-                birthdate: parse_naive_date_from_opt_str(d.3, NAIVE_DATE_FMT)?,
-                address: d.4.unwrap_or_default(),
-                telephone: d.5.unwrap_or_default(),
-                citizenship: d.6.unwrap_or_default(),
-                email: d.7.unwrap_or_default(),
-                sex: d.8.unwrap_or_default(),
-                personal_id_number: d.9.unwrap_or_default(),
-                school_name: d.10.unwrap_or_default(),
-                health_insurance: d.11.unwrap_or_default(),
-                grades: GradeList::from_opt_str(d.12).unwrap_or_default(),
+                birth_surname: d.2.unwrap_or_default(),
+                birthplace: d.3.unwrap_or_default(),
+                birthdate: parse_naive_date_from_opt_str(d.4, NAIVE_DATE_FMT)?,
+                address: d.5.unwrap_or_default(),
+                letter_address: d.6.unwrap_or_default(),
+                telephone: d.7.unwrap_or_default(),
+                citizenship: d.8.unwrap_or_default(),
+                email: d.9.unwrap_or_default(),
+                sex: d.10.unwrap_or_default(),
+                personal_id_number: d.11.unwrap_or_default(),
+                school_name: d.12.unwrap_or_default(),
+                health_insurance: d.13.unwrap_or_default(),
+                grades: GradeList::from_opt_str(d.14).unwrap_or_default(),
+                first_school: School::from_opt_str(d.15).unwrap_or_default(),
+                second_school: School::from_opt_str(d.16).unwrap_or_default(),
                 test_language: self.test_language.to_owned().unwrap_or_default().to_string(),
             }
         )
@@ -202,8 +224,12 @@ impl EncryptedCandidateDetails {
         self.telephone.is_some() &&
         self.citizenship.is_some() &&
         self.email.is_some() &&
-        // self.sex.is_some() &&
-        self.personal_id_number.is_some()
+        self.personal_id_number.is_some() &&
+        self.school_name.is_some() &&
+        self.health_insurance.is_some() &&
+        self.first_school.is_some() &&
+        self.second_school.is_some()
+
     }
 }
 impl From<&candidate::Model> for EncryptedCandidateDetails {
@@ -213,9 +239,11 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
         EncryptedCandidateDetails {
             name: EncryptedString::try_from(&candidate.name).ok(),
             surname: EncryptedString::try_from(&candidate.surname).ok(),
+            birth_surname: EncryptedString::try_from(&candidate.birth_surname).ok(),
             birthplace: EncryptedString::try_from(&candidate.birthplace).ok(),
             birthdate: EncryptedString::try_from(&candidate.birthdate).ok(),
             address: EncryptedString::try_from(&candidate.address).ok(),
+            letter_address: EncryptedString::try_from(&candidate.letter_address).ok(),
             telephone: EncryptedString::try_from(&candidate.telephone).ok(),
             citizenship: EncryptedString::try_from(&candidate.citizenship).ok(),
             email: EncryptedString::try_from(&candidate.email).ok(),
@@ -224,6 +252,8 @@ impl From<&candidate::Model> for EncryptedCandidateDetails {
             school_name: EncryptedString::try_from(&candidate.school_name).ok(),
             health_insurance: EncryptedString::try_from(&candidate.health_insurance).ok(),
             grades_json: EncryptedString::try_from(&candidate.grades_json).ok(),
+            first_school: EncryptedString::try_from(&candidate.first_school).ok(),
+            second_school: EncryptedString::try_from(&candidate.second_school).ok(),
             test_language: candidate.test_language.to_owned(),
         }
     }
@@ -327,9 +357,9 @@ impl EncryptedApplicationDetails {
     }
 }
 
-impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetails {
+impl From<(&candidate::Model, &Vec<parent::Model>)> for EncryptedApplicationDetails {
     fn from(
-        (candidate, parents): (&candidate::Model, Vec<parent::Model>),
+        (candidate, parents): (&candidate::Model, &Vec<parent::Model>),
     ) -> Self {
         let enc_parents = parents.iter()
             .map(|m| EncryptedParentDetails::from(m))
@@ -342,50 +372,6 @@ impl From<(&candidate::Model, Vec<parent::Model>)> for EncryptedApplicationDetai
     }
 }
 
-impl TryFrom<ApplicationRow> for EncryptedApplicationDetails {
-    type Error = ServiceError;
-
-    fn try_from(
-        cp: ApplicationRow,
-    ) -> Result<Self, Self::Error> {
-        Ok(EncryptedApplicationDetails {
-            candidate: EncryptedCandidateDetails {
-                name: EncryptedString::try_from(&cp.name).ok(),
-                surname: EncryptedString::try_from(&cp.surname).ok(),
-                birthplace: EncryptedString::try_from(&cp.birthplace).ok(),
-                birthdate: EncryptedString::try_from(&cp.birthdate).ok(),
-                address: EncryptedString::try_from(&cp.address).ok(),
-                telephone: EncryptedString::try_from(&cp.telephone).ok(),
-                citizenship: EncryptedString::try_from(&cp.citizenship).ok(),
-                email: EncryptedString::try_from(&cp.email).ok(),
-                sex: EncryptedString::try_from(&cp.sex).ok(),
-                personal_id_number: EncryptedString::try_from(&cp.personal_identification_number).ok(),
-                school_name: EncryptedString::try_from(&cp.school_name).ok(),
-                health_insurance: EncryptedString::try_from(&cp.health_insurance).ok(),
-                grades_json: None, // TODO
-                test_language: None // TODO
-            },
-            parents: vec![EncryptedParentDetails {
-                name: EncryptedString::try_from(&cp.parent_name).ok(),
-                surname: EncryptedString::try_from(&cp.parent_surname).ok(),
-                telephone: EncryptedString::try_from(&cp.parent_telephone).ok(),
-                email: EncryptedString::try_from(&cp.parent_email).ok(),
-            }]
-
-        })
-    }
-}
-
-/* pub async fn decrypt_if_exists(
-    private_key: &String,
-    encrypted_string: Option<String>,
-) -> Result<String, ServiceError> {
-    match EncryptedString::try_from(&encrypted_string) {
-        Ok(encrypted_string) => Ok(encrypted_string.decrypt(private_key).await?),
-        Err(_) => Ok(String::from("")),
-    }
-} */
-
 #[cfg(test)]
 pub mod tests {
     use std::sync::Mutex;
@@ -395,7 +381,7 @@ pub mod tests {
     use once_cell::sync::Lazy;
     use sea_orm::{DbConn, Set, ActiveModelTrait};
 
-    use crate::{crypto, models::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
+    use crate::{crypto, models::{candidate::{CandidateDetails, ParentDetails}, grade::GradeList, school::School}, utils::db::get_memory_sqlite_connection, services::candidate_service::tests::put_user_data};
 
     use super::{ApplicationDetails, EncryptedApplicationDetails, EncryptedString};
 
@@ -407,9 +393,11 @@ pub mod tests {
             candidate: CandidateDetails {
                 name: "name".to_string(),
                 surname: "surname".to_string(),
+                birth_surname: "birth_surname".to_string(),
                 birthplace: "birthplace".to_string(),
                 birthdate: chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 address: "address".to_string(),
+                letter_address: "letter_address".to_string(),
                 telephone: "telephone".to_string(),
                 citizenship: "citizenship".to_string(),
                 email: "email".to_string(),
@@ -418,6 +406,8 @@ pub mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
+                first_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"KB\"}".to_string())).unwrap(),
+                second_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"IT\"}".to_string())).unwrap(),
                 test_language: "test_language".to_string(),
             },
             parents: vec![ParentDetails {
@@ -518,7 +508,7 @@ pub mod tests {
 
         let (_, candidate, parents) = put_user_data(&db).await;
 
-        let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, parents)).unwrap();
+        let encrypted_details = EncryptedApplicationDetails::try_from((&candidate, &parents)).unwrap();
 
         let application_details = encrypted_details
             .decrypt(PRIVATE_KEY.to_string()) // decrypt with admin's private key
