@@ -265,8 +265,6 @@ impl ApplicationService {
                 ).await
                 })
         ).await
-
-        
     }
 
     async fn decrypt_private_key(
@@ -291,7 +289,6 @@ impl ApplicationService {
         }
     }
 
-    // TODO
     pub async fn reset_password(
         admin_private_key: String,
         db: &DbConn,
@@ -300,7 +297,6 @@ impl ApplicationService {
         let application = Query::find_application_by_id(db, id).await?
             .ok_or(ServiceError::CandidateNotFound)?;
         let candidate = ApplicationService::find_related_candidate(db, &application).await?;
-        let parents = Query::find_candidate_parents(db, &candidate).await?;
        
         let new_password_plain = crypto::random_12_char_string();
         let new_password_hash = crypto::hash_password(new_password_plain.clone()).await?;
@@ -319,6 +315,7 @@ impl ApplicationService {
              encrypted_priv_key
         ).await?;
 
+        
         // user might no have filled his details yet, but personal id number is filled from beginning
         let personal_id_number = EncryptedString::from(application.personal_id_number.clone())
             .decrypt(&admin_private_key)
@@ -330,8 +327,37 @@ impl ApplicationService {
         recipients.append(&mut admin_public_keys);
         recipients.append(&mut applications.iter().map(|a| a.public_key.to_owned()).collect());
         
+        let candidate = Self::update_all_application_details(db,
+             application.id,
+             candidate,
+             &recipients,
+             &admin_private_key
+        ).await?;
+
+        PortfolioService::reencrypt_portfolio(
+            candidate.id,
+            admin_private_key,
+            &recipients
+        ).await?;
+
+        Ok(
+            CreateCandidateResponse {
+                application_id: id,
+                personal_id_number,
+                password: new_password_plain,
+            }
+        )
+    }
+
+    async fn update_all_application_details(db: &DbConn,
+         application_id: i32,
+         candidate: candidate::Model,
+         recipients: &Vec<String>,
+         admin_private_key: &String
+    ) -> Result<candidate::Model, ServiceError> {
+        let parents = Query::find_candidate_parents(db, &candidate).await?;
         let dec_details = EncryptedApplicationDetails::from((&candidate, &parents))
-            .decrypt(admin_private_key).await?;
+            .decrypt(admin_private_key.to_owned()).await?;
 
         let enc_details = EncryptedApplicationDetails::new(&dec_details, recipients).await?;
 
@@ -341,23 +367,17 @@ impl ApplicationService {
                 .ok_or(ServiceError::CandidateDetailsNotSet)?.to_string()
         ).await?;
 
-        Mutation::update_candidate_opt_details(db, 
+        let candidate = Mutation::update_candidate_opt_details(db, 
             candidate,
             enc_details.candidate,
-            application.id
+            application_id
         ).await?;
 
         for i in 0..enc_details.parents.len() {
             Mutation::add_parent_details(db, parents[i].clone(), enc_details.parents[i].clone()).await?;
         }
-
-        Ok(
-            CreateCandidateResponse {
-                application_id: id,
-                personal_id_number,
-                password: new_password_plain,
-            }
-        )
+        
+        Ok(candidate)
     }
 }
 
