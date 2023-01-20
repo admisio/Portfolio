@@ -25,10 +25,10 @@
 			{$LL.candidate.auth.login.description()}
 		</p>
 		<div class="w-4/5 lg:w-3/5">
-			<TextField bind:value={applicationValue} placeholder="Ev. číslo" type="number" />
+			<TextField bind:value={applicationValue} placeholder={$LL.input.evidenceNumber()} type="number" />
 		</div>
 		<div class="mt-8 w-4/5 lg:w-3/5">
-			<Submit on:click={redirectToCode} value="Odeslat" />
+			<Submit on:click={redirectToCode} value={$LL.input.submit()} />
 		</div>
 	</div>
 </SplitLayout>

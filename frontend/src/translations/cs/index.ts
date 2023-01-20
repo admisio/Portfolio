@@ -7,8 +7,19 @@ const cs: BaseTranslation = {
 				title: 'Přihlášení',
 				description:
 					'Evidenční číslo je jedinečné číslo přidělené uchazeči, které slouží k jeho identifikaci\napřihlášení se do systému.'
+			},
+			application: {
+				title: 'Zadejte 12místný kód pro aktivaci účtu',
+				help: {
+					description: "Nevíte si rady? Klikněte",
+					here: 'zde'
+				}
 			}
 		}
+	},
+	input: {
+		evidenceNumber: 'Ev. číslo',
+		submit: 'Odeslat'
 	}
 };
 

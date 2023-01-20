@@ -26,7 +26,33 @@ type RootTranslation = {
 				 */
 				description: string
 			}
+			application: {
+				/**
+				 * Z​a​d​e​j​t​e​ ​1​2​m​í​s​t​n​ý​ ​k​ó​d​ ​p​r​o​ ​a​k​t​i​v​a​c​i​ ​ú​č​t​u
+				 */
+				title: string
+				help: {
+					/**
+					 * N​e​v​í​t​e​ ​s​i​ ​r​a​d​y​?​ ​K​l​i​k​n​ě​t​e
+					 */
+					description: string
+					/**
+					 * z​d​e
+					 */
+					here: string
+				}
+			}
 		}
+	}
+	input: {
+		/**
+		 * E​v​.​ ​č​í​s​l​o
+		 */
+		evidenceNumber: string
+		/**
+		 * O​d​e​s​l​a​t
+		 */
+		submit: string
 	}
 }
 
@@ -44,7 +70,33 @@ export type TranslationFunctions = {
 				 */
 				description: () => LocalizedString
 			}
+			application: {
+				/**
+				 * Zadejte 12místný kód pro aktivaci účtu
+				 */
+				title: () => LocalizedString
+				help: {
+					/**
+					 * Nevíte si rady? Klikněte
+					 */
+					description: () => LocalizedString
+					/**
+					 * zde
+					 */
+					here: () => LocalizedString
+				}
+			}
 		}
+	}
+	input: {
+		/**
+		 * Ev. číslo
+		 */
+		evidenceNumber: () => LocalizedString
+		/**
+		 * Odeslat
+		 */
+		submit: () => LocalizedString
 	}
 }
 
