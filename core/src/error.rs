@@ -16,6 +16,8 @@ pub enum ServiceError {
     ExpiredSession,
     #[error("Missing details")]
     MissingDetails,
+    #[error("Validation error: {0}")]
+    ValidationError(#[from] validator::ValidationErrors),
     #[error("User already exists")]
     UserAlreadyExists,
     #[error("Candidate not found")]
@@ -85,6 +87,7 @@ impl ServiceError {
             ServiceError::InvalidApplicationId => 400,
             ServiceError::ParentOverflow => 400,
             ServiceError::MissingDetails => 400,
+            ServiceError::ValidationError(_) => 400,
             ServiceError::Unauthorized => 401,
             ServiceError::InvalidCredentials => 401,
             ServiceError::ExpiredSession => 401,

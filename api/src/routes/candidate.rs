@@ -102,6 +102,7 @@ pub async fn post_details(
 ) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
+    form.candidate.validate_self().map_err(to_custom_error)?;
     let application: application::Model = session.into();
     let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
 

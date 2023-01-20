@@ -1,8 +1,13 @@
 use serde::{Serialize, Deserialize};
+use validator::Validate;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+use crate::error::ServiceError;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Validate, PartialEq, Eq)]
 pub struct School {
+    #[validate(length(min = 1, max = 255))]
     name: String,
+    #[validate(length(min = 1, max = 255))]
     field: String,
 }
 
@@ -11,6 +16,11 @@ impl School {
         school.map(
             |school| serde_json::from_str(&school).unwrap() // TODO: handle error
         )
+    }
+
+    pub fn validate_self(&self) -> Result<(), ServiceError> {
+        self.validate()
+            .map_err(ServiceError::ValidationError)
     }
 
     pub fn name(&self) -> &str {

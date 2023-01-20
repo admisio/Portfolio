@@ -227,7 +227,6 @@ impl EncryptedCandidateDetails {
         self.personal_id_number.is_some() &&
         self.school_name.is_some() &&
         self.health_insurance.is_some() &&
-        self.grades_json.is_some() &&
         self.first_school.is_some() &&
         self.second_school.is_some()
 
