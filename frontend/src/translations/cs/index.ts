@@ -1,6 +1,14 @@
 import type { BaseTranslation } from '../i18n-types.js';
 
 const cs: BaseTranslation = {
+	admin: {
+		auth: {
+			login: {
+				title: 'Přihlášení',
+				description: 'Administrátoská sekce aplikace\nPřístup povolen pouze pro oprávněné osoby!'
+			}
+		}
+	},
 	candidate: {
 		auth: {
 			login: {
@@ -11,7 +19,7 @@ const cs: BaseTranslation = {
 			application: {
 				title: 'Zadejte 12místný kód pro aktivaci účtu',
 				help: {
-					description: "Nevíte si rady? Klikněte",
+					description: 'Nevíte si rady? Klikněte',
 					here: 'zde'
 				}
 			}
@@ -19,6 +27,8 @@ const cs: BaseTranslation = {
 	},
 	input: {
 		evidenceNumber: 'Ev. číslo',
+		adminId: 'Admin Id',
+		password: 'Heslo',
 		submit: 'Odeslat'
 	}
 };
