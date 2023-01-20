@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import FullLayout from '$lib/components/layout/FullLayout.svelte';
 
 	import woman from '$lib/assets/woman.png';
@@ -132,9 +134,12 @@
 			{/each}
 		</div>
 		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
-			Zadejte 12místný kód pro aktivaci účtu
+			{$LL.candidate.auth.application.title()}
 		</h3>
-		<p class="text-sspsGray mx-8 mt-8 text-center">Nevíte si rady? Klikněte <u>zde</u></p>
+		<p class="text-sspsGray mx-8 mt-8 text-center">
+			{$LL.candidate.auth.application.help.description()}
+			<u>{$LL.candidate.auth.application.help.here()}</u>
+		</p>
 	</div>
 </FullLayout>
 
