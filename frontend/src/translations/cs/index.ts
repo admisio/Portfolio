@@ -48,10 +48,31 @@ const cs: BaseTranslation = {
 		}
 	},
 	input: {
+		optional: 'nepovinné',
+		nameSurname: 'Jméno a příjmení',
+		email: 'E-mail',
+		telephone: 'Telefon',
+		address: 'Ulice a č. p.',
+		zipCode: 'PSČ',
+		city: 'Město',
+		birthPlace: 'Místo narození',
+		birthDate: 'Datum narození',
+		sex: 'Pohlaví',
+		citizenship: 'Občanství',
+		testLanguage: 'Jazyk odborných testů',
+		schoolIzo: "IZO školy",
+		schoolName: "Název školy",
+		insuranceNumber: 'Číslo zdravotní pojišťovny',
+		personalIdentificationNumber: 'Rodné číslo',
 		evidenceNumber: 'Ev. číslo',
 		adminId: 'Admin Id',
 		password: 'Heslo',
-		submit: 'Odeslat'
+		submit: 'Odeslat',
+		parent: {
+			nameSurname: 'Jméno a příjmení zákonného zástupce',
+			email: 'E-mail zákonného zástupce',
+			telephone: 'Telefon zákonného zástupce'
+		}
 	}
 };
 
