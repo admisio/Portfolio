@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import { goto } from '$app/navigation';
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
@@ -61,7 +63,7 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			testLanguage: '',
+			testLanguage: ''
 		},
 		parents: [
 			{
@@ -121,8 +123,9 @@
 							semester: yup.string().required()
 						})
 						.required()
-				).required(),
-			testLanguage: yup.string().required(),
+				)
+				.required(),
+			testLanguage: yup.string().required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -364,7 +367,7 @@
 				}
 				break;
 			case 7:
-				if ($typedErrors["candidate"]["grades"].length > 0) return true;
+				if ($typedErrors['candidate']['grades'].length > 0) return true;
 				break;
 			default:
 				return false;
@@ -452,10 +455,7 @@
 						<a href="/bezpecnost" class="text-sspsBlue underline"> zde</a>.
 					</p>
 					<div class="field">
-						<GdprCheckBox
-							bind:value={$form.gdpr}
-							error={$typedErrors['gdpr']}
-						/>
+						<GdprCheckBox bind:value={$form.gdpr} error={$typedErrors['gdpr']} />
 					</div>
 				</form>
 			{:else if pageIndex === 2}
@@ -471,21 +471,21 @@
 								error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
 								bind:valueName={$form.candidate.name}
 								bind:valueSurname={$form.candidate.surname}
-								placeholder="Jméno a příjmení"
+								placeholder="{$LL.input.nameSurname()}"
 							/>
 						</span>
 						<span class="field">
 							<EmailField
 								error={$typedErrors['candidate']['email']}
 								bind:value={$form.candidate.email}
-								placeholder="E-mail"
+								placeholder="{$LL.input.email()}"
 							/>
 						</span>
 						<span class="field">
 							<TelephoneField
 								error={$typedErrors['candidate']['telephone']}
 								bind:value={$form.candidate.telephone}
-								placeholder="Telefon"
+								placeholder="{$LL.input.telephone()}"
 							/>
 						</span>
 					</div>
@@ -503,7 +503,7 @@
 								$typedErrors['candidate']['houseNumber']}
 							bind:valueName={$form.candidate.street}
 							bind:valueSurname={$form.candidate.houseNumber}
-							placeholder="Ulice a č. p."
+							placeholder={$LL.input.address()}
 							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
 						/>
 					</span>
@@ -512,7 +512,7 @@
 							error={$typedErrors['candidate']['zip']}
 							bind:value={$form.candidate.zip}
 							type="number"
-							placeholder="PSČ"
+							placeholder={$LL.input.zipCode()}
 							helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
 						/>
 					</span>
@@ -523,7 +523,7 @@
 							error={$typedErrors['candidate']['city']}
 							bind:value={$form.candidate.city}
 							type="text"
-							placeholder="Město"
+							placeholder={$LL.input.city()}
 							helperText="Uveďte město"
 						/>
 					</span>
@@ -532,7 +532,7 @@
 							error={$typedErrors['candidate']['birthplace']}
 							bind:value={$form.candidate.birthplace}
 							type="text"
-							placeholder="Místo narození"
+							placeholder={$LL.input.birthPlace()}
 							helperText="Uveďte město"
 							icon
 						>
@@ -548,7 +548,7 @@
 						error={$typedErrors['candidate']['birthdate']}
 						bind:value={$form.candidate.birthdate}
 						type="text"
-						placeholder="Datum narození"
+						placeholder={$LL.input.birthDate()}
 						helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 					/>
 					<div class="ml-2">
@@ -556,7 +556,7 @@
 							error={$typedErrors['candidate']['sex']}
 							bind:value={$form.candidate.sex}
 							options={['Žena', 'Muž']}
-							placeholder="Pohlaví"
+							placeholder={$LL.input.sex()}
 						/>
 					</div>
 				</div>
@@ -571,21 +571,21 @@
 							error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 							bind:valueName={$form.parents[0].name}
 							bind:valueSurname={$form.parents[0].surname}
-							placeholder="Jméno a příjmení zákonného zástupce"
+							placeholder={$LL.input.parent.nameSurname()}
 						/>
 					</span>
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][0]['email']}
 							bind:value={$form.parents[0].email}
-							placeholder="E-mail zákonného zástupce"
+							placeholder={$LL.input.parent.email()}
 						/>
 					</span>
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][0]['telephone']}
 							bind:value={$form.parents[0].telephone}
-							placeholder="Telefon zákonného zástupce"
+							placeholder={$LL.input.parent.telephone()}
 						/>
 					</span>
 				</div>
@@ -600,21 +600,21 @@
 							error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
 							bind:valueName={$form.parents[1].name}
 							bind:valueSurname={$form.parents[1].surname}
-							placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.nameSurname()} (${$LL.input.optional()})`}
 						/>
 					</span>
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][1]['email']}
 							bind:value={$form.parents[1].email}
-							placeholder="E-mail zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.email()} (${$LL.input.optional()})`}
 						/>
 					</span>
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][1]['telephone']}
 							bind:value={$form.parents[1].telephone}
-							placeholder="Telefon zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.telephone()} (${$LL.input.optional()})`}
 						/>
 					</span>
 				</div>
@@ -630,15 +630,15 @@
 							<SelectField
 								error={$typedErrors['candidate']['citizenship']}
 								bind:value={$form.candidate.citizenship}
-								placeholder="Občanství"
+								placeholder={$LL.input.citizenship()}
 								options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 							/>
 						</span>
-						<span class="w-[50%] ml-2">
+						<span class="ml-2 w-[50%]">
 							<SelectField
 								error={$typedErrors['candidate']['testLanguage']}
 								bind:value={$form.candidate.testLanguage}
-								placeholder="Jazyk odborných testů"
+								placeholder={$LL.input.testLanguage()}
 								options={['Čeština', 'Angličtina']}
 							/>
 						</span>
@@ -650,14 +650,14 @@
 									error={$typedErrors['candidate']['schoolName']}
 									type="number"
 									bind:value={$form.candidate.schoolName}
-									placeholder="IZO školy"
-								/>
+									placeholder={$LL.input.schoolIzo()}
+									/>
 							{:else}
 								<TextField
 									error={$typedErrors['candidate']['schoolName']}
 									type="text"
 									bind:value={$form.candidate.schoolName}
-									placeholder="Název školy"
+									placeholder={$LL.input.schoolName()}
 								/>
 							{/if}
 						</span>
@@ -667,8 +667,8 @@
 								error={$typedErrors['candidate']['healthInsurance']}
 								type="text"
 								bind:value={$form.candidate.healthInsurance}
-								placeholder="Číslo zdravotní pojišťovny"
-							/>
+								placeholder={$LL.input.insuranceNumber()}
+								/>
 						</span>
 					</div>
 				</div>
@@ -677,14 +677,14 @@
 						<IdField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
-						/>
+							placeholder={$LL.input.personalIdentificationNumber()}
+							/>
 					{:else}
 						<TextField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
-						/>
+							placeholder={$LL.input.personalIdentificationNumber()}
+							/>
 					{/if}
 				</div>
 			{:else if pageIndex === 7}

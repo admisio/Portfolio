@@ -113,6 +113,70 @@ type RootTranslation = {
 	}
 	input: {
 		/**
+		 * n​e​p​o​v​i​n​n​é
+		 */
+		optional: string
+		/**
+		 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í
+		 */
+		nameSurname: string
+		/**
+		 * E​-​m​a​i​l
+		 */
+		email: string
+		/**
+		 * T​e​l​e​f​o​n
+		 */
+		telephone: string
+		/**
+		 * U​l​i​c​e​ ​a​ ​č​.​ ​p​.
+		 */
+		address: string
+		/**
+		 * P​S​Č
+		 */
+		zipCode: string
+		/**
+		 * M​ě​s​t​o
+		 */
+		city: string
+		/**
+		 * M​í​s​t​o​ ​n​a​r​o​z​e​n​í
+		 */
+		birthPlace: string
+		/**
+		 * D​a​t​u​m​ ​n​a​r​o​z​e​n​í
+		 */
+		birthDate: string
+		/**
+		 * P​o​h​l​a​v​í
+		 */
+		sex: string
+		/**
+		 * O​b​č​a​n​s​t​v​í
+		 */
+		citizenship: string
+		/**
+		 * J​a​z​y​k​ ​o​d​b​o​r​n​ý​c​h​ ​t​e​s​t​ů
+		 */
+		testLanguage: string
+		/**
+		 * I​Z​O​ ​š​k​o​l​y
+		 */
+		schoolIzo: string
+		/**
+		 * N​á​z​e​v​ ​š​k​o​l​y
+		 */
+		schoolName: string
+		/**
+		 * Č​í​s​l​o​ ​z​d​r​a​v​o​t​n​í​ ​p​o​j​i​š​ť​o​v​n​y
+		 */
+		insuranceNumber: string
+		/**
+		 * R​o​d​n​é​ ​č​í​s​l​o
+		 */
+		personalIdentificationNumber: string
+		/**
 		 * E​v​.​ ​č​í​s​l​o
 		 */
 		evidenceNumber: string
@@ -128,6 +192,20 @@ type RootTranslation = {
 		 * O​d​e​s​l​a​t
 		 */
 		submit: string
+		parent: {
+			/**
+			 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
+			 */
+			nameSurname: string
+			/**
+			 * E​-​m​a​i​l​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
+			 */
+			email: string
+			/**
+			 * T​e​l​e​f​o​n​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
+			 */
+			telephone: string
+		}
 	}
 }
 
@@ -228,6 +306,70 @@ export type TranslationFunctions = {
 	}
 	input: {
 		/**
+		 * nepovinné
+		 */
+		optional: () => LocalizedString
+		/**
+		 * Jméno a příjmení
+		 */
+		nameSurname: () => LocalizedString
+		/**
+		 * E-mail
+		 */
+		email: () => LocalizedString
+		/**
+		 * Telefon
+		 */
+		telephone: () => LocalizedString
+		/**
+		 * Ulice a č. p.
+		 */
+		address: () => LocalizedString
+		/**
+		 * PSČ
+		 */
+		zipCode: () => LocalizedString
+		/**
+		 * Město
+		 */
+		city: () => LocalizedString
+		/**
+		 * Místo narození
+		 */
+		birthPlace: () => LocalizedString
+		/**
+		 * Datum narození
+		 */
+		birthDate: () => LocalizedString
+		/**
+		 * Pohlaví
+		 */
+		sex: () => LocalizedString
+		/**
+		 * Občanství
+		 */
+		citizenship: () => LocalizedString
+		/**
+		 * Jazyk odborných testů
+		 */
+		testLanguage: () => LocalizedString
+		/**
+		 * IZO školy
+		 */
+		schoolIzo: () => LocalizedString
+		/**
+		 * Název školy
+		 */
+		schoolName: () => LocalizedString
+		/**
+		 * Číslo zdravotní pojišťovny
+		 */
+		insuranceNumber: () => LocalizedString
+		/**
+		 * Rodné číslo
+		 */
+		personalIdentificationNumber: () => LocalizedString
+		/**
 		 * Ev. číslo
 		 */
 		evidenceNumber: () => LocalizedString
@@ -243,6 +385,20 @@ export type TranslationFunctions = {
 		 * Odeslat
 		 */
 		submit: () => LocalizedString
+		parent: {
+			/**
+			 * Jméno a příjmení zákonného zástupce
+			 */
+			nameSurname: () => LocalizedString
+			/**
+			 * E-mail zákonného zástupce
+			 */
+			email: () => LocalizedString
+			/**
+			 * Telefon zákonného zástupce
+			 */
+			telephone: () => LocalizedString
+		}
 	}
 }
 
