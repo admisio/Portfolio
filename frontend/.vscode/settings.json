@@ -1,6 +1,0 @@
-{
-   "i18n-ally.pathMatcher": "{locale}/index.{ext}",
-   "i18n-ally.enabledParsers": ["ts", "js"],
-   "i18n-ally.keystyle": "nested",
-   "i18n-ally.localesPaths": ["src/translations"]
-}
