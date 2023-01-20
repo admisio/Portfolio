@@ -6,7 +6,7 @@ use sea_orm::{DbConn, prelude::Uuid, IntoActiveModel};
 
 use crate::{error::ServiceError, Query, utils::db::get_recipients, models::candidate_details::EncryptedApplicationDetails, models::{candidate::{ApplicationDetails, CreateCandidateResponse}, candidate_details::{EncryptedString, EncryptedCandidateDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, Mutation, crypto::{hash_password, self}};
 
-use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::PortfolioService};
+use super::{parent_service::ParentService, candidate_service::CandidateService, session_service::SessionService, portfolio_service::{PortfolioService, SubmissionProgress}};
 
 const FIELD_OF_STUDY_PREFIXES: [&str; 3] = ["101", "102", "103"];
 
@@ -334,11 +334,13 @@ impl ApplicationService {
              &admin_private_key
         ).await?;
 
-        PortfolioService::reencrypt_portfolio(
-            candidate.id,
-            admin_private_key,
-            &recipients
-        ).await?;
+        if PortfolioService::get_submission_progress(candidate.id).await? == SubmissionProgress::Submitted {
+            PortfolioService::reencrypt_portfolio(
+                candidate.id,
+                admin_private_key,
+                &recipients
+            ).await?;
+        }
 
         Ok(
             CreateCandidateResponse {
@@ -477,7 +479,6 @@ mod application_tests {
         assert!(!ApplicationService::is_application_id_valid(101));
     }
 
-    // TODO
     #[tokio::test]
     async fn test_password_reset() {
         let db = get_memory_sqlite_connection().await;
