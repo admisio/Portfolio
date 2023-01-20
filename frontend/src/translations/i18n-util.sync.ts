@@ -5,7 +5,10 @@ import { initFormatters } from './formatters.js'
 import type { Locales, Translations } from './i18n-types.js'
 import { loadedFormatters, loadedLocales, locales } from './i18n-util.js'
 
+import cs from './cs/index.js'
+
 const localeTranslations = {
+	cs,
 }
 
 export const loadLocale = (locale: Locales): void => {
