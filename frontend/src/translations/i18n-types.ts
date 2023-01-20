@@ -13,6 +13,21 @@ export type Translation = RootTranslation
 export type Translations = RootTranslation
 
 type RootTranslation = {
+	admin: {
+		auth: {
+			login: {
+				/**
+				 * P​ř​i​h​l​á​š​e​n​í
+				 */
+				title: string
+				/**
+				 * A​d​m​i​n​i​s​t​r​á​t​o​s​k​á​ ​s​e​k​c​e​ ​a​p​l​i​k​a​c​e​
+			​P​ř​í​s​t​u​p​ ​p​o​v​o​l​e​n​ ​p​o​u​z​e​ ​p​r​o​ ​o​p​r​á​v​n​ě​n​é​ ​o​s​o​b​y​!
+				 */
+				description: string
+			}
+		}
+	}
 	candidate: {
 		auth: {
 			login: {
@@ -50,6 +65,14 @@ type RootTranslation = {
 		 */
 		evidenceNumber: string
 		/**
+		 * A​d​m​i​n​ ​I​d
+		 */
+		adminId: string
+		/**
+		 * H​e​s​l​o
+		 */
+		password: string
+		/**
 		 * O​d​e​s​l​a​t
 		 */
 		submit: string
@@ -57,6 +80,21 @@ type RootTranslation = {
 }
 
 export type TranslationFunctions = {
+	admin: {
+		auth: {
+			login: {
+				/**
+				 * Přihlášení
+				 */
+				title: () => LocalizedString
+				/**
+				 * Administrátoská sekce aplikace
+			Přístup povolen pouze pro oprávněné osoby!
+				 */
+				description: () => LocalizedString
+			}
+		}
+	}
 	candidate: {
 		auth: {
 			login: {
@@ -93,6 +131,14 @@ export type TranslationFunctions = {
 		 * Ev. číslo
 		 */
 		evidenceNumber: () => LocalizedString
+		/**
+		 * Admin Id
+		 */
+		adminId: () => LocalizedString
+		/**
+		 * Heslo
+		 */
+		password: () => LocalizedString
 		/**
 		 * Odeslat
 		 */
