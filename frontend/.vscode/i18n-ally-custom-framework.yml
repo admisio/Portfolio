@@ -1,0 +1,18 @@
+languageIds:
+   - typescript
+   - javascript
+   - typescriptreact
+   - javascriptreact
+   - svelte
+   - html
+
+usageMatchRegex:
+   - "\\$?LL\\.({key})\\(((\\{.*\\})|([^)]*))\\)"
+
+refactorTemplates:
+   - '{$LL.$1()}'
+   - '{LL.$1()}'
+   - '$LL.$1()'
+   - 'LL.$1()'
+
+monopoly: true
