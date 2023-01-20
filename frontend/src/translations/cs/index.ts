@@ -25,6 +25,28 @@ const cs: BaseTranslation = {
 			}
 		}
 	},
+	components: {
+		checkbox: {
+			accountLinkCheckBox: {
+				ok: 'Vše je v pořádku',
+				whatHappened: 'Co se děje?',
+				multiple: {
+					title:
+						'Ano, podával/a jsem dvě přihlášky na dva obory SSPŠaG ({first:number}) a ({second:number})',
+					title2: 'Ne, přihlášku na SSPŠaG jsem podával/a jen jednu ({first:number})'
+				},
+				single: {
+					title: 'Ano, přihlášku na SSPŠaG jsem podával/a jen jednu ({first:number})',
+					title2: '`Ne, přihlášku na SSPŠaG jsem podával více přihlášek'
+				}
+			},
+			gdprCheckBox: {
+				title: 'Souhlasím se zpracováním osobních údajů',
+				description: 'Kliknutím vyjaďřujete souhlas se zpracováním osobních údajů',
+				here: 'Zde'
+			}
+		}
+	},
 	input: {
 		evidenceNumber: 'Ev. číslo',
 		adminId: 'Admin Id',
