@@ -10,9 +10,11 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 		candidate: {
 			name: '',
 			surname: '',
+			birthSurname: '',
 			birthplace: '',
 			birthdate: '',
 			address: '',
+			letterAddress: '',
 			telephone: '',
 			citizenship: '',
 			email: '',
@@ -21,6 +23,8 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
+			firstSchool: '',
+			secondSchool: '',
 			testLanguage: ''
 		},
 		parents: []

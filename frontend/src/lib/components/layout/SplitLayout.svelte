@@ -49,8 +49,8 @@
 	}
 	.view {
 		@apply z-10;
-		@apply absolute top-0 right-0 bottom-0 left-0 m-auto md:top-auto md:bottom-auto md:left-auto md:m-0;
-		@apply md:h-screen md:w-[50vw];
+		@apply absolute top-0 right-0 bottom-0 m-auto md:top-auto md:bottom-auto md:left-auto md:m-0;
+		@apply md:h-screen md:w-[75vw];
 		@apply md:my-auto;
 		@apply bg-white;
 	}

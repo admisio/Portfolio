@@ -5,9 +5,11 @@ export interface CandidateData {
 	candidate: {
 		name: string;
 		surname: string;
+		birthSurname: string;
 		birthplace: string;
 		birthdate: string;
 		address: string;
+		letterAddress: string;
 		telephone: string;
 		citizenship: string;
 		email: string;
@@ -16,6 +18,8 @@ export interface CandidateData {
 		schoolName: string;
 		healthInsurance: string;
 		grades: Array<GradeBackend>;
+		firstSchool: string;
+		secondSchool: string;
 		testLanguage: string;
 	};
 	parents: Array<{
@@ -66,9 +70,11 @@ export const candidateData = writable<CandidateData>({
 	candidate: {
 		name: '',
 		surname: '',
+		birthSurname: '',
 		birthplace: '',
 		birthdate: '',
 		address: '',
+		letterAddress: '',
 		telephone: '',
 		citizenship: '',
 		email: '',
@@ -77,6 +83,8 @@ export const candidateData = writable<CandidateData>({
 		schoolName: '',
 		healthInsurance: '',
 		grades: [],
+		firstSchool: '',
+		secondSchool: '',
 		testLanguage: ''
 	},
 	parents: []
