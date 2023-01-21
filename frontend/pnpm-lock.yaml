@@ -75,6 +75,9 @@ devDependencies:
   prettier-plugin-tailwindcss:
     specifier: ^0.2.1
     version: 0.2.1(prettier@2.8.3)
+  simple-svelte-autocomplete:
+    specifier: ^2.5.1
+    version: 2.5.1
   svelte:
     specifier: ^3.55.1
     version: 3.55.1
@@ -2095,6 +2098,10 @@ packages:
   /shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+    dev: true
+
+  /simple-svelte-autocomplete@2.5.1:
+    resolution: {integrity: sha512-wC0RzbmWhMMAqJ3PK+4sBSAHZl+Y/Qz7KDk1Wp5Fnxj+PJvOXWCIAOi5FLQZGrIMl82YKvFErzEtOCmfNOMUJg==}
     dev: true
 
   /sirv@2.0.2:
