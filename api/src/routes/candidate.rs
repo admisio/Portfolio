@@ -102,6 +102,7 @@ pub async fn post_details(
 ) -> Result<Json<ApplicationDetails>, Custom<String>> {
     let db = conn.into_inner();
     let form = details.into_inner();
+    form.candidate.validate_self().map_err(to_custom_error)?;
     let application: application::Model = session.into();
     let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
 
@@ -308,9 +309,11 @@ mod tests {
         \"candidate\": {
             \"name\": \"idk\",
             \"surname\": \"idk\",
+            \"birthSurname\": \"surname\",
             \"birthplace\": \"Praha 1\",
             \"birthdate\": \"2015-09-18\",
             \"address\": \"Stefanikova jidelna\",
+            \"letterAddress\": \"Stefanikova jidelna\",
             \"telephone\": \"000111222333\",
             \"citizenship\": \"Czech Republic\",
             \"email\": \"magor@magor.cz\",
@@ -319,6 +322,8 @@ mod tests {
             \"schoolName\": \"29988383\",
             \"healthInsurance\": \"000\",
             \"grades\": [],
+            \"firstSchool\": {\"name\": \"SSPŠ\", \"field\": \"KB\"},
+            \"secondSchool\": {\"name\": \"SSPŠ\", \"field\": \"IT\"},
             \"testLanguage\": \"CZ\"
         },
         \"parents\": [

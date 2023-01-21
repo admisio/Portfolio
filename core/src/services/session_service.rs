@@ -77,7 +77,6 @@ mod tests {
         )
         .await
         .unwrap();
-        // println!("{}", session.err().unwrap().1);
         assert!(
             ApplicationService::auth(db, Uuid::parse_str(&session).unwrap())
                 .await

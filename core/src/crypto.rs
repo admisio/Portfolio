@@ -34,10 +34,10 @@ pub fn random_12_char_string() -> String {
 
 /// Exclude O and 0, lowercase letters
 fn is_usable_char(c: &char) -> bool {
-    ('1'..='9').contains(&c) ||
-    ('A'..='N').contains(&c) ||
-    ('P'..'Z').contains(&c) ||
-    ['@', '#', '$', '%'].contains(&c)
+    ('1'..='9').contains(c) ||
+    ('A'..='N').contains(c) ||
+    ('P'..'Z').contains(c) ||
+    ['@', '#', '$', '%'].contains(c)
 }
 
 pub async fn hash_password(password_plain_text: String) -> Result<String, ServiceError> {

@@ -24,6 +24,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Birthplace).string())
                     .col(ColumnDef::new(Candidate::Birthdate).string())
                     .col(ColumnDef::new(Candidate::Address).string())
+                    .col(ColumnDef::new(Candidate::LetterAddress).string())
                     .col(ColumnDef::new(Candidate::Telephone).string())
                     .col(ColumnDef::new(Candidate::Citizenship).string())
                     .col(ColumnDef::new(Candidate::Email).string())
@@ -32,6 +33,8 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::SchoolName).string())
                     .col(ColumnDef::new(Candidate::HealthInsurance).string())
                     .col(ColumnDef::new(Candidate::GradesJson).string())
+                    .col(ColumnDef::new(Candidate::FirstSchool).string())
+                    .col(ColumnDef::new(Candidate::SecondSchool).string())
                     .col(ColumnDef::new(Candidate::TestLanguage).string())
                     .col(ColumnDef::new(Candidate::EncryptedById).integer())
                     .col(ColumnDef::new(Candidate::CreatedAt).date_time().not_null())
@@ -58,6 +61,7 @@ pub enum Candidate {
     Birthplace,
     Birthdate,
     Address,
+    LetterAddress,
     Telephone,
     Citizenship,
     Email,
@@ -66,6 +70,8 @@ pub enum Candidate {
     SchoolName,
     HealthInsurance,
     GradesJson,
+    FirstSchool,
+    SecondSchool,
     TestLanguage,
     EncryptedById,
     CreatedAt,

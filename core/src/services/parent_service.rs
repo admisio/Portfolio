@@ -54,16 +54,18 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails, grade::GradeList}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
+    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails, grade::GradeList, school::School}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
 
     pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
         Mutex::new(ApplicationDetails {
             candidate: CandidateDetails {
                 name: "name".to_string(),
                 surname: "surname".to_string(),
+                birth_surname: "birth_surname".to_string(),
                 birthplace: "birthplace".to_string(),
                 birthdate: chrono::NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 address: "address".to_string(),
+                letter_address: "letter_address".to_string(),
                 telephone: "telephone".to_string(),
                 citizenship: "citizenship".to_string(),
                 email: "email".to_string(),
@@ -72,6 +74,8 @@ mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
+                first_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"KB\"}".to_string())).unwrap(),
+                second_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"IT\"}".to_string())).unwrap(),
                 test_language: "test_language".to_string(),
             },
             parents: vec![ParentDetails {
@@ -113,7 +117,7 @@ mod tests {
             .unwrap();
 
         let priv_key = crypto::decrypt_password(application.private_key.clone(), plain_text_password).await.unwrap();
-        let dec_details = EncryptedApplicationDetails::try_from((&candidate, parents))
+        let dec_details = EncryptedApplicationDetails::try_from((&candidate, &parents))
             .unwrap()
             .decrypt(priv_key)
             .await
