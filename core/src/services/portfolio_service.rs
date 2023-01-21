@@ -394,13 +394,14 @@ impl PortfolioService {
             &private_key
         ).await?;
 
-        tokio::fs::remove_file(path.to_owned()).await?;
-
+        
         let enc_portfolio= crypto::encrypt_buffer_with_recipients(
             &plain_portfolio, 
             recipients
         ).await?;
-
+        
+        tokio::fs::remove_file(path.to_owned()).await?;
+        
         tokio::fs::write(path, enc_portfolio).await?;
 
         info!("PORTFOLIO {} REENCRYPT FINISHED", candidate_id);
