@@ -25,9 +25,9 @@
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 
-	const pageCount = 7;
 	let pageIndex = 0;
-	let pagesFilled = [false, false, false, false, false, false, false];
+	let pagesFilled = [false, false, false, false, false, false];
+	const pageCount = pagesFilled.length;
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
 		$LL.candidate.register.third.title(),
@@ -42,6 +42,7 @@
 	let details = data.candidate;
 	let baseCandidateDetails = data.whoami;
 
+	let personalIdBirthdateMatch = true;
 	const formInitialValues = {
 		gdpr: false,
 		linkOk: false,
@@ -49,12 +50,14 @@
 		candidate: {
 			name: '',
 			surname: '',
+			birthSurname: '',
 			email: '',
 			telephone: '',
 			birthplace: '',
 			birthdate: '',
 			sex: '',
 			address: '',
+			letterAddress: '',
 			street: '',
 			houseNumber: '',
 			city: '',
@@ -64,7 +67,9 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			testLanguage: ''
+			firstSchool: '',
+			secondSchool: '',
+			testLanguage: '',
 		},
 		parents: [
 			{
@@ -229,28 +234,31 @@
 	};
 
 	const onSubmit = async (values: CandidateData) => {
+		if (pageIndex === 3) {
+			if (values.candidate.citizenship === 'Česká republika') {
+				if (
+					!isPersonalIdNumberWithBirthdateValid(
+						values.candidate.personalIdNumber,
+						values.candidate.birthdate
+					)
+				) {
+					toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+						theme: {
+							'--toastColor': 'mintcream',
+							'--toastBackground': '#b91c1c',
+							'--toastBarBackground': '#7f1d1d'
+						}
+					});
+					personalIdBirthdateMatch = false;
+					throw new Error('Rodné číslo neodpovídá datumu narození');
+				}
+			}
+			personalIdBirthdateMatch = true;
+		}
 		if (pageIndex === pageCount) {
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
-				if (values.candidate.citizenship === 'Česká republika') {
-					if (
-						!isPersonalIdNumberWithBirthdateValid(
-							values.candidate.personalIdNumber,
-							values.candidate.birthdate
-						)
-					) {
-						// alert('Rodné číslo neodpovídá oficiální specifikaci či datumu narození'); // TODO: alerts
-						toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
-							theme: {
-								'--toastColor': 'mintcream',
-								'--toastBackground': '#b91c1c',
-								'--toastBarBackground': '#7f1d1d'
-							}
-						});
-						throw new Error('Rodné číslo neodpovídá datumu narození');
-					}
-				}
 				// @ts-ignore // love javascript
 				delete values.undefined;
 				// convert birthdate from dd.mm.yyyy to yyyy-mm-dd
@@ -318,7 +326,11 @@
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['surname'] ||
 					$typedErrors['candidate']['email'] ||
-					$typedErrors['candidate']['telephone']
+					$typedErrors['candidate']['telephone'] ||
+					$typedErrors['candidate']['city'] ||
+					$typedErrors['candidate']['street'] ||
+					$typedErrors['candidate']['houseNumber'] ||
+					$typedErrors['candidate']['zip']
 				) {
 					return true;
 				}
@@ -326,13 +338,15 @@
 
 			case 3:
 				if (
-					$typedErrors['candidate']['birthplace'] ||
+					$typedErrors['candidate']['citizenship'] ||
+					$typedErrors['candidate']['personalIdNumber'] ||
+					$typedErrors['candidate']['schoolName'] ||
+					$typedErrors['candidate']['healthInsurance'] ||
 					$typedErrors['candidate']['birthdate'] ||
-					$typedErrors['candidate']['street'] ||
-					$typedErrors['candidate']['houseNumber'] ||
-					$typedErrors['candidate']['city'] ||
-					$typedErrors['candidate']['zip']
-					// $typedErrors['candidate']['address']
+					$typedErrors['candidate']['birthplace'] ||
+					$typedErrors['candidate']['personalIdNumber'] ||
+					$typedErrors['candidate']['testLanguage'] ||
+					!personalIdBirthdateMatch
 				) {
 					return true;
 				}
@@ -358,17 +372,7 @@
 				}
 				break;
 			case 6:
-				if (
-					$typedErrors['candidate']['citizenship'] ||
-					$typedErrors['candidate']['personalIdNumber'] ||
-					$typedErrors['candidate']['schoolName'] ||
-					$typedErrors['candidate']['healthInsurance']
-				) {
-					return true;
-				}
-				break;
-			case 7:
-				if ($typedErrors['candidate']['grades'].length > 0) return true;
+				if ($typedErrors["candidate"]["grades"].length > 0) return true;
 				break;
 			default:
 				return false;
@@ -421,11 +425,11 @@
 
 <SplitLayout>
 	<SvelteToast />
-	<div class="form relative">
-		<div class="bottom-3/12 absolute flex w-full flex-col md:h-auto">
+	<div class="form relative bg-center">
+		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
 			<!-- TODO: Find different way how to display SchoolBadge -->
 			{#if pageIndex !== 0 && pageIndex !== 7}
-				<div class="<md:h-24 <md:w-24 mb-4 h-32 w-32 self-center">
+				<div class="<md:h-24 <md:w-24 h-32 w-32 self-center">
 					<SchoolBadge />
 				</div>
 			{/if}
@@ -462,29 +466,72 @@
 					<p class="description mt-8 block text-center">
 						{$LL.candidate.register.third.description()}
 					</p>
-					<div class="flex flex-col">
-						<span class="field">
-							<NameField
-								error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
-								bind:valueName={$form.candidate.name}
-								bind:valueSurname={$form.candidate.surname}
-								placeholder={$LL.input.nameSurname()}
-							/>
-						</span>
-						<span class="field">
-							<EmailField
-								error={$typedErrors['candidate']['email']}
-								bind:value={$form.candidate.email}
-								placeholder={$LL.input.email()}
-							/>
-						</span>
-						<span class="field">
-							<TelephoneField
-								error={$typedErrors['candidate']['telephone']}
-								bind:value={$form.candidate.telephone}
-								placeholder={$LL.input.telephone()}
-							/>
-						</span>
+					<div class="w-full">
+						<div class="flex flex-col">
+							<div class="field flex">
+								<span class="w-[50%]">
+									<NameField
+										error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
+										bind:valueName={$form.candidate.name}
+										bind:valueSurname={$form.candidate.surname}
+										placeholder={$LL.input.nameSurname()}
+										/>
+								</span>
+								<span class="w-[50%] ml-2">
+									<TextField
+										error={$typedErrors['candidate']['birthSurname']}
+										bind:value={$form.candidate.birthSurname}
+										placeholder="Rodné příjmení (pokud odlišné)"
+									/>
+								</span>
+							</div>
+							<div class="field flex">
+								<span class="w-[50%]">
+									<EmailField
+										error={$typedErrors['candidate']['email']}
+										bind:value={$form.candidate.email}
+										placeholder={$LL.input.email()}
+										/>
+								</span>
+								<span class="w-[50%] ml-2">
+									<TelephoneField
+										error={$typedErrors['candidate']['telephone']}
+										bind:value={$form.candidate.telephone}
+										placeholder={$LL.input.telephone()}
+										/>
+								</span>
+							</div>
+							<span class="field">
+								<TextField
+										error={$typedErrors['candidate']['city']}
+										bind:value={$form.candidate.city}
+										type="text"
+										placeholder={$LL.input.city()}
+										helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+									/>
+							</span>
+						</div>
+						<div class="field flex">
+							<span class="w-[66%]">
+								<NameField
+									error={$typedErrors['candidate']['street'] ||
+										$typedErrors['candidate']['houseNumber']}
+									bind:valueName={$form.candidate.street}
+									bind:valueSurname={$form.candidate.houseNumber}
+									placeholder={$LL.input.address()}
+									helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
+								/>
+							</span>
+							<span class="ml-2 w-[33%]">
+								<TextField
+									error={$typedErrors['candidate']['zip']}
+									bind:value={$form.candidate.zip}
+									type="number"
+									placeholder={$LL.input.zipCode()}
+									helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+								/>
+							</span>
+						</div>
 					</div>
 				</form>
 			{:else if pageIndex === 3}
@@ -492,53 +539,24 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fourth.description()}
 				</p>
-				<div class="field flex">
-					<span class="w-[66%]">
-						<NameField
-							error={$typedErrors['candidate']['street'] ||
-								$typedErrors['candidate']['houseNumber']}
-							bind:valueName={$form.candidate.street}
-							bind:valueSurname={$form.candidate.houseNumber}
-							placeholder={$LL.input.address()}
-							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
+				<div class="field flex w-full">
+					<span class="w-[50%]">
+						<SelectField
+							error={$typedErrors['candidate']['citizenship']}
+							bind:value={$form.candidate.citizenship}
+							placeholder={$LL.input.citizenship()}
+							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 						/>
 					</span>
-					<span class="ml-2 w-[33%]">
-						<TextField
-							error={$typedErrors['candidate']['zip']}
-							bind:value={$form.candidate.zip}
-							type="number"
-							placeholder={$LL.input.zipCode()}
-							helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+					<span class="w-[50%] ml-2">
+						<SelectField
+							error={$typedErrors['candidate']['testLanguage']}
+							bind:value={$form.candidate.testLanguage}
+							placeholder={$LL.input.testLanguage()}
+							options={['Čeština', 'Angličtina']}
 						/>
 					</span>
 				</div>
-				<div class="field flex">
-					<span>
-						<TextField
-							error={$typedErrors['candidate']['city']}
-							bind:value={$form.candidate.city}
-							type="text"
-							placeholder={$LL.input.city()}
-							helperText="Uveďte město"
-						/>
-					</span>
-					<span class="ml-2">
-						<TextField
-							error={$typedErrors['candidate']['birthplace']}
-							bind:value={$form.candidate.birthplace}
-							type="text"
-							placeholder={$LL.input.birthPlace()}
-							helperText="Uveďte město"
-							icon
-						>
-							<div slot="icon" class="text-sspsBlue flex items-center justify-center">
-								<Home />
-							</div>
-						</TextField>
-					</span>
-				</div>
-
 				<div class="field flex items-center">
 					<TextField
 						error={$typedErrors['candidate']['birthdate']}
@@ -547,6 +565,28 @@
 						placeholder={$LL.input.birthDate()}
 						helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 					/>
+					<TextField
+						error={$typedErrors['candidate']['birthplace']}
+						bind:value={$form.candidate.birthplace}
+						type="text"
+						placeholder="Místo narození"
+						helperText="TODO: (Místo narození)"
+					/>
+				</div>
+				<div class="field flex items-center justify-center">
+					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
+						<IdField
+							error={$typedErrors['candidate']['personalIdNumber']}
+							bind:value={$form.candidate.personalIdNumber}
+							placeholder="Rodné číslo"
+						/>
+					{:else}
+						<TextField
+							error={$typedErrors['candidate']['personalIdNumber']}
+							bind:value={$form.candidate.personalIdNumber}
+							placeholder="Rodné číslo"
+						/>
+					{/if}
 					<div class="ml-2">
 						<SelectField
 							error={$typedErrors['candidate']['sex']}
@@ -556,6 +596,35 @@
 						/>
 					</div>
 				</div>
+				<div class="field flex flex-row">
+					<span>
+						{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
+							<TextField
+								error={$typedErrors['candidate']['schoolName']}
+								type="number"
+								bind:value={$form.candidate.schoolName}
+								placeholder="IZO školy"
+							/>
+						{:else}
+							<TextField
+								error={$typedErrors['candidate']['schoolName']}
+								type="text"
+								bind:value={$form.candidate.schoolName}
+								placeholder="Název školy"
+							/>
+						{/if}
+					</span>
+
+					<span class="ml-2">
+						<TextField
+							error={$typedErrors['candidate']['healthInsurance']}
+							type="text"
+							bind:value={$form.candidate.healthInsurance}
+							placeholder="Číslo zdravotní pojišťovny"
+						/>
+					</span>
+				</div>
+
 			{:else if pageIndex === 4}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
@@ -617,74 +686,6 @@
 			{:else if pageIndex === 6}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
 				<p class="description mt-8 block text-center">
-					{$LL.candidate.register.seventh.description()}
-				</p>
-				<div class="flex w-full flex-col">
-					<div class="field flex w-full">
-						<span class="w-[50%]">
-							<SelectField
-								error={$typedErrors['candidate']['citizenship']}
-								bind:value={$form.candidate.citizenship}
-								placeholder={$LL.input.citizenship()}
-								options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
-							/>
-						</span>
-						<span class="ml-2 w-[50%]">
-							<SelectField
-								error={$typedErrors['candidate']['testLanguage']}
-								bind:value={$form.candidate.testLanguage}
-								placeholder={$LL.input.testLanguage()}
-								options={['Čeština', 'Angličtina']}
-							/>
-						</span>
-					</div>
-					<div class="field flex flex-row">
-						<span>
-							{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
-								<TextField
-									error={$typedErrors['candidate']['schoolName']}
-									type="number"
-									bind:value={$form.candidate.schoolName}
-									placeholder={$LL.input.schoolIzo()}
-								/>
-							{:else}
-								<TextField
-									error={$typedErrors['candidate']['schoolName']}
-									type="text"
-									bind:value={$form.candidate.schoolName}
-									placeholder={$LL.input.schoolName()}
-								/>
-							{/if}
-						</span>
-
-						<span class="ml-2">
-							<TextField
-								error={$typedErrors['candidate']['healthInsurance']}
-								type="text"
-								bind:value={$form.candidate.healthInsurance}
-								placeholder={$LL.input.insuranceNumber()}
-							/>
-						</span>
-					</div>
-				</div>
-				<div class="field flex items-center justify-center">
-					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
-						<IdField
-							error={$typedErrors['candidate']['personalIdNumber']}
-							bind:value={$form.candidate.personalIdNumber}
-							placeholder={$LL.input.personalIdentificationNumber()}
-						/>
-					{:else}
-						<TextField
-							error={$typedErrors['candidate']['personalIdNumber']}
-							bind:value={$form.candidate.personalIdNumber}
-							placeholder={$LL.input.personalIdentificationNumber()}
-						/>
-					{/if}
-				</div>
-			{:else if pageIndex === 7}
-				<h1 class="title mt-8">{pageTexts[6]}</h1>
-				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.eighth.description()}
 				</p>
 				<GradesTable
@@ -693,7 +694,7 @@
 				/>
 			{/if}
 		</div>
-		<div class="bottom-1/12 absolute w-full">
+		<div class="bottom-1/24 absolute w-full">
 			<div class="field">
 				<Submit
 					on:click={async (e) => {
@@ -711,7 +712,7 @@
 				/>
 			</div>
 
-			<div class="mt-4 flex flex-row justify-center md:mt-8">
+			<div class="mt-4 flex flex-row justify-center md:mt-6">
 				{#each Array(pageCount + 1) as _, i}
 					<button
 						class:dotActive={i === pageIndex}
