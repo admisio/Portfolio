@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { School } from '$lib/stores/candidate';
 import AutoComplete from 'simple-svelte-autocomplete';
 import { onMount } from 'svelte';
 // import schoollistString from '$lib/assets/schoollist.txt';
@@ -11,8 +12,21 @@ onMount(async () => {
     .then((text) => text.split(';'));
 });
 
-export let selectedSchool: string = '';
+export let selectedSchool: School;
+export let schoolName: string = selectedSchool.name;
+$: selectedSchool.name = schoolName;
+
 </script>
 
-Selected color: {selectedSchool}
-<AutoComplete items={schools} bind:selectedItem={selectedSchool} />
+<div class="flex flex-row">
+    <div>
+        <span>
+            Selected school: {selectedSchool.name}
+        </span>
+        <AutoComplete items={schools} bind:selectedItem={schoolName} />
+    </div>
+    <div class="flex">
+        <span>Obor: </span>
+        <input type="text" bind:value={selectedSchool.field} />
+    </div>
+</div>

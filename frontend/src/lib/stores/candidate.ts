@@ -1,6 +1,11 @@
 import type { GradeBackend } from '$lib/components/grades/GradesTable.svelte';
 import { writable } from 'svelte/store';
 
+
+export interface School {
+	name: string;
+	field: string;
+}
 export interface CandidateData {
 	candidate: {
 		name: string;
@@ -18,8 +23,8 @@ export interface CandidateData {
 		schoolName: string;
 		healthInsurance: string;
 		grades: Array<GradeBackend>;
-		firstSchool: string;
-		secondSchool: string;
+		firstSchool: School;
+		secondSchool: School;
 		testLanguage: string;
 	};
 	parents: Array<{
@@ -83,8 +88,8 @@ export const candidateData = writable<CandidateData>({
 		schoolName: '',
 		healthInsurance: '',
 		grades: [],
-		firstSchool: '',
-		secondSchool: '',
+		firstSchool: {name: '', field: ''},
+		secondSchool: {name: '', field: ''},
 		testLanguage: ''
 	},
 	parents: []
