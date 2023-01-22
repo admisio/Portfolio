@@ -24,9 +24,10 @@
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
+	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
 
 	let pageIndex = 0;
-	let pagesFilled = [false, false, false, false, false, false];
+	let pagesFilled = [false, false, false, false, false, false, false];
 	const pageCount = pagesFilled.length;
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
@@ -67,8 +68,8 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			firstSchool: '',
-			secondSchool: '',
+			firstSchool: {name: '', field: ''},
+			secondSchool: {name: '', field: ''},
 			testLanguage: '',
 		},
 		parents: [
@@ -129,9 +130,16 @@
 							semester: yup.string().required()
 						})
 						.required()
-				)
-				.required(),
-			testLanguage: yup.string().required()
+				).required(),
+			firstSchool: yup.object().shape({
+				name: yup.string().required(),
+				field: yup.string().required(),
+			}),
+			secondSchool: yup.object().shape({
+				name: yup.string().required(),
+				field: yup.string().required(),
+			}),
+			testLanguage: yup.string().required(),
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -232,7 +240,7 @@
 			return false;
 		}
 	};
-
+	$: console.log($typedErrors);
 	const onSubmit = async (values: CandidateData) => {
 		if (pageIndex === 3) {
 			if (values.candidate.citizenship === 'Česká republika') {
@@ -256,6 +264,7 @@
 			personalIdBirthdateMatch = true;
 		}
 		if (pageIndex === pageCount) {
+			console.log('submitting');
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
@@ -372,6 +381,15 @@
 				}
 				break;
 			case 6:
+				// @ts-ignore
+				if ($typedErrors["candidate"]["firstSchool"].name || $typedErrors["candidate"]["firstSchool"].field ||
+					// @ts-ignore
+					$typedErrors["candidate"]["secondSchool"].name || $typedErrors["candidate"]["secondSchool"].field
+				) {
+					return true;
+				}
+				break;
+			case 7:
 				if ($typedErrors["candidate"]["grades"].length > 0) return true;
 				break;
 			default:
@@ -684,6 +702,16 @@
 					</span>
 				</div>
 			{:else if pageIndex === 6}
+				<h1 class="title mt-8">Přihlášky na školy</h1>
+				<div class="flex flex-col justify-between h-full">
+					<span>
+						<SchoolSelect bind:selectedSchool={$form.candidate.firstSchool}></SchoolSelect>
+					</span>
+					<span class="mt-10 w-full">
+						<SchoolSelect bind:selectedSchool={$form.candidate.secondSchool}></SchoolSelect>
+					</span>
+				</div>
+			{:else if pageIndex === 7}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.eighth.description()}
