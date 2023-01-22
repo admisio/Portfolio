@@ -321,7 +321,7 @@ impl From<&parent::Model> for EncryptedParentDetails {
 impl EncryptedApplicationDetails {
     pub async fn new(
         form: &ApplicationDetails,
-        recipients: Vec<String>,
+        recipients: &Vec<String>,
     ) -> Result<EncryptedApplicationDetails, ServiceError> {
         let candidate =  EncryptedCandidateDetails::new(&form.candidate, &recipients).await?;
         let enc_parents = future::try_join_all(
@@ -459,7 +459,7 @@ pub mod tests {
     async fn test_encrypted_application_details_new() {
         let encrypted_details = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
-            vec![PUBLIC_KEY.to_string()],
+            &vec![PUBLIC_KEY.to_string()],
         )
         .await
         .unwrap();
@@ -488,7 +488,7 @@ pub mod tests {
     async fn test_encrypted_application_details_decrypt() {
         let encrypted_details = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
-            vec![PUBLIC_KEY.to_string()],
+            &vec![PUBLIC_KEY.to_string()],
         )
         .await
         .unwrap();
