@@ -161,6 +161,29 @@ type RootTranslation = {
 				 */
 				placeholder: string
 			}
+			dashboardUploadCard: {
+				/**
+				 * S​e​m​ ​p​ř​e​t​á​h​n​ě​t​e​,
+				 */
+				dropHere: string
+				/**
+				 * N​e​b​o​ ​n​a​h​r​a​j​t​e​ ​{​p​l​a​c​e​h​o​l​d​e​r​}
+				 * @param {string} placeholder
+				 */
+				orUpload: RequiredParams<'placeholder'>
+				/**
+				 * N​a​h​r​á​n​o
+				 */
+				uploaded: string
+				/**
+				 * O​d​e​s​l​á​n​o
+				 */
+				sent: string
+				/**
+				 * S​m​a​z​a​t
+				 */
+				'delete': string
+			}
 		}
 		checkbox: {
 			accountLinkCheckBox: {
@@ -463,6 +486,28 @@ export type TranslationFunctions = {
 				 * svůj motivanční dopis
 				 */
 				placeholder: () => LocalizedString
+			}
+			dashboardUploadCard: {
+				/**
+				 * Sem přetáhněte,
+				 */
+				dropHere: () => LocalizedString
+				/**
+				 * Nebo nahrajte {placeholder}
+				 */
+				orUpload: (arg: { placeholder: string }) => LocalizedString
+				/**
+				 * Nahráno
+				 */
+				uploaded: () => LocalizedString
+				/**
+				 * Odesláno
+				 */
+				sent: () => LocalizedString
+				/**
+				 * Smazat
+				 */
+				'delete': () => LocalizedString
 			}
 		}
 		checkbox: {

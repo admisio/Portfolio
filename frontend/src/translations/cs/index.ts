@@ -73,6 +73,13 @@ const cs: BaseTranslation = {
 			coverLetterUploadCard: {
 				title: "Motivační dopis",
 				placeholder: "svůj motivanční dopis",
+			},
+			dashboardUploadCard: {
+				dropHere: "Sem přetáhněte,",
+				orUpload: "Nebo nahrajte {placeholder:string}",
+				uploaded: "Nahráno",
+				sent: "Odesláno",
+				delete: "Smazat",
 			}
 		},
 		checkbox: {
