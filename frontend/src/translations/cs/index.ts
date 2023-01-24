@@ -71,15 +71,29 @@ const cs: BaseTranslation = {
 	components: {
 		dashboard: {
 			coverLetterUploadCard: {
-				title: "Motivační dopis",
-				placeholder: "svůj motivanční dopis",
+				title: 'Motivační dopis',
+				placeholder: 'svůj motivanční dopis'
 			},
 			dashboardUploadCard: {
-				dropHere: "Sem přetáhněte,",
-				orUpload: "Nebo nahrajte {placeholder:string}",
-				uploaded: "Nahráno",
-				sent: "Odesláno",
-				delete: "Smazat",
+				dropHere: 'Sem přetáhněte,',
+				orUpload: 'Nebo nahrajte {placeholder:string}',
+				uploaded: 'Nahráno',
+				sent: 'Odesláno',
+				delete: 'Smazat'
+			},
+			statusNotificationBig: {
+				submitted: {
+					title: 'Soubory odevzdány!',
+					description: 'Vaše soubory smažete kliknutím zde'
+				},
+				uploaded: {
+					title: 'Soubory nebyly odevzdány!',
+					description: 'Odevzdejte soubory kliknutím zde'
+				},
+				missing: {
+					title: 'Soubory nebyly nahrány!',
+					description: 'Nahrajte včechny soubory prosím',
+				}
 			}
 		},
 		checkbox: {
@@ -124,7 +138,7 @@ const cs: BaseTranslation = {
 		adminId: 'Admin Id',
 		password: 'Heslo',
 		submit: 'Odeslat',
-		continue: "Pokračovat",
+		continue: 'Pokračovat',
 		parent: {
 			nameSurname: 'Jméno a příjmení zákonného zástupce',
 			email: 'E-mail zákonného zástupce',

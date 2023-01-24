@@ -184,6 +184,38 @@ type RootTranslation = {
 				 */
 				'delete': string
 			}
+			statusNotificationBig: {
+				submitted: {
+					/**
+					 * S​o​u​b​o​r​y​ ​o​d​e​v​z​d​á​n​y​!
+					 */
+					title: string
+					/**
+					 * V​a​š​e​ ​s​o​u​b​o​r​y​ ​s​m​a​ž​e​t​e​ ​k​l​i​k​n​u​t​í​m​ ​z​d​e
+					 */
+					description: string
+				}
+				uploaded: {
+					/**
+					 * S​o​u​b​o​r​y​ ​n​e​b​y​l​y​ ​o​d​e​v​z​d​á​n​y​!
+					 */
+					title: string
+					/**
+					 * O​d​e​v​z​d​e​j​t​e​ ​s​o​u​b​o​r​y​ ​k​l​i​k​n​u​t​í​m​ ​z​d​e
+					 */
+					description: string
+				}
+				missing: {
+					/**
+					 * S​o​u​b​o​r​y​ ​n​e​b​y​l​y​ ​n​a​h​r​á​n​y​!
+					 */
+					title: string
+					/**
+					 * N​a​h​r​a​j​t​e​ ​v​č​e​c​h​n​y​ ​s​o​u​b​o​r​y​ ​p​r​o​s​í​m
+					 */
+					description: string
+				}
+			}
 		}
 		checkbox: {
 			accountLinkCheckBox: {
@@ -508,6 +540,38 @@ export type TranslationFunctions = {
 				 * Smazat
 				 */
 				'delete': () => LocalizedString
+			}
+			statusNotificationBig: {
+				submitted: {
+					/**
+					 * Soubory odevzdány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Vaše soubory smažete kliknutím zde
+					 */
+					description: () => LocalizedString
+				}
+				uploaded: {
+					/**
+					 * Soubory nebyly odevzdány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Odevzdejte soubory kliknutím zde
+					 */
+					description: () => LocalizedString
+				}
+				missing: {
+					/**
+					 * Soubory nebyly nahrány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Nahrajte včechny soubory prosím
+					 */
+					description: () => LocalizedString
+				}
 			}
 		}
 		checkbox: {
