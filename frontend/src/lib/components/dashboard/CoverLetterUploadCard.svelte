@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
 	import { apiDeleteCoverLetter, apiUploadCoverLetter } from '$lib/@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
@@ -28,9 +30,9 @@
 	{error}
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	on:delete={onDelete}
-	title="Motivační dopis"
+	title={$LL.components.dashboard.coverLetterUploadCard.title()}
 	filetype="PDF"
 	filesize={10}
 	fileType={1}
-	placeholder="svůj motivanční dopis"
+	placeholder={$LL.components.dashboard.coverLetterUploadCard.placeholder()}
 />

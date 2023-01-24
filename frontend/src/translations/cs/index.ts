@@ -69,6 +69,12 @@ const cs: BaseTranslation = {
 		}
 	},
 	components: {
+		dashboard: {
+			coverLetterUploadCard: {
+				title: "Motivační dopis",
+				placeholder: "svůj motivanční dopis",
+			}
+		},
 		checkbox: {
 			accountLinkCheckBox: {
 				ok: 'Vše je v pořádku',

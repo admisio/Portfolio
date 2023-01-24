@@ -150,6 +150,18 @@ type RootTranslation = {
 		}
 	}
 	components: {
+		dashboard: {
+			coverLetterUploadCard: {
+				/**
+				 * M​o​t​i​v​a​č​n​í​ ​d​o​p​i​s
+				 */
+				title: string
+				/**
+				 * s​v​ů​j​ ​m​o​t​i​v​a​n​č​n​í​ ​d​o​p​i​s
+				 */
+				placeholder: string
+			}
+		}
 		checkbox: {
 			accountLinkCheckBox: {
 				/**
@@ -441,6 +453,18 @@ export type TranslationFunctions = {
 		}
 	}
 	components: {
+		dashboard: {
+			coverLetterUploadCard: {
+				/**
+				 * Motivační dopis
+				 */
+				title: () => LocalizedString
+				/**
+				 * svůj motivanční dopis
+				 */
+				placeholder: () => LocalizedString
+			}
+		}
 		checkbox: {
 			accountLinkCheckBox: {
 				/**
