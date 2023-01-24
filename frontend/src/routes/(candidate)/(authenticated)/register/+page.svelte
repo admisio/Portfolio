@@ -29,12 +29,13 @@
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false];
 	let pageTexts = [
-		'Zpracování osobních údajů',
-		'Registrace',
-		'Něco o Vás',
-		'Zákonný zástupce',
-		'Druhý zákonný zástupce',
-		'Poslední krok'
+		$LL.candidate.register.second.title(),
+		$LL.candidate.register.third.title(),
+		$LL.candidate.register.fourth.title(),
+		$LL.candidate.register.fifth.title(),
+		$LL.candidate.register.sixth.title(),
+		$LL.candidate.register.seventh.title(),
+		$LL.candidate.register.eighth.title()
 	];
 
 	export let data: PageData;
@@ -414,7 +415,7 @@
 			]
 		});
 		pageIndex = 2; // skip gdpr page
-		pageTexts[2] = 'Úprava osobních údajů';
+		pageTexts[2] = $LL.candidate.register.fourth.titleEdit();
 	}
 </script>
 
@@ -431,10 +432,9 @@
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
-					<h1 class="title mt-8">Propojení účtů</h1>
+					<h1 class="title mt-8">{$LL.candidate.register.first.title()}</h1>
 					<p class="description mt-8 block text-center">
-						Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě
-						přihlášky. Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
+						{$LL.candidate.register.first.description()}
 					</p>
 					<div class="field">
 						<AccountLinkCheckBox
@@ -449,10 +449,8 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[0]}</h1>
 					<p class="description mt-8 block text-center">
-						V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný
-						Váš souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si
-						můžete přečíst
-						<a href="/bezpecnost" class="text-sspsBlue underline"> zde</a>.
+						{$LL.candidate.register.second.description()}
+						<a href="/bezpecnost" class="text-sspsBlue underline"> {$LL.here()}</a>.
 					</p>
 					<div class="field">
 						<GdprCheckBox bind:value={$form.gdpr} error={$typedErrors['gdpr']} />
@@ -462,8 +460,7 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
-						V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
-						vyplněním potřebných údajů.
+						{$LL.candidate.register.third.description()}
 					</p>
 					<div class="flex flex-col">
 						<span class="field">
@@ -471,21 +468,21 @@
 								error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
 								bind:valueName={$form.candidate.name}
 								bind:valueSurname={$form.candidate.surname}
-								placeholder="{$LL.input.nameSurname()}"
+								placeholder={$LL.input.nameSurname()}
 							/>
 						</span>
 						<span class="field">
 							<EmailField
 								error={$typedErrors['candidate']['email']}
 								bind:value={$form.candidate.email}
-								placeholder="{$LL.input.email()}"
+								placeholder={$LL.input.email()}
 							/>
 						</span>
 						<span class="field">
 							<TelephoneField
 								error={$typedErrors['candidate']['telephone']}
 								bind:value={$form.candidate.telephone}
-								placeholder="{$LL.input.telephone()}"
+								placeholder={$LL.input.telephone()}
 							/>
 						</span>
 					</div>
@@ -493,8 +490,7 @@
 			{:else if pageIndex === 3}
 				<h1 class="title mt-8">{pageTexts[2]}</h1>
 				<p class="description mt-8 block text-center">
-					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
-					přijímací řízení. Všechny údaje jsou důležité.
+					{$LL.candidate.register.fourth.description()}
 				</p>
 				<div class="field flex">
 					<span class="w-[66%]">
@@ -563,7 +559,7 @@
 			{:else if pageIndex === 4}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
-					Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
+					{$LL.candidate.register.fifth.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<span class="field">
@@ -592,7 +588,7 @@
 			{:else if pageIndex === 5}
 				<h1 class="title mt-8">{pageTexts[4]}</h1>
 				<p class="description mt-8 block text-center">
-					Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
+					{$LL.candidate.register.sixth.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<span class="field">
@@ -621,8 +617,7 @@
 			{:else if pageIndex === 6}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
 				<p class="description mt-8 block text-center">
-					Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který
-					se hlásíte.
+					{$LL.candidate.register.seventh.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<div class="field flex w-full">
@@ -651,7 +646,7 @@
 									type="number"
 									bind:value={$form.candidate.schoolName}
 									placeholder={$LL.input.schoolIzo()}
-									/>
+								/>
 							{:else}
 								<TextField
 									error={$typedErrors['candidate']['schoolName']}
@@ -668,7 +663,7 @@
 								type="text"
 								bind:value={$form.candidate.healthInsurance}
 								placeholder={$LL.input.insuranceNumber()}
-								/>
+							/>
 						</span>
 					</div>
 				</div>
@@ -678,19 +673,19 @@
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
 							placeholder={$LL.input.personalIdentificationNumber()}
-							/>
+						/>
 					{:else}
 						<TextField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
 							placeholder={$LL.input.personalIdentificationNumber()}
-							/>
+						/>
 					{/if}
 				</div>
 			{:else if pageIndex === 7}
-				<h1 class="title mt-8">{pageTexts[5]}</h1>
+				<h1 class="title mt-8">{pageTexts[6]}</h1>
 				<p class="description mt-8 block text-center">
-					Přidejte prosím přepis Vaších známek z posledních dvou let studia
+					{$LL.candidate.register.eighth.description()}
 				</p>
 				<GradesTable
 					error={$typedErrors['candidate']['grades']}
@@ -712,7 +707,7 @@
 						// @ts-ignore
 						errors.set(formInitialValues);
 					}}
-					value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
+					value={pageIndex === pageCount ? $LL.input.submit() : $LL.input.continue()}
 				/>
 			</div>
 

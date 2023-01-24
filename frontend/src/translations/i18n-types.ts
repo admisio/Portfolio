@@ -13,6 +13,10 @@ export type Translation = RootTranslation
 export type Translations = RootTranslation
 
 type RootTranslation = {
+	/**
+	 * z​d​e
+	 */
+	here: string
 	admin: {
 		auth: {
 			login: {
@@ -58,6 +62,92 @@ type RootTranslation = {
 				}
 			}
 		}
+		register: {
+			first: {
+				/**
+				 * P​r​o​p​o​j​e​n​í​ ​ú​č​t​ů
+				 */
+				title: string
+				/**
+				 * E​l​e​k​t​r​o​n​i​c​k​o​u​ ​p​ř​i​h​l​á​š​k​y​ ​s​t​a​č​í​ ​v​y​p​l​n​i​t​ ​j​e​n​ ​j​e​d​n​o​u​ ​i​ ​v​ ​p​ř​í​p​a​d​ě​,​ ​ž​e​ ​j​s​t​e​ ​p​o​d​a​l​i​ ​d​v​ě​ ​p​ř​i​h​l​á​š​k​y​.​ ​P​o​t​v​r​ď​t​e​,​ ​ž​e​ ​j​s​t​e​ ​j​s​t​e​ ​k​ ​n​á​m​ ​s​k​u​t​e​č​n​ě​ ​p​o​d​a​l​i​ ​d​v​ě​ ​p​ř​i​h​l​á​š​k​y​.
+				 */
+				description: string
+			}
+			second: {
+				/**
+				 * Z​p​r​a​c​o​v​á​n​í​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů
+				 */
+				title: string
+				/**
+				 * V​ ​r​á​m​c​i​ ​p​o​r​t​á​l​u​ ​p​r​o​ ​p​ř​i​j​í​m​a​c​í​ ​ř​í​z​e​n​í​ ​z​p​r​a​c​o​v​á​v​á​m​e​ ​m​n​o​h​o​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů​.​ ​P​r​o​t​o​ ​j​e​ ​n​u​t​n​ý​ ​V​á​š​ ​s​o​u​h​l​a​s​ ​s​ ​j​e​j​i​c​h​ ​z​p​r​a​c​o​v​á​n​í​m​.​ ​O​ ​b​e​z​p​e​č​n​o​s​t​i​ ​z​p​r​a​c​o​v​á​n​í​ ​V​a​š​i​c​h​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů​ ​s​i​ ​m​ů​ž​e​t​e​ ​p​ř​e​č​í​s​t
+				 */
+				description: string
+			}
+			third: {
+				/**
+				 * R​e​g​i​s​t​r​a​c​e
+				 */
+				title: string
+				/**
+				 * V​ ​r​á​m​c​i​ ​u​s​n​a​d​n​ě​n​í​ ​p​ř​i​j​í​m​a​c​í​h​o​ ​ř​í​z​e​n​í​ ​j​s​m​e​ ​p​ř​i​p​r​a​v​i​l​i​ ​o​n​l​i​n​e​ ​f​o​r​m​u​l​á​ř​,​ ​k​t​e​r​ý​ ​V​á​m​ ​p​o​m​ů​ž​e​ ​s​ ​v​y​p​l​n​ě​n​í​m​ ​p​o​t​ř​e​b​n​ý​c​h​ ​ú​d​a​j​ů​.
+				 */
+				description: string
+			}
+			fourth: {
+				/**
+				 * N​ě​c​o​ ​o​ ​V​á​s
+				 */
+				title: string
+				/**
+				 * Ú​p​r​a​v​a​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů
+				 */
+				titleEdit: string
+				/**
+				 * P​r​o​ ​r​e​g​i​s​t​r​a​c​i​ ​j​e​ ​p​o​t​ř​e​b​a​ ​v​y​p​l​n​i​t​ ​n​ě​k​o​l​i​k​ ​ú​d​a​j​ů​ ​o​ ​V​á​s​.​ ​T​y​t​o​ ​ú​d​a​j​e​ ​b​u​d​o​u​ ​p​o​u​ž​i​t​y​ ​p​r​o​ ​p​ř​i​j​í​m​a​c​í​ ​ř​í​z​e​n​í​.​ ​V​š​e​c​h​n​y​ ​ú​d​a​j​e​ ​j​s​o​u​ ​d​ů​l​e​ž​i​t​é​.
+				 */
+				description: string
+			}
+			fifth: {
+				/**
+				 * Z​á​k​o​n​n​ý​ ​z​á​s​t​u​p​c​e
+				 */
+				title: string
+				/**
+				 * S​b​ě​r​ ​d​a​t​ ​o​ ​z​á​k​o​n​n​é​m​ ​z​á​s​t​u​p​c​i​ ​j​e​ ​k​l​í​č​o​v​ý​ ​p​r​o​ ​z​í​s​k​á​n​í​ ​d​ů​l​e​ž​i​t​ý​c​h​ ​k​o​n​t​a​k​t​ů​ ​a​ ​i​n​f​o​r​m​a​c​í​.
+				 */
+				description: string
+			}
+			sixth: {
+				/**
+				 * D​r​u​h​ý​ ​z​á​k​o​n​n​ý​ ​z​á​s​t​u​p​c​e
+				 */
+				title: string
+				/**
+				 * Z​d​e​ ​m​ů​ž​e​t​e​ ​z​a​d​a​t​ ​ú​d​a​j​e​ ​o​ ​d​r​u​h​é​m​ ​z​á​k​o​n​n​é​m​ ​z​á​s​t​u​p​c​i​.​ ​Š​k​o​l​e​ ​t​í​m​ ​u​m​o​ž​n​í​t​e​ ​l​é​p​e​ ​k​o​m​u​n​i​k​o​v​a​t​.
+				 */
+				description: string
+			}
+			seventh: {
+				/**
+				 * D​o​k​o​n​č​e​n​í​ ​r​e​g​i​s​t​r​a​c​e
+				 */
+				title: string
+				/**
+				 * Z​a​d​e​j​t​e​ ​p​r​o​s​í​m​ ​s​v​é​ ​o​b​č​a​n​s​t​v​í​,​ ​r​o​d​n​é​ ​č​í​s​l​o​,​ ​č​i​ ​j​e​h​o​ ​a​l​t​e​r​n​a​t​i​v​u​ ​V​a​š​í​ ​z​e​m​ě​ ​a​ ​o​b​o​r​ ​n​a​ ​k​t​e​r​ý​ ​s​e​ ​h​l​á​s​í​t​e​.
+				 */
+				description: string
+			}
+			eighth: {
+				/**
+				 * P​o​s​l​e​d​n​í​ ​k​r​o​k
+				 */
+				title: string
+				/**
+				 * P​ř​i​d​e​j​t​e​ ​p​r​o​s​í​m​ ​p​ř​e​p​i​s​ ​V​a​š​í​c​h​ ​z​n​á​m​e​k​ ​z​ ​p​o​s​l​e​d​n​í​c​h​ ​d​v​o​u​ ​l​e​t​ ​s​t​u​d​i​a
+				 */
+				description: string
+			}
+		}
 	}
 	components: {
 		checkbox: {
@@ -90,7 +180,7 @@ type RootTranslation = {
 					 */
 					title: RequiredParams<'first'>
 					/**
-					 * `​N​e​,​ ​p​ř​i​h​l​á​š​k​u​ ​n​a​ ​S​S​P​Š​a​G​ ​j​s​e​m​ ​p​o​d​á​v​a​l​ ​v​í​c​e​ ​p​ř​i​h​l​á​š​e​k
+					 * N​e​,​ ​p​ř​i​h​l​á​š​k​u​ ​n​a​ ​S​S​P​Š​a​G​ ​j​s​e​m​ ​p​o​d​á​v​a​l​ ​v​í​c​e​ ​p​ř​i​h​l​á​š​e​k
 					 */
 					title2: string
 				}
@@ -192,6 +282,10 @@ type RootTranslation = {
 		 * O​d​e​s​l​a​t
 		 */
 		submit: string
+		/**
+		 * P​o​k​r​a​č​o​v​a​t
+		 */
+		'continue': string
 		parent: {
 			/**
 			 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
@@ -210,6 +304,10 @@ type RootTranslation = {
 }
 
 export type TranslationFunctions = {
+	/**
+	 * zde
+	 */
+	here: () => LocalizedString
 	admin: {
 		auth: {
 			login: {
@@ -255,6 +353,92 @@ export type TranslationFunctions = {
 				}
 			}
 		}
+		register: {
+			first: {
+				/**
+				 * Propojení účtů
+				 */
+				title: () => LocalizedString
+				/**
+				 * Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě přihlášky. Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
+				 */
+				description: () => LocalizedString
+			}
+			second: {
+				/**
+				 * Zpracování osobních údajů
+				 */
+				title: () => LocalizedString
+				/**
+				 * V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný Váš souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si můžete přečíst
+				 */
+				description: () => LocalizedString
+			}
+			third: {
+				/**
+				 * Registrace
+				 */
+				title: () => LocalizedString
+				/**
+				 * V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s vyplněním potřebných údajů.
+				 */
+				description: () => LocalizedString
+			}
+			fourth: {
+				/**
+				 * Něco o Vás
+				 */
+				title: () => LocalizedString
+				/**
+				 * Úprava osobních údajů
+				 */
+				titleEdit: () => LocalizedString
+				/**
+				 * Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro přijímací řízení. Všechny údaje jsou důležité.
+				 */
+				description: () => LocalizedString
+			}
+			fifth: {
+				/**
+				 * Zákonný zástupce
+				 */
+				title: () => LocalizedString
+				/**
+				 * Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
+				 */
+				description: () => LocalizedString
+			}
+			sixth: {
+				/**
+				 * Druhý zákonný zástupce
+				 */
+				title: () => LocalizedString
+				/**
+				 * Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
+				 */
+				description: () => LocalizedString
+			}
+			seventh: {
+				/**
+				 * Dokončení registrace
+				 */
+				title: () => LocalizedString
+				/**
+				 * Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který se hlásíte.
+				 */
+				description: () => LocalizedString
+			}
+			eighth: {
+				/**
+				 * Poslední krok
+				 */
+				title: () => LocalizedString
+				/**
+				 * Přidejte prosím přepis Vaších známek z posledních dvou let studia
+				 */
+				description: () => LocalizedString
+			}
+		}
 	}
 	components: {
 		checkbox: {
@@ -283,7 +467,7 @@ export type TranslationFunctions = {
 					 */
 					title: (arg: { first: number }) => LocalizedString
 					/**
-					 * `Ne, přihlášku na SSPŠaG jsem podával více přihlášek
+					 * Ne, přihlášku na SSPŠaG jsem podával více přihlášek
 					 */
 					title2: () => LocalizedString
 				}
@@ -385,6 +569,10 @@ export type TranslationFunctions = {
 		 * Odeslat
 		 */
 		submit: () => LocalizedString
+		/**
+		 * Pokračovat
+		 */
+		'continue': () => LocalizedString
 		parent: {
 			/**
 			 * Jméno a příjmení zákonného zástupce
