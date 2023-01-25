@@ -200,6 +200,19 @@ pub fn create_identity() -> (String, String) {
     )
 }
 
+pub async fn encrypt_buffer_with_recipients(
+    input_buffer: &[u8],
+    recipients: &Vec<String>,
+) -> Result<Vec<u8>, ServiceError> {
+    let mut output_buffer = vec![];
+    age_encrypt_with_recipients(input_buffer,
+        &mut output_buffer,
+        &recipients.iter().map(|s| s.as_str()).collect()
+    ).await?;
+
+    Ok(output_buffer)
+}
+
 async fn age_encrypt_with_recipients<W: tokio::io::AsyncWrite + Unpin>(
     input_buffer: &[u8],
     output_buffer: &mut W,

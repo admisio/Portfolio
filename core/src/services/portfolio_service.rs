@@ -368,14 +368,45 @@ impl PortfolioService {
     /// Returns decrypted portfolio zip as Vec of bytes
     pub async fn get_portfolio(candidate_id: i32, private_key: String) -> Result<Vec<u8>, ServiceError> {
         info!("PORTFOLIO {} DECRYPT STARTED", candidate_id);
-        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
-
-        let path = path.join(FileType::Age.as_str());
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join(FileType::Age.as_str())
+            .to_path_buf();
 
         let buffer = crypto::decrypt_file_with_private_key_as_buffer(path, &private_key).await?;
 
         info!("PORTFOLIO {} DECRYPT FINISHED", candidate_id);
         Ok(buffer)
+    }
+
+    pub async fn reencrypt_portfolio(candidate_id: i32,
+        private_key: String,
+        recipients: &Vec<String>
+    ) -> Result<(), ServiceError> {
+        info!("PORTFOLIO {} REENCRYPT STARTED", candidate_id);
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join(FileType::Age.as_str())
+            .to_path_buf();
+
+        let plain_portfolio = crypto::decrypt_file_with_private_key_as_buffer(
+            path.to_owned(),
+            &private_key
+        ).await?;
+
+        
+        let enc_portfolio= crypto::encrypt_buffer_with_recipients(
+            &plain_portfolio, 
+            recipients
+        ).await?;
+        
+        tokio::fs::remove_file(path.to_owned()).await?;
+        
+        tokio::fs::write(path, enc_portfolio).await?;
+
+        info!("PORTFOLIO {} REENCRYPT FINISHED", candidate_id);
+
+        Ok(())
     }
 }
 

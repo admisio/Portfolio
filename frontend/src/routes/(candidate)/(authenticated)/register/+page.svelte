@@ -424,6 +424,7 @@
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{$LL.candidate.register.first.title()}</h1>
+					<h1 class="title mt-8">{$LL.candidate.register.first.title()}</h1>
 					<p class="description mt-8 block text-center">
 						{$LL.candidate.register.first.description()}
 					</p>
@@ -466,6 +467,7 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
+						{$LL.candidate.register.third.description()}
 						{$LL.candidate.register.third.description()}
 					</p>
 					<div class="w-full">

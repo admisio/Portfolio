@@ -150,6 +150,93 @@ type RootTranslation = {
 		}
 	}
 	components: {
+		dashboard: {
+			coverLetterUploadCard: {
+				/**
+				 * M​o​t​i​v​a​č​n​í​ ​d​o​p​i​s
+				 */
+				title: string
+				/**
+				 * s​v​ů​j​ ​m​o​t​i​v​a​n​č​n​í​ ​d​o​p​i​s
+				 */
+				placeholder: string
+			}
+			portfolioLetterUploadCard: {
+				/**
+				 * P​o​r​t​f​o​l​i​o
+				 */
+				title: string
+				/**
+				 * s​v​é​ ​p​o​r​t​f​o​l​i​o
+				 */
+				placeholder: string
+			}
+			portfolioZipUploadCard: {
+				/**
+				 * D​a​l​š​í​ ​d​a​t​a
+				 */
+				title: string
+				/**
+				 * v​a​š​e​ ​d​a​l​š​í​ ​s​o​u​b​o​r​y​ ​v​e​ ​f​o​r​m​á​t​u​ ​Z​I​P
+				 */
+				placeholder: string
+			}
+			dashboardUploadCard: {
+				/**
+				 * S​e​m​ ​p​ř​e​t​á​h​n​ě​t​e​,
+				 */
+				dropHere: string
+				/**
+				 * N​e​b​o​ ​n​a​h​r​a​j​t​e​ ​{​p​l​a​c​e​h​o​l​d​e​r​}
+				 * @param {string} placeholder
+				 */
+				orUpload: RequiredParams<'placeholder'>
+				/**
+				 * N​a​h​r​á​n​o
+				 */
+				uploaded: string
+				/**
+				 * O​d​e​s​l​á​n​o
+				 */
+				sent: string
+				/**
+				 * S​m​a​z​a​t
+				 */
+				'delete': string
+			}
+			statusNotificationBig: {
+				submitted: {
+					/**
+					 * S​o​u​b​o​r​y​ ​o​d​e​v​z​d​á​n​y​!
+					 */
+					title: string
+					/**
+					 * V​a​š​e​ ​s​o​u​b​o​r​y​ ​s​m​a​ž​e​t​e​ ​k​l​i​k​n​u​t​í​m​ ​z​d​e
+					 */
+					description: string
+				}
+				uploaded: {
+					/**
+					 * S​o​u​b​o​r​y​ ​n​e​b​y​l​y​ ​o​d​e​v​z​d​á​n​y​!
+					 */
+					title: string
+					/**
+					 * O​d​e​v​z​d​e​j​t​e​ ​s​o​u​b​o​r​y​ ​k​l​i​k​n​u​t​í​m​ ​z​d​e
+					 */
+					description: string
+				}
+				missing: {
+					/**
+					 * S​o​u​b​o​r​y​ ​n​e​b​y​l​y​ ​n​a​h​r​á​n​y​!
+					 */
+					title: string
+					/**
+					 * N​a​h​r​a​j​t​e​ ​v​č​e​c​h​n​y​ ​s​o​u​b​o​r​y​ ​p​r​o​s​í​m
+					 */
+					description: string
+				}
+			}
+		}
 		checkbox: {
 			accountLinkCheckBox: {
 				/**
@@ -461,6 +548,92 @@ export type TranslationFunctions = {
 		}
 	}
 	components: {
+		dashboard: {
+			coverLetterUploadCard: {
+				/**
+				 * Motivační dopis
+				 */
+				title: () => LocalizedString
+				/**
+				 * svůj motivanční dopis
+				 */
+				placeholder: () => LocalizedString
+			}
+			portfolioLetterUploadCard: {
+				/**
+				 * Portfolio
+				 */
+				title: () => LocalizedString
+				/**
+				 * své portfolio
+				 */
+				placeholder: () => LocalizedString
+			}
+			portfolioZipUploadCard: {
+				/**
+				 * Další data
+				 */
+				title: () => LocalizedString
+				/**
+				 * vaše další soubory ve formátu ZIP
+				 */
+				placeholder: () => LocalizedString
+			}
+			dashboardUploadCard: {
+				/**
+				 * Sem přetáhněte,
+				 */
+				dropHere: () => LocalizedString
+				/**
+				 * Nebo nahrajte {placeholder}
+				 */
+				orUpload: (arg: { placeholder: string }) => LocalizedString
+				/**
+				 * Nahráno
+				 */
+				uploaded: () => LocalizedString
+				/**
+				 * Odesláno
+				 */
+				sent: () => LocalizedString
+				/**
+				 * Smazat
+				 */
+				'delete': () => LocalizedString
+			}
+			statusNotificationBig: {
+				submitted: {
+					/**
+					 * Soubory odevzdány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Vaše soubory smažete kliknutím zde
+					 */
+					description: () => LocalizedString
+				}
+				uploaded: {
+					/**
+					 * Soubory nebyly odevzdány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Odevzdejte soubory kliknutím zde
+					 */
+					description: () => LocalizedString
+				}
+				missing: {
+					/**
+					 * Soubory nebyly nahrány!
+					 */
+					title: () => LocalizedString
+					/**
+					 * Nahrajte včechny soubory prosím
+					 */
+					description: () => LocalizedString
+				}
+			}
+		}
 		checkbox: {
 			accountLinkCheckBox: {
 				/**
