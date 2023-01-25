@@ -26,6 +26,7 @@ $: selectedSchool.name = schoolName;
         </span>
         <!-- TODO -->
         <!-- <AutoComplete items={schools} bind:selectedItem={schoolName} /> -->
+        <input type="text" bind:value={schoolName} />
     </div>
     <div class="flex">
         <span>Obor: </span>
