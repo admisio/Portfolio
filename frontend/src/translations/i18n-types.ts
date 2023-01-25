@@ -171,6 +171,16 @@ type RootTranslation = {
 				 */
 				placeholder: string
 			}
+			portfolioZipUploadCard: {
+				/**
+				 * D​a​l​š​í​ ​d​a​t​a
+				 */
+				title: string
+				/**
+				 * v​a​š​e​ ​d​a​l​š​í​ ​s​o​u​b​o​r​y​ ​v​e​ ​f​o​r​m​á​t​u​ ​Z​I​P
+				 */
+				placeholder: string
+			}
 			dashboardUploadCard: {
 				/**
 				 * S​e​m​ ​p​ř​e​t​á​h​n​ě​t​e​,
@@ -536,6 +546,16 @@ export type TranslationFunctions = {
 				title: () => LocalizedString
 				/**
 				 * své portfolio
+				 */
+				placeholder: () => LocalizedString
+			}
+			portfolioZipUploadCard: {
+				/**
+				 * Další data
+				 */
+				title: () => LocalizedString
+				/**
+				 * vaše další soubory ve formátu ZIP
 				 */
 				placeholder: () => LocalizedString
 			}

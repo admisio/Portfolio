@@ -78,6 +78,10 @@ const cs: BaseTranslation = {
 				title: 'Portfolio',
 				placeholder: 'své portfolio'
 			},
+			portfolioZipUploadCard: {
+				title: 'Další data',
+				placeholder: 'vaše další soubory ve formátu ZIP'
+			},
 			dashboardUploadCard: {
 				dropHere: 'Sem přetáhněte,',
 				orUpload: 'Nebo nahrajte {placeholder:string}',
