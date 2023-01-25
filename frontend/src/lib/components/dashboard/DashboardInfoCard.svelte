@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import debounce from 'just-debounce-it';
 
 	import {
@@ -7,7 +9,6 @@
 		apiLogout,
 		apiSubmitPortfolio
 	} from '$lib/@api/candidate';
-	import Circles from '$lib/components/icons/Circles.svelte';
 	import { fetchSubmProgress, type Status } from '$lib/stores/portfolio';
 	import StatusNotificationBig from './StatusNotificationBig.svelte';
 	import InfoButton from './InfoButton.svelte';
@@ -150,39 +151,39 @@
 						class="mt-4 flex flex-col justify-between leading-10"
 					>
 						<span
-							>Ev. č. přihlášky ({getField($baseCandidateData.applications[0])}):
+							>{$LL.input.evidenceNumber()} ({getField($baseCandidateData.applications[0])}):
 							<span class="font-bold">{$baseCandidateData.applications[0]}</span></span
 						>
 						{#if $baseCandidateData.applications.length > 1}
 							<span
-								>Ev. č. přihlášky ({getField($baseCandidateData.applications[1])}):
+								>{$LL.input.evidenceNumber()} ({getField($baseCandidateData.applications[1])}):
 								<span class="font-bold">{$baseCandidateData.applications[1]}</span></span
 							>
 						{/if}
-						<span>Adresa: <span class="font-bold">{$candidateData.candidate.address}</span></span>
+						<span>{$LL.input.address()}: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span
-							>Datum narození: <span class="font-bold">{$candidateData.candidate.birthdate}</span
+							>{$LL.input.birthDate()}: <span class="font-bold">{$candidateData.candidate.birthdate}</span
 							></span
 						>
 						<span
-							>Místo narození: <span class="font-bold">{$candidateData.candidate.birthplace}</span
+							>{$LL.input.birthPlace()}: <span class="font-bold">{$candidateData.candidate.birthplace}</span
 							></span
 						>
 						<span
-							>Rodné číslo: <span class="font-bold"
+							>{$LL.input.personalIdentificationNumber()}: <span class="font-bold"
 								>{$candidateData.candidate.personalIdNumber}</span
 							></span
 						>
 						<span
-							>IČO/Název školy: <span class="font-bold">{$candidateData.candidate.schoolName}</span
+							>{$LL.input.schoolIzo()}: <span class="font-bold">{$candidateData.candidate.schoolName}</span
 							></span
 						>
 						<span
-							>Číslo zdravotní pojišťovny: <span class="font-bold"
+							>{$LL.input.insuranceNumber()}: <span class="font-bold"
 								>{$candidateData.candidate.healthInsurance}</span
 							></span
 						>
-						<span>Telefon: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
+						<span>{$LL.input.telephone()}: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
 						>
 					</div>
 					<div
@@ -200,8 +201,8 @@
 								<span class="text-sspsBlue text-xl font-bold"
 									>{parent.name + ' ' + parent.surname}</span
 								>
-								<span>Email: <span class="font-bold">{parent.email}</span></span>
-								<span>Telefon: <span class="font-bold">{parent.telephone}</span></span>
+								<span>{$LL.input.email()}: <span class="font-bold">{parent.email}</span></span>
+								<span>{$LL.input.telephone()}: <span class="font-bold">{parent.telephone}</span></span>
 							</div>
 						{/each}
 					</div>

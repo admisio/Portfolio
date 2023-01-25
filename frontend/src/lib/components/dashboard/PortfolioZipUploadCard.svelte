@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
 	import { apiDeletePortfolioZip, apiUploadPortfolioZip } from '$lib/@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
@@ -28,9 +30,9 @@
 	{error}
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	on:delete={onDelete}
-	title="Další data"
+	title={$LL.components.dashboard.portfolioZipUploadCard.title()}
 	filetype="ZIP"
 	filesize={100}
 	fileType={3}
-	placeholder="vaše další soubory ve formátu ZIP"
+	placeholder={$LL.components.dashboard.portfolioZipUploadCard.placeholder()}
 />

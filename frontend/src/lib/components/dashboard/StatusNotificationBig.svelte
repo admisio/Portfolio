@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import type { Status } from '$lib/stores/portfolio';
 
 	export let loading: boolean = false;
@@ -8,16 +10,16 @@
 	let description: string;
 	$: switch (status) {
 		case 'submitted':
-			title = 'Soubory odevzdány!';
-			description = 'Vaše soubory smažete kliknutím zde';
+			title = $LL.components.dashboard.statusNotificationBig.submitted.title();
+			description = $LL.components.dashboard.statusNotificationBig.submitted.description();
 			break;
 		case 'uploaded':
-			title = 'Soubory nebyly odevzdány!';
-			description = 'Odevzdejte soubory kliknutím zde';
+			title = $LL.components.dashboard.statusNotificationBig.uploaded.title();
+			description = $LL.components.dashboard.statusNotificationBig.uploaded.description();
 			break;
 		case 'missing':
-			title = 'Soubory nebyly nahrány!';
-			description = 'Nahrajte včechny soubory prosím';
+			title = $LL.components.dashboard.statusNotificationBig.missing.title();
+			description = $LL.components.dashboard.statusNotificationBig.missing.description();
 			break;
 	}
 </script>

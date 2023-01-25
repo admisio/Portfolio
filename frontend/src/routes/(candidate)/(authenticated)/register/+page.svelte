@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import { goto } from '$app/navigation';
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
@@ -27,12 +29,13 @@
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false];
 	let pageTexts = [
-		'Zpracování osobních údajů',
-		'Registrace',
-		'Něco o Vás',
-		'Zákonný zástupce',
-		'Druhý zákonný zástupce',
-		'Poslední krok'
+		$LL.candidate.register.second.title(),
+		$LL.candidate.register.third.title(),
+		$LL.candidate.register.fourth.title(),
+		$LL.candidate.register.fifth.title(),
+		$LL.candidate.register.sixth.title(),
+		$LL.candidate.register.seventh.title(),
+		$LL.candidate.register.eighth.title()
 	];
 
 	export let data: PageData;
@@ -61,7 +64,7 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			testLanguage: '',
+			testLanguage: ''
 		},
 		parents: [
 			{
@@ -121,8 +124,9 @@
 							semester: yup.string().required()
 						})
 						.required()
-				).required(),
-			testLanguage: yup.string().required(),
+				)
+				.required(),
+			testLanguage: yup.string().required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -364,7 +368,7 @@
 				}
 				break;
 			case 7:
-				if ($typedErrors["candidate"]["grades"].length > 0) return true;
+				if ($typedErrors['candidate']['grades'].length > 0) return true;
 				break;
 			default:
 				return false;
@@ -411,7 +415,7 @@
 			]
 		});
 		pageIndex = 2; // skip gdpr page
-		pageTexts[2] = 'Úprava osobních údajů';
+		pageTexts[2] = $LL.candidate.register.fourth.titleEdit();
 	}
 </script>
 
@@ -428,10 +432,9 @@
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
-					<h1 class="title mt-8">Propojení účtů</h1>
+					<h1 class="title mt-8">{$LL.candidate.register.first.title()}</h1>
 					<p class="description mt-8 block text-center">
-						Elektronickou přihlášky stačí vyplnit jen jednou i v případě, že jste podali dvě
-						přihlášky. Potvrďte, že jste jste k nám skutečně podali dvě přihlášky.
+						{$LL.candidate.register.first.description()}
 					</p>
 					<div class="field">
 						<AccountLinkCheckBox
@@ -446,24 +449,18 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[0]}</h1>
 					<p class="description mt-8 block text-center">
-						V rámci portálu pro přijímací řízení zpracováváme mnoho osobních údajů. Proto je nutný
-						Váš souhlas s jejich zpracováním. O bezpečnosti zpracování Vašich osobních údajů si
-						můžete přečíst
-						<a href="/bezpecnost" class="text-sspsBlue underline"> zde</a>.
+						{$LL.candidate.register.second.description()}
+						<a href="/bezpecnost" class="text-sspsBlue underline"> {$LL.here()}</a>.
 					</p>
 					<div class="field">
-						<GdprCheckBox
-							bind:value={$form.gdpr}
-							error={$typedErrors['gdpr']}
-						/>
+						<GdprCheckBox bind:value={$form.gdpr} error={$typedErrors['gdpr']} />
 					</div>
 				</form>
 			{:else if pageIndex === 2}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
-						V rámci usnadnění přijímacího řízení jsme připravili online formulář, který Vám pomůže s
-						vyplněním potřebných údajů.
+						{$LL.candidate.register.third.description()}
 					</p>
 					<div class="flex flex-col">
 						<span class="field">
@@ -471,21 +468,21 @@
 								error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
 								bind:valueName={$form.candidate.name}
 								bind:valueSurname={$form.candidate.surname}
-								placeholder="Jméno a příjmení"
+								placeholder={$LL.input.nameSurname()}
 							/>
 						</span>
 						<span class="field">
 							<EmailField
 								error={$typedErrors['candidate']['email']}
 								bind:value={$form.candidate.email}
-								placeholder="E-mail"
+								placeholder={$LL.input.email()}
 							/>
 						</span>
 						<span class="field">
 							<TelephoneField
 								error={$typedErrors['candidate']['telephone']}
 								bind:value={$form.candidate.telephone}
-								placeholder="Telefon"
+								placeholder={$LL.input.telephone()}
 							/>
 						</span>
 					</div>
@@ -493,8 +490,7 @@
 			{:else if pageIndex === 3}
 				<h1 class="title mt-8">{pageTexts[2]}</h1>
 				<p class="description mt-8 block text-center">
-					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
-					přijímací řízení. Všechny údaje jsou důležité.
+					{$LL.candidate.register.fourth.description()}
 				</p>
 				<div class="field flex">
 					<span class="w-[66%]">
@@ -503,7 +499,7 @@
 								$typedErrors['candidate']['houseNumber']}
 							bind:valueName={$form.candidate.street}
 							bind:valueSurname={$form.candidate.houseNumber}
-							placeholder="Ulice a č. p."
+							placeholder={$LL.input.address()}
 							helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
 						/>
 					</span>
@@ -512,7 +508,7 @@
 							error={$typedErrors['candidate']['zip']}
 							bind:value={$form.candidate.zip}
 							type="number"
-							placeholder="PSČ"
+							placeholder={$LL.input.zipCode()}
 							helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
 						/>
 					</span>
@@ -523,7 +519,7 @@
 							error={$typedErrors['candidate']['city']}
 							bind:value={$form.candidate.city}
 							type="text"
-							placeholder="Město"
+							placeholder={$LL.input.city()}
 							helperText="Uveďte město"
 						/>
 					</span>
@@ -532,7 +528,7 @@
 							error={$typedErrors['candidate']['birthplace']}
 							bind:value={$form.candidate.birthplace}
 							type="text"
-							placeholder="Místo narození"
+							placeholder={$LL.input.birthPlace()}
 							helperText="Uveďte město"
 							icon
 						>
@@ -548,7 +544,7 @@
 						error={$typedErrors['candidate']['birthdate']}
 						bind:value={$form.candidate.birthdate}
 						type="text"
-						placeholder="Datum narození"
+						placeholder={$LL.input.birthDate()}
 						helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 					/>
 					<div class="ml-2">
@@ -556,14 +552,14 @@
 							error={$typedErrors['candidate']['sex']}
 							bind:value={$form.candidate.sex}
 							options={['Žena', 'Muž']}
-							placeholder="Pohlaví"
+							placeholder={$LL.input.sex()}
 						/>
 					</div>
 				</div>
 			{:else if pageIndex === 4}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
-					Sběr dat o zákonném zástupci je klíčový pro získání důležitých kontaktů a informací.
+					{$LL.candidate.register.fifth.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<span class="field">
@@ -571,28 +567,28 @@
 							error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
 							bind:valueName={$form.parents[0].name}
 							bind:valueSurname={$form.parents[0].surname}
-							placeholder="Jméno a příjmení zákonného zástupce"
+							placeholder={$LL.input.parent.nameSurname()}
 						/>
 					</span>
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][0]['email']}
 							bind:value={$form.parents[0].email}
-							placeholder="E-mail zákonného zástupce"
+							placeholder={$LL.input.parent.email()}
 						/>
 					</span>
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][0]['telephone']}
 							bind:value={$form.parents[0].telephone}
-							placeholder="Telefon zákonného zástupce"
+							placeholder={$LL.input.parent.telephone()}
 						/>
 					</span>
 				</div>
 			{:else if pageIndex === 5}
 				<h1 class="title mt-8">{pageTexts[4]}</h1>
 				<p class="description mt-8 block text-center">
-					Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.
+					{$LL.candidate.register.sixth.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<span class="field">
@@ -600,29 +596,28 @@
 							error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
 							bind:valueName={$form.parents[1].name}
 							bind:valueSurname={$form.parents[1].surname}
-							placeholder="Jméno a příjmení zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.nameSurname()} (${$LL.input.optional()})`}
 						/>
 					</span>
 					<span class="field">
 						<EmailField
 							error={$typedErrors['parents'][1]['email']}
 							bind:value={$form.parents[1].email}
-							placeholder="E-mail zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.email()} (${$LL.input.optional()})`}
 						/>
 					</span>
 					<span class="field">
 						<TelephoneField
 							error={$typedErrors['parents'][1]['telephone']}
 							bind:value={$form.parents[1].telephone}
-							placeholder="Telefon zákonného zástupce (nepovinné)"
+							placeholder={`${$LL.input.parent.telephone()} (${$LL.input.optional()})`}
 						/>
 					</span>
 				</div>
 			{:else if pageIndex === 6}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
 				<p class="description mt-8 block text-center">
-					Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který
-					se hlásíte.
+					{$LL.candidate.register.seventh.description()}
 				</p>
 				<div class="flex w-full flex-col">
 					<div class="field flex w-full">
@@ -630,15 +625,15 @@
 							<SelectField
 								error={$typedErrors['candidate']['citizenship']}
 								bind:value={$form.candidate.citizenship}
-								placeholder="Občanství"
+								placeholder={$LL.input.citizenship()}
 								options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 							/>
 						</span>
-						<span class="w-[50%] ml-2">
+						<span class="ml-2 w-[50%]">
 							<SelectField
 								error={$typedErrors['candidate']['testLanguage']}
 								bind:value={$form.candidate.testLanguage}
-								placeholder="Jazyk odborných testů"
+								placeholder={$LL.input.testLanguage()}
 								options={['Čeština', 'Angličtina']}
 							/>
 						</span>
@@ -650,14 +645,14 @@
 									error={$typedErrors['candidate']['schoolName']}
 									type="number"
 									bind:value={$form.candidate.schoolName}
-									placeholder="IZO školy"
+									placeholder={$LL.input.schoolIzo()}
 								/>
 							{:else}
 								<TextField
 									error={$typedErrors['candidate']['schoolName']}
 									type="text"
 									bind:value={$form.candidate.schoolName}
-									placeholder="Název školy"
+									placeholder={$LL.input.schoolName()}
 								/>
 							{/if}
 						</span>
@@ -667,7 +662,7 @@
 								error={$typedErrors['candidate']['healthInsurance']}
 								type="text"
 								bind:value={$form.candidate.healthInsurance}
-								placeholder="Číslo zdravotní pojišťovny"
+								placeholder={$LL.input.insuranceNumber()}
 							/>
 						</span>
 					</div>
@@ -677,20 +672,20 @@
 						<IdField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
+							placeholder={$LL.input.personalIdentificationNumber()}
 						/>
 					{:else}
 						<TextField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
+							placeholder={$LL.input.personalIdentificationNumber()}
 						/>
 					{/if}
 				</div>
 			{:else if pageIndex === 7}
-				<h1 class="title mt-8">{pageTexts[5]}</h1>
+				<h1 class="title mt-8">{pageTexts[6]}</h1>
 				<p class="description mt-8 block text-center">
-					Přidejte prosím přepis Vaších známek z posledních dvou let studia
+					{$LL.candidate.register.eighth.description()}
 				</p>
 				<GradesTable
 					error={$typedErrors['candidate']['grades']}
@@ -712,7 +707,7 @@
 						// @ts-ignore
 						errors.set(formInitialValues);
 					}}
-					value={pageIndex === pageCount ? 'Odeslat' : 'Pokračovat'}
+					value={pageIndex === pageCount ? $LL.input.submit() : $LL.input.continue()}
 				/>
 			</div>
 
