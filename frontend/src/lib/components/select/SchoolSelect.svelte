@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { School } from '$lib/stores/candidate';
-import AutoComplete from 'simple-svelte-autocomplete';
+// TODO
+// import AutoComplete from 'simple-svelte-autocomplete';
 import { onMount } from 'svelte';
 // import schoollistString from '$lib/assets/schoollist.txt';
 
@@ -23,7 +24,9 @@ $: selectedSchool.name = schoolName;
         <span>
             Selected school: {selectedSchool.name}
         </span>
-        <AutoComplete items={schools} bind:selectedItem={schoolName} />
+        <!-- <AutoComplete items={schools} bind:selectedItem={schoolName} /> -->
+        <!-- TODO -->
+        <input type="text" bind:value={schoolName} />
     </div>
     <div class="flex">
         <span>Obor: </span>
