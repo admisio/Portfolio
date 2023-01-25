@@ -99,7 +99,7 @@ pub mod tests {
             APPLICATION_ID,
             &plain_text_password,
             "0000001111".to_string()
-        ).await.unwrap();
+        ).await.unwrap().0;
 
         let candidate= ApplicationService::find_related_candidate(db, &application).await.unwrap();
         ParentService::create(db, candidate.id).await.unwrap();

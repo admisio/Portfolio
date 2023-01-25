@@ -94,15 +94,25 @@ pub async fn create_candidate(
 
     let plain_text_password = random_12_char_string();
 
-    ApplicationService::create(&private_key, &db, form.application_id, &plain_text_password, form.personal_id_number.clone())
+    let (application, applications, personal_id_number) = ApplicationService::create(
+        &private_key,
+        &db,
+        form.application_id,
+        &plain_text_password,
+        form.personal_id_number.clone()
+    )
         .await
         .map_err(to_custom_error)?;
 
     Ok(
         Json(
             CreateCandidateResponse {
-                application_id: form.application_id,
-                personal_id_number: form.personal_id_number,
+                application_id: application.id,
+                field_of_study: application.field_of_study,
+                applications: applications.iter()
+                    .map(|a| a.id)
+                    .collect(),
+                personal_id_number,
                 password: plain_text_password,
             }
         )
