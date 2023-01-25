@@ -83,6 +83,12 @@ const cs: BaseTranslation = {
 					title2: 'Ne, přihlášku na SSPŠaG jsem podával více přihlášek'
 				}
 			},
+			personalIdConfirmCheckBox: {
+				ok: 'Vše je v pořádku',
+				whatHappened: 'Co se děje?',
+				titleOk: 'Potvrzuji, že moje rodné číslo je {personalId}',
+				titleErr: 'Ne, moje rodné číslo není {personalId}',
+			},
 			gdprCheckBox: {
 				title: 'Souhlasím se zpracováním osobních údajů',
 				description: 'Kliknutím vyjaďřujete souhlas se zpracováním osobních údajů',

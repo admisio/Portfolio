@@ -6,7 +6,6 @@
 	import Submit from '$lib/components/button/Submit.svelte';
 	import GdprCheckBox from '$lib/components/checkbox/GdprCheckBox.svelte';
 
-	import Home from '$lib/components/icons/Home.svelte';
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/select/SelectField.svelte';
@@ -25,9 +24,12 @@
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
+	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
+	import { deriveBirthdateFromPersonalId, isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 
 	let pageIndex = 0;
-	let pagesFilled = [false, false, false, false, false, false, false];
+	let pagesFilled = [false, false, false, false, false, false, false, false];
+	let editModePageIndex = 3;
 	const pageCount = pagesFilled.length;
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
@@ -46,6 +48,8 @@
 	let personalIdBirthdateMatch = true;
 	const formInitialValues = {
 		gdpr: false,
+		personalIdOk: false,
+		personalIdErr: false,
 		linkOk: false,
 		linkError: false,
 		candidate: {
@@ -90,6 +94,8 @@
 
 	const formValidationSchema = yup.object().shape({
 		gdpr: yup.boolean().oneOf([true]),
+		personalIdOk: yup.boolean().oneOf([true]),
+		personalIdErr: yup.boolean().oneOf([false]),
 		linkOk: yup.boolean().oneOf([true]),
 		linkError: yup.boolean().oneOf([false]),
 		candidate: yup.object().shape({
@@ -190,56 +196,6 @@
 	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
 	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
-	// TODO: validate on admin dashboard, move somewhere
-	// TODO: nefunguje pro lidi nar. pred 1.1.1954 :D
-	const isPersonalIdNumberValid = (personalIdNumber: string): boolean => {
-		const idFmt = personalIdNumber.split('/').join('');
-
-		const lastDigitCheck =
-			Number(idFmt.slice(0, 9)) % 11 === Number(idFmt.at(-1)) ||
-			Number(idFmt.slice(0, 9)) % 11 === 10; // an edge case that could occur
-		const divisibleBy11 = Number(idFmt) % 11 === 0;
-
-		if (lastDigitCheck && divisibleBy11) {
-			return true;
-		} else {
-			return false;
-		}
-	};
-
-	const isPersonalIdNumberWithBirthdateValid = (
-		personalIdNumber: string,
-		birthdate: string
-	): boolean => {
-		const dateFmt = birthdate
-			.split('.')
-			.map((x) => x.padStart(2, '0'))
-			.reverse()
-			.join('')
-			.slice(2);
-		const idFmt = personalIdNumber.split('/').join('');
-
-		const divisionValid = isPersonalIdNumberValid(personalIdNumber);
-
-		const idMonth = Number(idFmt.slice(2, 4));
-		const dateMonth = Number(dateFmt.slice(2, 4));
-		const monthValid =
-			idMonth === dateMonth ||
-			idMonth === dateMonth + 50 ||
-			idMonth === dateMonth + 20 ||
-			idMonth === dateMonth + 70;
-
-		if (
-			idFmt.slice(0, 2) === dateFmt.slice(0, 2) &&
-			monthValid &&
-			idFmt.slice(4, 6) === dateFmt.slice(4, 6) &&
-			divisionValid
-		) {
-			return true;
-		} else {
-			return false;
-		}
-	};
 	$: console.log($typedErrors);
 	const onSubmit = async (values: CandidateData) => {
 		if (pageIndex === 3) {
@@ -320,17 +276,22 @@
 
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
-			case 0:
-				if ($typedErrors['linkOk'] || $typedErrors['linkError']) {
+			case 0: 
+			if ($typedErrors['personalIdOk'] || $typedErrors['personalIdErr']) {
 					return true;
 				}
 				break;
 			case 1:
-				if ($typedErrors['gdpr']) {
+				if ($typedErrors['linkOk'] || $typedErrors['linkError']) {
 					return true;
 				}
 				break;
 			case 2:
+				if ($typedErrors['gdpr']) {
+					return true;
+				}
+				break;
+			case 3:
 				if (
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['surname'] ||
@@ -345,7 +306,7 @@
 				}
 				break;
 
-			case 3:
+			case 4:
 				if (
 					$typedErrors['candidate']['citizenship'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
@@ -360,7 +321,7 @@
 					return true;
 				}
 				break;
-			case 4:
+			case 5:
 				if (
 					$typedErrors['parents'][0]['name'] ||
 					$typedErrors['parents'][0]['surname'] ||
@@ -370,7 +331,7 @@
 					return true;
 				}
 				break;
-			case 5:
+			case 6:
 				if (
 					$typedErrors['parents'][1]['name'] ||
 					$typedErrors['parents'][1]['surname'] ||
@@ -380,7 +341,7 @@
 					return true;
 				}
 				break;
-			case 6:
+			case 7:
 				// @ts-ignore
 				if ($typedErrors["candidate"]["firstSchool"].name || $typedErrors["candidate"]["firstSchool"].field ||
 					// @ts-ignore
@@ -389,7 +350,7 @@
 					return true;
 				}
 				break;
-			case 7:
+			case 8:
 				if ($typedErrors['candidate']['grades'].length > 0) return true;
 				break;
 			default:
@@ -402,6 +363,12 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
+
+	/* $form.candidate.personalIdNumber = data.whoami.personalIdNumber;
+	const [birthdate, sex] = deriveBirthdateFromPersonalId(data.whoami.personalIdNumber);
+	$form.candidate.birthdate = birthdate;
+	$form.candidate.sex = sex; */
+
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
 
@@ -413,6 +380,8 @@
 			gdpr: true,
 			linkOk: true,
 			linkError: false,
+			personalIdOk: true,
+			personalIdErr: false,
 			candidate: {
 				...details.candidate,
 				street: details.candidate.address.split(',')[0].split(' ')[0],
@@ -436,7 +405,7 @@
 				}
 			]
 		});
-		pageIndex = 2; // skip gdpr page
+		pageIndex = editModePageIndex; // skip gdpr page
 		pageTexts[2] = $LL.candidate.register.fourth.titleEdit();
 	}
 </script>
@@ -459,6 +428,21 @@
 						{$LL.candidate.register.first.description()}
 					</p>
 					<div class="field">
+						<PersonalIdConfirmCheckBox
+							personalIdNumber={baseCandidateDetails.personalIdNumber}
+							bind:personalIdOk={$form.personalIdOk}
+							bind:personalIdErr={$form.personalIdErr}
+							error={$typedErrors['personalIdOk']}
+						/>
+					</div>
+				</form>
+			{:else if pageIndex === 1}
+				<form on:submit={handleSubmit}>
+					<h1 class="title mt-8">{$LL.candidate.register.first.title()}</h1>
+					<p class="description mt-8 block text-center">
+						{$LL.candidate.register.first.description()}
+					</p>
+					<div class="field">
 						<AccountLinkCheckBox
 							applications={baseCandidateDetails.applications}
 							bind:linkOk={$form.linkOk}
@@ -467,7 +451,7 @@
 						/>
 					</div>
 				</form>
-			{:else if pageIndex === 1}
+			{:else if pageIndex === 2}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[0]}</h1>
 					<p class="description mt-8 block text-center">
@@ -478,7 +462,7 @@
 						<GdprCheckBox bind:value={$form.gdpr} error={$typedErrors['gdpr']} />
 					</div>
 				</form>
-			{:else if pageIndex === 2}
+			{:else if pageIndex === 3}
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
@@ -552,7 +536,7 @@
 						</div>
 					</div>
 				</form>
-			{:else if pageIndex === 3}
+			{:else if pageIndex === 4}
 				<h1 class="title mt-8">{pageTexts[2]}</h1>
 				<p class="description mt-8 block text-center">
 					Pro registraci je potřeba vyplnit několik údajů o Vás. Tyto údaje budou použity pro
@@ -644,7 +628,7 @@
 					</span>
 				</div>
 
-			{:else if pageIndex === 4}
+			{:else if pageIndex === 5}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fifth.description()}
@@ -673,7 +657,7 @@
 						/>
 					</span>
 				</div>
-			{:else if pageIndex === 5}
+			{:else if pageIndex === 6}
 				<h1 class="title mt-8">{pageTexts[4]}</h1>
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.sixth.description()}
@@ -702,7 +686,7 @@
 						/>
 					</span>
 				</div>
-			{:else if pageIndex === 6}
+			{:else if pageIndex === 7}
 				<h1 class="title mt-8">Přihlášky na školy</h1>
 				<div class="flex flex-col justify-between h-full">
 					<span>
@@ -712,7 +696,7 @@
 						<SchoolSelect bind:selectedSchool={$form.candidate.secondSchool}></SchoolSelect>
 					</span>
 				</div>
-			{:else if pageIndex === 7}
+			{:else if pageIndex === 8}
 				<h1 class="title mt-8">{pageTexts[6]}</h1>
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.eighth.description()}

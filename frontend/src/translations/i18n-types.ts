@@ -185,6 +185,26 @@ type RootTranslation = {
 					title2: string
 				}
 			}
+			personalIdConfirmCheckBox: {
+				/**
+				 * V​š​e​ ​j​e​ ​v​ ​p​o​ř​á​d​k​u
+				 */
+				ok: string
+				/**
+				 * C​o​ ​s​e​ ​d​ě​j​e​?
+				 */
+				whatHappened: string
+				/**
+				 * P​o​t​v​r​z​u​j​i​,​ ​ž​e​ ​m​o​j​e​ ​r​o​d​n​é​ ​č​í​s​l​o​ ​j​e​ ​{​p​e​r​s​o​n​a​l​I​d​}
+				 * @param {unknown} personalId
+				 */
+				titleOk: RequiredParams<'personalId'>
+				/**
+				 * N​e​,​ ​m​o​j​e​ ​r​o​d​n​é​ ​č​í​s​l​o​ ​n​e​n​í​ ​{​p​e​r​s​o​n​a​l​I​d​}
+				 * @param {unknown} personalId
+				 */
+				titleErr: RequiredParams<'personalId'>
+			}
 			gdprCheckBox: {
 				/**
 				 * S​o​u​h​l​a​s​í​m​ ​s​e​ ​z​p​r​a​c​o​v​á​n​í​m​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů
@@ -471,6 +491,24 @@ export type TranslationFunctions = {
 					 */
 					title2: () => LocalizedString
 				}
+			}
+			personalIdConfirmCheckBox: {
+				/**
+				 * Vše je v pořádku
+				 */
+				ok: () => LocalizedString
+				/**
+				 * Co se děje?
+				 */
+				whatHappened: () => LocalizedString
+				/**
+				 * Potvrzuji, že moje rodné číslo je {personalId}
+				 */
+				titleOk: (arg: { personalId: unknown }) => LocalizedString
+				/**
+				 * Ne, moje rodné číslo není {personalId}
+				 */
+				titleErr: (arg: { personalId: unknown }) => LocalizedString
 			}
 			gdprCheckBox: {
 				/**
