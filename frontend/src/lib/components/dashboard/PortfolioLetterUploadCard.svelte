@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import type { ApiError } from '$lib/@api';
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
 	import { apiDeletePortfolioLetter, apiUploadPortfolioLetter } from '../../@api/candidate';
@@ -28,9 +30,9 @@
 	{error}
 	on:filedrop={(e) => onFileDrop(e.detail)}
 	on:delete={onDelete}
-	title="Portfolio"
+	title={$LL.components.dashboard.portfolioLetterUploadCard.title()}
 	filetype="PDF"
 	filesize={10}
 	fileType={2}
-	placeholder="svoje portfolio"
+	placeholder={$LL.components.dashboard.portfolioLetterUploadCard.placeholder()}
 />

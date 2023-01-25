@@ -74,6 +74,10 @@ const cs: BaseTranslation = {
 				title: 'Motivační dopis',
 				placeholder: 'svůj motivanční dopis'
 			},
+			portfolioLetterUploadCard: {
+				title: 'Portfolio',
+				placeholder: 'své portfolio'
+			},
 			dashboardUploadCard: {
 				dropHere: 'Sem přetáhněte,',
 				orUpload: 'Nebo nahrajte {placeholder:string}',

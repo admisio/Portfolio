@@ -161,6 +161,16 @@ type RootTranslation = {
 				 */
 				placeholder: string
 			}
+			portfolioLetterUploadCard: {
+				/**
+				 * P​o​r​t​f​o​l​i​o
+				 */
+				title: string
+				/**
+				 * s​v​é​ ​p​o​r​t​f​o​l​i​o
+				 */
+				placeholder: string
+			}
 			dashboardUploadCard: {
 				/**
 				 * S​e​m​ ​p​ř​e​t​á​h​n​ě​t​e​,
@@ -516,6 +526,16 @@ export type TranslationFunctions = {
 				title: () => LocalizedString
 				/**
 				 * svůj motivanční dopis
+				 */
+				placeholder: () => LocalizedString
+			}
+			portfolioLetterUploadCard: {
+				/**
+				 * Portfolio
+				 */
+				title: () => LocalizedString
+				/**
+				 * své portfolio
 				 */
 				placeholder: () => LocalizedString
 			}
