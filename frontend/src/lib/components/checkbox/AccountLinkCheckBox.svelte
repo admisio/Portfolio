@@ -1,14 +1,23 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	export let linkOk: boolean = false;
 	export let linkError: boolean = false;
 	export let applications: Array<number>;
 
-	let title1 = `Ano, podával/a jsem dvě přihlášky na dva obory SSPŠaG (${applications[0]} a ${applications[1]})`;
-	let title2 = `Ne, přihlášku na SSPŠaG jsem podával/a jen jednu (${applications[0]})`;
+	let title1 = $LL.components.checkbox.accountLinkCheckBox.multiple.title({
+		first: applications[0],
+		second: applications[1]
+	});
+	let title2 = $LL.components.checkbox.accountLinkCheckBox.multiple.title2({
+		first: applications[0]
+	});
 
 	if (applications.length === 1) {
-		title1 = `Ano, přihlášku na SSPŠaG jsem podával/a jen jednu (${applications[0]})`;
-		title2 = `Ne, přihlášku na SSPŠaG jsem podával více přihlášek`;
+		title1 = $LL.components.checkbox.accountLinkCheckBox.single.title({
+			first: applications[0]
+		});
+		title2 = $LL.components.checkbox.accountLinkCheckBox.single.title2();
 	}
 
 	$: console.log(linkOk, linkError);
@@ -43,7 +52,7 @@
 			<div class="w-full text-lg font-semibold">
 				{title1}
 			</div>
-			<div class="w-full text-sm">Vše je v pořádku</div>
+			<div class="w-full text-sm">{$LL.components.checkbox.accountLinkCheckBox.ok()}</div>
 		</div>
 	</label>
 </div>
@@ -63,7 +72,7 @@
 			<div class="w-full text-lg font-semibold">
 				{title2}
 			</div>
-			<div class="w-full text-sm">Co se děje?</div>
+			<div class="w-full text-sm">{$LL.components.checkbox.accountLinkCheckBox.whatHappened()}</div>
 		</div>
 	</label>
 </div>

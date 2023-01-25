@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { School } from '$lib/stores/candidate';
+import type { School } from '$lib/stores/candidate';
 import AutoComplete from 'simple-svelte-autocomplete';
 import { onMount } from 'svelte';
 // import schoollistString from '$lib/assets/schoollist.txt';

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	export let value: boolean = false;
 
 	export let error: string = '';
@@ -9,9 +11,9 @@
 	<div class="block">
 		<span class="text-2xl">📜</span>
 
-		<div class="w-full text-lg font-semibold">Souhlas se zpracováním osobních údajů</div>
-		<div class="w-full text-sm">Kliknutím vyjaďřujete souhlas se zpracováním osobních údajů</div>
-		<div class="w-full text-sm"><a class="underline" href="/gdpr">Zde</a></div>
+		<div class="w-full text-lg font-semibold">{$LL.components.checkbox.gdprCheckBox.title()}</div>
+		<div class="w-full text-sm">{$LL.components.checkbox.gdprCheckBox.description()}</div>
+		<div class="w-full text-sm"><a class="underline" href="/gdpr">{$LL.components.checkbox.gdprCheckBox.here()}</a></div>
 	</div>
 </label>
 

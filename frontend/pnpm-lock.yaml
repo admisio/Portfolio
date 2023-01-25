@@ -34,6 +34,9 @@ dependencies:
   tippy.js:
     specifier: ^6.3.7
     version: 6.3.7
+  typesafe-i18n:
+    specifier: ^5.20.0
+    version: 5.20.0(typescript@4.9.4)
   yup:
     specifier: ^0.32.11
     version: 0.32.11
@@ -2392,11 +2395,19 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /typesafe-i18n@5.20.0(typescript@4.9.4):
+    resolution: {integrity: sha512-uOvKnVkp1tXRDNBz9Aom54qs0LP2xWrtDliMPdKm9Scsnvn0DC7ZqjSGdOWxVplpbFbqYWNZuzx5Q5jWOjnBTA==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=3.5.1'
+    dependencies:
+      typescript: 4.9.4
+    dev: false
+
   /typescript@4.9.4:
     resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unconfig@0.2.2:
     resolution: {integrity: sha512-JN1MeYJ/POnjBj7NgOJJxPp6+NcD6Nd0hEuK0D89kjm9GvQQUq8HeE2Eb7PZgtu+64mWkDiqeJn1IZoLH7htPg==}
