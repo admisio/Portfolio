@@ -318,6 +318,10 @@ type RootTranslation = {
 		 */
 		nameSurname: string
 		/**
+		 * R​o​d​n​é​ ​p​ř​í​j​m​e​n​í​ ​(​p​o​k​u​d​ ​o​d​l​i​š​n​é​)
+		 */
+		birthSurname: string
+		/**
 		 * E​-​m​a​i​l
 		 */
 		email: string
@@ -708,6 +712,10 @@ export type TranslationFunctions = {
 		 * Jméno a příjmení
 		 */
 		nameSurname: () => LocalizedString
+		/**
+		 * Rodné příjmení (pokud odlišné)
+		 */
+		birthSurname: () => LocalizedString
 		/**
 		 * E-mail
 		 */

@@ -25,7 +25,10 @@
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
-	import { deriveBirthdateFromPersonalId, isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
+	import {
+		deriveBirthdateFromPersonalId,
+		isPersonalIdNumberWithBirthdateValid
+	} from '$lib/utils/personalIdFormat';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -72,9 +75,9 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			firstSchool: {name: '', field: ''},
-			secondSchool: {name: '', field: ''},
-			testLanguage: '',
+			firstSchool: { name: '', field: '' },
+			secondSchool: { name: '', field: '' },
+			testLanguage: ''
 		},
 		parents: [
 			{
@@ -136,16 +139,17 @@
 							semester: yup.string().required()
 						})
 						.required()
-				).required(),
+				)
+				.required(),
 			firstSchool: yup.object().shape({
 				name: yup.string().required(),
-				field: yup.string().required(),
+				field: yup.string().required()
 			}),
 			secondSchool: yup.object().shape({
 				name: yup.string().required(),
-				field: yup.string().required(),
+				field: yup.string().required()
 			}),
-			testLanguage: yup.string().required(),
+			testLanguage: yup.string().required()
 		}),
 		parents: yup.array().of(
 			yup.object().shape({
@@ -276,8 +280,8 @@
 
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
-			case 0: 
-			if ($typedErrors['personalIdOk'] || $typedErrors['personalIdErr']) {
+			case 0:
+				if ($typedErrors['personalIdOk'] || $typedErrors['personalIdErr']) {
 					return true;
 				}
 				break;
@@ -343,9 +347,12 @@
 				break;
 			case 7:
 				// @ts-ignore
-				if ($typedErrors["candidate"]["firstSchool"].name || $typedErrors["candidate"]["firstSchool"].field ||
+				if (
+					$typedErrors['candidate']['firstSchool'].name ||
+					$typedErrors['candidate']['firstSchool'].field ||
 					// @ts-ignore
-					$typedErrors["candidate"]["secondSchool"].name || $typedErrors["candidate"]["secondSchool"].field
+					$typedErrors['candidate']['secondSchool'].name ||
+					$typedErrors['candidate']['secondSchool'].field
 				) {
 					return true;
 				}
@@ -362,7 +369,6 @@
 	const formatTelephone = (telephone: string) => {
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
-
 
 	/* $form.candidate.personalIdNumber = data.whoami.personalIdNumber;
 	const [birthdate, sex] = deriveBirthdateFromPersonalId(data.whoami.personalIdNumber);
@@ -473,17 +479,18 @@
 							<div class="field flex">
 								<span class="w-[50%]">
 									<NameField
-										error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
+										error={$typedErrors['candidate']['name'] ||
+											$typedErrors['candidate']['surname']}
 										bind:valueName={$form.candidate.name}
 										bind:valueSurname={$form.candidate.surname}
 										placeholder={$LL.input.nameSurname()}
-										/>
+									/>
 								</span>
-								<span class="w-[50%] ml-2">
+								<span class="ml-2 w-[50%]">
 									<TextField
 										error={$typedErrors['candidate']['birthSurname']}
 										bind:value={$form.candidate.birthSurname}
-										placeholder="Rodné příjmení (pokud odlišné)"
+										placeholder={$LL.input.birthSurname()}
 									/>
 								</span>
 							</div>
@@ -493,24 +500,24 @@
 										error={$typedErrors['candidate']['email']}
 										bind:value={$form.candidate.email}
 										placeholder={$LL.input.email()}
-										/>
+									/>
 								</span>
-								<span class="w-[50%] ml-2">
+								<span class="ml-2 w-[50%]">
 									<TelephoneField
 										error={$typedErrors['candidate']['telephone']}
 										bind:value={$form.candidate.telephone}
 										placeholder={$LL.input.telephone()}
-										/>
+									/>
 								</span>
 							</div>
 							<span class="field">
 								<TextField
-										error={$typedErrors['candidate']['city']}
-										bind:value={$form.candidate.city}
-										type="text"
-										placeholder={$LL.input.city()}
-										helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
-									/>
+									error={$typedErrors['candidate']['city']}
+									bind:value={$form.candidate.city}
+									type="text"
+									placeholder={$LL.input.city()}
+									helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+								/>
 							</span>
 						</div>
 						<div class="field flex">
@@ -550,7 +557,7 @@
 							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
 						/>
 					</span>
-					<span class="w-[50%] ml-2">
+					<span class="ml-2 w-[50%]">
 						<SelectField
 							error={$typedErrors['candidate']['testLanguage']}
 							bind:value={$form.candidate.testLanguage}
@@ -571,7 +578,7 @@
 						error={$typedErrors['candidate']['birthplace']}
 						bind:value={$form.candidate.birthplace}
 						type="text"
-						placeholder="Místo narození"
+						placeholder={$LL.input.birthPlace()}
 						helperText="TODO: (Místo narození)"
 					/>
 				</div>
@@ -580,13 +587,13 @@
 						<IdField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
+							placeholder={$LL.input.personalIdentificationNumber()}
 						/>
 					{:else}
 						<TextField
 							error={$typedErrors['candidate']['personalIdNumber']}
 							bind:value={$form.candidate.personalIdNumber}
-							placeholder="Rodné číslo"
+							placeholder={$LL.input.personalIdentificationNumber()}
 						/>
 					{/if}
 					<div class="ml-2">
@@ -605,14 +612,14 @@
 								error={$typedErrors['candidate']['schoolName']}
 								type="number"
 								bind:value={$form.candidate.schoolName}
-								placeholder="IZO školy"
+								placeholder={$LL.input.schoolIzo()}
 							/>
 						{:else}
 							<TextField
 								error={$typedErrors['candidate']['schoolName']}
 								type="text"
 								bind:value={$form.candidate.schoolName}
-								placeholder="Název školy"
+								placeholder={$LL.input.schoolName()}
 							/>
 						{/if}
 					</span>
@@ -622,11 +629,10 @@
 							error={$typedErrors['candidate']['healthInsurance']}
 							type="text"
 							bind:value={$form.candidate.healthInsurance}
-							placeholder="Číslo zdravotní pojišťovny"
-						/>
+							placeholder={$LL.input.insuranceNumber()}
+							/>
 					</span>
 				</div>
-
 			{:else if pageIndex === 5}
 				<h1 class="title mt-8">{pageTexts[3]}</h1>
 				<p class="description mt-8 block text-center">
@@ -687,12 +693,12 @@
 				</div>
 			{:else if pageIndex === 7}
 				<h1 class="title mt-8">Přihlášky na školy</h1>
-				<div class="flex flex-col justify-between h-full">
+				<div class="flex h-full flex-col justify-between">
 					<span>
-						<SchoolSelect bind:selectedSchool={$form.candidate.firstSchool}></SchoolSelect>
+						<SchoolSelect bind:selectedSchool={$form.candidate.firstSchool} />
 					</span>
 					<span class="mt-10 w-full">
-						<SchoolSelect bind:selectedSchool={$form.candidate.secondSchool}></SchoolSelect>
+						<SchoolSelect bind:selectedSchool={$form.candidate.secondSchool} />
 					</span>
 				</div>
 			{:else if pageIndex === 8}
