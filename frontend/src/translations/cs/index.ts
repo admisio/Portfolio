@@ -154,6 +154,8 @@ const cs: BaseTranslation = {
 		password: 'Heslo',
 		submit: 'Odeslat',
 		continue: 'Pokračovat',
+		fieldOfStudy: 'Obor',
+		selectedSchool: 'Vybraná škola',
 		parent: {
 			nameSurname: 'Jméno a příjmení zákonného zástupce',
 			email: 'E-mail zákonného zástupce',

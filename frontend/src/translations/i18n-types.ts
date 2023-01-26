@@ -397,6 +397,14 @@ type RootTranslation = {
 		 * P​o​k​r​a​č​o​v​a​t
 		 */
 		'continue': string
+		/**
+		 * O​b​o​r
+		 */
+		fieldOfStudy: string
+		/**
+		 * V​y​b​r​a​n​á​ ​š​k​o​l​a
+		 */
+		selectedSchool: string
 		parent: {
 			/**
 			 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
@@ -792,6 +800,14 @@ export type TranslationFunctions = {
 		 * Pokračovat
 		 */
 		'continue': () => LocalizedString
+		/**
+		 * Obor
+		 */
+		fieldOfStudy: () => LocalizedString
+		/**
+		 * Vybraná škola
+		 */
+		selectedSchool: () => LocalizedString
 		parent: {
 			/**
 			 * Jméno a příjmení zákonného zástupce

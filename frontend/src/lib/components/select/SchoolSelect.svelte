@@ -1,4 +1,6 @@
 <script lang="ts">
+import LL from '$i18n/i18n-svelte';
+
 import type { School } from '$lib/stores/candidate';
 // TODO
 // import AutoComplete from 'simple-svelte-autocomplete';
@@ -22,14 +24,14 @@ $: selectedSchool.name = schoolName;
 <div class="flex flex-row">
     <div>
         <span>
-            Selected school: {selectedSchool.name}
+            {$LL.input.selectedSchool()}: {selectedSchool.name}
         </span>
         <!-- TODO -->
         <!-- <AutoComplete items={schools} bind:selectedItem={schoolName} /> -->
         <input type="text" bind:value={schoolName} />
     </div>
     <div class="flex">
-        <span>Obor: </span>
+        <span>{$LL.input.fieldOfStudy()}: </span>
         <input type="text" bind:value={selectedSchool.field} />
     </div>
 </div>
