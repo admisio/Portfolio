@@ -691,7 +691,10 @@
 					</span>
 				</div>
 			{:else if pageIndex === 7}
-				<h1 class="title mt-8">Přihlášky na školy</h1>
+				<h1 class="title mt-8">{pageTexts[5]}</h1>
+				<p class="description my-8 block text-center">
+					{$LL.candidate.register.seventh.description()}
+				</p>
 				<div class="flex h-full flex-col justify-between">
 					<span>
 						<SchoolSelect

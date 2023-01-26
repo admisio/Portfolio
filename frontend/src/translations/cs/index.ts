@@ -58,9 +58,9 @@ const cs: BaseTranslation = {
 					'Zde můžete zadat údaje o druhém zákonném zástupci. Škole tím umožníte lépe komunikovat.'
 			},
 			seventh: {
-				title: 'Dokončení registrace',
+				title: 'Přihlášky na školy',
 				description:
-					'Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který se hlásíte.'
+					'Zde můžete vyplnit přihlášky na školy v pořadí Vašeho výběru. V případě, že jste podali přihlášku na více škol, vyplňte přihlášky na školy v pořadí Vašeho výběru.'
 			},
 			eighth: {
 				title: 'Poslední krok',
@@ -100,7 +100,7 @@ const cs: BaseTranslation = {
 				},
 				missing: {
 					title: 'Soubory nebyly nahrány!',
-					description: 'Nahrajte včechny soubory prosím',
+					description: 'Nahrajte včechny soubory prosím'
 				}
 			}
 		},
@@ -122,7 +122,7 @@ const cs: BaseTranslation = {
 				ok: 'Vše je v pořádku',
 				whatHappened: 'Co se děje?',
 				titleOk: 'Potvrzuji, že moje rodné číslo je {personalId}',
-				titleErr: 'Ne, moje rodné číslo není {personalId}',
+				titleErr: 'Ne, moje rodné číslo není {personalId}'
 			},
 			gdprCheckBox: {
 				title: 'Souhlasím se zpracováním osobních údajů',
@@ -134,7 +134,7 @@ const cs: BaseTranslation = {
 	input: {
 		optional: 'nepovinné',
 		nameSurname: 'Jméno a příjmení',
-		birthSurname: "Rodné příjmení (pokud odlišné)",
+		birthSurname: 'Rodné příjmení (pokud odlišné)',
 		email: 'E-mail',
 		telephone: 'Telefon',
 		address: 'Ulice a č. p.',
