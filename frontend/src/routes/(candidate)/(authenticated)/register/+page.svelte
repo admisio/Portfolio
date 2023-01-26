@@ -25,10 +25,7 @@
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
-	import {
-		deriveBirthdateFromPersonalId,
-		isPersonalIdNumberWithBirthdateValid
-	} from '$lib/utils/personalIdFormat';
+	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -423,12 +420,9 @@
 	<SvelteToast />
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
-			<!-- TODO: Find different way how to display SchoolBadge -->
-			{#if pageIndex !== 0 && pageIndex !== 7}
-				<div class="<md:h-24 <md:w-24 h-32 w-32 self-center">
-					<SchoolBadge />
-				</div>
-			{/if}
+			<div class="<md:hidden self-center">
+				<SchoolBadge />
+			</div>
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
@@ -577,13 +571,15 @@
 						placeholder={$LL.input.birthDate()}
 						helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
 					/>
-					<TextField
-						error={$typedErrors['candidate']['birthplace']}
-						bind:value={$form.candidate.birthplace}
-						type="text"
-						placeholder={$LL.input.birthPlace()}
-						helperText="TODO: (Místo narození)"
-					/>
+					<div class="ml-2">
+						<TextField
+							error={$typedErrors['candidate']['birthplace']}
+							bind:value={$form.candidate.birthplace}
+							type="text"
+							placeholder={$LL.input.birthPlace()}
+							helperText="TODO: (Místo narození)"
+						/>
+					</div>
 				</div>
 				<div class="field flex items-center justify-center">
 					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
