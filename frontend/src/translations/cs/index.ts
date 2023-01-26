@@ -134,7 +134,7 @@ const cs: BaseTranslation = {
 	input: {
 		optional: 'nepovinné',
 		nameSurname: 'Jméno a příjmení',
-		birthSurname: 'Rodné příjmení (pokud odlišné)',
+		birthSurname: 'Rodné příjmení',
 		email: 'E-mail',
 		telephone: 'Telefon',
 		address: 'Ulice a č. p.',
