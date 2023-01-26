@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
-import path from "path";
+import path from 'path';
 import { windi } from 'svelte-windicss-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -11,9 +11,8 @@ const config = {
 	kit: {
 		adapter: adapter({ out: 'build' }),
 		alias: {
-			$i18n: path.resolve('./src/translations'),
+			$i18n: path.resolve('./src/translations')
 		}
-		
 	}
 };
 

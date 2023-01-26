@@ -105,7 +105,8 @@
 			{#if status === 'uploaded'}
 				<button
 					class="mr-3 rounded-xl bg-[#ef8b46] py-0.5 px-2 text-white shadow-md transition-all duration-300 hover:bg-orange-400"
-					on:click={debounce(() => dispatch('delete'), 150)}>{$LL.components.dashboard.dashboardUploadCard.delete()}</button
+					on:click={debounce(() => dispatch('delete'), 150)}
+					>{$LL.components.dashboard.dashboardUploadCard.delete()}</button
 				>
 			{/if}
 			<StatusNotificationDot {status} />
@@ -133,9 +134,16 @@
 			>
 			<div class="hidden items-center xl:block">
 				{#if bytesTotal === 0 || Math.round(progress * 100) === 100}
-					<h2 class="text-xl font-bold">{status === 'submitted' ? $LL.components.dashboard.dashboardUploadCard.sent() : $LL.components.dashboard.dashboardUploadCard.uploaded()}</h2>
+					<h2 class="text-xl font-bold">
+						{status === 'submitted'
+							? $LL.components.dashboard.dashboardUploadCard.sent()
+							: $LL.components.dashboard.dashboardUploadCard.uploaded()}
+					</h2>
 				{:else}
-					<h2 class="text-xl">{$LL.components.dashboard.dashboardUploadCard.uploaded()} {((bytesTotal / 1_000_000) * progress).toFixed(1)} MB</h2>
+					<h2 class="text-xl">
+						{$LL.components.dashboard.dashboardUploadCard.uploaded()}
+						{((bytesTotal / 1_000_000) * progress).toFixed(1)} MB
+					</h2>
 					<h2 class="self-center text-xl">z {(bytesTotal / 1_000_000).toFixed(1)} MB</h2>
 				{/if}
 			</div>

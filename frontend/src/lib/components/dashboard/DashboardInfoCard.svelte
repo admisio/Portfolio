@@ -160,30 +160,33 @@
 								<span class="font-bold">{$baseCandidateData.applications[1]}</span></span
 							>
 						{/if}
-						<span>{$LL.input.address()}: <span class="font-bold">{$candidateData.candidate.address}</span></span>
 						<span
-							>{$LL.input.birthDate()}: <span class="font-bold">{$candidateData.candidate.birthdate}</span
-							></span
+							>{$LL.input.address()}:
+							<span class="font-bold">{$candidateData.candidate.address}</span></span
 						>
 						<span
-							>{$LL.input.birthPlace()}: <span class="font-bold">{$candidateData.candidate.birthplace}</span
-							></span
+							>{$LL.input.birthDate()}:
+							<span class="font-bold">{$candidateData.candidate.birthdate}</span></span
 						>
 						<span
-							>{$LL.input.personalIdentificationNumber()}: <span class="font-bold"
-								>{$candidateData.candidate.personalIdNumber}</span
-							></span
+							>{$LL.input.birthPlace()}:
+							<span class="font-bold">{$candidateData.candidate.birthplace}</span></span
 						>
 						<span
-							>{$LL.input.schoolIzo()}: <span class="font-bold">{$candidateData.candidate.schoolName}</span
-							></span
+							>{$LL.input.personalIdentificationNumber()}:
+							<span class="font-bold">{$candidateData.candidate.personalIdNumber}</span></span
 						>
 						<span
-							>{$LL.input.insuranceNumber()}: <span class="font-bold"
-								>{$candidateData.candidate.healthInsurance}</span
-							></span
+							>{$LL.input.schoolIzo()}:
+							<span class="font-bold">{$candidateData.candidate.schoolName}</span></span
 						>
-						<span>{$LL.input.telephone()}: <span class="font-bold">{$candidateData.candidate.telephone}</span></span
+						<span
+							>{$LL.input.insuranceNumber()}:
+							<span class="font-bold">{$candidateData.candidate.healthInsurance}</span></span
+						>
+						<span
+							>{$LL.input.telephone()}:
+							<span class="font-bold">{$candidateData.candidate.telephone}</span></span
 						>
 					</div>
 					<div
@@ -202,7 +205,9 @@
 									>{parent.name + ' ' + parent.surname}</span
 								>
 								<span>{$LL.input.email()}: <span class="font-bold">{parent.email}</span></span>
-								<span>{$LL.input.telephone()}: <span class="font-bold">{parent.telephone}</span></span>
+								<span
+									>{$LL.input.telephone()}: <span class="font-bold">{parent.telephone}</span></span
+								>
 							</div>
 						{/each}
 					</div>

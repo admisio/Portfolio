@@ -1,7 +1,6 @@
 import type { GradeBackend } from '$lib/components/grades/GradesTable.svelte';
 import { writable } from 'svelte/store';
 
-
 export interface School {
 	name: string;
 	field: string;
@@ -88,8 +87,8 @@ export const candidateData = writable<CandidateData>({
 		schoolName: '',
 		healthInsurance: '',
 		grades: [],
-		firstSchool: {name: '', field: ''},
-		secondSchool: {name: '', field: ''},
+		firstSchool: { name: '', field: '' },
+		secondSchool: { name: '', field: '' },
 		testLanguage: ''
 	},
 	parents: []

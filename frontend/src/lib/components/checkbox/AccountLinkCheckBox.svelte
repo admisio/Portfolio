@@ -6,7 +6,7 @@
 	export let applications: Array<number>;
 	let title1 = $LL.components.checkbox.accountLinkCheckBox.multiple.title({
 		first: applications[0],
-		second: applications[1],
+		second: applications[1]
 	});
 	let title2 = $LL.components.checkbox.accountLinkCheckBox.multiple.title2({
 		first: applications[0]
@@ -14,7 +14,7 @@
 
 	if (applications.length === 1) {
 		title1 = $LL.components.checkbox.accountLinkCheckBox.single.title({
-			first: applications[0],
+			first: applications[0]
 		});
 		title2 = $LL.components.checkbox.accountLinkCheckBox.single.title2();
 	}
