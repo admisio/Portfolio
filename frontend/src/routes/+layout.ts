@@ -5,7 +5,7 @@ import type { LayoutLoad } from './$types';
 export const load: LayoutLoad = async ({ url }) => {
 	await loadAllLocalesAsync();
 	setLocale('cs');
-	
+
 	return {
 		url: url.pathname
 	};

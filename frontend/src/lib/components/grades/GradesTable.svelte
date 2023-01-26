@@ -29,7 +29,7 @@
 		}
 		return grades;
 	};
-	
+
 	let gradesLocal: Array<Grade> =
 		grades.length > 0
 			? convertGradeBackendToGrade(grades)

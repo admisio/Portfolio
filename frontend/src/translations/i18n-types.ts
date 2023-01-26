@@ -129,11 +129,11 @@ type RootTranslation = {
 			}
 			seventh: {
 				/**
-				 * D​o​k​o​n​č​e​n​í​ ​r​e​g​i​s​t​r​a​c​e
+				 * P​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y
 				 */
 				title: string
 				/**
-				 * Z​a​d​e​j​t​e​ ​p​r​o​s​í​m​ ​s​v​é​ ​o​b​č​a​n​s​t​v​í​,​ ​r​o​d​n​é​ ​č​í​s​l​o​,​ ​č​i​ ​j​e​h​o​ ​a​l​t​e​r​n​a​t​i​v​u​ ​V​a​š​í​ ​z​e​m​ě​ ​a​ ​o​b​o​r​ ​n​a​ ​k​t​e​r​ý​ ​s​e​ ​h​l​á​s​í​t​e​.
+				 * Z​d​e​ ​m​ů​ž​e​t​e​ ​v​y​p​l​n​i​t​ ​p​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y​ ​v​ ​p​o​ř​a​d​í​ ​V​a​š​e​h​o​ ​v​ý​b​ě​r​u​.​ ​V​ ​p​ř​í​p​a​d​ě​,​ ​ž​e​ ​j​s​t​e​ ​p​o​d​a​l​i​ ​p​ř​i​h​l​á​š​k​u​ ​n​a​ ​v​í​c​e​ ​š​k​o​l​,​ ​v​y​p​l​ň​t​e​ ​p​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y​ ​v​ ​p​o​ř​a​d​í​ ​V​a​š​e​h​o​ ​v​ý​b​ě​r​u​.
 				 */
 				description: string
 			}
@@ -318,6 +318,10 @@ type RootTranslation = {
 		 */
 		nameSurname: string
 		/**
+		 * R​o​d​n​é​ ​p​ř​í​j​m​e​n​í
+		 */
+		birthSurname: string
+		/**
 		 * E​-​m​a​i​l
 		 */
 		email: string
@@ -393,6 +397,14 @@ type RootTranslation = {
 		 * P​o​k​r​a​č​o​v​a​t
 		 */
 		'continue': string
+		/**
+		 * O​b​o​r
+		 */
+		fieldOfStudy: string
+		/**
+		 * V​y​b​r​a​n​á​ ​š​k​o​l​a
+		 */
+		selectedSchool: string
 		parent: {
 			/**
 			 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
@@ -527,11 +539,11 @@ export type TranslationFunctions = {
 			}
 			seventh: {
 				/**
-				 * Dokončení registrace
+				 * Přihlášky na školy
 				 */
 				title: () => LocalizedString
 				/**
-				 * Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který se hlásíte.
+				 * Zde můžete vyplnit přihlášky na školy v pořadí Vašeho výběru. V případě, že jste podali přihlášku na více škol, vyplňte přihlášky na školy v pořadí Vašeho výběru.
 				 */
 				description: () => LocalizedString
 			}
@@ -709,6 +721,10 @@ export type TranslationFunctions = {
 		 */
 		nameSurname: () => LocalizedString
 		/**
+		 * Rodné příjmení
+		 */
+		birthSurname: () => LocalizedString
+		/**
 		 * E-mail
 		 */
 		email: () => LocalizedString
@@ -784,6 +800,14 @@ export type TranslationFunctions = {
 		 * Pokračovat
 		 */
 		'continue': () => LocalizedString
+		/**
+		 * Obor
+		 */
+		fieldOfStudy: () => LocalizedString
+		/**
+		 * Vybraná škola
+		 */
+		selectedSchool: () => LocalizedString
 		parent: {
 			/**
 			 * Jméno a příjmení zákonného zástupce

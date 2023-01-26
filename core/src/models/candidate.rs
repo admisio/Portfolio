@@ -67,10 +67,10 @@ pub struct CandidateDetails {
     pub name: String,
     #[validate(length(min = 1, max = 255))]
     pub surname: String,
-    #[validate(length(min = 1, max = 255))]
     pub birth_surname: String,
     #[validate(length(min = 1, max = 255))]
     pub birthplace: String,
+    // NaiveDate validated natively
     pub birthdate: NaiveDate,
     #[validate(length(min = 1, max = 255))]
     pub address: String,
@@ -91,6 +91,7 @@ pub struct CandidateDetails {
     pub grades: GradeList,
     pub first_school: School,
     pub second_school: School,
+    #[validate(length(min = 1, max = 255))]
     pub test_language: String,
 }
 impl CandidateDetails {

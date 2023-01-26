@@ -5,10 +5,10 @@
 	export let personalIdErr: boolean = false;
 	export let personalIdNumber: string;
 	let titleOk = $LL.components.checkbox.personalIdConfirmCheckBox.titleOk({
-		personalId: personalIdNumber,
+		personalId: personalIdNumber
 	});
 	let titleErr = $LL.components.checkbox.personalIdConfirmCheckBox.titleErr({
-		personalId: personalIdNumber,
+		personalId: personalIdNumber
 	});
 
 	export let error: string = '';
@@ -61,7 +61,9 @@
 			<div class="w-full text-lg font-semibold">
 				{titleErr}
 			</div>
-			<div class="w-full text-sm">{$LL.components.checkbox.personalIdConfirmCheckBox.whatHappened()}</div>
+			<div class="w-full text-sm">
+				{$LL.components.checkbox.personalIdConfirmCheckBox.whatHappened()}
+			</div>
 		</div>
 	</label>
 </div>
