@@ -696,14 +696,14 @@
 					{$LL.candidate.register.seventh.description()}
 				</p>
 				<div class="flex h-full flex-col justify-between">
-					<span>
+					<span class="field">
 						<SchoolSelect
 							error={$typedErrors['candidate']['firstSchool']['name'] ||
 								$typedErrors['candidate']['firstSchool']['field']}
 							bind:selectedSchool={$form.candidate.firstSchool}
 						/>
 					</span>
-					<span class="mt-10 w-full">
+					<span class="mt-10 field">
 						<SchoolSelect
 							error={$typedErrors['candidate']['secondSchool']['name'] ||
 								$typedErrors['candidate']['secondSchool']['field']}
