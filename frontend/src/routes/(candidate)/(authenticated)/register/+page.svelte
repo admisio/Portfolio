@@ -23,7 +23,7 @@
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
-	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
+	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
 	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 
@@ -187,7 +187,12 @@
 			unknown
 		>
 			? {
-					[K2 in keyof (typeof formInitialValues)[K]]: string;
+					[K2 in keyof (typeof formInitialValues)[K]]: (typeof formInitialValues)[K][K2] extends Record<
+						string,
+						unknown
+					>
+						? { [K4 in keyof (typeof formInitialValues)[K][K2]]: string }
+						: string;
 			  }
 			: (typeof formInitialValues)[K] extends Array<Record<string, unknown>>
 			? Array<{ [K3 in keyof (typeof formInitialValues)[K][number]]: string }>
@@ -344,14 +349,9 @@
 				break;
 			case 7:
 				if (
-					// TODO: Fix FormErrorType, make it recursive
-					// @ts-ignore
 					$typedErrors['candidate']['firstSchool']['name'] ||
-					// @ts-ignore
 					$typedErrors['candidate']['firstSchool']['field'] ||
-					// @ts-ignore
 					$typedErrors['candidate']['secondSchool']['name'] ||
-					// @ts-ignore
 					$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
@@ -694,10 +694,18 @@
 				<h1 class="title mt-8">Přihlášky na školy</h1>
 				<div class="flex h-full flex-col justify-between">
 					<span>
-						<SchoolSelect bind:selectedSchool={$form.candidate.firstSchool} />
+						<SchoolSelect
+							error={$typedErrors['candidate']['firstSchool']['name'] ||
+								$typedErrors['candidate']['firstSchool']['field']}
+							bind:selectedSchool={$form.candidate.firstSchool}
+						/>
 					</span>
 					<span class="mt-10 w-full">
-						<SchoolSelect bind:selectedSchool={$form.candidate.secondSchool} />
+						<SchoolSelect
+							error={$typedErrors['candidate']['secondSchool']['name'] ||
+								$typedErrors['candidate']['secondSchool']['field']}
+							bind:selectedSchool={$form.candidate.secondSchool}
+						/>
 					</span>
 				</div>
 			{:else if pageIndex === 8}

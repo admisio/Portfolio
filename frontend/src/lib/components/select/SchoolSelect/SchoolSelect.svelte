@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LL from '$i18n/i18n-svelte';
+
 	import schoollistString from '$lib/assets/schoollist.txt?raw';
 	import School from './School.svelte';
 	import type { School as SchoolType } from '$lib/stores/candidate';
@@ -72,6 +74,7 @@
 	};
 
 	export let selectedSchool: SchoolType;
+	export let error: string = '';
 
 	$: selectedSchool.name = schoolNameInputValue;
 	$: selectedSchool.field = schoolFieldInputValue;
@@ -82,13 +85,21 @@
 <div class="autocomplete">
 	<div class="flex">
 		<input
+			class:error
 			class="flex-1"
 			type="text"
 			bind:this={searchInput}
 			bind:value={schoolNameInputValue}
 			on:input={filterSchools}
+			placeholder={$LL.input.schoolName()}
 		/>
-		<input class="ml-2 w-2/5" type="text" bind:value={schoolFieldInputValue} />
+		<input
+			class:error
+			class="ml-2 w-2/5"
+			type="text"
+			bind:value={schoolFieldInputValue}
+			placeholder={$LL.input.fieldOfStudy()}
+		/>
 	</div>
 	{#if filteredSchools.length > 0}
 		<ul bind:this={optionsList} class="schoolAutocompleteList">
@@ -114,12 +125,7 @@
 	input {
 		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 	}
-	div span {
-		@apply absolute right-0 top-0 bottom-0 my-auto flex bg-transparent p-3;
-	}
-	.withIcon {
-		@apply pr-14;
-	}
+
 	.error {
 		@apply border-red-700;
 	}
