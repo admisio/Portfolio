@@ -23,9 +23,9 @@
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
-	import SchoolSelect from '$lib/components/select/SchoolSelect.svelte';
+	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
-	import { deriveBirthdateFromPersonalId, isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
+	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -72,9 +72,9 @@
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
-			firstSchool: {name: '', field: ''},
-			secondSchool: {name: '', field: ''},
-			testLanguage: '',
+			firstSchool: { name: '', field: '' },
+			secondSchool: { name: '', field: '' },
+			testLanguage: ''
 		},
 		parents: [
 			{
@@ -350,9 +350,11 @@
 				break;
 			case 7:
 				// @ts-ignore
-				if ($typedErrors["candidate"]["firstSchool"].name || $typedErrors["candidate"]["firstSchool"].field ||
-					// @ts-ignore
-					$typedErrors["candidate"]["secondSchool"].name || $typedErrors["candidate"]["secondSchool"].field
+				if (
+						$typedErrors['candidate']['firstSchool']['name'] ||
+						$typedErrors['candidate']['firstSchool']['field'] ||
+						$typedErrors['candidate']['secondSchool']['name'] ||
+						$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
 				}
@@ -471,7 +473,6 @@
 				<form on:submit={handleSubmit}>
 					<h1 class="title mt-8">{pageTexts[1]}</h1>
 					<p class="description mt-8 block text-center">
-						{$LL.candidate.register.third.description()}
 						{$LL.candidate.register.third.description()}
 					</p>
 					<div class="w-full">
