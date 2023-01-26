@@ -73,7 +73,3 @@ export const deriveBirthdateFromPersonalId = (
 	const birthdate = `${day}.${month}.${year}`;
 	return [birthdate, sex];
 };
-
-    const birthdate = `${day}.${month}.${year}`;
-    return [birthdate, sex];
-}
