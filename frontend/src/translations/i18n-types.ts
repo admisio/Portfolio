@@ -129,11 +129,11 @@ type RootTranslation = {
 			}
 			seventh: {
 				/**
-				 * D​o​k​o​n​č​e​n​í​ ​r​e​g​i​s​t​r​a​c​e
+				 * P​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y
 				 */
 				title: string
 				/**
-				 * Z​a​d​e​j​t​e​ ​p​r​o​s​í​m​ ​s​v​é​ ​o​b​č​a​n​s​t​v​í​,​ ​r​o​d​n​é​ ​č​í​s​l​o​,​ ​č​i​ ​j​e​h​o​ ​a​l​t​e​r​n​a​t​i​v​u​ ​V​a​š​í​ ​z​e​m​ě​ ​a​ ​o​b​o​r​ ​n​a​ ​k​t​e​r​ý​ ​s​e​ ​h​l​á​s​í​t​e​.
+				 * Z​d​e​ ​m​ů​ž​e​t​e​ ​v​y​p​l​n​i​t​ ​p​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y​ ​v​ ​p​o​ř​a​d​í​ ​V​a​š​e​h​o​ ​v​ý​b​ě​r​u​.​ ​V​ ​p​ř​í​p​a​d​ě​,​ ​ž​e​ ​j​s​t​e​ ​p​o​d​a​l​i​ ​p​ř​i​h​l​á​š​k​u​ ​n​a​ ​v​í​c​e​ ​š​k​o​l​,​ ​v​y​p​l​ň​t​e​ ​p​ř​i​h​l​á​š​k​y​ ​n​a​ ​š​k​o​l​y​ ​v​ ​p​o​ř​a​d​í​ ​V​a​š​e​h​o​ ​v​ý​b​ě​r​u​.
 				 */
 				description: string
 			}
@@ -272,6 +272,26 @@ type RootTranslation = {
 					title2: string
 				}
 			}
+			personalIdConfirmCheckBox: {
+				/**
+				 * V​š​e​ ​j​e​ ​v​ ​p​o​ř​á​d​k​u
+				 */
+				ok: string
+				/**
+				 * C​o​ ​s​e​ ​d​ě​j​e​?
+				 */
+				whatHappened: string
+				/**
+				 * P​o​t​v​r​z​u​j​i​,​ ​ž​e​ ​m​o​j​e​ ​r​o​d​n​é​ ​č​í​s​l​o​ ​j​e​ ​{​p​e​r​s​o​n​a​l​I​d​}
+				 * @param {unknown} personalId
+				 */
+				titleOk: RequiredParams<'personalId'>
+				/**
+				 * N​e​,​ ​m​o​j​e​ ​r​o​d​n​é​ ​č​í​s​l​o​ ​n​e​n​í​ ​{​p​e​r​s​o​n​a​l​I​d​}
+				 * @param {unknown} personalId
+				 */
+				titleErr: RequiredParams<'personalId'>
+			}
 			gdprCheckBox: {
 				/**
 				 * S​o​u​h​l​a​s​í​m​ ​s​e​ ​z​p​r​a​c​o​v​á​n​í​m​ ​o​s​o​b​n​í​c​h​ ​ú​d​a​j​ů
@@ -297,6 +317,10 @@ type RootTranslation = {
 		 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í
 		 */
 		nameSurname: string
+		/**
+		 * R​o​d​n​é​ ​p​ř​í​j​m​e​n​í
+		 */
+		birthSurname: string
 		/**
 		 * E​-​m​a​i​l
 		 */
@@ -373,6 +397,14 @@ type RootTranslation = {
 		 * P​o​k​r​a​č​o​v​a​t
 		 */
 		'continue': string
+		/**
+		 * O​b​o​r
+		 */
+		fieldOfStudy: string
+		/**
+		 * V​y​b​r​a​n​á​ ​š​k​o​l​a
+		 */
+		selectedSchool: string
 		parent: {
 			/**
 			 * J​m​é​n​o​ ​a​ ​p​ř​í​j​m​e​n​í​ ​z​á​k​o​n​n​é​h​o​ ​z​á​s​t​u​p​c​e
@@ -507,11 +539,11 @@ export type TranslationFunctions = {
 			}
 			seventh: {
 				/**
-				 * Dokončení registrace
+				 * Přihlášky na školy
 				 */
 				title: () => LocalizedString
 				/**
-				 * Zadejte prosím své občanství, rodné číslo, či jeho alternativu Vaší země a obor na který se hlásíte.
+				 * Zde můžete vyplnit přihlášky na školy v pořadí Vašeho výběru. V případě, že jste podali přihlášku na více škol, vyplňte přihlášky na školy v pořadí Vašeho výběru.
 				 */
 				description: () => LocalizedString
 			}
@@ -645,6 +677,24 @@ export type TranslationFunctions = {
 					title2: () => LocalizedString
 				}
 			}
+			personalIdConfirmCheckBox: {
+				/**
+				 * Vše je v pořádku
+				 */
+				ok: () => LocalizedString
+				/**
+				 * Co se děje?
+				 */
+				whatHappened: () => LocalizedString
+				/**
+				 * Potvrzuji, že moje rodné číslo je {personalId}
+				 */
+				titleOk: (arg: { personalId: unknown }) => LocalizedString
+				/**
+				 * Ne, moje rodné číslo není {personalId}
+				 */
+				titleErr: (arg: { personalId: unknown }) => LocalizedString
+			}
 			gdprCheckBox: {
 				/**
 				 * Souhlasím se zpracováním osobních údajů
@@ -670,6 +720,10 @@ export type TranslationFunctions = {
 		 * Jméno a příjmení
 		 */
 		nameSurname: () => LocalizedString
+		/**
+		 * Rodné příjmení
+		 */
+		birthSurname: () => LocalizedString
 		/**
 		 * E-mail
 		 */
@@ -746,6 +800,14 @@ export type TranslationFunctions = {
 		 * Pokračovat
 		 */
 		'continue': () => LocalizedString
+		/**
+		 * Obor
+		 */
+		fieldOfStudy: () => LocalizedString
+		/**
+		 * Vybraná škola
+		 */
+		selectedSchool: () => LocalizedString
 		parent: {
 			/**
 			 * Jméno a příjmení zákonného zástupce

@@ -13,7 +13,9 @@
 
 		<div class="w-full text-lg font-semibold">{$LL.components.checkbox.gdprCheckBox.title()}</div>
 		<div class="w-full text-sm">{$LL.components.checkbox.gdprCheckBox.description()}</div>
-		<div class="w-full text-sm"><a class="underline" href="/gdpr">{$LL.components.checkbox.gdprCheckBox.here()}</a></div>
+		<div class="w-full text-sm">
+			<a class="underline" href="/gdpr">{$LL.components.checkbox.gdprCheckBox.here()}</a>
+		</div>
 	</div>
 </label>
 

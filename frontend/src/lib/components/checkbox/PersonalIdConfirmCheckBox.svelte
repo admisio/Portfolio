@@ -1,33 +1,25 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let linkOk: boolean = false;
-	export let linkError: boolean = false;
-	export let applications: Array<number>;
-	let title1 = $LL.components.checkbox.accountLinkCheckBox.multiple.title({
-		first: applications[0],
-		second: applications[1]
+	export let personalIdOk: boolean = false;
+	export let personalIdErr: boolean = false;
+	export let personalIdNumber: string;
+	let titleOk = $LL.components.checkbox.personalIdConfirmCheckBox.titleOk({
+		personalId: personalIdNumber
 	});
-	let title2 = $LL.components.checkbox.accountLinkCheckBox.multiple.title2({
-		first: applications[0]
+	let titleErr = $LL.components.checkbox.personalIdConfirmCheckBox.titleErr({
+		personalId: personalIdNumber
 	});
-
-	if (applications.length === 1) {
-		title1 = $LL.components.checkbox.accountLinkCheckBox.single.title({
-			first: applications[0]
-		});
-		title2 = $LL.components.checkbox.accountLinkCheckBox.single.title2();
-	}
 
 	export let error: string = '';
 
 	const switchSelection = (id: number) => {
 		if (id === 0) {
-			linkOk = true;
-			linkError = false;
+			personalIdOk = true;
+			personalIdErr = false;
 		} else {
-			linkOk = false;
-			linkError = true;
+			personalIdOk = false;
+			personalIdErr = true;
 		}
 	};
 </script>
@@ -39,7 +31,7 @@
 		on:change
 		type="checkbox"
 		id="linkOk"
-		checked={linkOk}
+		checked={personalIdOk}
 		class="peer hidden"
 	/>
 	<label for="linkOk" class="peer-checked:border-sspsBlue peer-checked:text-gray-600" class:error>
@@ -47,9 +39,9 @@
 			<span class="text-2xl">📜</span>
 
 			<div class="w-full text-lg font-semibold">
-				{title1}
+				{titleOk}
 			</div>
-			<div class="w-full text-sm">{$LL.components.checkbox.accountLinkCheckBox.ok()}</div>
+			<div class="w-full text-sm">{$LL.components.checkbox.personalIdConfirmCheckBox.ok()}</div>
 		</div>
 	</label>
 </div>
@@ -59,7 +51,7 @@
 		on:change
 		type="checkbox"
 		id="linkError"
-		checked={linkError}
+		checked={personalIdErr}
 		class="peer hidden"
 	/>
 	<label for="linkError" class="peer-checked:border-sspsBlue peer-checked:text-gray-600">
@@ -67,9 +59,11 @@
 			<span class="text-2xl">📜</span>
 
 			<div class="w-full text-lg font-semibold">
-				{title2}
+				{titleErr}
 			</div>
-			<div class="w-full text-sm">{$LL.components.checkbox.accountLinkCheckBox.whatHappened()}</div>
+			<div class="w-full text-sm">
+				{$LL.components.checkbox.personalIdConfirmCheckBox.whatHappened()}
+			</div>
 		</div>
 	</label>
 </div>
