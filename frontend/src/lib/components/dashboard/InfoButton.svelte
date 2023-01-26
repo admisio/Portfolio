@@ -50,8 +50,9 @@
 			showOnCreate: false,
 			delay: 0
 		}}
+		class="icon "
 	>
-		<Logout />
+		<Download />
 	</span>
 {:else}
 	<span
