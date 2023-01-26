@@ -346,13 +346,16 @@
 				}
 				break;
 			case 7:
-				// @ts-ignore
 				if (
-					$typedErrors['candidate']['firstSchool'].name ||
-					$typedErrors['candidate']['firstSchool'].field ||
+					// TODO: Fix FormErrorType, make it recursive
 					// @ts-ignore
-					$typedErrors['candidate']['secondSchool'].name ||
-					$typedErrors['candidate']['secondSchool'].field
+					$typedErrors['candidate']['firstSchool']['name'] ||
+					// @ts-ignore
+					$typedErrors['candidate']['firstSchool']['field'] ||
+					// @ts-ignore
+					$typedErrors['candidate']['secondSchool']['name'] ||
+					// @ts-ignore
+					$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
 				}
@@ -630,7 +633,7 @@
 							type="text"
 							bind:value={$form.candidate.healthInsurance}
 							placeholder={$LL.input.insuranceNumber()}
-							/>
+						/>
 					</span>
 				</div>
 			{:else if pageIndex === 5}
