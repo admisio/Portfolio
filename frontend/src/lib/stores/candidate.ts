@@ -60,6 +60,8 @@ export interface BaseCandidate {
 }
 
 export interface CreateCandidateLogin extends CreateCandidate {
+	applications: [];
+	fieldOfStudy: string;
 	password: string;
 }
 

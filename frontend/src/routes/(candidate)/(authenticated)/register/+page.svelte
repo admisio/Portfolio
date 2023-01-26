@@ -349,11 +349,12 @@
 				}
 				break;
 			case 7:
+				// @ts-ignore
 				if (
-					$typedErrors['candidate']['firstSchool']['name'] ||
-					$typedErrors['candidate']['firstSchool']['field'] ||
-					$typedErrors['candidate']['secondSchool']['name'] ||
-					$typedErrors['candidate']['secondSchool']['field']
+						$typedErrors['candidate']['firstSchool']['name'] ||
+						$typedErrors['candidate']['firstSchool']['field'] ||
+						$typedErrors['candidate']['secondSchool']['name'] ||
+						$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
 				}
@@ -371,6 +372,7 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
+	// TODO
 	/* $form.candidate.personalIdNumber = data.whoami.personalIdNumber;
 	const [birthdate, sex] = deriveBirthdateFromPersonalId(data.whoami.personalIdNumber);
 	$form.candidate.birthdate = birthdate;

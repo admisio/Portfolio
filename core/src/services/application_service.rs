@@ -24,7 +24,7 @@ impl ApplicationService {
         application_id: i32,
         plain_text_password: &String,
         personal_id_number: String,
-    ) -> Result<application::Model, ServiceError> {
+    ) -> Result<(application::Model, Vec<application::Model>, String), ServiceError> {
         // Check if application id starts with 101, 102 or 103
         if !Self::is_application_id_valid(application_id) {
             return Err(ServiceError::InvalidApplicationId);
@@ -50,7 +50,7 @@ impl ApplicationService {
             application_id,
             admin_private_key,
             db,
-            personal_id_number,
+            &personal_id_number,
             &pubkey,
         ).await?;
         
@@ -72,15 +72,31 @@ impl ApplicationService {
             }
             return Err(ServiceError::InternalServerError);
         }
-            
-        Ok(application)
+        Ok(
+            /* NewCandidateResponse {
+                current_application: application.id,
+                applications: applications
+                    .iter()
+                    .map(|a| a.id)
+                    .collect::<Vec<i32>>(),
+                details_filled: false,
+                encrypted_by: Some(application.id),
+                field_of_study: application.field_of_study,
+                personal_id_number: personal_id_number,
+            } */
+            (
+                application,
+                applications,
+                personal_id_number,
+            )
+        )
     }
 
     async fn find_or_create_candidate_with_personal_id(
         application_id: i32,
         admin_private_key: &String,
         db: &DbConn,
-        personal_id_number: String,
+        personal_id_number: &String,
         pubkey: &String,
         // enc_personal_id_number: &EncryptedString,
     ) -> Result<(candidate::Model, String), ServiceError> {
@@ -98,7 +114,7 @@ impl ApplicationService {
 
         let found_ids: Vec<&(i32, String)> = ids_decrypted
             .iter()
-            .filter(|(_, id)| id == &personal_id_number)
+            .filter(|(_, id)| id == personal_id_number)
             .collect();
             
         if let Some((candidate_id, _)) = found_ids.first() {
@@ -107,14 +123,14 @@ impl ApplicationService {
                     application_id,
                     *candidate_id,
                     pubkey,
-                    personal_id_number
+                    personal_id_number.to_owned()
                 ).await?
             )
         } else {
             let recipients = get_recipients(db, pubkey).await?;
 
             let enc_personal_id_number = EncryptedString::new(
-                &personal_id_number,
+                personal_id_number,
                 &recipients,
             ).await?;
             Ok(
@@ -345,6 +361,10 @@ impl ApplicationService {
         Ok(
             CreateCandidateResponse {
                 application_id: id,
+                field_of_study: application.field_of_study,
+                applications: applications.iter()
+                    .map(|a| a.id)
+                    .collect(),
                 personal_id_number,
                 password: new_password_plain,
             }
@@ -510,7 +530,7 @@ mod application_tests {
 
         let secret_message = "trnka".to_string();
 
-        let application = ApplicationService::create(&"".to_string(), &db, 103100, &plain_text_password, "".to_string()).await.unwrap();
+        let application = ApplicationService::create(&"".to_string(), &db, 103100, &plain_text_password, "".to_string()).await.unwrap().0;
 
         let encrypted_message =
             crypto::encrypt_password_with_recipients(&secret_message, &vec![&application.public_key])

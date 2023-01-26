@@ -52,7 +52,7 @@ mod tests {
 
         let db = get_memory_sqlite_connection().await;
 
-        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap();
+        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap().0;
 
         assert_eq!(application.id.to_owned(), 103151);
         assert_ne!(application.password.to_owned(), SECRET.to_string());
@@ -66,7 +66,7 @@ mod tests {
     async fn test_candidate_session_correct_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap();
+        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap().0;
 
         // correct password
         let session = ApplicationService::new_session(
@@ -88,7 +88,7 @@ mod tests {
     async fn test_candidate_session_incorrect_password() {
         let db = &get_memory_sqlite_connection().await;
 
-        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap();
+        let application = ApplicationService::create(&"".to_string(), &db, 103151, &SECRET.to_string(), "".to_string()).await.unwrap().0;
 
         // incorrect password
         assert!(ApplicationService::new_session(

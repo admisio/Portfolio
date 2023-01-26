@@ -54,6 +54,8 @@ pub struct NewCandidateResponse {
 #[serde(rename_all = "camelCase")]
 pub struct CreateCandidateResponse {
     pub application_id: i32,
+    pub field_of_study: String,
+    pub applications: Vec<i32>,
     pub personal_id_number: String,
     pub password: String,
 }
