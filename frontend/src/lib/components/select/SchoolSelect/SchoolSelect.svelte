@@ -76,8 +76,11 @@
 	export let selectedSchool: SchoolType;
 	export let error: string = '';
 
-	$: selectedSchool.name = schoolNameInputValue;
+	schoolFieldInputValue = selectedSchool.field;
+	schoolNameInputValue = selectedSchool.name;
+
 	$: selectedSchool.field = schoolFieldInputValue;
+	$: selectedSchool.name = schoolNameInputValue;
 </script>
 
 <svelte:window on:keydown={navigateList} />
