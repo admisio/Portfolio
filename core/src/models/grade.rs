@@ -1,22 +1,45 @@
 use serde::{Serialize, Deserialize};
-use validator::{Validate, ValidationError};
+use validator::{Validate};
 
 use crate::error::ServiceError;
 
-
-fn validate_semester(semester: &str) -> Result<(), ValidationError> {
-    match semester {
-        "1/8" | "2/8" | "1/9" | "2/9" => Ok(()),
-        _ => Err(ValidationError::new("Invalid semester"))
-    }
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum Semester {
+    #[serde(rename = "1/8")]
+    FirstEighth,
+    #[serde(rename = "2/8")]
+    SecondEighth,
+    #[serde(rename = "1/9")]
+    FirstNinth,
+    #[serde(rename = "2/9")]
+    SecondNinth,
 }
 
+impl Semester {
+    pub fn from_str(semester: &str) -> Result<Self, ServiceError> {
+        match semester {
+            "1/8" => Ok(Semester::FirstEighth),
+            "2/8" => Ok(Semester::SecondEighth),
+            "1/9" => Ok(Semester::FirstNinth),
+            "2/9" => Ok(Semester::SecondNinth),
+            _ => Err(ServiceError::FormatError)
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Semester::FirstEighth => "1/8",
+            Semester::SecondEighth => "2/8",
+            Semester::FirstNinth => "1/9",
+            Semester::SecondNinth => "2/9",
+        }
+    }
+}
 #[derive(Debug, Clone, Serialize, Deserialize, Validate, PartialEq, Eq)]
 pub struct Grade {
     #[validate(length(min = 1, max = 255))]
     subject: String,
-    #[validate(length(min = 1, max = 255), custom = "validate_semester")]
-    semester: String,
+    semester: Semester,
     #[validate(range(min = 1, max = 5))]
     value: i32,
 }
