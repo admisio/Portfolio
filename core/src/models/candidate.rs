@@ -98,6 +98,7 @@ impl CandidateDetails {
     pub fn validate_self(&self) -> Result<(), ServiceError> {
         self.first_school.validate()?;
         self.second_school.validate()?;
+        self.grades.validate_self()?;
         self.validate()
             .map_err(ServiceError::ValidationError)
     }

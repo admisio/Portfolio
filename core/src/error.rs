@@ -78,6 +78,8 @@ pub enum ServiceError {
     CsvError(#[from] csv::Error),
     #[error("Csv into inner error")]
     CsvIntoInnerError,
+    #[error("Format error")]
+    FormatError,
 }
 
 impl ServiceError {
@@ -122,6 +124,7 @@ impl ServiceError {
             ServiceError::ZipError(_) => 500,
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
+            ServiceError::FormatError => 500,
         }
     }
 

@@ -42,40 +42,71 @@ impl ApplicationResponse {
 
 /// CSV export (admin endpoint)
 #[derive(Serialize, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct ApplicationRow {
+    #[serde(rename = "Ev. č. přihlášky")]
     pub application: i32,
+    #[serde(rename = "Jméno")]
     pub name: Option<String>,
+    #[serde(rename = "Příjmení")]
     pub surname: Option<String>,
+    #[serde(rename = "Rodné příjmení (pokud odlišné)")]
     pub birth_surname: Option<String>,
+    #[serde(rename = "Místo narození")]
     pub birthplace: Option<String>,
+    #[serde(rename = "Datum narození")]
     pub birthdate: Option<String>,
+    #[serde(rename = "Adresa trvalého pobytu")]
     pub address: Option<String>,
+    #[serde(rename = "Adresa pro doručování písemností (pokud odlišné)")]
     pub letter_address: Option<String>,
+    #[serde(rename = "Telefon")]
     pub telephone: Option<String>,
+    #[serde(rename = "Státní občanství")]
     pub citizenship: Option<String>,
+    #[serde(rename = "Email")]
     pub email: Option<String>,
+    #[serde(rename = "Pohlaví")]
     pub sex: Option<String>,
+    #[serde(rename = "Rodné číslo")]
     pub personal_identification_number: Option<String>,
+    #[serde(rename = "Název školy")]
     pub school_name: Option<String>,
+    #[serde(rename = "Zdravotní pojištění")]
     pub health_insurance: Option<String>,
 
+    #[serde(rename = "Vysvědčení 1/8")]
     pub diploma_1_8: String,
+    #[serde(rename = "Vysvědčení 2/8")]
     pub diploma_2_8: String,
+    #[serde(rename = "Vysvědčení 1/9")]
     pub diploma_1_9: String,
+    #[serde(rename = "Vysvědčení 2/9")]
+    pub diploma_2_9: String,
 
+    #[serde(rename = "První škola - název")]
     pub first_school_name: Option<String>,
+    #[serde(rename = "První škola - obor")]
     pub first_school_field: Option<String>,
+    #[serde(rename = "Druhá škola - název")]
     pub second_school_name: Option<String>,
+    #[serde(rename = "Druhá škola - obor")]
     pub second_school_field: Option<String>,
 
+    #[serde(rename = "Jméno zákonného zástupce")]
     pub parent_name: Option<String>,
+    #[serde(rename = "Příjmení zákonného zástupce")]
     pub parent_surname: Option<String>,
+    #[serde(rename = "Telefon zákonného zástupce")]
     pub parent_telephone: Option<String>,
+    #[serde(rename = "Email zákonného zástupce")]
     pub parent_email: Option<String>,
 
+    #[serde(rename = "Jméno druhého zákonného zástupce")]
     pub second_parent_name: Option<String>,
+    #[serde(rename = "Příjmení druhého zákonného zástupce")]
     pub second_parent_surname: Option<String>,
+    #[serde(rename = "Telefon druhého zákonného zástupce")]
     pub second_parent_telephone: Option<String>,
+    #[serde(rename = "Email druhého zákonného zástupce")]
     pub second_parent_email: Option<String>,
 }

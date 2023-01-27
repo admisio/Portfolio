@@ -6,11 +6,16 @@ use crate::{
 };
 use sea_orm::DbConn;
 
-impl From<(i32, ApplicationDetails)> for ApplicationRow {
-    fn from((application, d): (i32, ApplicationDetails)) -> Self {
+impl TryFrom<(i32, ApplicationDetails)> for ApplicationRow {
+    type Error = ServiceError;
+    fn try_from((application, d): (i32, ApplicationDetails)) -> Result<Self, ServiceError> {
         let c = d.candidate;
-        let (diploma_1_8, diploma_2_8, diploma_1_9) = c.grades.group_by_semester();
-        Self {
+        let (diploma_1_8, 
+            diploma_2_8,
+            diploma_1_9,
+            diploma_2_9
+        ) = c.grades.group_by_semester()?;
+        Ok(Self {
             application,
             name: Some(c.name),
             surname: Some(c.surname),
@@ -30,6 +35,7 @@ impl From<(i32, ApplicationDetails)> for ApplicationRow {
             diploma_1_8: diploma_1_8.to_string(),
             diploma_2_8: diploma_2_8.to_string(),
             diploma_1_9: diploma_1_9.to_string(),
+            diploma_2_9: diploma_2_9.to_string(),
 
             first_school_name: Some(c.first_school.name().to_owned()),
             first_school_field: Some(c.first_school.field().to_owned()),
@@ -45,7 +51,7 @@ impl From<(i32, ApplicationDetails)> for ApplicationRow {
             second_parent_surname: d.parents.get(1).map(|p| p.surname.clone()),
             second_parent_telephone: d.parents.get(1).map(|p| p.telephone.clone()),
             second_parent_email: d.parents.get(1).map(|p| p.email.clone()),
-        }
+        })
     }
 }
 
@@ -59,11 +65,15 @@ pub async fn export(db: &DbConn, private_key: String) -> Result<Vec<u8>, Service
 
         let row: ApplicationRow = match EncryptedApplicationDetails::try_from((&candidate, &parents))
         {
-            Ok(d) => ApplicationRow::from(
+            Ok(d) => ApplicationRow::try_from(
                 d.decrypt(private_key.to_string())
                     .await
                     .map(|d| (application.id, d))?,
-            ),
+            )
+                .unwrap_or(ApplicationRow {
+                    application: application.id,
+                    ..Default::default()
+                }),
 
             Err(_) => ApplicationRow {
                 application: application.id,
