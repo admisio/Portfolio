@@ -47,6 +47,7 @@
 	let componentErrors = writable( {
 		candidate: {
 			telephone: false,
+			personalIdMatch: false,
 		},
 		parents: [
 			{
@@ -57,7 +58,7 @@
 			}
 		]
 	});
-	let personalIdBirthdateMatch = true;
+
 	const formInitialValues = {
 		gdpr: false,
 		personalIdOk: false,
@@ -209,32 +210,32 @@
 	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
 	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
-	$: console.log($typedErrors);
+	const validatePersonalId = () => {
+		if ($form.candidate.citizenship === 'Česká republika') {
+			if (
+				!isPersonalIdNumberWithBirthdateValid(
+					$form.candidate.personalIdNumber,
+					$form.candidate.birthdate
+				)
+			) {
+				toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+					theme: {
+						'--toastColor': 'mintcream',
+						'--toastBackground': '#b91c1c',
+						'--toastBarBackground': '#7f1d1d'
+					}
+				});
+				$componentErrors['candidate']['personalIdMatch'] = true;
+				throw new Error('Rodné číslo neodpovídá datumu narození');
+			}
+		}
+		$componentErrors['candidate']['personalIdMatch'] = false;
+	}
+
 	const onSubmit = async (values: CandidateData) => {
 		console.log("submit button clicked");
 		console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 		
-		if (pageIndex === 3) {
-			if (values.candidate.citizenship === 'Česká republika') {
-				if (
-					!isPersonalIdNumberWithBirthdateValid(
-						values.candidate.personalIdNumber,
-						values.candidate.birthdate
-					)
-				) {
-					toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
-						theme: {
-							'--toastColor': 'mintcream',
-							'--toastBackground': '#b91c1c',
-							'--toastBarBackground': '#7f1d1d'
-						}
-					});
-					personalIdBirthdateMatch = false;
-					throw new Error('Rodné číslo neodpovídá datumu narození');
-				}
-			}
-			personalIdBirthdateMatch = true;
-		}
 		if (pageIndex === pageCount) {
 			console.log('submitting');
 			// clone values to oldValues
@@ -332,7 +333,7 @@
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
 					$typedErrors['candidate']['testLanguage'] ||
-					!personalIdBirthdateMatch
+					$componentErrors['candidate']['personalIdMatch']
 				) {
 					return true;
 				}
@@ -743,11 +744,14 @@
 			<div class="field">
 				<Submit
 					on:click={async (e) => {
+						if (pageIndex === 4) {
+							console.log('validating personal id');
+							validatePersonalId();
+						}
 						await handleSubmit(e);
 						console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 						if (isPageInvalid(pageIndex)) return;
-						if (pageIndex === pageCount) {
-						} else {
+						if (pageIndex !== pageCount)  {
 							pagesFilled[pageIndex] = true;
 							pageIndex++;
 						}
@@ -763,6 +767,9 @@
 					<button
 						class:dotActive={i === pageIndex}
 						on:click={async (e) => {
+							if (pageIndex === 4 && i > pageIndex) {
+								validatePersonalId();
+							}
 							pageIndex -= pageIndex === pageCount ? 1 : 0;
 							await handleSubmit(e);
 							pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));
