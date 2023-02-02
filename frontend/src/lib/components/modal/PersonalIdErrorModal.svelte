@@ -17,7 +17,7 @@
 {#if isOpened}
 	<SvelteToast />
 	<Modal on:close={close}>
-        <div class="w-[60vw] h-[40vh] flex flex-col items-center relative">
+        <div class="w-[80vw] lg:w-[60vw] h-[40vh] flex flex-col items-center relative">
             <div>
                 <h1 class="mt-6 text-4xl text-center text-sspsBlueDark font-bold">
                     Vaše rodné číslo <span class="underline">není</span>
