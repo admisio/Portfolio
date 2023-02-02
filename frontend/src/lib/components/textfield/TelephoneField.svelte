@@ -63,8 +63,11 @@
 		{/each}
 	</select>
 	<div class="ml-2 inputWrapper">
-		<TelInput bind:country bind:value bind:valid bind:parsedTelInput class="basic-tel-input {!valid ? 'invalid' : '' }" />
-		<span>
+		<TelInput bind:country bind:value bind:valid bind:parsedTelInput
+		 class="basic-tel-input {!valid ? 'invalid' : '' }"
+		 {placeholder}
+		 />
+		<span class="tel-icon">
 			<Telephone />
 		</span>
 	</div>
@@ -78,7 +81,7 @@
 	.inputWrapper {
 		@apply w-full relative;
 	}
-	.inputWrapper span {
+	.tel-icon {
 		@apply absolute right-0 top-1 bottom-0 my-auto flex bg-transparent p-3;
 	}
   .wrapper :global(.basic-tel-input) {
