@@ -183,12 +183,7 @@
 						}
 						return _val !== '';
 					}),
-				telephone: yup.string().test((_val, context) => {
-					if (context.path.includes('parents[1]') && _val === '') {
-						return true;
-					}
-					return _val?.match(/^\+\d{1,3} \d{3} \d{3} \d{3}$/) !== null;
-				})
+				telephone: yup.string()
 			})
 		)
 	});
@@ -216,6 +211,9 @@
 
 	$: console.log($typedErrors);
 	const onSubmit = async (values: CandidateData) => {
+		console.log("submit button clicked");
+		console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
+		
 		if (pageIndex === 3) {
 			if (values.candidate.citizenship === 'Česká republika') {
 				if (
@@ -291,7 +289,6 @@
 
 		onSubmit: async (values: CandidateData) => onSubmit(values)
 	});
-	$: console.log($componentErrors['candidate']['telephone'])
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
 			case 0:
@@ -525,7 +522,7 @@
 										placeholder={$LL.input.email()}
 									/>
 								</span>
-								<span class="w-[50%]">
+								<span class="w-[50%] ml-2">
 									<TextField
 										error={$typedErrors['candidate']['city']}
 										bind:value={$form.candidate.city}
@@ -747,6 +744,7 @@
 				<Submit
 					on:click={async (e) => {
 						await handleSubmit(e);
+						console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 						if (isPageInvalid(pageIndex)) return;
 						if (pageIndex === pageCount) {
 						} else {
