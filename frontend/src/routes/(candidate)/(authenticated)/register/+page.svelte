@@ -27,6 +27,7 @@
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
 	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
+	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -434,6 +435,8 @@
 			on:close={(_) => (visibleModals.personalIdModal = false)}
 			personalIdNumber={baseCandidateDetails.personalIdNumber}
 		/>
+	{:else if visibleModals.linkErrorModal}
+		<LinkErrorModal applications={baseCandidateDetails.applications} on:close={(_) => (visibleModals.linkErrorModal = false)} />
 	{/if}
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
