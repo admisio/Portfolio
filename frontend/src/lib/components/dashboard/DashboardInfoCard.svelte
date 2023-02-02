@@ -161,17 +161,26 @@
 							>
 						{/if}
 						<span
-							>{$LL.input.address()}:
-							<span class="font-bold">{$candidateData.candidate.address}</span></span
+							>{$LL.input.birthPlace()}:
+							<span class="font-bold">{$candidateData.candidate.birthplace}</span></span
 						>
 						<span
 							>{$LL.input.birthDate()}:
 							<span class="font-bold">{$candidateData.candidate.birthdate}</span></span
 						>
 						<span
-							>{$LL.input.birthPlace()}:
-							<span class="font-bold">{$candidateData.candidate.birthplace}</span></span
+							>{$LL.input.fullAddress()}:
+							<span class="font-bold">{$candidateData.candidate.address}</span></span
 						>
+						<span
+							>{$LL.input.telephone()}:
+							<span class="font-bold">{$candidateData.candidate.telephone}</span></span
+						>
+						<span
+							>{$LL.input.citizenship()}:
+							<span class="font-bold">{$candidateData.candidate.email}</span></span
+						>
+
 						<span
 							>{$LL.input.personalIdentificationNumber()}:
 							<span class="font-bold">{$candidateData.candidate.personalIdNumber}</span></span
@@ -185,8 +194,22 @@
 							<span class="font-bold">{$candidateData.candidate.healthInsurance}</span></span
 						>
 						<span
-							>{$LL.input.telephone()}:
-							<span class="font-bold">{$candidateData.candidate.telephone}</span></span
+							>{$LL.input.firstSchool()}:
+							<span class="font-bold">
+								{$candidateData.candidate.firstSchool.name.split(',')[0]} (Obor:
+								{$candidateData.candidate.firstSchool.field}
+								)
+							</span></span
+						>
+						<span
+							>{$LL.input.secondSchool()}:
+							<span class="font-bold">{$candidateData.candidate.secondSchool.name.split(',')[0]} (Obor: 
+								{$candidateData.candidate.secondSchool.field}
+								)</span></span
+						>
+						<span
+							>{$LL.input.testLanguage()}:
+							<span class="font-bold">{$candidateData.candidate.testLanguage}</span></span
 						>
 					</div>
 					<div

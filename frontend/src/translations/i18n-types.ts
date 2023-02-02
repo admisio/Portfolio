@@ -330,6 +330,10 @@ type RootTranslation = {
 		 */
 		telephone: string
 		/**
+		 * A​d​r​e​s​a
+		 */
+		fullAddress: string
+		/**
 		 * U​l​i​c​e​ ​a​ ​č​.​ ​p​.
 		 */
 		address: string
@@ -369,6 +373,14 @@ type RootTranslation = {
 		 * N​á​z​e​v​ ​š​k​o​l​y
 		 */
 		schoolName: string
+		/**
+		 * P​r​v​n​í​ ​š​k​o​l​a
+		 */
+		firstSchool: string
+		/**
+		 * D​r​u​h​á​ ​š​k​o​l​a
+		 */
+		secondSchool: string
 		/**
 		 * Č​í​s​l​o​ ​z​d​r​a​v​o​t​n​í​ ​p​o​j​i​š​ť​o​v​n​y
 		 */
@@ -733,6 +745,10 @@ export type TranslationFunctions = {
 		 */
 		telephone: () => LocalizedString
 		/**
+		 * Adresa
+		 */
+		fullAddress: () => LocalizedString
+		/**
 		 * Ulice a č. p.
 		 */
 		address: () => LocalizedString
@@ -772,6 +788,14 @@ export type TranslationFunctions = {
 		 * Název školy
 		 */
 		schoolName: () => LocalizedString
+		/**
+		 * První škola
+		 */
+		firstSchool: () => LocalizedString
+		/**
+		 * Druhá škola
+		 */
+		secondSchool: () => LocalizedString
 		/**
 		 * Číslo zdravotní pojišťovny
 		 */
