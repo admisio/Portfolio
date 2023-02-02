@@ -15,7 +15,7 @@ const cs: BaseTranslation = {
 			login: {
 				title: 'Přihlášení',
 				description:
-					'Evidenční číslo je jedinečné číslo přidělené uchazeči, které slouží k jeho identifikaci\napřihlášení se do systému.'
+					'Evidenční číslo je jedinečné číslo přidělené uchazeči, které slouží k jeho identifikaci\na přihlášení se do systému.'
 			},
 			application: {
 				title: 'Zadejte 12místný kód pro aktivaci účtu',
