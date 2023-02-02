@@ -26,6 +26,8 @@
 	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
 	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
+	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
+	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -203,7 +205,11 @@
 	// TODO: https://github.com/tjinauyeung/svelte-forms-lib/issues/171!! (Zatím tenhle mega typ)
 	$: typedErrors = errors as unknown as Writable<FormErrorType>;
 
-	$: console.log($typedErrors);
+	let visibleModals = {
+		personalIdModal: false,
+		linkErrorModal: false
+	};
+
 	const onSubmit = async (values: CandidateData) => {
 		if (pageIndex === 3) {
 			if (values.candidate.citizenship === 'Česká republika') {
@@ -285,11 +291,13 @@
 		switch (index) {
 			case 0:
 				if ($typedErrors['personalIdOk'] || $typedErrors['personalIdErr']) {
+					visibleModals.personalIdModal = true;
 					return true;
 				}
 				break;
 			case 1:
 				if ($typedErrors['linkOk'] || $typedErrors['linkError']) {
+					visibleModals.linkErrorModal = true;
 					return true;
 				}
 				break;
@@ -351,10 +359,10 @@
 			case 7:
 				// @ts-ignore
 				if (
-						$typedErrors['candidate']['firstSchool']['name'] ||
-						$typedErrors['candidate']['firstSchool']['field'] ||
-						$typedErrors['candidate']['secondSchool']['name'] ||
-						$typedErrors['candidate']['secondSchool']['field']
+					$typedErrors['candidate']['firstSchool']['name'] ||
+					$typedErrors['candidate']['firstSchool']['field'] ||
+					$typedErrors['candidate']['secondSchool']['name'] ||
+					$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
 				}
@@ -422,6 +430,14 @@
 
 <SplitLayout>
 	<SvelteToast />
+	{#if visibleModals.personalIdModal}
+		<PersonalIdErrorModal
+			on:close={(_) => (visibleModals.personalIdModal = false)}
+			personalIdNumber={baseCandidateDetails.personalIdNumber}
+		/>
+	{:else if visibleModals.linkErrorModal}
+		<LinkErrorModal applications={baseCandidateDetails.applications} on:close={(_) => (visibleModals.linkErrorModal = false)} />
+	{/if}
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
 			<div class="<md:hidden self-center">
