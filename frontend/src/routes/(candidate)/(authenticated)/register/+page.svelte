@@ -18,7 +18,7 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	import { createForm } from 'svelte-forms-lib';
-	import type { Writable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
@@ -46,7 +46,19 @@
 	export let data: PageData;
 	let details = data.candidate;
 	let baseCandidateDetails = data.whoami;
-
+	let componentErrors = writable( {
+		candidate: {
+			telephone: false,
+		},
+		parents: [
+			{
+				telephone: false,
+			},
+			{
+				telephone: false,
+			}
+		]
+	});
 	let personalIdBirthdateMatch = true;
 	const formInitialValues = {
 		gdpr: false,
@@ -106,8 +118,7 @@
 			email: yup.string().email().required(),
 			telephone: yup
 				.string()
-				.required()
-				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+				.required(), // already validated by the 'TelephoneField' component
 			birthplace: yup.string().required(),
 			birthdate: yup
 				.string()
@@ -286,7 +297,7 @@
 
 		onSubmit: async (values: CandidateData) => onSubmit(values)
 	});
-
+	$: console.log($componentErrors['candidate']['telephone'])
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
 			case 0:
@@ -311,7 +322,8 @@
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['surname'] ||
 					$typedErrors['candidate']['email'] ||
-					$typedErrors['candidate']['telephone'] ||
+					// $typedErrors['candidate']['telephone'] ||
+					$componentErrors['candidate']['telephone'] ||
 					$typedErrors['candidate']['city'] ||
 					$typedErrors['candidate']['street'] ||
 					$typedErrors['candidate']['houseNumber'] ||
@@ -341,7 +353,8 @@
 					$typedErrors['parents'][0]['name'] ||
 					$typedErrors['parents'][0]['surname'] ||
 					$typedErrors['parents'][0]['email'] ||
-					$typedErrors['parents'][0]['telephone']
+					// $typedErrors['parents'][0]['telephone']
+					$componentErrors['parents'][0]['telephone']
 				) {
 					return true;
 				}
@@ -351,7 +364,8 @@
 					$typedErrors['parents'][1]['name'] ||
 					$typedErrors['parents'][1]['surname'] ||
 					$typedErrors['parents'][1]['email'] ||
-					$typedErrors['parents'][1]['telephone']
+					// $typedErrors['parents'][1]['telephone']
+					$componentErrors['parents'][1]['telephone']
 				) {
 					return true;
 				}
@@ -511,6 +525,14 @@
 									/>
 								</span>
 							</div>
+							<span class="field ml-2">
+								<TelephoneField
+									bind:invalid={$componentErrors['candidate']['telephone']}
+									bind:value={$form.candidate.telephone}
+									placeholder={$LL.input.telephone()}
+								/>
+							</span>
+							<div>
 							<div class="field flex">
 								<span class="w-[50%]">
 									<EmailField
@@ -519,23 +541,17 @@
 										placeholder={$LL.input.email()}
 									/>
 								</span>
-								<span class="ml-2 w-[50%]">
-									<TelephoneField
-										error={$typedErrors['candidate']['telephone']}
-										bind:value={$form.candidate.telephone}
-										placeholder={$LL.input.telephone()}
+								<span class="w-[50%]">
+									<TextField
+										error={$typedErrors['candidate']['city']}
+										bind:value={$form.candidate.city}
+										type="text"
+										placeholder={$LL.input.city()}
+										helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
 									/>
 								</span>
 							</div>
-							<span class="field">
-								<TextField
-									error={$typedErrors['candidate']['city']}
-									bind:value={$form.candidate.city}
-									type="text"
-									placeholder={$LL.input.city()}
-									helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
-								/>
-							</span>
+						</div>
 						</div>
 						<div class="field flex">
 							<span class="w-[66%]">
@@ -675,7 +691,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-							error={$typedErrors['parents'][0]['telephone']}
+							bind:invalid={$componentErrors['parents'][0]['telephone']}
 							bind:value={$form.parents[0].telephone}
 							placeholder={$LL.input.parent.telephone()}
 						/>
@@ -704,7 +720,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-							error={$typedErrors['parents'][1]['telephone']}
+						bind:invalid={$componentErrors['parents'][1]['telephone']}
 							bind:value={$form.parents[1].telephone}
 							placeholder={`${$LL.input.parent.telephone()} (${$LL.input.optional()})`}
 						/>
