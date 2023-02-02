@@ -25,6 +25,9 @@ dependencies:
   svelte-forms-lib:
     specifier: ^2.0.1
     version: 2.0.1
+  svelte-tel-input:
+    specifier: ^1.1.2
+    version: 1.1.2
   svelte-tippy:
     specifier: ^1.3.2
     version: 1.3.2
@@ -1677,6 +1680,10 @@ packages:
       type-check: 0.4.0
     dev: true
 
+  /libphonenumber-js@1.10.19:
+    resolution: {integrity: sha512-MDZ1zLIkfSDZV5xBta3nuvbEOlsnKCPe4z5r3hyup/AXveevkl9A1eSWmLhd2FX4k7pJDe4MrLeQsux0HI/VWg==}
+    dev: false
+
   /locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
@@ -2307,6 +2314,14 @@ packages:
       typescript: 4.9.4
     dev: true
 
+  /svelte-tel-input@1.1.2:
+    resolution: {integrity: sha512-KJxV/4h2JJ6b2Gh6WfXwfukXcW02SHai65jZAfV6DuT3Mu0zhfZ7Lu4iyi9PAOaLQzEVQ3UpwBEBXH3B7YCIog==}
+    engines: {node: '>= 16', npm: '>= 7', pnpm: '>= 7', yarn: '>=2'}
+    dependencies:
+      libphonenumber-js: 1.10.19
+      svelte: 3.55.1
+    dev: false
+
   /svelte-tippy@1.3.2:
     resolution: {integrity: sha512-41f+85hwhKBRqX0UNYrgFsi34Kk/KDvUkIZXYANxkWoA2NTVTCZbUC2J8hRNZ4TRVxObTshoZRjK2co5+i6LMw==}
     dependencies:
@@ -2326,7 +2341,6 @@ packages:
   /svelte@3.55.1:
     resolution: {integrity: sha512-S+87/P0Ve67HxKkEV23iCdAh/SX1xiSfjF1HOglno/YTbSTW7RniICMCofWGdJJbdjw3S+0PfFb1JtGfTXE0oQ==}
     engines: {node: '>= 8'}
-    dev: true
 
   /swiper@8.4.6:
     resolution: {integrity: sha512-HACW035vBz2T6Kfut23EAzXhcDpgR8doX+wjq0ZUvJgS5SQApGrV885DAPLBFnmPUISsAhNSVxPKDxqroFvXvQ==}
