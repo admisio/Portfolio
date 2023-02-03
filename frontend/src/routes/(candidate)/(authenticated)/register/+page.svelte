@@ -18,7 +18,6 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	import { createForm } from 'svelte-forms-lib';
-	import { writable, type Writable } from 'svelte/store';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
@@ -26,11 +25,13 @@
 	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
 	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
+	import type { Writable } from 'svelte/store';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
-	let editModePageIndex = 3;
+	const editModePageIndex = 3;
 	const pageCount = pagesFilled.length;
+
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
 		$LL.candidate.register.third.title(),
@@ -44,20 +45,6 @@
 	export let data: PageData;
 	let details = data.candidate;
 	let baseCandidateDetails = data.whoami;
-	let componentErrors = writable( {
-		candidate: {
-			telephone: false,
-			personalIdMatch: false,
-		},
-		parents: [
-			{
-				telephone: false,
-			},
-			{
-				telephone: false,
-			}
-		]
-	});
 
 	const formInitialValues = {
 		gdpr: false,
@@ -115,9 +102,7 @@
 			name: yup.string().required(),
 			surname: yup.string().required(),
 			email: yup.string().email().required(),
-			telephone: yup
-				.string()
-				.required(), // already validated by the 'TelephoneField' component
+			telephone: yup.string().required(), // already validated by the 'TelephoneField' component
 			birthplace: yup.string().required(),
 			birthdate: yup
 				.string()
@@ -184,7 +169,12 @@
 						}
 						return _val !== '';
 					}),
-				telephone: yup.string()
+				telephone: yup.string().test((_val, context) => {
+					if (context.path.includes('parents[1]')) {
+						return true;
+					}
+					return _val !== '';
+				})
 			})
 		)
 	});
@@ -225,17 +215,15 @@
 						'--toastBarBackground': '#7f1d1d'
 					}
 				});
-				$componentErrors['candidate']['personalIdMatch'] = true;
 				throw new Error('Rodné číslo neodpovídá datumu narození');
 			}
 		}
-		$componentErrors['candidate']['personalIdMatch'] = false;
-	}
+	};
 
 	const onSubmit = async (values: CandidateData) => {
-		console.log("submit button clicked");
+		console.log('submit button clicked');
 		console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
-		
+
 		if (pageIndex === pageCount) {
 			console.log('submitting');
 			// clone values to oldValues
@@ -312,8 +300,7 @@
 					$typedErrors['candidate']['name'] ||
 					$typedErrors['candidate']['surname'] ||
 					$typedErrors['candidate']['email'] ||
-					// $typedErrors['candidate']['telephone'] ||
-					$componentErrors['candidate']['telephone'] ||
+					$typedErrors['candidate']['telephone'] ||
 					$typedErrors['candidate']['city'] ||
 					$typedErrors['candidate']['street'] ||
 					$typedErrors['candidate']['houseNumber'] ||
@@ -332,8 +319,7 @@
 					$typedErrors['candidate']['birthdate'] ||
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
-					$typedErrors['candidate']['testLanguage'] ||
-					$componentErrors['candidate']['personalIdMatch']
+					$typedErrors['candidate']['testLanguage']
 				) {
 					return true;
 				}
@@ -343,8 +329,7 @@
 					$typedErrors['parents'][0]['name'] ||
 					$typedErrors['parents'][0]['surname'] ||
 					$typedErrors['parents'][0]['email'] ||
-					// $typedErrors['parents'][0]['telephone']
-					$componentErrors['parents'][0]['telephone']
+					$typedErrors['parents'][0]['telephone']
 				) {
 					return true;
 				}
@@ -354,8 +339,7 @@
 					$typedErrors['parents'][1]['name'] ||
 					$typedErrors['parents'][1]['surname'] ||
 					$typedErrors['parents'][1]['email'] ||
-					// $typedErrors['parents'][1]['telephone']
-					$componentErrors['parents'][1]['telephone']
+					$typedErrors['parents'][1]['telephone']
 				) {
 					return true;
 				}
@@ -363,10 +347,10 @@
 			case 7:
 				// @ts-ignore
 				if (
-						$typedErrors['candidate']['firstSchool']['name'] ||
-						$typedErrors['candidate']['firstSchool']['field'] ||
-						$typedErrors['candidate']['secondSchool']['name'] ||
-						$typedErrors['candidate']['secondSchool']['field']
+					$typedErrors['candidate']['firstSchool']['name'] ||
+					$typedErrors['candidate']['firstSchool']['field'] ||
+					$typedErrors['candidate']['secondSchool']['name'] ||
+					$typedErrors['candidate']['secondSchool']['field']
 				) {
 					return true;
 				}
@@ -509,31 +493,31 @@
 							</div>
 							<span class="field ml-2">
 								<TelephoneField
-									bind:invalid={$componentErrors['candidate']['telephone']}
+									bind:error={$typedErrors['candidate']['telephone']}
 									bind:value={$form.candidate.telephone}
 									placeholder={$LL.input.telephone()}
 								/>
 							</span>
 							<div>
-							<div class="field flex">
-								<span class="w-[50%]">
-									<EmailField
-										error={$typedErrors['candidate']['email']}
-										bind:value={$form.candidate.email}
-										placeholder={$LL.input.email()}
-									/>
-								</span>
-								<span class="w-[50%] ml-2">
-									<TextField
-										error={$typedErrors['candidate']['city']}
-										bind:value={$form.candidate.city}
-										type="text"
-										placeholder={$LL.input.city()}
-										helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
-									/>
-								</span>
+								<div class="field flex">
+									<span class="w-[50%]">
+										<EmailField
+											error={$typedErrors['candidate']['email']}
+											bind:value={$form.candidate.email}
+											placeholder={$LL.input.email()}
+										/>
+									</span>
+									<span class="ml-2 w-[50%]">
+										<TextField
+											error={$typedErrors['candidate']['city']}
+											bind:value={$form.candidate.city}
+											type="text"
+											placeholder={$LL.input.city()}
+											helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+										/>
+									</span>
+								</div>
 							</div>
-						</div>
 						</div>
 						<div class="field flex">
 							<span class="w-[66%]">
@@ -673,7 +657,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-							bind:invalid={$componentErrors['parents'][0]['telephone']}
+							bind:error={$typedErrors['parents'][0]['telephone']}
 							bind:value={$form.parents[0].telephone}
 							placeholder={$LL.input.parent.telephone()}
 						/>
@@ -702,7 +686,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-						bind:invalid={$componentErrors['parents'][1]['telephone']}
+							bind:error={$typedErrors['parents'][1]['telephone']}
 							bind:value={$form.parents[1].telephone}
 							placeholder={`${$LL.input.parent.telephone()} (${$LL.input.optional()})`}
 						/>
@@ -751,7 +735,7 @@
 						await handleSubmit(e);
 						console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 						if (isPageInvalid(pageIndex)) return;
-						if (pageIndex !== pageCount)  {
+						if (pageIndex !== pageCount) {
 							pagesFilled[pageIndex] = true;
 							pageIndex++;
 						}
