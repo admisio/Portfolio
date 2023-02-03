@@ -33,7 +33,7 @@
 	};
 
 	const isTooltip = helperText ? tippy : () => {};
-	$: tooltipDelay = !valid ? 0 : 1000;
+	$: tooltipDelay = error ? 0 : 1000;
 </script>
 
 <div
