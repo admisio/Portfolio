@@ -5,7 +5,6 @@
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
 	import GdprCheckBox from '$lib/components/checkbox/GdprCheckBox.svelte';
-
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/select/SelectField.svelte';
@@ -16,9 +15,8 @@
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { PageData } from './$types';
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
-
+	import parsePhoneNumber from 'libphonenumber-js';
 	import { createForm } from 'svelte-forms-lib';
-	import type { Writable } from 'svelte/store';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
@@ -28,11 +26,13 @@
 	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
+	import type { Writable } from 'svelte/store';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
-	let editModePageIndex = 3;
+	const editModePageIndex = 3;
 	const pageCount = pagesFilled.length;
+
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
 		$LL.candidate.register.third.title(),
@@ -47,7 +47,6 @@
 	let details = data.candidate;
 	let baseCandidateDetails = data.whoami;
 
-	let personalIdBirthdateMatch = true;
 	const formInitialValues = {
 		gdpr: false,
 		personalIdOk: false,
@@ -107,7 +106,12 @@
 			telephone: yup
 				.string()
 				.required()
-				.matches(/^\+\d{1,3} \d{3} \d{3} \d{3}$/),
+				.test((_val) => {
+					if (!_val) return false;
+					const number = parsePhoneNumber(_val);
+					if (!number) return false;
+					return number.isValid();
+				}), // already validated by the 'TelephoneField' component
 			birthplace: yup.string().required(),
 			birthdate: yup
 				.string()
@@ -175,10 +179,13 @@
 						return _val !== '';
 					}),
 				telephone: yup.string().test((_val, context) => {
-					if (context.path.includes('parents[1]') && _val === '') {
+					if (context.path.includes('parents[1]')) {
 						return true;
 					}
-					return _val?.match(/^\+\d{1,3} \d{3} \d{3} \d{3}$/) !== null;
+					if (!_val) return false;
+					const number = parsePhoneNumber(_val);
+					if (!number) return false;
+					return number.isValid();
 				})
 			})
 		)
@@ -209,29 +216,30 @@
 		personalIdModal: false,
 		linkErrorModal: false
 	};
+	const validatePersonalId = () => {
+		if ($form.candidate.citizenship === 'Česká republika') {
+			if (
+				!isPersonalIdNumberWithBirthdateValid(
+					$form.candidate.personalIdNumber,
+					$form.candidate.birthdate
+				)
+			) {
+				toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+					theme: {
+						'--toastColor': 'mintcream',
+						'--toastBackground': '#b91c1c',
+						'--toastBarBackground': '#7f1d1d'
+					}
+				});
+				throw new Error('Rodné číslo neodpovídá datumu narození');
+			}
+		}
+	};
 
 	const onSubmit = async (values: CandidateData) => {
-		if (pageIndex === 3) {
-			if (values.candidate.citizenship === 'Česká republika') {
-				if (
-					!isPersonalIdNumberWithBirthdateValid(
-						values.candidate.personalIdNumber,
-						values.candidate.birthdate
-					)
-				) {
-					toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
-						theme: {
-							'--toastColor': 'mintcream',
-							'--toastBackground': '#b91c1c',
-							'--toastBarBackground': '#7f1d1d'
-						}
-					});
-					personalIdBirthdateMatch = false;
-					throw new Error('Rodné číslo neodpovídá datumu narození');
-				}
-			}
-			personalIdBirthdateMatch = true;
-		}
+		console.log('submit button clicked');
+		console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
+
 		if (pageIndex === pageCount) {
 			console.log('submitting');
 			// clone values to oldValues
@@ -286,7 +294,6 @@
 
 		onSubmit: async (values: CandidateData) => onSubmit(values)
 	});
-
 	const isPageInvalid = (index: number): boolean => {
 		switch (index) {
 			case 0:
@@ -330,8 +337,7 @@
 					$typedErrors['candidate']['birthdate'] ||
 					$typedErrors['candidate']['birthplace'] ||
 					$typedErrors['candidate']['personalIdNumber'] ||
-					$typedErrors['candidate']['testLanguage'] ||
-					!personalIdBirthdateMatch
+					$typedErrors['candidate']['testLanguage']
 				) {
 					return true;
 				}
@@ -511,31 +517,33 @@
 									/>
 								</span>
 							</div>
-							<div class="field flex">
-								<span class="w-[50%]">
-									<EmailField
-										error={$typedErrors['candidate']['email']}
-										bind:value={$form.candidate.email}
-										placeholder={$LL.input.email()}
-									/>
-								</span>
-								<span class="ml-2 w-[50%]">
-									<TelephoneField
-										error={$typedErrors['candidate']['telephone']}
-										bind:value={$form.candidate.telephone}
-										placeholder={$LL.input.telephone()}
-									/>
-								</span>
-							</div>
-							<span class="field">
-								<TextField
-									error={$typedErrors['candidate']['city']}
-									bind:value={$form.candidate.city}
-									type="text"
-									placeholder={$LL.input.city()}
-									helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+							<span class="field ml-2">
+								<TelephoneField
+									bind:error={$typedErrors['candidate']['telephone']}
+									bind:value={$form.candidate.telephone}
+									placeholder={$LL.input.telephone()}
 								/>
 							</span>
+							<div>
+								<div class="field flex">
+									<span class="w-[50%]">
+										<EmailField
+											error={$typedErrors['candidate']['email']}
+											bind:value={$form.candidate.email}
+											placeholder={$LL.input.email()}
+										/>
+									</span>
+									<span class="ml-2 w-[50%]">
+										<TextField
+											error={$typedErrors['candidate']['city']}
+											bind:value={$form.candidate.city}
+											type="text"
+											placeholder={$LL.input.city()}
+											helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+										/>
+									</span>
+								</div>
+							</div>
 						</div>
 						<div class="field flex">
 							<span class="w-[66%]">
@@ -675,7 +683,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-							error={$typedErrors['parents'][0]['telephone']}
+							bind:error={$typedErrors['parents'][0]['telephone']}
 							bind:value={$form.parents[0].telephone}
 							placeholder={$LL.input.parent.telephone()}
 						/>
@@ -704,7 +712,7 @@
 					</span>
 					<span class="field">
 						<TelephoneField
-							error={$typedErrors['parents'][1]['telephone']}
+							bind:error={$typedErrors['parents'][1]['telephone']}
 							bind:value={$form.parents[1].telephone}
 							placeholder={`${$LL.input.parent.telephone()} (${$LL.input.optional()})`}
 						/>
@@ -746,10 +754,14 @@
 			<div class="field">
 				<Submit
 					on:click={async (e) => {
+						if (pageIndex === 4) {
+							console.log('validating personal id');
+							validatePersonalId();
+						}
 						await handleSubmit(e);
+						console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 						if (isPageInvalid(pageIndex)) return;
-						if (pageIndex === pageCount) {
-						} else {
+						if (pageIndex !== pageCount) {
 							pagesFilled[pageIndex] = true;
 							pageIndex++;
 						}
@@ -765,6 +777,9 @@
 					<button
 						class:dotActive={i === pageIndex}
 						on:click={async (e) => {
+							if (pageIndex === 4 && i > pageIndex) {
+								validatePersonalId();
+							}
 							pageIndex -= pageIndex === pageCount ? 1 : 0;
 							await handleSubmit(e);
 							pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));
