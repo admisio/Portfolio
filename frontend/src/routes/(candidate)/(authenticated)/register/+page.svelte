@@ -5,7 +5,6 @@
 	import { apiFillDetails } from '$lib/@api/candidate';
 	import Submit from '$lib/components/button/Submit.svelte';
 	import GdprCheckBox from '$lib/components/checkbox/GdprCheckBox.svelte';
-
 	import SchoolBadge from '$lib/components/icons/SchoolBadge.svelte';
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/select/SelectField.svelte';
@@ -16,7 +15,7 @@
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { PageData } from './$types';
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
-
+	import parsePhoneNumber from 'libphonenumber-js';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import type { CandidateData } from '$lib/stores/candidate';
@@ -104,7 +103,15 @@
 			name: yup.string().required(),
 			surname: yup.string().required(),
 			email: yup.string().email().required(),
-			telephone: yup.string().required(), // already validated by the 'TelephoneField' component
+			telephone: yup
+				.string()
+				.required()
+				.test((_val) => {
+					if (!_val) return false;
+					const number = parsePhoneNumber(_val);
+					if (!number) return false;
+					return number.isValid();
+				}), // already validated by the 'TelephoneField' component
 			birthplace: yup.string().required(),
 			birthdate: yup
 				.string()
@@ -175,7 +182,10 @@
 					if (context.path.includes('parents[1]')) {
 						return true;
 					}
-					return _val !== '';
+					if (!_val) return false;
+					const number = parsePhoneNumber(_val);
+					if (!number) return false;
+					return number.isValid();
 				})
 			})
 		)
