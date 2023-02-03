@@ -15,10 +15,10 @@
 	// You must use E164 number format. It's guarantee the parsing and storing consistency.
 	export let value: E164Number | null = '+36301234567';
 
-    // Validity
-    let valid = true;
-	export let invalid: boolean = false;
-	$: invalid = !valid;
+	// Validity
+	let valid = true;
+	export let error: string = '';
+	$: error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 
 	// Optional - Extended details about the parsed phone number
 	let parsedTelInput: NormalizedTelNumber | null = null;
@@ -33,10 +33,11 @@
 	};
 
 	const isTooltip = helperText ? tippy : () => {};
-	$: tooltipDelay = invalid ? 0 : 1000;
+	$: tooltipDelay = !valid ? 0 : 1000;
 </script>
 
-<div class="wrapper w-full h-full flex"
+<div
+	class="wrapper flex h-full w-full"
 	use:isTooltip={{
 		content: helperText,
 		placement: 'top',
@@ -45,7 +46,8 @@
 	}}
 >
 	<select
-		class="countrySelect {!valid && 'invalid'}"
+		class="countrySelect"
+		class:invalid={error}
 		aria-label="Default select example"
 		name="Country"
 		bind:value={selectedCountry}
@@ -62,11 +64,15 @@
 			</option>
 		{/each}
 	</select>
-	<div class="ml-2 inputWrapper">
-		<TelInput bind:country bind:value bind:valid bind:parsedTelInput
-		 class="basic-tel-input {!valid ? 'invalid' : '' }"
-		 {placeholder}
-		 />
+	<div class="inputWrapper ml-2">
+		<TelInput
+			bind:country
+			bind:value
+			bind:valid
+			bind:parsedTelInput
+			class="basic-tel-input {error ? 'invalid' : ''}"
+			{placeholder}
+		/>
 		<span class="tel-icon">
 			<Telephone />
 		</span>
@@ -75,29 +81,29 @@
 
 <style lang="postcss">
 	select {
-		@apply h-full pl-3 pr-3 border-1 w-2/5 rounded;
+		@apply border-1 h-full w-2/5 rounded pl-3 pr-3;
 		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 	}
 	.inputWrapper {
-		@apply w-full relative;
+		@apply relative w-full;
 	}
 	.tel-icon {
 		@apply absolute right-0 top-1 bottom-0 my-auto flex bg-transparent p-3;
 	}
-  .wrapper :global(.basic-tel-input) {
-      /* height: 32px;
+	.wrapper :global(.basic-tel-input) {
+		/* height: 32px;
       padding-left: 12px;
       padding-right: 12px;
       border-radius: 6px;
       border: 1px solid;
       outline: none;
 	  width: 100%; */
-	  /* @apply h-full pl-3 pr-3 border-1 w-full rounded; */
-	  @apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
-  }
+		/* @apply h-full pl-3 pr-3 border-1 w-full rounded; */
+		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+	}
 
-  .wrapper :global(.invalid) {
-    /* border-color: red; */
-	@apply border-red-700;
-  }
+	.wrapper :global(.invalid) {
+		/* border-color: red; */
+		@apply border-red-700;
+	}
 </style>
