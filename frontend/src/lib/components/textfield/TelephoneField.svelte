@@ -20,6 +20,12 @@
 	export let error: string = '';
 	$: error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 
+	$: {
+		if (!error) {
+			error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
+		}
+	}
+
 	// Optional - Extended details about the parsed phone number
 	let parsedTelInput: NormalizedTelNumber | null = null;
 
