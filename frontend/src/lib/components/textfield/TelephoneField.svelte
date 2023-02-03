@@ -8,12 +8,18 @@
 
 	import TelInput, { normalizedCountries } from 'svelte-tel-input';
 	import type { NormalizedTelNumber, CountryCode, E164Number } from 'svelte-tel-input/types';
+	import { parsePhoneNumber } from 'libphonenumber-js';
 
 	// Any Country Code Alpha-2 (ISO 3166)
 	let country: CountryCode | null = 'CZ';
 
 	// You must use E164 number format. It's guarantee the parsing and storing consistency.
-	export let value: E164Number | null = '+36301234567';
+	export let value: E164Number | null;
+	if (value !== null) {
+		// @ts-ignore
+		country = parsePhoneNumber(value).country;
+		// console.log(country);
+	}
 
 	// Validity
 	let valid = true;
@@ -60,7 +66,9 @@
 				selected={country.iso2 === selectedCountry}
 				aria-selected={country.iso2 === selectedCountry}
 			>
-				{country.iso2} (+{country.dialCode})
+				{country.name.split('(').length > 1
+					? country.name.split('(')[1].replace(')', '')
+					: country.name} (+{country.dialCode})
 			</option>
 		{/each}
 	</select>
