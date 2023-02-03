@@ -15,9 +15,11 @@
 
 	// You must use E164 number format. It's guarantee the parsing and storing consistency.
 	export let value: E164Number | null;
-	if (value !== null) {
-		// @ts-ignore
-		country = parsePhoneNumber(value).country;
+	if (value !== null && value !== "" ) {
+		let number = parsePhoneNumber(value);
+		if (number !== null && number !== undefined) {
+			country = number.country!;
+		}
 		// console.log(country);
 	}
 
