@@ -837,7 +837,7 @@
 
 <style lang="postcss">
 	.field {
-		@apply mt-4 w-full md:mt-8 lg:mx-auto lg:w-4/5;
+		@apply mt-4 w-full md:mt-8 lg:mx-auto lg:w-9/10 2xl:w-4/5;
 	}
 	.form {
 		@apply flex flex-col;
