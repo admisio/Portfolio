@@ -29,6 +29,7 @@
 	import type { Writable } from 'svelte/store';
 	import schoollistString from '$lib/assets/schoollist.txt?raw';
 	import { pushErrorText } from '$lib/utils/toast';
+	import { countries } from '$lib/utils/countries';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -604,7 +605,7 @@
 							error={$typedErrors['candidate']['citizenship']}
 							bind:value={$form.candidate.citizenship}
 							placeholder={$LL.input.citizenship()}
-							options={['Česká republika', 'Slovenská republika', 'Ukrajina', 'Jiné']}
+							options={countries}
 						/>
 					</span>
 					<span class="ml-2 w-[50%]">
