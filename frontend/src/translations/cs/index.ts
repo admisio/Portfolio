@@ -64,7 +64,7 @@ const cs: BaseTranslation = {
 			},
 			eighth: {
 				title: 'Poslední krok',
-				description: 'Přidejte prosím přepis Vaších známek z posledních dvou let studia'
+				description: 'Přidejte prosím přepis Vaších známek z posledních dvou let studia. Známky z druhého pololetí 9. třídy nevyplňujte, pokud vysvědčení ještě nemáte.'
 			}
 		}
 	},
@@ -140,7 +140,7 @@ const cs: BaseTranslation = {
 		fullAddress: 'Adresa',
 		address: 'Ulice a č. p.',
 		zipCode: 'PSČ',
-		city: 'Město',
+		city: 'Okres',
 		birthPlace: 'Místo narození',
 		birthDate: 'Datum narození',
 		sex: 'Pohlaví',

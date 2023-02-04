@@ -23,11 +23,14 @@
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
-	import { isPersonalIdNumberWithBirthdateValid } from '$lib/utils/personalIdFormat';
+	import {
+		parseBirthdateSexFromPersonalId,
+		isPersonalIdNumberWithBirthdateValid
+	} from '$lib/utils/personalIdFormat';
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 	import type { Writable } from 'svelte/store';
-	import { pushErrorText } from '$lib/utils/toast';
+	import { pushErrorText, pushSuccessText } from '$lib/utils/toast';
 
 	import schoolList from '$lib/assets/list/school.json';
 	import countriesList from '$lib/assets/list/countries.json';
@@ -73,7 +76,7 @@
 			city: '',
 			zip: '',
 			citizenship: '',
-			personalIdNumber: '',
+			personalIdNumber: 'TODO: remove this',
 			schoolName: '',
 			healthInsurance: '',
 			grades: [],
@@ -132,7 +135,7 @@
 			city: yup.string().required(),
 			zip: yup.string().required(),
 			citizenship: yup.string().required(),
-			personalIdNumber: yup.string().required(),
+			personalIdNumber: yup.string(),
 			schoolName: yup.string().required(),
 			healthInsurance: yup.number().required(),
 			grades: yup
@@ -243,25 +246,6 @@
 		personalIdModal: false,
 		linkErrorModal: false
 	};
-	const validatePersonalId = () => {
-		if ($form.candidate.citizenship === 'Česká republika') {
-			if (
-				!isPersonalIdNumberWithBirthdateValid(
-					$form.candidate.personalIdNumber,
-					$form.candidate.birthdate
-				)
-			) {
-				toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
-					theme: {
-						'--toastColor': 'mintcream',
-						'--toastBackground': '#b91c1c',
-						'--toastBarBackground': '#7f1d1d'
-					}
-				});
-				throw new Error('Rodné číslo neodpovídá datumu narození');
-			}
-		}
-	};
 
 	const onSubmit = async (values: CandidateData) => {
 		if (pageIndex === pageCount) {
@@ -359,7 +343,7 @@
 					$typedErrors['candidate']['healthInsurance'] ||
 					$typedErrors['candidate']['birthdate'] ||
 					$typedErrors['candidate']['birthplace'] ||
-					$typedErrors['candidate']['personalIdNumber'] ||
+					$typedErrors['candidate']['birthSurname'] ||
 					$typedErrors['candidate']['testLanguage']
 				) {
 					return true;
@@ -409,11 +393,19 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
-	// TODO
-	/* $form.candidate.personalIdNumber = data.whoami.personalIdNumber;
-	const [birthdate, sex] = deriveBirthdateFromPersonalId(data.whoami.personalIdNumber);
-	$form.candidate.birthdate = birthdate;
-	$form.candidate.sex = sex; */
+	$: if ($form.candidate.citizenship === 'Česká republika') {
+		if ($form.candidate.birthdate === '' && $form.candidate.sex === '') {
+			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
+			$form.candidate.birthdate = birthdate;
+			$form.candidate.sex = sex;
+			pushSuccessText(
+				`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
+			);
+		}
+	} else {
+		$form.candidate.birthdate = '';
+		$form.candidate.sex = '';
+	}
 
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
@@ -525,24 +517,14 @@
 					</p>
 					<div class="w-full">
 						<div class="flex flex-col">
-							<div class="field flex">
-								<span class="w-[50%]">
-									<NameField
-										error={$typedErrors['candidate']['name'] ||
-											$typedErrors['candidate']['surname']}
-										bind:valueName={$form.candidate.name}
-										bind:valueSurname={$form.candidate.surname}
-										placeholder={$LL.input.nameSurname()}
-									/>
-								</span>
-								<span class="ml-2 w-[50%]">
-									<TextField
-										error={$typedErrors['candidate']['birthSurname']}
-										bind:value={$form.candidate.birthSurname}
-										placeholder={`${$LL.input.birthSurname()} (${$LL.input.optional()})`}
-									/>
-								</span>
-							</div>
+							<span class="field">
+								<NameField
+									error={$typedErrors['candidate']['name'] || $typedErrors['candidate']['surname']}
+									bind:valueName={$form.candidate.name}
+									bind:valueSurname={$form.candidate.surname}
+									placeholder={$LL.input.nameSurname()}
+								/>
+							</span>
 							<span class="field ml-2">
 								<TelephoneField
 									bind:error={$typedErrors['candidate']['telephone']}
@@ -636,19 +618,11 @@
 					</div>
 				</div>
 				<div class="field flex items-center justify-center">
-					{#if $form.candidate.citizenship === 'Česká republika' || !$form.candidate.citizenship}
-						<IdField
-							error={$typedErrors['candidate']['personalIdNumber']}
-							bind:value={$form.candidate.personalIdNumber}
-							placeholder={$LL.input.personalIdentificationNumber()}
-						/>
-					{:else}
-						<TextField
-							error={$typedErrors['candidate']['personalIdNumber']}
-							bind:value={$form.candidate.personalIdNumber}
-							placeholder={$LL.input.personalIdentificationNumber()}
-						/>
-					{/if}
+					<TextField
+						error={$typedErrors['candidate']['birthSurname']}
+						bind:value={$form.candidate.birthSurname}
+						placeholder={`${$LL.input.birthSurname()} (${$LL.input.optional()})`}
+					/>
 					<div class="ml-2">
 						<SelectField
 							error={$typedErrors['candidate']['sex']}
@@ -805,9 +779,6 @@
 				<Submit
 					enterAllowed={pageIndex !== 7}
 					on:click={async (e) => {
-						if (pageIndex === 4) {
-							validatePersonalId();
-						}
 						await handleSubmit(e);
 						if (isPageInvalid(pageIndex)) return;
 						if (pageIndex !== pageCount) {
@@ -826,9 +797,6 @@
 					<button
 						class:dotActive={i === pageIndex}
 						on:click={async (e) => {
-							if (pageIndex === 4 && i > pageIndex) {
-								validatePersonalId();
-							}
 							pageIndex -= pageIndex === pageCount ? 1 : 0;
 							await handleSubmit(e);
 							pagesFilled = pagesFilled.map((_, i) => !isPageInvalid(i));

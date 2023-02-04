@@ -9,3 +9,13 @@ export const pushErrorText = (text: string) => {
         }
     });
 };
+
+export const pushSuccessText = (text: string) => {
+    toast.push(text, {
+        theme: {
+            '--toastColor': 'mintcream',
+            '--toastBackground': '#047857',
+            '--toastBarBackground': '#064e3b'
+        }
+    });
+}
