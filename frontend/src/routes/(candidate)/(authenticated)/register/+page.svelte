@@ -121,7 +121,7 @@
 				.string()
 				.required()
 				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
-			birthSurname: yup.string().required(),
+			birthSurname: yup.string(),
 			sex: yup.string(),
 			address: yup.string(),
 			street: yup.string().required(),
@@ -539,7 +539,7 @@
 									<TextField
 										error={$typedErrors['candidate']['birthSurname']}
 										bind:value={$form.candidate.birthSurname}
-										placeholder={$LL.input.birthSurname()}
+										placeholder={`${$LL.input.birthSurname()} (${$LL.input.optional()})`}
 									/>
 								</span>
 							</div>
