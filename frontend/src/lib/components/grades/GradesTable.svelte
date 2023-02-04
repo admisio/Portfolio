@@ -93,6 +93,7 @@
 				on:change={convertGradeToGradeBackend}
 				bind:grade={gradesLocal[i]}
 				on:delete={() => {
+					grades = grades.filter((grade) => grade.subject !== gradesLocal[i].subject);
 					gradesLocal = gradesLocal.filter((_, index) => index !== i);
 				}}
 			/>
