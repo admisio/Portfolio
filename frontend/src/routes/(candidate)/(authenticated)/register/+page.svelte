@@ -565,7 +565,7 @@
 											bind:value={$form.candidate.city}
 											type="text"
 											placeholder={$LL.input.city()}
-											helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+											helperText="Uveďte okres / MČ Prahy (např. Liberec nebo Praha 5)"
 										/>
 									</span>
 								</div>
@@ -579,7 +579,7 @@
 									bind:valueName={$form.candidate.street}
 									bind:valueSurname={$form.candidate.houseNumber}
 									placeholder={$LL.input.address()}
-									helperText="Uveďte ulici a číslo popisné (např. Preslova 72)."
+									helperText="Uveďte ulici a číslo popisné (např. Preslova 72/25)."
 								/>
 							</span>
 							<span class="ml-2 w-[33%]">
@@ -588,7 +588,7 @@
 									bind:value={$form.candidate.zip}
 									type="number"
 									placeholder={$LL.input.zipCode()}
-									helperText="Uveďte poštovní směrovací číslo. (např. 602 00)"
+									helperText="Uveďte poštovní směrovací číslo. (např. 150 21)"
 								/>
 							</span>
 						</div>
@@ -623,7 +623,7 @@
 						bind:value={$form.candidate.birthdate}
 						type="text"
 						placeholder={$LL.input.birthDate()}
-						helperText="TODO: (Uveďte ve formátu DD.MM.RRRR)"
+						helperText="Uveďte datum narození (např. 1. 1. 1970)"
 					/>
 					<div class="ml-2">
 						<TextField
@@ -631,7 +631,7 @@
 							bind:value={$form.candidate.birthplace}
 							type="text"
 							placeholder={$LL.input.birthPlace()}
-							helperText="TODO: (Místo narození)"
+							helperText="Uveďte místo narození (např. Liberec nebo Praha 5)"
 						/>
 					</div>
 				</div>
@@ -666,6 +666,7 @@
 								type="number"
 								bind:value={$form.candidate.schoolName}
 								placeholder={$LL.input.schoolIzo()}
+								helperText="Uveďte IZO základní školy (např. 47608579)"
 							/>
 						{:else}
 							<TextField
@@ -673,6 +674,7 @@
 								type="text"
 								bind:value={$form.candidate.schoolName}
 								placeholder={$LL.input.schoolName()}
+								helperText="Uveďte název základní školy (např. Masarykova základní škola, Praha 9 - Újezd nad Lesy, Polesná 1690)"
 							/>
 						{/if}
 					</span>
@@ -683,6 +685,7 @@
 							type="text"
 							bind:value={$form.candidate.healthInsurance}
 							placeholder={$LL.input.insuranceNumber()}
+							helperText="Uveďte číslo zdravotní pojišťovny (např. 111)"
 						/>
 					</span>
 				</div>
