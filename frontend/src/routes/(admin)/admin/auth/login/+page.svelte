@@ -47,7 +47,7 @@
 			</span>
 		</div>
 		<div class="mt-8 w-4/5 lg:w-3/5">
-			<Submit value={$LL.input.submit()} on:click={login} />
+			<Submit enterAllowed={true} value={$LL.input.submit()} on:click={login} />
 		</div>
 	</div>
 </SplitLayout>
