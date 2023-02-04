@@ -28,7 +28,7 @@
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 	import type { Writable } from 'svelte/store';
 	import schoollistString from '$lib/assets/schoollist.txt?raw';
-	import { countries } from '$lib/utils/countries';
+	import { pushErrorText } from '$lib/utils/toast';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -154,7 +154,12 @@
 					.required()
 					.test((_val) => {
 						if (!_val) return false;
-						return schoolList.includes(_val);
+						if (schoolList.includes(_val)) {
+							return true;
+						} else {
+							pushErrorText("Vyberte prosím školu ze seznamu.");
+							return false;
+						}
 					}),
 				field: yup.string().required()
 			}),
@@ -164,7 +169,13 @@
 					.required()
 					.test((_val) => {
 						if (!_val) return false;
-						return schoolList.includes(_val);
+						if (!_val) return false;
+						if (schoolList.includes(_val)) {
+							return true;
+						} else {
+							pushErrorText("Vyberte prosím školu ze seznamu.");
+							return false;
+						}
 					}),
 				field: yup.string().required()
 			}),
@@ -788,6 +799,7 @@
 		<div class="bottom-1/24 absolute w-full">
 			<div class="field">
 				<Submit
+					enterAllowed={pageIndex !== 7}
 					on:click={async (e) => {
 						if (pageIndex === 4) {
 							validatePersonalId();

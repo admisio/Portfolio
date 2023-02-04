@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
+	export let enterAllowed: boolean;
 	export let value: string;
 
 	const dispatch = createEventDispatcher();
 
 	const handleKeyDown = (e: KeyboardEvent) => {
-		if (e.key === 'Enter') {
+		if (enterAllowed && e.key === 'Enter') {
 			dispatch('click');
 		}
 	};
