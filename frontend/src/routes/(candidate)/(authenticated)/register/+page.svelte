@@ -27,15 +27,15 @@
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 	import type { Writable } from 'svelte/store';
-	import schoollistString from '$lib/assets/schoollist.txt?raw';
 	import { pushErrorText } from '$lib/utils/toast';
-	import { countries } from '$lib/utils/countries';
+
+	import schoolList from '$lib/assets/list/school.json';
+	import countriesList from '$lib/assets/list/countries.json';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
 	const editModePageIndex = 3;
 	const pageCount = pagesFilled.length;
-	const schoolList: Array<string> = schoollistString.split(';');
 
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
@@ -158,7 +158,7 @@
 						if (schoolList.includes(_val)) {
 							return true;
 						} else {
-							pushErrorText("Vyberte prosím školu ze seznamu.");
+							pushErrorText('Vyberte prosím školu ze seznamu.');
 							return false;
 						}
 					}),
@@ -174,7 +174,7 @@
 						if (schoolList.includes(_val)) {
 							return true;
 						} else {
-							pushErrorText("Vyberte prosím školu ze seznamu.");
+							pushErrorText('Vyberte prosím školu ze seznamu.');
 							return false;
 						}
 					}),
@@ -605,7 +605,7 @@
 							error={$typedErrors['candidate']['citizenship']}
 							bind:value={$form.candidate.citizenship}
 							placeholder={$LL.input.citizenship()}
-							options={countries}
+							options={countriesList}
 						/>
 					</span>
 					<span class="ml-2 w-[50%]">
@@ -758,7 +758,7 @@
 							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
 						</h2>
 						<SchoolSelect
-							schoolList={schoolList}
+							{schoolList}
 							error={$typedErrors['candidate']['firstSchool']['name'] ||
 								$typedErrors['candidate']['firstSchool']['field']}
 							bind:selectedSchool={$form.candidate.firstSchool}
@@ -782,7 +782,7 @@
 							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
 						</h2>
 						<SchoolSelect
-							schoolList={schoolList}
+							{schoolList}
 							error={$typedErrors['candidate']['secondSchool']['name'] ||
 								$typedErrors['candidate']['secondSchool']['field']}
 							bind:selectedSchool={$form.candidate.secondSchool}
@@ -848,7 +848,7 @@
 
 <style lang="postcss">
 	.field {
-		@apply mt-4 w-full md:mt-8 lg:mx-auto lg:w-9/10 2xl:w-4/5;
+		@apply lg:w-9/10 mt-4 w-full md:mt-8 lg:mx-auto 2xl:w-4/5;
 	}
 	.form {
 		@apply flex flex-col;
