@@ -27,6 +27,7 @@
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 	import type { Writable } from 'svelte/store';
+	import schoollistString from '$lib/assets/schoollist.txt?raw';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -146,11 +147,23 @@
 				)
 				.required(),
 			firstSchool: yup.object().shape({
-				name: yup.string().required(),
+				name: yup
+					.string()
+					.required()
+					.test((_val) => {
+						if (!_val) return false;
+						return schoollistString.split(';').includes(_val);
+					}),
 				field: yup.string().required()
 			}),
 			secondSchool: yup.object().shape({
-				name: yup.string().required(),
+				name: yup
+					.string()
+					.required()
+					.test((_val) => {
+						if (!_val) return false;
+						return schoollistString.split(';').includes(_val);
+					}),
 				field: yup.string().required()
 			}),
 			testLanguage: yup.string().required()
@@ -442,7 +455,10 @@
 			personalIdNumber={baseCandidateDetails.personalIdNumber}
 		/>
 	{:else if visibleModals.linkErrorModal}
-		<LinkErrorModal applications={baseCandidateDetails.applications} on:close={(_) => (visibleModals.linkErrorModal = false)} />
+		<LinkErrorModal
+			applications={baseCandidateDetails.applications}
+			on:close={(_) => (visibleModals.linkErrorModal = false)}
+		/>
 	{/if}
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
@@ -720,18 +736,37 @@
 				</div>
 			{:else if pageIndex === 7}
 				<h1 class="title mt-8">{pageTexts[5]}</h1>
-				<p class="description my-8 block text-center">
+				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.seventh.description()}
 				</p>
 				<div class="flex h-full flex-col justify-between">
 					<span class="field">
+						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
+						</h2>
 						<SchoolSelect
 							error={$typedErrors['candidate']['firstSchool']['name'] ||
 								$typedErrors['candidate']['firstSchool']['field']}
 							bind:selectedSchool={$form.candidate.firstSchool}
 						/>
 					</span>
+					<!--dotted line -->
+					<svg class="mt-12 h-[10px] w-full" viewBox="0 0 800 5">
+						<line
+							x1="0"
+							y1="0"
+							x2="100%"
+							y2="0"
+							stroke="black"
+							stroke-width="3"
+							stroke-dasharray="10"
+						/>
+					</svg>
+
 					<span class="field mt-10">
+						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
+						</h2>
 						<SchoolSelect
 							error={$typedErrors['candidate']['secondSchool']['name'] ||
 								$typedErrors['candidate']['secondSchool']['field']}

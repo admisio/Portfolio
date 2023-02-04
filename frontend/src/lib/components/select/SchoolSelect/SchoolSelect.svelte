@@ -13,7 +13,18 @@
 		let storageArr: Array<string> = [];
 		if (schoolNameInputValue) {
 			schoolList.forEach((school) => {
-				if (school.toLowerCase().startsWith(schoolNameInputValue.toLowerCase())) {
+				if (
+					school
+						.toLowerCase()
+						.normalize('NFD')
+						.replace(/[\u0300-\u036f]/g, '')
+						.includes(
+							schoolNameInputValue
+								.toLowerCase()
+								.normalize('NFD')
+								.replace(/[\u0300-\u036f]/g, '')
+						)
+				) {
 					storageArr = [...storageArr, makeMatchBold(school)];
 				}
 			});
