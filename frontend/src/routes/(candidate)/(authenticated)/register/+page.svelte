@@ -33,6 +33,7 @@
 	let pagesFilled = [false, false, false, false, false, false, false, false];
 	const editModePageIndex = 3;
 	const pageCount = pagesFilled.length;
+	const schoolList: Array<string> = schoollistString.split(';');
 
 	let pageTexts = [
 		$LL.candidate.register.second.title(),
@@ -152,7 +153,7 @@
 					.required()
 					.test((_val) => {
 						if (!_val) return false;
-						return schoollistString.split(';').includes(_val);
+						return schoolList.includes(_val);
 					}),
 				field: yup.string().required()
 			}),
@@ -162,7 +163,7 @@
 					.required()
 					.test((_val) => {
 						if (!_val) return false;
-						return schoollistString.split(';').includes(_val);
+						return schoolList.includes(_val);
 					}),
 				field: yup.string().required()
 			}),
@@ -745,6 +746,7 @@
 							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
 						</h2>
 						<SchoolSelect
+							schoolList={schoolList}
 							error={$typedErrors['candidate']['firstSchool']['name'] ||
 								$typedErrors['candidate']['firstSchool']['field']}
 							bind:selectedSchool={$form.candidate.firstSchool}
@@ -768,6 +770,7 @@
 							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
 						</h2>
 						<SchoolSelect
+							schoolList={schoolList}
 							error={$typedErrors['candidate']['secondSchool']['name'] ||
 								$typedErrors['candidate']['secondSchool']['field']}
 							bind:selectedSchool={$form.candidate.secondSchool}

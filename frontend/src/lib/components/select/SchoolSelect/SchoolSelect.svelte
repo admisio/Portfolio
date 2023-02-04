@@ -1,11 +1,10 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	import schoollistString from '$lib/assets/schoollist.txt?raw';
 	import School from './School.svelte';
 	import type { School as SchoolType } from '$lib/stores/candidate';
 
-	const schoolList: Array<string> = schoollistString.split(';');
+	export let schoolList: Array<string>;
 
 	let filteredSchools: Array<string> = [];
 
