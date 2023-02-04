@@ -79,7 +79,7 @@
 </script>
 
 <div class="mx-auto mt-8 flex pr-6 text-gray-400 lg:w-4/5">
-	<span class="w-1/2 text-center">Známky</span>
+	<span class="w-1/2 text-center">Předmět</span>
 	<span class="ml-0.5 w-1/6 text-center">1/8</span>
 	<span class="ml-0.5 w-1/6 text-center">2/8</span>
 	<span class="ml-0.5 w-1/6 text-center">1/9</span>
