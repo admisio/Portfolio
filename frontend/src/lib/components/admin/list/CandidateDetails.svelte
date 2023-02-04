@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { apiGetCandidatePortfolio, apiResetCandidatePassword } from '$lib/@api/admin';
 	import type { CandidateData } from '$lib/stores/candidate';
+	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	export let id: number;
 	export let candidateData: CandidateData;
@@ -13,7 +14,13 @@
 			const res = await apiResetCandidatePassword(id);
 			alert('Nove heslo: ' + res.password);
 		} catch {
-			console.log('error');
+			toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+				theme: {
+					'--toastColor': 'mintcream',
+					'--toastBackground': '#b91c1c',
+					'--toastBarBackground': '#7f1d1d'
+				}
+			});
 		}
 	}
 
@@ -27,11 +34,18 @@
 			document.body.appendChild(link);
 			link.click();
 		} catch (e) {
-			console.log(e);
+			toast.push('Rodné číslo neodpovídá oficiální specifikaci či datumu narození', {
+				theme: {
+					'--toastColor': 'mintcream',
+					'--toastBackground': '#b91c1c',
+					'--toastBarBackground': '#7f1d1d'
+				}
+			});
 		}
 	}
 </script>
 
+<SvelteToast />
 <div class="flex h-screen w-full items-center justify-center">
 	<div class="mr-8 max-w-sm">
 		<div class="rounded-lg bg-white p-10 shadow-xl">

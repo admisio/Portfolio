@@ -11,6 +11,8 @@
 	import bacgkround from '$lib/assets/background.jpg';
 	import Logout from '$lib/components/icons/Logout.svelte';
 	import { goto } from '$app/navigation';
+	import { pushErrorText } from '$lib/utils/toast';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
 
 	export let data: PageServerData;
 
@@ -20,7 +22,7 @@
 		try {
 			candidates = await apiListCandidates(undefined, activeFilter.filter);
 		} catch {
-			console.log('error');
+			pushErrorText('Nepodařilo se načíst uchazeče');
 		}
 	};
 
@@ -93,7 +95,7 @@
 			link.setAttribute('download', 'UCHAZECI' + '.csv');
 			link.click();
 		} catch (e) {
-			console.log(e);
+			pushErrorText('Nepodařilo se stáhnout CSV');
 		}
 	};
 
@@ -110,6 +112,7 @@
 {/if}
 
 <div>
+	<SvelteToast />
 	<header class="absolute h-14 w-full">
 		<img class="h-12 w-full object-cover blur-sm filter" src={bacgkround} alt="Background" />
 	</header>

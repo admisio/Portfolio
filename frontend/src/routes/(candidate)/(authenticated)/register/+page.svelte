@@ -28,6 +28,7 @@
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
 	import type { Writable } from 'svelte/store';
 	import schoollistString from '$lib/assets/schoollist.txt?raw';
+	import { countries } from '$lib/utils/countries';
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -251,11 +252,7 @@
 	};
 
 	const onSubmit = async (values: CandidateData) => {
-		console.log('submit button clicked');
-		console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
-
 		if (pageIndex === pageCount) {
-			console.log('submitting');
 			// clone values to oldValues
 			let oldValues = JSON.parse(JSON.stringify(values));
 			try {
@@ -793,11 +790,9 @@
 				<Submit
 					on:click={async (e) => {
 						if (pageIndex === 4) {
-							console.log('validating personal id');
 							validatePersonalId();
 						}
 						await handleSubmit(e);
-						console.log(pagesFilled.map((_, i) => !isPageInvalid(i)));
 						if (isPageInvalid(pageIndex)) return;
 						if (pageIndex !== pageCount) {
 							pagesFilled[pageIndex] = true;
