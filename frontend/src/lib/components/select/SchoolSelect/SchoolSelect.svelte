@@ -144,7 +144,7 @@
 			<span class="w-1/2 ml-2" class:hidden={isSSPS}>
 				<TextField
 					bind:value={fieldFocusInputValue}
-					placeholder="Zaměření (nepovinné)"
+					placeholder="Zaměření (jen některé školy)"
 					helperText="Např. Kybernetická bezpečnost, protože obor nemá svůj vlastní kód"
 				/>
 			</span>
