@@ -6,7 +6,7 @@ const PAGE_SIZE: u64 = 20;
 #[derive(FromQueryResult, Clone)]
 pub struct ApplicationCandidateJoin {
     pub application_id: i32,
-    // pub personal_id_number: String,
+    pub personal_id_number: String,
     pub candidate_id: i32,
     pub name: Option<String>,
     pub surname: Option<String>,

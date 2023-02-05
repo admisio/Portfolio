@@ -13,9 +13,9 @@
 					<thead class="bg-[#f6f4f4] ">
 						<tr>
 							<th scope="col"> Ev. č. přihlásky </th>
-							<th scope="col"> Jméno </th>
-							<th scope="col"> Příjmení </th>
 							<th scope="col"> Obor </th>
+							<th scope="col"> Rodné číslo </th>
+							<th scope="col"> Link </th>
 							<th scope="col" />
 						</tr>
 					</thead>
@@ -30,13 +30,13 @@
 									></td
 								>
 								<td class="text-gray-900">
-									{candidate.name}
-								</td>
-								<td class="text-gray-900">
-									{candidate.surname}
-								</td>
-								<td class="text-gray-900">
 									{candidate.fieldOfStudy}
+								</td>
+								<td class="text-gray-900">
+									{candidate.personalIdNumber}
+								</td>
+								<td class="text-gray-900">
+									{candidate.relatedApplications?.filter((a) => a !== candidate.applicationId)}
 								</td>
 								<td class="text-sm">
 									<Delete id={candidate.applicationId} on:delete value="Odstranit" />
