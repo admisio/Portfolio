@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="drawing.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.54488788"
+     inkscape:cx="376.22419"
+     inkscape:cy="548.73675"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#0000ff;stroke-width:0.264583"
+       id="rect788"
+       width="65.580345"
+       height="76.91098"
+       x="41.545662"
+       y="78.284393" />
+    <text
+       xml:space="preserve"
+       style="font-size:9.87777px;fill:#0000ff;stroke-width:0.264583"
+       x="33.648552"
+       y="187.12717"
+       id="text844"><tspan
+         sodipodi:role="line"
+         id="tspan842"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrains Mono';-inkscape-font-specification:'JetBrains Mono';stroke-width:0.264583"
+         x="33.648552"
+         y="187.12717">${APPLICATION}</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.87777px;fill:#0000ff;stroke-width:0.264583"
+       x="35.021965"
+       y="202.23468"
+       id="text898"><tspan
+         sodipodi:role="line"
+         id="tspan896"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'JetBrains Mono';-inkscape-font-specification:'JetBrains Mono';stroke-width:0.264583"
+         x="35.021965"
+         y="202.23468">${CODE}</tspan></text>
+    <rect
+       style="fill:#00ff00;stroke-width:0.264583"
+       id="rect6059"
+       width="82.061272"
+       height="65.236992"
+       x="97.168785"
+       y="39.48555" />
+    <ellipse
+       style="fill:#ff0000;stroke-width:0.264583"
+       id="path6327"
+       cx="129.95895"
+       cy="136.1393"
+       rx="58.884972"
+       ry="44.464161" />
+  </g>
+</svg>
