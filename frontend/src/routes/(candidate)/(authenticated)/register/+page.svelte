@@ -420,24 +420,13 @@
 			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
 			$form.candidate.birthdate = birthdate;
 			$form.candidate.sex = sex;
-			pushSuccessText(
-				`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
-			);
+			if (pageIndex === 4) {
+				pushSuccessText(
+					`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
+				);
+			}
 		}
 	}
-	/* $: if ($form.candidate.citizenship === 'Česká republika') {
-		if ($form.candidate.birthdate === '' && $form.candidate.sex === '') {
-			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
-			$form.candidate.birthdate = birthdate;
-			$form.candidate.sex = sex;
-			pushSuccessText(
-				`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
-			);
-		}
-	} else {
-		$form.candidate.birthdate = '';
-		$form.candidate.sex = '';
-	} */
 
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
