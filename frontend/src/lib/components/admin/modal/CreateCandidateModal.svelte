@@ -10,6 +10,8 @@
 	import IdField from '../../textfield/IdField.svelte';
 	import NumberField from '../../textfield/NumberField.svelte';
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
+	import jsPDF from 'jspdf';
+	import 'svg2pdf.js';
 
 	let isOpened = true;
 
@@ -84,6 +86,22 @@
 		}
 	};
 
+	const generatePdf = async () => {
+		const template = (await import('$lib/assets/pdf/drawing.svg?raw')).default;
+		const svg = template
+			.replace('${APPLICATION}', login.applicationId.toString())
+			.replace('${CODE}', login.password);
+
+		const element = document.getElementById('svg-element')!;
+		element.innerHTML = svg;
+
+		const doc = new jsPDF('p', 'mm', [210, 297]);
+
+		await doc.svg(element);
+
+		doc.save('PRIHLASOVACI_UDAJE_' + login.applicationId.toString());
+	};
+
 	const close = () => {
 		isOpened = false;
 		dispatch('close');
@@ -95,6 +113,8 @@
 	<Modal on:close={close}>
 		<div class="p-20">
 			{#if login}
+				<svg width="210mm" height="297mm" class="hidden h-[297mm] w-[210mm]" id="svg-element" />
+				<button on:click={generatePdf}>aa</button>
 				<h1 class="text-sspsBlue text-3xl font-semibold">Ev. č.: {applicationId}</h1>
 				<h1 class="text-sspsBlue text-3xl font-semibold">R. č.: {login.personalIdNumber}</h1>
 				<h1 class="text-sspsBlue text-3xl font-semibold">Heslo: {login.password}</h1>
@@ -114,7 +134,8 @@
 					</div>
 				{/if}
 				<div>
-					<h3 class="my-4">Evidenční číslo přihlášky (
+					<h3 class="my-4">
+						Evidenční číslo přihlášky (
 						<span class="font-bold">{`Obor: ${field}`}</span>)
 					</h3>
 					<NumberField bind:value={applicationId} />
