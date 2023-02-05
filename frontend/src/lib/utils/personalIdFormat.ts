@@ -14,7 +14,7 @@ export const isPersonalIdNumberValid = (personalIdNumber: string): boolean => {
 	}
 };
 
-export const isPersonalIdNumberWithBirthdateValid = (
+export const isPersonalIdMatchingBirthdate = (
 	personalIdNumber: string,
 	birthdate: string
 ): boolean => {

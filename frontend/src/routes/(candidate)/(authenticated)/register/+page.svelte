@@ -25,7 +25,7 @@
 	import PersonalIdConfirmCheckBox from '$lib/components/checkbox/PersonalIdConfirmCheckBox.svelte';
 	import {
 		parseBirthdateSexFromPersonalId,
-		isPersonalIdNumberWithBirthdateValid
+		isPersonalIdMatchingBirthdate
 	} from '$lib/utils/personalIdFormat';
 	import PersonalIdErrorModal from '$lib/components/modal/PersonalIdErrorModal.svelte';
 	import LinkErrorModal from '$lib/components/modal/LinkErrorModal.svelte';
@@ -127,7 +127,20 @@
 			birthdate: yup
 				.string()
 				.required()
-				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/),
+				.matches(/^([0-3]?[0-9])\.(0?[1-9]|1[0-2])\.[0-9]{4}$/)
+				.test((_val) => {
+					if ($form.candidate.citizenship !== 'Česká republika') return true;
+					if (!_val) return false;
+					if (isPersonalIdMatchingBirthdate(
+						$form.candidate.personalIdNumber,
+						_val
+					)) {
+						return true;
+					} else {
+						pushErrorText("Datum narození a rodné číslo se neshodují.")
+						return false;
+					}
+				}),
 			birthSurname: yup.string(),
 			sex: yup.string(),
 			address: yup.string(),
@@ -397,7 +410,22 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
-	$: if ($form.candidate.citizenship === 'Česká republika') {
+	let lastCitizenshipSelected = $form.candidate.citizenship;
+	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
+		lastCitizenshipSelected = $form.candidate.citizenship;
+		$form.candidate.birthdate = '';
+		$form.candidate.sex = '';
+		
+		if ($form.candidate.citizenship === 'Česká republika') {
+			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
+			$form.candidate.birthdate = birthdate;
+			$form.candidate.sex = sex;
+			pushSuccessText(
+				`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
+			);
+		}
+	}
+	/* $: if ($form.candidate.citizenship === 'Česká republika') {
 		if ($form.candidate.birthdate === '' && $form.candidate.sex === '') {
 			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
 			$form.candidate.birthdate = birthdate;
@@ -409,7 +437,7 @@
 	} else {
 		$form.candidate.birthdate = '';
 		$form.candidate.sex = '';
-	}
+	} */
 
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
