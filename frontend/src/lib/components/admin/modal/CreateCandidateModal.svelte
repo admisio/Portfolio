@@ -88,6 +88,7 @@
 
 	const generatePdf = async () => {
 		const template = (await import('$lib/assets/pdf/drawing.svg?raw')).default;
+
 		const svg = template
 			.replace('${APPLICATION}', login.applicationId.toString())
 			.replace('${CODE}', login.password);
@@ -100,6 +101,8 @@
 		await doc.svg(element);
 
 		doc.save('PRIHLASOVACI_UDAJE_' + login.applicationId.toString());
+
+		element.innerHTML = '';
 	};
 
 	const close = () => {
