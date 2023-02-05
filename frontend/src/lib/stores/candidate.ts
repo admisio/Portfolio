@@ -40,8 +40,12 @@ export interface CandidateData {
 
 export interface CandidatePreview {
 	applicationId?: number;
+	candidateId?: number;
+	relatedApplications?: Array<number>;
+	personalIdNumber?: string;
 	name?: string;
 	surname?: string;
+	email?: string;
 	fieldOfStudy?: string;
 }
 
