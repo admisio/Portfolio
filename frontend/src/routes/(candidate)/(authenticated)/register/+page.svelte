@@ -18,7 +18,7 @@
 	import parsePhoneNumber from 'libphonenumber-js';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
-	import type { CandidateData } from '$lib/stores/candidate';
+	import type { CandidateData, SchoolJson } from '$lib/stores/candidate';
 	import AccountLinkCheckBox from '$lib/components/checkbox/AccountLinkCheckBox.svelte';
 	import GradesTable from '$lib/components/grades/GradesTable.svelte';
 	import SchoolSelect from '$lib/components/select/SchoolSelect/SchoolSelect.svelte';
@@ -37,7 +37,7 @@
 	import countriesList from '$lib/assets/list/countries.json';
 
 	// const schoolList = highSchoolList.map((school) => school['n']);
-	const schoolNames = schoolList.map((school) => school['n']);
+	const schoolNames = schoolList.map((school: SchoolJson) => school['n']);
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
