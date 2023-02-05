@@ -117,7 +117,7 @@
 		<div class="p-20">
 			{#if login}
 				<svg width="210mm" height="297mm" class="hidden h-[297mm] w-[210mm]" id="svg-element" />
-				<button on:click={generatePdf}>aa</button>
+
 				<h1 class="text-sspsBlue text-3xl font-semibold">Ev. č.: {applicationId}</h1>
 				<h1 class="text-sspsBlue text-3xl font-semibold">R. č.: {login.personalIdNumber}</h1>
 				<h1 class="text-sspsBlue text-3xl font-semibold">Heslo: {login.password}</h1>
@@ -126,6 +126,11 @@
 						Slinkovaný s {login.applications.filter((a) => a != applicationId)}
 					</h1>
 				{/if}
+				<div class="mt-2">
+					<button class="rounded-lg bg-red-800 p-2 text-white" on:click={generatePdf}
+						>Stáhnout PDF</button
+					>
+				</div>
 			{:else}
 				<h1 class="text-sspsBlue text-3xl font-semibold">Registrace nového uchazeče</h1>
 				{#if error}
