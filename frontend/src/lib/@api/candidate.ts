@@ -54,7 +54,6 @@ export const apiFetchSubmissionProgress = async (fetchSsr?: Fetch): Promise<Subm
 export const apiWhoami = async (fetchSsr?: Fetch): Promise<BaseCandidate> => {
 	const apiFetch = fetchSsr || fetch;
 	try {
-		console.log(API_URL + '/candidate/whoami');
 		const res = await apiFetch(API_URL + '/candidate/whoami', {
 			method: 'GET',
 			credentials: 'include'
@@ -100,7 +99,6 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 		});
 	}
 
-	console.log(data);
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
 		return res.data;

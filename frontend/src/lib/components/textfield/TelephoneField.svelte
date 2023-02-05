@@ -20,7 +20,6 @@
 		if (number !== null && number !== undefined) {
 			country = number.country!;
 		}
-		// console.log(country);
 	}
 
 	// Validity

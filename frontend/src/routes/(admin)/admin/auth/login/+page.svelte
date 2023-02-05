@@ -10,6 +10,8 @@
 	import { goto } from '$app/navigation';
 	import Submit from '$lib/components/button/Submit.svelte';
 	import PasswordField from '$lib/components/textfield/PasswordField.svelte';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { pushErrorText } from '$lib/utils/toast';
 
 	let adminIdValue = '';
 	let adminPasswordValue = '';
@@ -19,11 +21,12 @@
 			await apiLogin({ adminId: Number(adminIdValue), password: adminPasswordValue });
 			goto('/admin/dashboard');
 		} catch (e) {
-			console.log(e);
+			pushErrorText('Neplatné heslo nebo ID!');
 		}
 	};
 </script>
 
+<SvelteToast />
 <SplitLayout backgroundImage={background} backgroundPosition="30%">
 	<div class="form">
 		<div
@@ -44,7 +47,7 @@
 			</span>
 		</div>
 		<div class="mt-8 w-4/5 lg:w-3/5">
-			<Submit value={$LL.input.submit()} on:click={login} />
+			<Submit enterAllowed={true} value={$LL.input.submit()} on:click={login} />
 		</div>
 	</div>
 </SplitLayout>

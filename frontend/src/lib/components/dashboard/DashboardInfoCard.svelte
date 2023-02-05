@@ -15,6 +15,7 @@
 	import { baseCandidateData, candidateData } from '$lib/stores/candidate';
 	import tippy, { sticky } from 'tippy.js';
 	import { goto } from '$app/navigation';
+	import { pushErrorText } from '$lib/utils/toast';
 
 	export let title: string;
 	export let status: Status;
@@ -62,7 +63,7 @@
 			document.body.appendChild(link);
 			link.click();
 		} catch (e) {
-			console.log(e);
+			pushErrorText("Chyba při stahování portfolia");
 		}
 	};
 

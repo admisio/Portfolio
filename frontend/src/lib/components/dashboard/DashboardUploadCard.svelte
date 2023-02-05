@@ -31,12 +31,10 @@
 
 	$: if ($submissionProgress) {
 		status = getStatus();
-		// console.log('type' + fileType + ' status: ' + status);
 		fileDropped = status === 'uploaded' || status === 'submitted';
 	}
 
 	const getStatus = (): Status => {
-		console.log($submissionProgress);
 		switch ($submissionProgress.status) {
 			case UploadStatus.None:
 				return 'missing';
@@ -71,7 +69,6 @@
 	};
 
 	const onFileDrop = (dropped: Files) => {
-		console.log(dropped);
 		if (dropped.accepted.length > 0) {
 			fileDropped = true;
 			const file = dropped.accepted[0];
@@ -79,7 +76,6 @@
 			dispatch('filedrop', {
 				file: file,
 				callback: (progressEvent: AxiosProgressEvent) => {
-					console.log(progressEvent.bytes);
 					progress = progressEvent.progress!;
 					bytesTotal = progressEvent.total ?? 0;
 				}

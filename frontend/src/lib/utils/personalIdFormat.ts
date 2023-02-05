@@ -14,7 +14,7 @@ export const isPersonalIdNumberValid = (personalIdNumber: string): boolean => {
 	}
 };
 
-export const isPersonalIdNumberWithBirthdateValid = (
+export const isPersonalIdMatchingBirthdate = (
 	personalIdNumber: string,
 	birthdate: string
 ): boolean => {
@@ -48,25 +48,26 @@ export const isPersonalIdNumberWithBirthdateValid = (
 	}
 };
 
-export const deriveBirthdateFromPersonalId = (
+export const parseBirthdateSexFromPersonalId = (
 	personalIdNumber: string
-): [birthdate: string, sex: 'MUŽ' | 'ŽENA'] => {
-	const year = Number(personalIdNumber.slice(0, 2));
+): [birthdate: string, sex: 'Muž' | 'Žena'] => {
+	const yearPadded = Number(personalIdNumber.slice(0, 2));
+	const year = yearPadded < 24 ? yearPadded + 2000 : yearPadded + 1900;
 	const idMonth = Number(personalIdNumber.slice(2, 4));
 	let month;
-	let sex: 'MUŽ' | 'ŽENA';
+	let sex: 'Muž' | 'Žena';
 	if (idMonth > 12 && idMonth <= 32) {
 		month = idMonth - 20;
-		sex = 'MUŽ';
+		sex = 'Muž';
 	} else if (idMonth > 50 && idMonth <= 52) {
 		month = idMonth - 50;
-		sex = 'ŽENA';
+		sex = 'Žena';
 	} else if (idMonth > 70 && idMonth <= 82) {
 		month = idMonth - 70;
-		sex = 'ŽENA';
+		sex = 'Žena';
 	} else {
 		month = idMonth;
-		sex = 'MUŽ';
+		sex = 'Muž';
 	}
 	const day = Number(personalIdNumber.slice(4, 6));
 

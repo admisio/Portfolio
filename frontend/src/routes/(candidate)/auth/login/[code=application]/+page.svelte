@@ -47,7 +47,6 @@
 	}
 
 	const submit = async () => {
-		console.log('submitting: ', codeValueArray);
 		try {
 			await apiLogin({ applicationId, password: codeValueMobile });
 			goto('/dashboard');

@@ -1,6 +1,10 @@
 import type { GradeBackend } from '$lib/components/grades/GradesTable.svelte';
 import { writable } from 'svelte/store';
 
+export interface SchoolJson {
+	n: string;
+	f: string[];
+}
 export interface School {
 	name: string;
 	field: string;

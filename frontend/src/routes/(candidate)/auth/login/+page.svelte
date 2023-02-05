@@ -32,7 +32,7 @@
 			/>
 		</div>
 		<div class="mt-8 w-4/5 lg:w-3/5">
-			<Submit on:click={redirectToCode} value={$LL.input.submit()} />
+			<Submit enterAllowed={true} on:click={redirectToCode} value={$LL.input.submit()} />
 		</div>
 	</div>
 </SplitLayout>
