@@ -267,7 +267,6 @@ impl ApplicationService {
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
-
     ) -> Result<Vec<ApplicationResponse>, ServiceError> {
         let applications = Query::list_applications(db, field_of_study, page).await?;
 
@@ -275,9 +274,12 @@ impl ApplicationService {
             applications
                 .iter()
                 .map(|c| async move {
+                    let related_applications = Query::find_applications_by_candidate_id(db, c.candidate_id).await?.iter()
+                        .map(|a| a.id).collect();
                     ApplicationResponse::from_encrypted(
                         private_key,
-                        c.to_owned()
+                        c.to_owned(),
+                        related_applications,
                 ).await
                 })
         ).await

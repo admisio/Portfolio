@@ -8,8 +8,9 @@ use super::candidate_details::EncryptedString;
 #[serde(rename_all = "camelCase")]
 pub struct ApplicationResponse {
     pub application_id: i32,
-    // pub personal_id_number: String,
     pub candidate_id: i32,
+    pub related_applications: Vec<i32>,
+    pub personal_id_number: String,
     pub name: String,
     pub surname: String,
     pub email: String,
@@ -20,8 +21,10 @@ pub struct ApplicationResponse {
 impl ApplicationResponse {
     pub async fn from_encrypted(
         private_key: &String,
-        c: ApplicationCandidateJoin
+        c: ApplicationCandidateJoin,
+        related_applications: Vec<i32>,
     ) -> Result<Self, ServiceError> {
+        let personal_id_number = EncryptedString::from(c.personal_id_number.to_owned()).decrypt(private_key).await?;
         let name = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key).await?;
         let surname = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.surname).ok(), private_key).await?;
         let email = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key).await?;
@@ -29,11 +32,13 @@ impl ApplicationResponse {
         Ok(
             Self {
                 application_id: c.application_id,
+                candidate_id: c.candidate_id,
+                related_applications,
+                personal_id_number,
                 name: name.unwrap_or_default(),
                 surname: surname.unwrap_or_default(),
                 email: email.unwrap_or_default(),
                 telephone:  telephone.unwrap_or_default(),
-                candidate_id: c.candidate_id,
                 field_of_study: c.field_of_study,
             }
         )
