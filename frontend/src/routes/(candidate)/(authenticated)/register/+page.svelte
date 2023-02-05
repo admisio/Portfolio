@@ -589,7 +589,7 @@
 								<TextField
 									error={$typedErrors['candidate']['zip']}
 									bind:value={$form.candidate.zip}
-									type="number"
+									type="text"
 									placeholder={$LL.input.zipCode()}
 									helperText="Uveďte poštovní směrovací číslo. (např. 150 21)"
 								/>
