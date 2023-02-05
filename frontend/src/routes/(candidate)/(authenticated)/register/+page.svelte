@@ -32,8 +32,12 @@
 	import type { Writable } from 'svelte/store';
 	import { pushErrorText, pushSuccessText } from '$lib/utils/toast';
 
-	import schoolList from '$lib/assets/list/school.json';
+	// import schoolList from '$lib/assets/list/school.json';
+	import schoolList from '$lib/assets/list/high_schools.json';
 	import countriesList from '$lib/assets/list/countries.json';
+
+	// const schoolList = highSchoolList.map((school) => school['n']);
+	const schoolNames = schoolList.map((school) => school['n']);
 
 	let pageIndex = 0;
 	let pagesFilled = [false, false, false, false, false, false, false, false];
@@ -158,7 +162,7 @@
 					.required()
 					.test((_val) => {
 						if (!_val) return false;
-						if (schoolList.includes(_val)) {
+						if (schoolNames.includes(_val)) {
 							return true;
 						} else {
 							pushErrorText('Vyberte prosím školu ze seznamu.');
@@ -174,7 +178,7 @@
 					.test((_val) => {
 						if (!_val) return false;
 						if (!_val) return false;
-						if (schoolList.includes(_val)) {
+						if (schoolNames.includes(_val)) {
 							return true;
 						} else {
 							pushErrorText('Vyberte prosím školu ze seznamu.');
@@ -722,16 +726,17 @@
 					</span>
 				</div>
 			{:else if pageIndex === 7}
-				<h1 class="title mt-8">{pageTexts[5]}</h1>
-				<p class="description mt-8 block text-center">
+				<!-- <h1 class="title mt-8">{pageTexts[5]}</h1> -->
+				<!-- <p class="description mt-8 block text-center">
 					{$LL.candidate.register.seventh.description()}
-				</p>
+				</p> -->
 				<div class="flex h-full flex-col justify-between">
 					<span class="field">
 						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
 							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
 						</h2>
 						<SchoolSelect
+							{schoolNames}
 							{schoolList}
 							error={$typedErrors['candidate']['firstSchool']['name'] ||
 								$typedErrors['candidate']['firstSchool']['field']}
@@ -756,6 +761,7 @@
 							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
 						</h2>
 						<SchoolSelect
+							{schoolNames}
 							{schoolList}
 							error={$typedErrors['candidate']['secondSchool']['name'] ||
 								$typedErrors['candidate']['secondSchool']['field']}

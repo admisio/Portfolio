@@ -2,16 +2,20 @@
 	import LL from '$i18n/i18n-svelte';
 
 	import School from './School.svelte';
-	import type { School as SchoolType } from '$lib/stores/candidate';
+	import type { School as SchoolType, SchoolJson } from '$lib/stores/candidate';
+	import SelectField from '../SelectField.svelte';
+	import TextField from '$lib/components/textfield/TextField.svelte';
 
-	export let schoolList: Array<string>;
+	export let schoolNames: Array<string>;
+	export let schoolList: Array<SchoolJson>;
 
+	let fields: Array<string> = [];
 	let filteredSchools: Array<string> = [];
 
 	const filterSchools = () => {
 		let storageArr: Array<string> = [];
 		if (schoolNameInputValue) {
-			schoolList.forEach((school) => {
+			schoolNames.forEach((school) => {
 				if (
 					school
 						.toLowerCase()
@@ -36,17 +40,30 @@
 
 	let schoolNameInputValue = '';
 	let schoolFieldInputValue = '';
+	let fieldFocusInputValue = '';
 
 	$: if (!schoolNameInputValue) {
 		filteredSchools = [];
 		hiLiteIndex = -1;
 	}
 
+	const setFields = (schoolName: string) => {
+		let school = schoolList.find((school) => school.n === schoolName);
+		if (school) {
+			fields = school.f;
+		} else {
+			fields = [];
+		}
+	};
+
+	$: setFields(schoolNameInputValue);
+
 	const setInputVal = (schoolName: string) => {
 		schoolNameInputValue = removeBold(schoolName);
 		filteredSchools = [];
 		hiLiteIndex = -1;
 		searchInput.focus();
+		// setFields(schoolNameInputValue);
 	};
 
 	const makeMatchBold = (str: string) => {
@@ -86,33 +103,67 @@
 	export let selectedSchool: SchoolType;
 	export let error: string = '';
 
-	schoolFieldInputValue = selectedSchool.field;
+	if (selectedSchool.field.split(';').length > 1) {
+		console.log(selectedSchool.field);
+		schoolFieldInputValue = selectedSchool.field.split(';')[0];
+		fieldFocusInputValue = selectedSchool.field.split(';')[1];
+	} else {
+		schoolFieldInputValue = selectedSchool.field;
+	}
 	schoolNameInputValue = selectedSchool.name;
 
-	$: selectedSchool.field = schoolFieldInputValue;
+	$: selectedSchool.field = schoolFieldInputValue + (fieldFocusInputValue ? `;${fieldFocusInputValue}` : '');
 	$: selectedSchool.name = schoolNameInputValue;
+
+	let isSSPS = false;
+	$: isSSPS = schoolNameInputValue === 'Smíchovská střední průmyslová škola a gymnázium';
 </script>
 
 <svelte:window on:keydown={navigateList} />
 
 <div class="autocomplete">
-	<div class="flex">
+	<div class="flex flex-col">
 		<input
 			class:error
-			class="flex-1"
+			class=""
 			type="text"
 			bind:this={searchInput}
 			bind:value={schoolNameInputValue}
 			on:input={filterSchools}
 			placeholder={$LL.input.schoolName()}
 		/>
-		<input
+		<div class="flex mt-2">
+			<span class="w-1/2" class:w-full={isSSPS}>
+				<SelectField
+					on:focus={() => setFields(schoolNameInputValue)}
+					bind:value={schoolFieldInputValue}
+					options={fields}
+					placeholder={$LL.input.fieldOfStudy()}
+				/>
+			</span>
+			<span class="w-1/2 ml-2" class:hidden={isSSPS}>
+				<TextField
+					bind:value={fieldFocusInputValue}
+					placeholder="Zaměření (nepovinné)"
+					helperText="Např. Kybernetická bezpečnost, protože obor nemá svůj vlastní kód"
+				/>
+			</span>
+		</div>
+		<!-- <select
+			on:focus={() => setFields(schoolNameInputValue)}
+			>
+			{#each fields as field}
+				<option>{field}</option>
+			{/each}
+		</select> -->
+		<!-- <input
+			on:focus={() => setFields(schoolNameInputValue)}
 			class:error
-			class="ml-2 w-2/5"
+			class="mt-4"
 			type="text"
 			bind:value={schoolFieldInputValue}
 			placeholder={$LL.input.fieldOfStudy()}
-		/>
+		/> -->
 	</div>
 	{#if filteredSchools.length > 0}
 		<ul bind:this={optionsList} class="schoolAutocompleteList">
