@@ -132,7 +132,7 @@
 					if ($form.candidate.citizenship !== 'Česká republika') return true;
 					if (!_val) return false;
 					if (isPersonalIdMatchingBirthdate(
-						$form.candidate.personalIdNumber,
+						data.whoami.personalIdNumber,
 						_val
 					)) {
 						return true;
