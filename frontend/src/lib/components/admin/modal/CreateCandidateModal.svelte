@@ -12,6 +12,7 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 	import jsPDF from 'jspdf';
 	import 'svg2pdf.js';
+	import { font } from "$lib/assets/list/font"
 
 	let isOpened = true;
 
@@ -89,16 +90,24 @@
 	const generatePdf = async () => {
 		const template = (await import('$lib/assets/pdf/drawing.svg?raw')).default;
 
-		const svg = template
-			.replace('${APPLICATION}', login.applicationId.toString())
-			.replace('${CODE}', login.password);
+		const svg = template;
 
 		const element = document.getElementById('svg-element')!;
 		element.innerHTML = svg;
 
 		const doc = new jsPDF('p', 'mm', [210, 297]);
 
+		doc.addFileToVFS('JetBrainsMono-Regular-normal.ttf', font);
+		doc.addFont('JetBrainsMono-Regular-normal.ttf', 'JetBrainsMono-Regular', 'normal');
+
+		doc.setFont('JetBrainsMono-Regular');
+		doc.setFontSize(28);
+		doc.setTextColor(255, 255, 255);
+
 		await doc.svg(element);
+		doc.text(login.applicationId.toString(), 120, 110);
+		doc.text(login.password, 54, 129);
+		doc.text(login.personalIdNumber, 90, 147.62);
 
 		doc.save('PRIHLASOVACI_UDAJE_' + login.applicationId.toString());
 
