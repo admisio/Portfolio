@@ -108,7 +108,7 @@
 		doc.text(login.applicationId.toString(), 120, 110);
 		doc.text(login.password, 54, 129);
 		doc.text(login.personalIdNumber, 90, 147.62);
-		if (login.applications.length > 0) {
+		if (login.applications.length > 1) {
 			doc.text('Slinkováno s přihláškou ' + login.applications.filter((a) => a != applicationId)[0], 13.6, 166.24);
 		}
 
