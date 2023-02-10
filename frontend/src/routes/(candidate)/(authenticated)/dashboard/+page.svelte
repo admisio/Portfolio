@@ -2,8 +2,8 @@
 	import { flip } from 'svelte/animate';
 	import FullLayout from '$lib/components/layout/FullLayout.svelte';
 
-	import { Swiper, SwiperSlide } from 'swiper/svelte';
-	import 'swiper/css';
+	import { register as swiperRegister } from 'swiper/element/bundle';
+	swiperRegister();
 
 	import DashboardInfoCard from '$lib/components/dashboard/DashboardInfoCard.svelte';
 	import CoverLetterUploadCard from '$lib/components/dashboard/CoverLetterUploadCard.svelte';
@@ -11,7 +11,6 @@
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
 	import type { PageData } from './$types';
 	import {
-		fetchSubmProgress,
 		submissionProgress,
 		UploadStatus,
 		type Status
@@ -91,23 +90,23 @@
 				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
-		<Swiper slidesPerView={1} spaceBetween={20}>
-			<SwiperSlide>
+		<swiper-container slidesPerView={1} spaceBetween={20}>
+			<swiper-slide>
 				<div class="mx-auto w-[90%]">
 					<CoverLetterUploadCard />
 				</div>
-			</SwiperSlide>
-			<SwiperSlide>
+			</swiper-slide>
+			<swiper-slide>
 				<div class="mx-auto w-[90%]">
 					<PortfolioLetterUploadCard />
 				</div>
-			</SwiperSlide>
-			<SwiperSlide>
+			</swiper-slide>
+			<swiper-slide>
 				<div class="mx-auto w-[90%]">
 					<PortfolioZipUploadCard />
 				</div>
-			</SwiperSlide>
-		</Swiper>
+			</swiper-slide>
+		</swiper-container>
 	</div>
 </FullLayout>
 
