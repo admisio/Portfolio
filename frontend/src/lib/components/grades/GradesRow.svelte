@@ -61,5 +61,9 @@
 		@apply ml-0.5 w-1/6;
 		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] outline-none;
 		@apply transition-colors  duration-300;
+
+		-webkit-appearance: none !important;
+		-moz-appearance: none !important;
+		appearance: none !important;
 	}
 </style>

@@ -36,10 +36,6 @@
 		@apply relative flex items-center justify-center;
 	}
 
-	select {
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
-		@apply min-w-40;
-	}
 	option {
 		@apply w-full;
 		@apply text-center;
@@ -51,8 +47,11 @@
 		@apply border-red-700;
 	}
 	select {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
+		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply min-w-40;
+
+		-webkit-appearance: none !important;
+		-moz-appearance: none !important;
+		appearance: none !important;
 	}
 </style>
