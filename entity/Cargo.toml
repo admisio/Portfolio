@@ -13,4 +13,4 @@ chrono = "^0.4"
 async-trait = "^0.1"
 
 [dependencies.sea-orm]
-version = "^0.10"
+version = "^0.11"
