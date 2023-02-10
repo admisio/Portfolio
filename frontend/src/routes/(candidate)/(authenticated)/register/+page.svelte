@@ -546,7 +546,7 @@
 									placeholder={$LL.input.nameSurname()}
 								/>
 							</span>
-							<span class="field ml-2">
+							<span class="field">
 								<TelephoneField
 									bind:error={$typedErrors['candidate']['telephone']}
 									bind:value={$form.candidate.telephone}
