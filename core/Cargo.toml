@@ -13,7 +13,7 @@ portfolio-entity = { path = "../entity" }
 serde = { version = "^1.0", features = ["derive"] }
 serde_json = "1.0"
 
-validator = { version = "^0.15", features = ["derive"] }
+validator = { version = "^0.16", features = ["derive"] }
 
 # csv
 csv = "^1.1"
@@ -27,7 +27,7 @@ thiserror = "^1.0"
 dotenv = "^0.15"
 
 # async
-tokio = "^1.24"
+tokio = "^1.25"
 futures = "^0.3"
 async-compat = "^0.2"
 
@@ -43,13 +43,14 @@ argon2 = { version = "^0.4", features = ["std"] }
 age =  { version = "^0.9", features = ["async"] }
 secrecy = { version = "^0.8" }
 base64 = "^0.21"
+uuid = { version = "^1.3", features = ["v4"] }
 
 # logging
 log = "^0.4"
 fern = "^0.6"
 
 [dependencies.sea-orm]
-version = "^0.10"
+version = "^0.11"
 features = [
     "runtime-tokio-native-tls",
     "sqlx-postgres",
@@ -57,7 +58,7 @@ features = [
 ]
 
 [dev-dependencies]
-tokio = { version = "^1.24", features = ["macros"] }
+tokio = { version = "^1.25", features = ["macros"] }
 async-tempfile = "^0.2"
 serial_test = "^1.0"
 once_cell = "^1.17" 
