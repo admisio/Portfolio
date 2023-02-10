@@ -15,7 +15,7 @@
 
 	// You must use E164 number format. It's guarantee the parsing and storing consistency.
 	export let value: E164Number | null;
-	if (value !== null && value !== "" ) {
+	if (value !== null && value !== '') {
 		let number = parsePhoneNumber(value);
 		if (number !== null && number !== undefined) {
 			country = number.country!;
@@ -92,6 +92,10 @@
 	select {
 		@apply border-1 h-full w-2/5 rounded pl-3 pr-3;
 		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+
+		-webkit-appearance: none !important;
+		-moz-appearance: none !important;
+		appearance: none !important;
 	}
 	.inputWrapper {
 		@apply relative w-full;
