@@ -90,9 +90,9 @@
 
 <style lang="postcss">
 	select {
-		@apply border-1 h-full w-2/5 rounded pl-3 pr-3;
+		@apply border-1 h-full w-2/5 rounded;
 		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
-
+		@apply pb-[0.9rem];
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;
 		appearance: none !important;
