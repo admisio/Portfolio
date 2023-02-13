@@ -59,10 +59,10 @@ devDependencies:
     version: 1.30.0
   '@sveltejs/adapter-node':
     specifier: ^1.1.8
-    version: 1.1.8(@sveltejs/kit@1.3.0)
+    version: 1.1.8(@sveltejs/kit@1.5.6)
   '@sveltejs/kit':
-    specifier: 1.3.0
-    version: 1.3.0(svelte@3.55.1)(vite@4.1.1)
+    specifier: ^1.5.6
+    version: 1.5.6(svelte@3.55.1)(vite@4.1.1)
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.51.0
     version: 5.51.0(@typescript-eslint/parser@5.51.0)(eslint@8.33.0)(typescript@4.9.5)
@@ -96,9 +96,6 @@ devDependencies:
   svelte-preprocess:
     specifier: ^5.0.1
     version: 5.0.1(svelte@3.55.1)(typescript@4.9.5)
-  svelte-windicss-preprocess:
-    specifier: ^4.2.8
-    version: 4.2.8
   tslib:
     specifier: ^2.5.0
     version: 2.5.0
@@ -108,16 +105,17 @@ devDependencies:
   vite:
     specifier: ^4.1.1
     version: 4.1.1
+  vite-plugin-windicss:
+    specifier: ^1.8.10
+    version: 1.8.10(vite@4.1.1)
   windicss:
     specifier: ^3.5.6
     version: 3.5.6
 
 packages:
 
-  /@antfu/utils@0.3.0:
-    resolution: {integrity: sha512-UU8TLr/EoXdg7OjMp0h9oDoIAVr+Z/oW9cpOxQQyrsz6Qzd2ms/1CdWx8fl2OQdFpxGmq5Vc4TwfLHId6nAZjA==}
-    dependencies:
-      '@types/throttle-debounce': 2.1.0
+  /@antfu/utils@0.7.2:
+    resolution: {integrity: sha512-vy9fM3pIxZmX07dL+VX1aZe7ynZ+YyB0jY+jE6r3hOK6GNY2t6W8rzpFC4tgpbXUYABkFQwgJq2XYXlxbXAI0g==}
     dev: true
 
   /@babel/runtime@7.20.13:
@@ -362,10 +360,6 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@iconify/json@1.1.432:
-    resolution: {integrity: sha512-ZcQKCnJXmeKDKxSu4vOFCYkCv8sjX1OASTMQpzqVzt3ivBBDudAYyXJlO4hgk0X4B2R0IMHRNvRgCAYkKDa2eQ==}
-    dev: true
-
   /@jridgewell/resolve-uri@3.1.0:
     resolution: {integrity: sha512-F2msla3tad+Mfht5cJq7LSXcdudKTWCVYUgw6pLFOOHSTtZlj6SWNYAp+AhuqLmWdBO2X5hPrLcu8cVP8fy28w==}
     engines: {node: '>=6.0.0'}
@@ -484,7 +478,7 @@ packages:
       rollup: 3.15.0
     dev: true
 
-  /@sveltejs/adapter-node@1.1.8(@sveltejs/kit@1.3.0):
+  /@sveltejs/adapter-node@1.1.8(@sveltejs/kit@1.5.6):
     resolution: {integrity: sha512-jxvj+E24SziP/0IhNWDxNeleC/S5yeEMhAYKuuKIyygw7C8NjyrbwUEizBjn4sb/XyGfJWw1/yoXqtCANoyl4g==}
     peerDependencies:
       '@sveltejs/kit': ^1.0.0
@@ -492,12 +486,12 @@ packages:
       '@rollup/plugin-commonjs': 24.0.1(rollup@3.15.0)
       '@rollup/plugin-json': 6.0.0(rollup@3.15.0)
       '@rollup/plugin-node-resolve': 15.0.1(rollup@3.15.0)
-      '@sveltejs/kit': 1.3.0(svelte@3.55.1)(vite@4.1.1)
+      '@sveltejs/kit': 1.5.6(svelte@3.55.1)(vite@4.1.1)
       rollup: 3.15.0
     dev: true
 
-  /@sveltejs/kit@1.3.0(svelte@3.55.1)(vite@4.1.1):
-    resolution: {integrity: sha512-3SgmWEXQ+XHER2Isw+mRTWqbNyjTUpHz/LxacOoKg8V30WwNJPo0zkOHZfkOZdwSGx2qEmqitweMUsrX6YZ8xg==}
+  /@sveltejs/kit@1.5.6(svelte@3.55.1)(vite@4.1.1):
+    resolution: {integrity: sha512-CHVeQpbcwSIUekF6WwevmExKXyfHnzM5nlCEUv13lGgfJ0zKA0ny5YwIe40vccrm5w5Caec7jMTt9Ih3McJr5g==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     requiresBuild: true
@@ -518,7 +512,7 @@ packages:
       sirv: 2.0.2
       svelte: 3.55.1
       tiny-glob: 0.2.9
-      undici: 5.16.0
+      undici: 5.18.0
       vite: 4.1.1
     transitivePeerDependencies:
       - supports-color
@@ -591,10 +585,6 @@ packages:
 
   /@types/semver@7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
-    dev: true
-
-  /@types/throttle-debounce@2.1.0:
-    resolution: {integrity: sha512-5eQEtSCoESnh2FsiLTxE121IiE60hnMqcb435fShf4bpLRjEu1Eoekht23y6zXS9Ts3l+Szu3TARnTsA0GkOkQ==}
     dev: true
 
   /@types/trusted-types@2.0.2:
@@ -729,6 +719,30 @@ packages:
     dependencies:
       '@typescript-eslint/types': 5.51.0
       eslint-visitor-keys: 3.3.0
+    dev: true
+
+  /@windicss/config@1.8.10:
+    resolution: {integrity: sha512-O9SsC110b1Ik3YYa4Ck/0TWuCo7YFfA9KDrwD5sAeqscT5COIGK1HszdCT3oh0MJFej2wNrvpfyW9h6yQaW6PA==}
+    dependencies:
+      debug: 4.3.4
+      jiti: 1.17.0
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@windicss/plugin-utils@1.8.10:
+    resolution: {integrity: sha512-Phqk5OW1w+Mv+ry6t7BzAeDq3aMhbI94gR49j9vQCufFfDGCHndhhjtMK0sBv+NPJUsIAIh6qayb1iwBCXUGrw==}
+    dependencies:
+      '@antfu/utils': 0.7.2
+      '@windicss/config': 1.8.10
+      debug: 4.3.4
+      fast-glob: 3.2.12
+      magic-string: 0.27.0
+      micromatch: 4.0.5
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@zerodevx/svelte-toast@1.0.0-rc.1:
@@ -1038,10 +1052,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /defu@5.0.1:
-    resolution: {integrity: sha512-EPS1carKg+dkEVy3qNTqIdp2qV7mUP08nIsupfwQpz++slCVRw7qbQyWvSTig+kFPwz2XXp5/kIIkH+CwrJKkQ==}
-    dev: true
-
   /delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
@@ -1308,17 +1318,6 @@ packages:
   /fast-glob@3.2.12:
     resolution: {integrity: sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==}
     engines: {node: '>=8.6.0'}
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      '@nodelib/fs.walk': 1.2.8
-      glob-parent: 5.1.2
-      merge2: 1.4.1
-      micromatch: 4.0.5
-    dev: true
-
-  /fast-glob@3.2.7:
-    resolution: {integrity: sha512-rYGMRwip6lUMvYD3BTScMwT1HtAs2d71SMv66Vrxs0IekGZEjhM0pcMfjQPnknBt2zeCwQMEupiN02ZP4DiT1Q==}
-    engines: {node: '>=8'}
     dependencies:
       '@nodelib/fs.stat': 2.0.5
       '@nodelib/fs.walk': 1.2.8
@@ -1752,6 +1751,10 @@ packages:
   /kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
+    dev: true
+
+  /kolorist@1.7.0:
+    resolution: {integrity: sha512-ymToLHqL02udwVdbkowNpzjFd6UzozMtshPQKVi5k1EjKRqKqBrOnE9QbLEb0/pV76SAiIT13hdL8R6suc+f3g==}
     dev: true
 
   /levn@0.3.0:
@@ -2435,16 +2438,6 @@ packages:
       tippy.js: 6.3.7
     dev: false
 
-  /svelte-windicss-preprocess@4.2.8:
-    resolution: {integrity: sha512-Z6pmFbHqJ19SgCiXiVRC/hlRBgZ/5LksMjPF3ilF/1HESP2L+secuaPjr3xOjJW67iZQpT2YdXzGe+MvdsJ6OQ==}
-    dependencies:
-      '@iconify/json': 1.1.432
-      fast-glob: 3.2.7
-      unconfig: 0.2.2
-      windicss: 3.5.4
-      windicss-runtime-dom: 3.0.0
-    dev: true
-
   /svelte@3.55.1:
     resolution: {integrity: sha512-S+87/P0Ve67HxKkEV23iCdAh/SX1xiSfjF1HOglno/YTbSTW7RniICMCofWGdJJbdjw3S+0PfFb1JtGfTXE0oQ==}
     engines: {node: '>= 8'}
@@ -2598,16 +2591,8 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  /unconfig@0.2.2:
-    resolution: {integrity: sha512-JN1MeYJ/POnjBj7NgOJJxPp6+NcD6Nd0hEuK0D89kjm9GvQQUq8HeE2Eb7PZgtu+64mWkDiqeJn1IZoLH7htPg==}
-    dependencies:
-      '@antfu/utils': 0.3.0
-      defu: 5.0.1
-      jiti: 1.17.0
-    dev: true
-
-  /undici@5.16.0:
-    resolution: {integrity: sha512-KWBOXNv6VX+oJQhchXieUznEmnJMqgXMbs0xxH2t8q/FUAWSJvOSr/rMaZKnX5RIVq7JDn0JbP4BOnKG2SGXLQ==}
+  /undici@5.18.0:
+    resolution: {integrity: sha512-1iVwbhonhFytNdg0P4PqyIAXbdlVZVebtPDvuM36m66mRw4OGrCm2MYynJv/UENFLdP13J1nPVQzVE2zTs1OeA==}
     engines: {node: '>=12.18'}
     dependencies:
       busboy: 1.6.0
@@ -2637,6 +2622,20 @@ packages:
       base64-arraybuffer: 1.0.2
     dev: false
     optional: true
+
+  /vite-plugin-windicss@1.8.10(vite@4.1.1):
+    resolution: {integrity: sha512-scywsuzo46lcTBohspmF0WiwhWEte6p+OUVrX4yr7VMRvLHMHVfLtJReyD5pppjijG7YOwVsZn7XBWWZtF658Q==}
+    peerDependencies:
+      vite: ^2.0.1 || ^3.0.0 || ^4.0.0
+    dependencies:
+      '@windicss/plugin-utils': 1.8.10
+      debug: 4.3.4
+      kolorist: 1.7.0
+      vite: 4.1.1
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /vite@4.1.1:
     resolution: {integrity: sha512-LM9WWea8vsxhr782r9ntg+bhSFS06FJgCvvB0+8hf8UWtvaiDagKYWXndjfX6kGl74keHJUcpzrQliDXZlF5yg==}
@@ -2720,16 +2719,6 @@ packages:
     hasBin: true
     dependencies:
       isexe: 2.0.0
-    dev: true
-
-  /windicss-runtime-dom@3.0.0:
-    resolution: {integrity: sha512-a12Uhu71yT1U8w0PzJ3amF9xmC8b1rWFLgXEfI/UyuwUi6D1vUACOO6vb0iY4T4OtP/bJAjQMM7lv3hMWSwLuQ==}
-    dev: true
-
-  /windicss@3.5.4:
-    resolution: {integrity: sha512-x2Iu0a69dtNiKHMkR886lx0WKbZI5GqvXyvGBCJ2VA6rcjKYjnzCA/Ljd6hNQBfqlkSum8J+qAVcCfLzQFI4rQ==}
-    engines: {node: '>= 12'}
-    hasBin: true
     dev: true
 
   /windicss@3.5.6:

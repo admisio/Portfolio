@@ -16,7 +16,7 @@
 	"devDependencies": {
 		"@playwright/test": "^1.30.0",
 		"@sveltejs/adapter-node": "^1.1.8",
-		"@sveltejs/kit": "1.3.0",
+		"@sveltejs/kit": "^1.5.6",
 		"@typescript-eslint/eslint-plugin": "^5.51.0",
 		"@typescript-eslint/parser": "^5.51.0",
 		"eslint": "^8.33.0",
@@ -28,11 +28,11 @@
 		"svelte": "^3.55.1",
 		"svelte-check": "^3.0.3",
 		"svelte-preprocess": "^5.0.1",
-		"svelte-windicss-preprocess": "^4.2.8",
 		"tslib": "^2.5.0",
 		"typescript": "^4.9.5",
 		"vite": "^4.1.1",
-		"windicss": "^3.5.6"
+		"windicss": "^3.5.6",
+		"vite-plugin-windicss": "^1.8.10"
 	},
 	"type": "module",
 	"dependencies": {

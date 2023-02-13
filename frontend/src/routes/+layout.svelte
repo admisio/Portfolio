@@ -1,4 +1,6 @@
 <script lang="ts">
+	import 'virtual:windi.css';
+
 	import PageTransition from '$lib/components/PageTransition.svelte';
 
 	export let data: { url: string };
@@ -15,7 +17,7 @@
 	<slot />
 </PageTransition>
 
-<style windi:preflights:global windi:safelist:global>
+<style>
 	:global(html) {
 		font-family: 'Poppins', sans-serif;
 	}
