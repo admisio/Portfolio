@@ -12,7 +12,7 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 	import jsPDF from 'jspdf';
 	import 'svg2pdf.js';
-	import { font } from "$lib/assets/list/font"
+	import { font } from '$lib/assets/list/font';
 
 	let isOpened = true;
 
@@ -87,10 +87,13 @@
 		}
 	};
 
-	const generatePdf = async () => {
-		const template = (await import('$lib/assets/pdf/drawing.svg?raw')).default;
+	import registerPdfColor from '$lib/assets/pdf/register_color.svg?raw';
 
-		const svg = template;
+	// import registerPdfWhite from '$lib/assets/pdf/register_white.svg?raw';
+
+	const generatePdf = async (type: 'color' | 'white') => {
+		// TODO: Add white version
+		const svg = type === 'color' ? registerPdfColor : registerPdfColor;
 
 		const element = document.getElementById('svg-element')!;
 		element.innerHTML = svg;
@@ -109,7 +112,11 @@
 		doc.text(login.password, 54, 129);
 		doc.text(login.personalIdNumber, 90, 147.62);
 		if (login.applications.length > 1) {
-			doc.text('Slinkováno s přihláškou ' + login.applications.filter((a) => a != applicationId)[0], 13.6, 166.24);
+			doc.text(
+				'Slinkováno s přihláškou ' + login.applications.filter((a) => a != applicationId)[0],
+				13.6,
+				166.24
+			);
 		}
 
 		doc.save('PRIHLASOVACI_UDAJE_' + login.applicationId.toString());
@@ -138,9 +145,14 @@
 						Slinkovaný s {login.applications.filter((a) => a != applicationId)}
 					</h1>
 				{/if}
-				<div class="mt-2">
-					<button class="rounded-lg bg-red-800 p-2 text-white" on:click={generatePdf}
-						>Stáhnout PDF</button
+				<div class="mt-2 flex">
+					<button
+						class="rounded-lg bg-red-800 p-2 text-white"
+						on:click={async () => await generatePdf('color')}>Stáhnout PDF</button
+					>
+					<button
+						class="ml-2 rounded-lg border border-gray-300 bg-gray-100 p-2 text-black"
+						on:click={async () => await generatePdf('color')}>Stáhnout šetrné PDF 🌱</button
 					>
 				</div>
 			{:else}
