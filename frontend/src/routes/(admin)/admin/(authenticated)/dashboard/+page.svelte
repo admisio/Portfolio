@@ -20,7 +20,11 @@
 
 	const getCandidates = async () => {
 		try {
-			candidates = await apiListCandidates(undefined, {field: activeFilter.filter});
+			// TODO: more generic implementation
+			candidates = await apiListCandidates(
+				undefined,
+				activeFilter.filter !== undefined ? { field: activeFilter.filter } : undefined
+			);
 		} catch {
 			pushErrorText('Nepodařilo se načíst uchazeče');
 		}
@@ -155,7 +159,11 @@
 				</div>
 			{/if}
 
-			<Table showCreatedAt={activeFilter.class === 'Chronologicky'} candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
+			<Table
+				showCreatedAt={activeFilter.class === 'Chronologicky'}
+				candidates={candidatesTable}
+				on:delete={(event) => deleteCandidate(event.detail.id)}
+			/>
 		</div>
 	</div>
 </div>
