@@ -101,15 +101,18 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 // List all candidates /admin/list/candidates
 export const apiListCandidates = async (
 	fetchSsr?: Fetch,
-	field?: string
+	params: { field?: string; column?: 'createdAt' | 'application', order?: 'asc' | 'desc' } = {column: 'createdAt', order: 'desc'}
 ): Promise<Array<CandidatePreview>> => {
 	const apiFetch = fetchSsr || fetch;
-	const params = new URLSearchParams();
-	if (field) {
-		params.append('field', field);
+	const searchParams = new URLSearchParams();
+	if (params.field) {
+		searchParams.append('field', params.field);
+	}
+	if (params.column) {
+		searchParams.append('sort', `${params.column}_${params.order}`);
 	}
 	try {
-		const res = await apiFetch(API_URL + '/admin/list/candidates?' + params.toString(), {
+		const res = await apiFetch(API_URL + '/admin/list/candidates?' + searchParams.toString(), {
 			method: 'GET',
 			credentials: 'include'
 		});

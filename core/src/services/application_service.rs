@@ -267,8 +267,9 @@ impl ApplicationService {
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
+        sort: Option<String>,
     ) -> Result<Vec<ApplicationResponse>, ServiceError> {
-        let applications = Query::list_applications(db, field_of_study, page).await?;
+        let applications = Query::list_applications(db, field_of_study, page, sort).await?;
 
         futures::future::try_join_all(
             applications

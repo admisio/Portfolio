@@ -47,6 +47,7 @@ export interface CandidatePreview {
 	surname?: string;
 	email?: string;
 	fieldOfStudy?: string;
+	createdAt?: string;
 }
 
 export interface CandidateLogin {
