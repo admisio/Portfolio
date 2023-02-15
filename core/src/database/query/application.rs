@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use entity::{application, candidate};
 use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait, FromQueryResult, QuerySelect, JoinType, RelationTrait, QueryFilter, ColumnTrait, QueryOrder, PaginatorTrait};
 
@@ -13,9 +14,31 @@ pub struct ApplicationCandidateJoin {
     pub email: Option<String>,
     pub telephone: Option<String>,
     pub field_of_study: Option<String>,
+    pub created_at: NaiveDateTime,
 }
 
 use crate::{Query};
+
+fn get_ordering(sort: String) -> (application::Column, sea_orm::Order)
+{
+    let mut split = sort.split("_");
+    let column = split.next();
+    let order = split.next();
+
+    let column = match column {
+        Some("id") => application::Column::Id,
+        Some("createdAt") => application::Column::CreatedAt,
+        _ => application::Column::Id
+    };
+
+    let order = match order {
+        Some("asc") => sea_orm::Order::Asc,
+        Some("desc") => sea_orm::Order::Desc,
+        _ => sea_orm::Order::Asc,
+    };
+
+    (column, order)
+}
 
 impl Query {
     pub async fn find_application_by_id(
@@ -41,14 +64,20 @@ impl Query {
         db: &DbConn,
         field_of_study: Option<String>,
         page: Option<u64>,
+        sort: Option<String>,
     ) -> Result<Vec<ApplicationCandidateJoin>, DbErr> {
         let select = application::Entity::find();
+        let (column, order) = if let Some(sort) = sort {
+            get_ordering(sort)
+        } else {
+            (application::Column::Id, sea_orm::Order::Asc)
+        };
         let query = if let Some(field) = field_of_study {
             select.filter(application::Column::FieldOfStudy.eq(field)) 
          } else {
              select
          }
-            .order_by(application::Column::Id, sea_orm::Order::Asc)
+            .order_by(column, order)
             .join(JoinType::InnerJoin, application::Relation::Candidate.def())
             .column_as(application::Column::Id, "application_id")
             .column_as(candidate::Column::Id, "candidate_id")
@@ -56,6 +85,7 @@ impl Query {
             .column_as(candidate::Column::Surname, "surname")
             .column_as(candidate::Column::Email, "email")
             .column_as(candidate::Column::Telephone, "telephone")
+            .column_as(candidate::Column::CreatedAt, "created_at")
             .into_model::<ApplicationCandidateJoin>();
 
         if let Some(page) = page {

@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
 
 use crate::{database::query::application::ApplicationCandidateJoin, error::ServiceError};
@@ -16,6 +17,7 @@ pub struct ApplicationResponse {
     pub email: String,
     pub telephone: String,
     pub field_of_study: Option<String>,
+    pub created_at: NaiveDateTime,
 }
 
 impl ApplicationResponse {
@@ -40,6 +42,7 @@ impl ApplicationResponse {
                 email: email.unwrap_or_default(),
                 telephone:  telephone.unwrap_or_default(),
                 field_of_study: c.field_of_study,
+                created_at: c.created_at,
             }
         )
     }

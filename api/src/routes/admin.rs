@@ -120,12 +120,13 @@ pub async fn create_candidate(
 }
 
 #[allow(unused_variables)]
-#[get("/candidates?<field>&<page>")]
+#[get("/candidates?<field>&<page>&<sort>")]
 pub async fn list_candidates(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     field: Option<String>,
     page: Option<u64>, 
+    sort: Option<String>,
 ) -> Result<Json<Vec<ApplicationResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
@@ -135,7 +136,7 @@ pub async fn list_candidates(
         }
     }
 
-    let candidates = ApplicationService::list_applications(&private_key, db, field, page)
+    let candidates = ApplicationService::list_applications(&private_key, db, field, page, sort)
         .await.map_err(to_custom_error)?;
 
     Ok(
