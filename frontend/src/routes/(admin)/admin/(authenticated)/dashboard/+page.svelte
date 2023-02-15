@@ -155,7 +155,7 @@
 				</div>
 			{/if}
 
-			<Table candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
+			<Table showCreatedAt={activeFilter.class === 'Chronologicky'} candidates={candidatesTable} on:delete={(event) => deleteCandidate(event.detail.id)} />
 		</div>
 	</div>
 </div>

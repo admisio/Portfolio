@@ -3,6 +3,7 @@
 	import type { CandidatePreview } from '$lib/stores/candidate';
 
 	export let candidates: Array<CandidatePreview> = [];
+	export let showCreatedAt: boolean;
 
 	const formatRustChronoDateTime = (date?: string) => {
 		if (!date) return '';
@@ -24,7 +25,9 @@
 							<th scope="col"> Obor </th>
 							<th scope="col"> Rodné číslo </th>
 							<th scope="col"> Link </th>
-							<th scope="col"> Vytvořeno </th>
+							{#if showCreatedAt}
+								<th scope="col"> Vytvořeno </th>
+							{/if}
 							<th scope="col" />
 						</tr>
 					</thead>
@@ -47,9 +50,11 @@
 								<td class="text-gray-900">
 									{candidate.relatedApplications?.filter((a) => a !== candidate.applicationId)}
 								</td>
-								<td class="text-gray-900">
-									{formatRustChronoDateTime(candidate.createdAt)}
-								</td>
+								{#if showCreatedAt}
+									<td class="text-gray-900">
+										{formatRustChronoDateTime(candidate.createdAt)}
+									</td>
+								{/if}
 								<td class="text-sm">
 									<Delete id={candidate.applicationId} on:delete value="Odstranit" />
 								</td>
