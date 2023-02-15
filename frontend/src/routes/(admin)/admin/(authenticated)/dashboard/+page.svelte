@@ -26,7 +26,7 @@
 		}
 	};
 
-	type Class = 'Vše' | 'KBB' | 'IT' | 'GYM';
+	type Class = 'Chronologicky' | 'KBB' | 'IT' | 'GYM';
 
 	type Filter = {
 		class: Class;
@@ -35,7 +35,7 @@
 
 	let filters: Array<Filter> = [
 		{
-			class: 'Vše',
+			class: 'Chronologicky',
 			filter: undefined
 		},
 		{
