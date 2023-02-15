@@ -85,7 +85,7 @@ impl Query {
             .column_as(candidate::Column::Surname, "surname")
             .column_as(candidate::Column::Email, "email")
             .column_as(candidate::Column::Telephone, "telephone")
-            .column_as(candidate::Column::CreatedAt, "created_at")
+            .column_as(application::Column::CreatedAt, "created_at")
             .into_model::<ApplicationCandidateJoin>();
 
         if let Some(page) = page {
