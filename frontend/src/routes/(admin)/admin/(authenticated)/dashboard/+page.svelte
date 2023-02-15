@@ -20,7 +20,7 @@
 
 	const getCandidates = async () => {
 		try {
-			candidates = await apiListCandidates(undefined, activeFilter.filter);
+			candidates = await apiListCandidates(undefined, {field: activeFilter.filter});
 		} catch {
 			pushErrorText('Nepodařilo se načíst uchazeče');
 		}
