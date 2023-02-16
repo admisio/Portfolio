@@ -87,13 +87,15 @@
 		}
 	};
 
-	import registerPdfColor from '$lib/assets/pdf/register_color.svg?raw';
+	import registerPdfColored from '$lib/assets/pdf/login_document_colored.svg?raw';
+	import registerPdfBlackWhite from '$lib/assets/pdf/login_document_black_white.svg?raw';
 
 	// import registerPdfWhite from '$lib/assets/pdf/register_white.svg?raw';
 
-	const generatePdf = async (type: 'color' | 'white') => {
+	const generatePdf = async (type: 'colored' | 'blackWhite') => {
 		// TODO: Add white version
-		const svg = type === 'color' ? registerPdfColor : registerPdfColor;
+		const svg = type === 'colored' ? registerPdfColored : registerPdfBlackWhite;
+		const {r, g, b} = type === 'colored' ? {r: 255, g: 255, b: 255} : {r: 0, g: 0, b: 0};
 
 		const element = document.getElementById('svg-element')!;
 		element.innerHTML = svg;
@@ -105,7 +107,7 @@
 
 		doc.setFont('JetBrainsMono-Regular');
 		doc.setFontSize(28);
-		doc.setTextColor(255, 255, 255);
+		doc.setTextColor(r, g, b);
 
 		await doc.svg(element);
 		doc.text(login.applicationId.toString(), 120, 110);
@@ -148,11 +150,11 @@
 				<div class="mt-2 flex">
 					<button
 						class="rounded-lg bg-red-800 p-2 text-white"
-						on:click={async () => await generatePdf('color')}>Stáhnout PDF</button
+						on:click={async () => await generatePdf('colored')}>Stáhnout PDF</button
 					>
 					<button
 						class="ml-2 rounded-lg border border-gray-300 bg-gray-100 p-2 text-black"
-						on:click={async () => await generatePdf('color')}>Stáhnout šetrné PDF 🌱</button
+						on:click={async () => await generatePdf('blackWhite')}>Stáhnout šetrné PDF 🌱</button
 					>
 				</div>
 			{:else}
