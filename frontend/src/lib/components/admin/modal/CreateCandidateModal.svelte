@@ -12,7 +12,7 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 	import jsPDF from 'jspdf';
 	import 'svg2pdf.js';
-	import { font } from "$lib/assets/list/font"
+	import { font } from '$lib/assets/list/font';
 
 	let isOpened = true;
 
@@ -87,10 +87,15 @@
 		}
 	};
 
-	const generatePdf = async () => {
-		const template = (await import('$lib/assets/pdf/drawing.svg?raw')).default;
+	import registerPdfColored from '$lib/assets/pdf/login_document_colored.svg?raw';
+	import registerPdfBlackWhite from '$lib/assets/pdf/login_document_black_white.svg?raw';
 
-		const svg = template;
+	// import registerPdfWhite from '$lib/assets/pdf/register_white.svg?raw';
+
+	const generatePdf = async (type: 'colored' | 'blackWhite') => {
+		// TODO: Add white version
+		const svg = type === 'colored' ? registerPdfColored : registerPdfBlackWhite;
+		const {r, g, b} = type === 'colored' ? {r: 255, g: 255, b: 255} : {r: 0, g: 0, b: 0};
 
 		const element = document.getElementById('svg-element')!;
 		element.innerHTML = svg;
@@ -102,14 +107,18 @@
 
 		doc.setFont('JetBrainsMono-Regular');
 		doc.setFontSize(28);
-		doc.setTextColor(255, 255, 255);
+		doc.setTextColor(r, g, b);
 
 		await doc.svg(element);
 		doc.text(login.applicationId.toString(), 120, 110);
 		doc.text(login.password, 54, 129);
 		doc.text(login.personalIdNumber, 90, 147.62);
 		if (login.applications.length > 1) {
-			doc.text('Slinkováno s přihláškou ' + login.applications.filter((a) => a != applicationId)[0], 13.6, 166.24);
+			doc.text(
+				'Slinkováno s přihláškou ' + login.applications.filter((a) => a != applicationId)[0],
+				13.6,
+				166.24
+			);
 		}
 
 		doc.save('PRIHLASOVACI_UDAJE_' + login.applicationId.toString());
@@ -138,9 +147,14 @@
 						Slinkovaný s {login.applications.filter((a) => a != applicationId)}
 					</h1>
 				{/if}
-				<div class="mt-2">
-					<button class="rounded-lg bg-red-800 p-2 text-white" on:click={generatePdf}
-						>Stáhnout PDF</button
+				<div class="mt-2 flex">
+					<button
+						class="rounded-lg bg-red-800 p-2 text-white"
+						on:click={async () => await generatePdf('colored')}>Stáhnout PDF</button
+					>
+					<button
+						class="ml-2 rounded-lg border border-gray-300 bg-gray-100 p-2 text-black"
+						on:click={async () => await generatePdf('blackWhite')}>Stáhnout šetrné PDF 🌱</button
 					>
 				</div>
 			{:else}
