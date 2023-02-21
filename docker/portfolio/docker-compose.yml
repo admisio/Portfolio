@@ -4,6 +4,7 @@ services:
   postgres:
     container_name: postgres
     image: "postgres:15"
+    command: postgres -c 'max_connections=1250'
     environment:
       POSTGRES_USER: REDACTED
       POSTGRES_PASSWORD: REDACTED
