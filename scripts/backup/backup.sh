@@ -18,3 +18,6 @@ rm -rf /opt/backup/$NOW
 
 # scp the backup to the remote server
 scp /opt/backup/$NOW.tar.gz USERNAME@SERVER_IP:/home/zalohy/backups/$NOW.tar.gz
+
+# remove the local backup
+rm /opt/backup/$NOW.tar.gz
