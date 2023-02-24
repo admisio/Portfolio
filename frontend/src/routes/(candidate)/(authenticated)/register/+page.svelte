@@ -131,13 +131,10 @@
 				.test((_val) => {
 					if ($form.candidate.citizenship !== 'Česká republika') return true;
 					if (!_val) return false;
-					if (isPersonalIdMatchingBirthdate(
-						data.whoami.personalIdNumber,
-						_val
-					)) {
+					if (isPersonalIdMatchingBirthdate(data.whoami.personalIdNumber, _val)) {
 						return true;
 					} else {
-						pushErrorText("Datum narození a rodné číslo se neshodují.")
+						pushErrorText('Datum narození a rodné číslo se neshodují.');
 						return false;
 					}
 				}),
@@ -151,6 +148,7 @@
 				.matches(/^[0-9]+(\/[0-9]+)?$/),
 			city: yup.string().required(),
 			zip: yup.string().required(),
+			letterAddress: yup.string(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string(),
 			schoolName: yup.string().required(),
@@ -346,7 +344,8 @@
 					$typedErrors['candidate']['city'] ||
 					$typedErrors['candidate']['street'] ||
 					$typedErrors['candidate']['houseNumber'] ||
-					$typedErrors['candidate']['zip']
+					$typedErrors['candidate']['zip'] || 
+					$typedErrors['candidate']['letterAddress']
 				) {
 					return true;
 				}
@@ -410,24 +409,6 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
-	let lastCitizenshipSelected = $form.candidate.citizenship;
-	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
-		lastCitizenshipSelected = $form.candidate.citizenship;
-		$form.candidate.birthdate = '';
-		$form.candidate.sex = '';
-		
-		if ($form.candidate.citizenship === 'Česká republika') {
-			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
-			$form.candidate.birthdate = birthdate;
-			$form.candidate.sex = sex;
-			if (pageIndex === 4) {
-				pushSuccessText(
-					`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
-				);
-			}
-		}
-	}
-
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
 
@@ -468,6 +449,25 @@
 		pageIndex = editModePageIndex; // skip gdpr page
 		pageTexts[2] = $LL.candidate.register.fourth.titleEdit();
 	}
+
+	let lastCitizenshipSelected = $form.candidate.citizenship;
+	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
+		console.log('citizenship changed');
+		lastCitizenshipSelected = $form.candidate.citizenship;
+		$form.candidate.birthdate = '';
+		$form.candidate.sex = '';
+
+		if ($form.candidate.citizenship === 'Česká republika') {
+			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
+			$form.candidate.birthdate = birthdate;
+			$form.candidate.sex = sex;
+			if (pageIndex === 4) {
+				pushSuccessText(
+					`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
+				);
+			}
+		}
+	}
 </script>
 
 <SplitLayout>
@@ -485,9 +485,11 @@
 	{/if}
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
-			<div class="<md:hidden self-center">
-				<SchoolBadge />
-			</div>
+			{#if pageIndex !== 3}
+				<div class="<md:hidden self-center">
+					<SchoolBadge />
+				</div>
+			{/if}
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
@@ -592,6 +594,17 @@
 									type="text"
 									placeholder={$LL.input.zipCode()}
 									helperText="Uveďte poštovní směrovací číslo. (např. 150 21)"
+								/>
+							</span>
+						</div>
+						<div class="flex w-full flex-col">
+							<span class="field">
+								<TextField
+									error={$typedErrors['candidate']['letterAddress']}
+									bind:value={$form.candidate.letterAddress}
+									type="text"
+									placeholder={'Adresa pro doručování písemností (pokud odlišná)'}
+									helperText="Uveďte adresu pro doručování písemností. Musí obsahovat <strong>ulici a č.p., PSČ, Okres</strong> <br />(např. Preslova 72/25, 150 21, Praha 5)"
 								/>
 							</span>
 						</div>

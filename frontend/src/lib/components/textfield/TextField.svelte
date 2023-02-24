@@ -24,7 +24,8 @@
 		content: helperText,
 		placement: 'top',
 		showOnCreate: false,
-		delay: tooltipDelay
+		delay: tooltipDelay,
+		allowHTML: true,
 	}}
 >
 	<input
