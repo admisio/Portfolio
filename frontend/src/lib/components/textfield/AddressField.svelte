@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import TextField from './TextField.svelte';
 
-	export let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
+	export let helperText: string = 'Uveďte ulici a číslo popisné (např. Preslova 72/25).';
 	export let placeholder: string = '';
 
 	export let valueLeft: string = '';
