@@ -115,7 +115,7 @@ const cs: BaseTranslation = {
 				},
 				single: {
 					title: 'Ano, přihlášku na SSPŠaG jsem podával/a jen jednu ({first:number})',
-					title2: 'Ne, přihlášku na SSPŠaG jsem podával více přihlášek'
+					title2: 'Ne, na SSPŠaG jsem podával více přihlášek'
 				}
 			},
 			personalIdConfirmCheckBox: {

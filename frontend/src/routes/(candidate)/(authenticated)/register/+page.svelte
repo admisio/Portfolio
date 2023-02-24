@@ -9,7 +9,7 @@
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/select/SelectField.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
-	import IdField from '$lib/components/textfield/IdField.svelte';
+	import AddressField from '$lib/components/textfield/AddressField.svelte';
 	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
@@ -131,13 +131,10 @@
 				.test((_val) => {
 					if ($form.candidate.citizenship !== 'Česká republika') return true;
 					if (!_val) return false;
-					if (isPersonalIdMatchingBirthdate(
-						data.whoami.personalIdNumber,
-						_val
-					)) {
+					if (isPersonalIdMatchingBirthdate(data.whoami.personalIdNumber, _val)) {
 						return true;
 					} else {
-						pushErrorText("Datum narození a rodné číslo se neshodují.")
+						pushErrorText('Datum narození a rodné číslo se neshodují.');
 						return false;
 					}
 				}),
@@ -151,6 +148,7 @@
 				.matches(/^[0-9]+(\/[0-9]+)?$/),
 			city: yup.string().required(),
 			zip: yup.string().required(),
+			letterAddress: yup.string(),
 			citizenship: yup.string().required(),
 			personalIdNumber: yup.string(),
 			schoolName: yup.string().required(),
@@ -307,7 +305,7 @@
 			} catch (e) {
 				values = oldValues;
 				$form = oldValues;
-				console.error('error while submitting data: ' + e);
+				pushErrorText('Neznámá chyba při odesílání dat.');
 			}
 		}
 	};
@@ -346,7 +344,8 @@
 					$typedErrors['candidate']['city'] ||
 					$typedErrors['candidate']['street'] ||
 					$typedErrors['candidate']['houseNumber'] ||
-					$typedErrors['candidate']['zip']
+					$typedErrors['candidate']['zip'] || 
+					$typedErrors['candidate']['letterAddress']
 				) {
 					return true;
 				}
@@ -410,24 +409,6 @@
 		return '+' + telephone.match(/[0-9]{1,3}/g)!.join(' ');
 	};
 
-	let lastCitizenshipSelected = $form.candidate.citizenship;
-	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
-		lastCitizenshipSelected = $form.candidate.citizenship;
-		$form.candidate.birthdate = '';
-		$form.candidate.sex = '';
-		
-		if ($form.candidate.citizenship === 'Česká republika') {
-			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
-			$form.candidate.birthdate = birthdate;
-			$form.candidate.sex = sex;
-			if (pageIndex === 4) {
-				pushSuccessText(
-					`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
-				);
-			}
-		}
-	}
-
 	if (details !== undefined) {
 		details.candidate.birthdate = details.candidate.birthdate.split('-').reverse().join('.');
 
@@ -436,6 +417,8 @@
 			(x) => (x.telephone = x.telephone != '' ? formatTelephone(x.telephone) : '')
 		);
 
+		const addressArray = details.candidate.address.split(',');
+		const streetHouseNumber = addressArray[0].split(' ');
 		form.set({
 			gdpr: true,
 			linkOk: true,
@@ -444,8 +427,8 @@
 			personalIdErr: false,
 			candidate: {
 				...details.candidate,
-				street: details.candidate.address.split(',')[0].split(' ')[0],
-				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
+				street: streetHouseNumber.slice(0, streetHouseNumber.length - 1).join(' ').trim(),
+				houseNumber: streetHouseNumber[streetHouseNumber.length - 1],
 				city: details.candidate.address.split(',')[1],
 				zip: details.candidate.address.split(',')[2],
 				// @ts-ignore
@@ -468,6 +451,24 @@
 		pageIndex = editModePageIndex; // skip gdpr page
 		pageTexts[2] = $LL.candidate.register.fourth.titleEdit();
 	}
+
+	let lastCitizenshipSelected = $form.candidate.citizenship;
+	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
+		lastCitizenshipSelected = $form.candidate.citizenship;
+		$form.candidate.birthdate = '';
+		$form.candidate.sex = '';
+
+		if ($form.candidate.citizenship === 'Česká republika') {
+			let [birthdate, sex] = parseBirthdateSexFromPersonalId(data.whoami.personalIdNumber);
+			$form.candidate.birthdate = birthdate;
+			$form.candidate.sex = sex;
+			if (pageIndex === 4) {
+				pushSuccessText(
+					`Datum narození a pohlaví bylo vyplněno automaticky podle Vašeho rodného čísla (${data.whoami.personalIdNumber}).`
+				);
+			}
+		}
+	}
 </script>
 
 <SplitLayout>
@@ -485,9 +486,11 @@
 	{/if}
 	<div class="form relative bg-center">
 		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
-			<div class="<md:hidden self-center">
-				<SchoolBadge />
-			</div>
+			{#if pageIndex !== 3}
+				<div class="<md:hidden self-center">
+					<SchoolBadge />
+				</div>
+			{/if}
 			<form on:submit={handleSubmit} id="triggerForm" class="invisible hidden" />
 			{#if pageIndex === 0}
 				<form on:submit={handleSubmit}>
@@ -576,11 +579,11 @@
 						</div>
 						<div class="field flex">
 							<span class="w-[66%]">
-								<NameField
+								<AddressField
 									error={$typedErrors['candidate']['street'] ||
 										$typedErrors['candidate']['houseNumber']}
-									bind:valueName={$form.candidate.street}
-									bind:valueSurname={$form.candidate.houseNumber}
+									bind:valueLeft={$form.candidate.street}
+									bind:valueRight={$form.candidate.houseNumber}
 									placeholder={$LL.input.address()}
 									helperText="Uveďte ulici a číslo popisné (např. Preslova 72/25)."
 								/>
@@ -592,6 +595,17 @@
 									type="text"
 									placeholder={$LL.input.zipCode()}
 									helperText="Uveďte poštovní směrovací číslo. (např. 150 21)"
+								/>
+							</span>
+						</div>
+						<div class="flex w-full flex-col">
+							<span class="field">
+								<TextField
+									error={$typedErrors['candidate']['letterAddress']}
+									bind:value={$form.candidate.letterAddress}
+									type="text"
+									placeholder={'Adresa pro doručování písemností (pokud odlišná)'}
+									helperText="Uveďte adresu pro doručování písemností. Musí obsahovat <strong>ulici a č.p., PSČ, Okres</strong> <br />(např. Preslova 72/25, 150 21, Praha 5)"
 								/>
 							</span>
 						</div>
