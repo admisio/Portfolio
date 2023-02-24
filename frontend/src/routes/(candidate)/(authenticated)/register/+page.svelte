@@ -9,7 +9,7 @@
 	import SplitLayout from '$lib/components/layout/SplitLayout.svelte';
 	import SelectField from '$lib/components/select/SelectField.svelte';
 	import EmailField from '$lib/components/textfield/EmailField.svelte';
-	import IdField from '$lib/components/textfield/IdField.svelte';
+	import AddressField from '$lib/components/textfield/AddressField.svelte';
 	import NameField from '$lib/components/textfield/NameField.svelte';
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
@@ -290,6 +290,7 @@
 					values.candidate.zip
 				];
 				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
+				console.log(values.candidate.address)
 				// @ts-ignore
 				delete values.candidate.street;
 				// @ts-ignore
@@ -417,6 +418,8 @@
 			(x) => (x.telephone = x.telephone != '' ? formatTelephone(x.telephone) : '')
 		);
 
+		const addressArray = details.candidate.address.split(',');
+		const streetHouseNumber = addressArray[0].split(' ');
 		form.set({
 			gdpr: true,
 			linkOk: true,
@@ -425,8 +428,8 @@
 			personalIdErr: false,
 			candidate: {
 				...details.candidate,
-				street: details.candidate.address.split(',')[0].split(' ')[0],
-				houseNumber: details.candidate.address.split(',')[0].split(' ')[1],
+				street: streetHouseNumber.slice(0, streetHouseNumber.length - 1).join(' ').trim(),
+				houseNumber: streetHouseNumber[streetHouseNumber.length - 1],
 				city: details.candidate.address.split(',')[1],
 				zip: details.candidate.address.split(',')[2],
 				// @ts-ignore
@@ -578,11 +581,11 @@
 						</div>
 						<div class="field flex">
 							<span class="w-[66%]">
-								<NameField
+								<AddressField
 									error={$typedErrors['candidate']['street'] ||
 										$typedErrors['candidate']['houseNumber']}
-									bind:valueName={$form.candidate.street}
-									bind:valueSurname={$form.candidate.houseNumber}
+									bind:valueLeft={$form.candidate.street}
+									bind:valueRight={$form.candidate.houseNumber}
 									placeholder={$LL.input.address()}
 									helperText="Uveďte ulici a číslo popisné (např. Preslova 72/25)."
 								/>
