@@ -10,7 +10,6 @@
 
 	let value: string = '';
 
-    console.log(valueLeft, valueRight);
 	if (valueLeft && valueRight) {
 		value = `${valueLeft} ${valueRight}`;
 	} else if (valueLeft) {
@@ -23,7 +22,6 @@
 		if (parsed.length >= 2) {
 			valueLeft = parsed.slice(0, parsed.length - 1).join(' ');
 			valueRight = parsed[parsed.length - 1];
-            console.log(valueLeft, valueRight);
 		} else {
 			valueLeft = parsed[0];
 			valueRight = '';

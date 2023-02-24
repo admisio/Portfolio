@@ -290,7 +290,6 @@
 					values.candidate.zip
 				];
 				values.candidate.address = addressArray.map((x) => x.replaceAll(',', '').trim()).join(',');
-				console.log(values.candidate.address)
 				// @ts-ignore
 				delete values.candidate.street;
 				// @ts-ignore
@@ -306,7 +305,7 @@
 			} catch (e) {
 				values = oldValues;
 				$form = oldValues;
-				console.error('error while submitting data: ' + e);
+				pushErrorText('Neznámá chyba při odesílání dat.');
 			}
 		}
 	};
@@ -455,7 +454,6 @@
 
 	let lastCitizenshipSelected = $form.candidate.citizenship;
 	$: if ($form.candidate.citizenship !== lastCitizenshipSelected) {
-		console.log('citizenship changed');
 		lastCitizenshipSelected = $form.candidate.citizenship;
 		$form.candidate.birthdate = '';
 		$form.candidate.sex = '';
