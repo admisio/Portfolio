@@ -145,7 +145,7 @@
 			houseNumber: yup
 				.string()
 				.required()
-				.matches(/^[0-9]+(\/[0-9]+)?$/),
+				.matches(/^[0-9]+(\/[0-9]+([a-zA-Z]+)?)?$/),
 			city: yup.string().required(),
 			zip: yup.string().required(),
 			letterAddress: yup.string(),
