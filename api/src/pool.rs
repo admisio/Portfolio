@@ -1,5 +1,5 @@
-use portfolio_core::{sea_orm::{self}};
 use async_trait::async_trait;
+use portfolio_core::sea_orm::{self};
 #[cfg(not(test))]
 use sea_orm::ConnectOptions;
 use sea_orm_rocket::{rocket::figment::Figment, Database};
@@ -36,17 +36,20 @@ impl sea_orm_rocket::Pool for SeaOrmPool {
         let mut options: ConnectOptions = database_url.into();
         options
             .max_connections(1024)
-            .min_connections(0)
-            .connect_timeout(Duration::from_secs(3))
+            .min_connections(5)
+            .connect_timeout(Duration::from_secs(15))
+            .acquire_timeout(Duration::from_secs(15))
+            .max_lifetime(Duration::from_secs(15))
+            .idle_timeout(Duration::from_secs(5))
             .sqlx_logging(false);
-            
-            /* options
-            .max_connections(config.max_connections as u32)
-            .min_connections(config.min_connections.unwrap_or_default())
-            .connect_timeout(Duration::from_secs(config.connect_timeout));
-            if let Some(idle_timeout) = config.idle_timeout {
-                options.idle_timeout(Duration::from_secs(idle_timeout));
-            } */
+
+        /* options
+        .max_connections(config.max_connections as u32)
+        .min_connections(config.min_connections.unwrap_or_default())
+        .connect_timeout(Duration::from_secs(config.connect_timeout));
+        if let Some(idle_timeout) = config.idle_timeout {
+            options.idle_timeout(Duration::from_secs(idle_timeout));
+        } */
 
         let conn = sea_orm::Database::connect(options).await?;
 
