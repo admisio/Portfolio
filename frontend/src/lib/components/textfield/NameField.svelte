@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import TextField from './TextField.svelte';
 
 	export let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
@@ -23,7 +22,9 @@
 			valueSurname = parsed[1];
 		} else if (parsed.length > 2) {
 			valueName = parsed[0];
-			valueSurname = parsed[parsed.length - 1];
+			// 	valueSurname = parsed[parsed.length - 1];
+			// Multiple surnames / names
+			valueSurname = parsed.slice(1).join(' ');
 		} else {
 			valueName = parsed[0];
 			valueSurname = '';
