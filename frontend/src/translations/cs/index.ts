@@ -100,7 +100,7 @@ const cs: BaseTranslation = {
 				},
 				missing: {
 					title: 'Soubory nebyly nahrány!',
-					description: 'Nahrajte včechny soubory prosím'
+					description: 'Nahrajte všechny soubory prosím'
 				}
 			}
 		},

@@ -652,7 +652,7 @@ export type TranslationFunctions = {
 					 */
 					title: () => LocalizedString
 					/**
-					 * Nahrajte včechny soubory prosím
+					 * Nahrajte všechny soubory prosím
 					 */
 					description: () => LocalizedString
 				}
