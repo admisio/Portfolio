@@ -63,7 +63,7 @@
 			document.body.appendChild(link);
 			link.click();
 		} catch (e) {
-			pushErrorText("Chyba při stahování portfolia");
+			pushErrorText('Chyba při stahování portfolia');
 		}
 	};
 
@@ -179,7 +179,7 @@
 						>
 						<span
 							>{$LL.input.citizenship()}:
-							<span class="font-bold">{$candidateData.candidate.email}</span></span
+							<span class="font-bold">{$candidateData.candidate.citizenship}</span></span
 						>
 
 						<span
@@ -204,9 +204,11 @@
 						>
 						<span
 							>{$LL.input.secondSchool()}:
-							<span class="font-bold">{$candidateData.candidate.secondSchool.name.split(',')[0]} (Obor: 
+							<span class="font-bold"
+								>{$candidateData.candidate.secondSchool.name.split(',')[0]} (Obor:
 								{$candidateData.candidate.secondSchool.field}
-								)</span></span
+								)</span
+							></span
 						>
 						<span
 							>{$LL.input.testLanguage()}:
