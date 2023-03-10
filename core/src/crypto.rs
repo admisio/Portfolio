@@ -54,7 +54,7 @@ pub async fn hash_password(password_plain_text: String) -> Result<String, Servic
         let salt = salt_str.as_salt();
 
         return argon_config
-            .hash_password(password, &salt)
+            .hash_password(password, salt)
             .map(|x| x.serialize().to_string());
     });
 
