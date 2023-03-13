@@ -17,7 +17,7 @@
     <a><strong>Žádný soubor ke stažení</strong></a>
     <br />
     <br />
-    <a href="https://github.com/EETagent/Portfolio/issues">Nahlásit chybu</a>
+    <a href="https://github.com/admisio/Portfolio/issues">Nahlásit chybu</a>
   </p>
 </p>
 
@@ -32,7 +32,8 @@ Portfolio je nyní v produkci! na https://portfolio.ssps.cz, obsah bude průbě�
 
 ## 📐 Architektura
 
-[Diagram.pdf](https://github.com/EETagent/Portfolio/files/10226287/Diagram.pdf)
+[Diagram.pdf](https://github.com/admisio/Portfolio/files/10962114/Diagram.pdf)
+
 
 ## 🖼️ Galerie
 
