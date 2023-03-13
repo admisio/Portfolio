@@ -23,6 +23,9 @@
 
 ![-----------------------------------------------------](.github/img/rainbow.png)
 
+## 📜 Práva
+
+Copyright © 2022 - 2023 Vojtěch Jungmann [<a href="https://github.com/EETagent">EETagent</a>] a Sebastian Pravda [<a href="https://github.com/starvy">starvy</a>]
 ## 🔔 Informace
 
 Portfolio je nyní v produkci! na https://portfolio.ssps.cz, obsah bude průběžně aktualizován
