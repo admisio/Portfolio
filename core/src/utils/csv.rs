@@ -6,7 +6,6 @@ use crate::{
 };
 use sea_orm::DbConn;
 use async_trait::async_trait;
-use futures::future::{join_all, try_join_all};
 use crate::models::candidate::{CandidateRow, FieldOfStudy, FieldsCombination};
 use crate::models::candidate_details::EncryptedCandidateDetails;
 use crate::models::school::School;
