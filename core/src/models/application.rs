@@ -77,7 +77,7 @@ pub struct ApplicationRow {
     pub sex: Option<String>,
     #[serde(rename = "Rodné číslo")]
     pub personal_identification_number: Option<String>,
-    #[serde(rename = "Název školy")]
+    #[serde(rename = "Název školy (IZO)")]
     pub school_name: Option<String>,
     #[serde(rename = "Zdravotní pojištění")]
     pub health_insurance: Option<String>,

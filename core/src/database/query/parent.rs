@@ -2,7 +2,7 @@
 use entity::candidate;
 use entity::parent;
 use entity::parent::Model;
-use sea_orm::ModelTrait;
+use sea_orm::{EntityTrait, ModelTrait};
 use sea_orm::{DbConn, DbErr};
 
 use crate::Query;
@@ -14,6 +14,14 @@ impl Query {
     ) -> Result<Vec<Model>, DbErr> {
 
         candidate.find_related(parent::Entity)
+            .all(db)
+            .await
+    }
+    
+    pub async fn list_all_parents(
+        db: &DbConn,
+    ) -> Result<Vec<Model>, DbErr> {
+        parent::Entity::find()
             .all(db)
             .await
     }

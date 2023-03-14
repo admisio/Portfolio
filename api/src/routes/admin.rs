@@ -10,6 +10,7 @@ use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
+use portfolio_core::utils::csv::{ApplicationCsv, CsvExporter};
 
 use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
 
@@ -152,7 +153,7 @@ pub async fn list_candidates_csv(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let candidates = csv::export(db, private_key)
+    let candidates = ApplicationCsv::export(db, private_key)
         .await
         .map_err(to_custom_error)?;
 
