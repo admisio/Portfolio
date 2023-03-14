@@ -9,6 +9,7 @@ use async_trait::async_trait;
 use futures::future::{join_all, try_join_all};
 use crate::models::candidate::{CandidateRow, FieldOfStudy, FieldsCombination};
 use crate::models::candidate_details::EncryptedCandidateDetails;
+use crate::models::school::School;
 
 impl TryFrom<(i32, ApplicationDetails)> for ApplicationRow {
     type Error = ServiceError;
@@ -127,11 +128,17 @@ impl CsvExporter for CandidateCsv {
                 .map(|p| p.id)
                 .collect::<Vec<i32>>();
 
+
             let (first_field, second_field) = (
-                related_applications.first().map(|id| FieldOfStudy::from(*id)),
-                related_applications.get(1).map(|id| FieldOfStudy::from(*id)),
+                get_our_school_field(&c.first_school).map_err(|_| ServiceError::InvalidFieldOfStudy)?,
+                get_our_school_field(&c.second_school).map_err(|_| ServiceError::InvalidFieldOfStudy)?,
             );
+
+            let applications_fields_comb = get_applications_fields_comb(&related_applications);
+
             let fields_combination = FieldsCombination::from_fields(&first_field, &second_field);
+            let fields_match = applications_fields_comb == fields_combination;
+
             let row = CandidateRow {
                 id,
                 first_application: *related_applications.first().ok_or(ServiceError::CandidateNotFound)?,
@@ -146,6 +153,7 @@ impl CsvExporter for CandidateCsv {
                 second_day_field: second_field.to_owned(),
                 fields_combination,
                 personal_id_number: c.personal_id_number.to_string(),
+                fields_match,
                 name: c.name.to_owned(),
                 surname: c.surname.to_owned(),
                 email: c.email.to_owned(),
@@ -157,6 +165,28 @@ impl CsvExporter for CandidateCsv {
         }
         wtr.into_inner()
             .map_err(|_| ServiceError::CsvIntoInnerError)
+    }
+}
+
+fn get_applications_fields_comb(
+    related_applications: &[i32],
+) -> FieldsCombination {
+    let fields_vec = related_applications.iter().map(|id| FieldOfStudy::from(*id)).collect::<Vec<_>>();
+    FieldsCombination::from_fields(
+        &fields_vec.first().map(|f| f.to_owned()),
+        &fields_vec.get(1).map(|f| f.to_owned()),
+    )
+}
+
+fn get_our_school_field(school: &School) -> Result<Option<FieldOfStudy>, ServiceError> {
+    if school.name() == "Smíchovská střední průmyslová škola a gymnázium" {
+        Ok(
+            Some(
+                FieldOfStudy::try_from(school.field().to_owned())?
+            )
+        )
+    } else {
+        Ok(None)
     }
 }
 

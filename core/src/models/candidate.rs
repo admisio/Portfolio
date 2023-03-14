@@ -38,6 +38,18 @@ impl From<i32> for FieldOfStudy {
     }
 }
 
+impl TryFrom<String> for FieldOfStudy {
+    type Error = ServiceError;
+    fn try_from(s: String) -> Result<Self, ServiceError> {
+        match s.as_str() {
+            "7941K41-Gymnázium" => Ok(FieldOfStudy::G),
+            "1820M01-Informační technologie" => Ok(FieldOfStudy::IT), // TODO: constants
+            "1820M01-Informační technologie - Kybernetická bezpečnost" => Ok(FieldOfStudy::KB),
+            _ => Err(ServiceError::InvalidFieldOfStudy),
+        }
+    }
+}
+
 impl Into<i32> for FieldOfStudy {
     fn into(self) -> i32 {
         match self {
@@ -158,7 +170,7 @@ impl NewCandidateResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, PartialEq)]
 pub enum FieldsCombination {
     #[serde(rename = "Žádný obor na SSPŠ")]
     Unknown,
@@ -229,6 +241,8 @@ pub struct CandidateRow {
     pub second_school: String,
     #[serde(rename = "Obor druhé školy")]
     pub second_school_field: String,
+    #[serde(rename = "Obory vyplněné uchazečem odpovídají s přihláškami")]
+    pub fields_match: bool,
     #[serde(rename = "Jméno (pokud vyplnil)")]
     pub name: String,
     #[serde(rename = "Příjmení (pokud vyplnil)")]
