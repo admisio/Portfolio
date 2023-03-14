@@ -6,6 +6,7 @@ use url::Url;
 
 use portfolio_core::{crypto, Query};
 use portfolio_core::services::portfolio_service::{FileType};
+use portfolio_core::utils::csv::{ApplicationCsv, CsvExporter};
 
 async fn get_admin_private_key(db: &DbConn, sub_matches: &ArgMatches) -> Result<String, Box<dyn std::error::Error>> {
     Ok(match (sub_matches.get_one::<String>("key"), sub_matches.get_one::<String>("password")) {
@@ -253,7 +254,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let key = get_admin_private_key(&db, sub_matches).await?;
 
             let output = sub_matches.get_one::<PathBuf>("output").unwrap();
-            let csv = portfolio_core::utils::csv::export(&db, key).await?;
+            let csv = ApplicationCsv::export(&db, key).await?;
             tokio::fs::write(output, csv).await?;
         },
         Some(("portfolio", sub_matches)) => {
@@ -276,7 +277,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let output = sub_matches.get_one::<PathBuf>("output").unwrap();
             tokio::fs::create_dir_all(&output).await?;
 
-            let csv = portfolio_core::utils::csv::export(&db, key.to_string()).await?;
+            let csv = ApplicationCsv::export(&db, key.to_string()).await?;
             tokio::fs::write(output.join("personal_data.csv"), csv).await?;
             println!("Exported personal data to personal_data.csv");
 
