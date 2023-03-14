@@ -158,6 +158,7 @@ pub fn rocket() -> Rocket<Build> {
             routes![
                 routes::admin::list_candidates,
                 routes::admin::list_candidates_csv,
+                routes::admin::list_admissions_csv
             ]
         )
         .register("/", catchers![])
