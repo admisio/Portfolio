@@ -39,7 +39,9 @@ impl MigratorTrait for Migrator {
             migrations.push(Box::new(
                 m20221028_194728_session_create_admin_fk::Migration,
             ));
-            migrations.push(Box::new(m20230114_114826_create_application_candidate_fk::Migration));
+            migrations.push(Box::new(
+                m20230114_114826_create_application_candidate_fk::Migration,
+            ));
         }
 
         migrations

@@ -20,9 +20,21 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(AdminSession::AdminId).integer().not_null())
                     .col(ColumnDef::new(AdminSession::IpAddress).string().not_null())
-                    .col(ColumnDef::new(AdminSession::CreatedAt).date_time().not_null())
-                    .col(ColumnDef::new(AdminSession::ExpiresAt).date_time().not_null())
-                    .col(ColumnDef::new(AdminSession::UpdatedAt).date_time().not_null())
+                    .col(
+                        ColumnDef::new(AdminSession::CreatedAt)
+                            .date_time()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(AdminSession::ExpiresAt)
+                            .date_time()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(AdminSession::UpdatedAt)
+                            .date_time()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await

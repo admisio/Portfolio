@@ -17,7 +17,7 @@ impl<'r> FromData<'r> for Portfolio {
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
         if req.content_type() != Some(&ContentType::ZIP) {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         let data = data.open(101.megabytes());
@@ -25,7 +25,7 @@ impl<'r> FromData<'r> for Portfolio {
         let data_bytes = data.into_bytes().await.unwrap();
 
         if !data_bytes.is_complete() {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         let data_bytes = data_bytes.into_inner();
@@ -33,7 +33,7 @@ impl<'r> FromData<'r> for Portfolio {
         let is_zip = portfolio_core::utils::filetype::filetype_is_zip(&data_bytes);
 
         if !is_zip {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         Outcome::Success(Portfolio(data_bytes))

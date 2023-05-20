@@ -1,6 +1,6 @@
-use chrono::{Utc, Duration};
-use entity::{admin_session};
-use sea_orm::{DbConn, prelude::Uuid, DbErr, Set, ActiveModelTrait};
+use chrono::{Duration, Utc};
+use entity::admin_session;
+use sea_orm::{prelude::Uuid, ActiveModelTrait, DbConn, DbErr, Set};
 
 use crate::Mutation;
 
@@ -20,21 +20,21 @@ impl Mutation {
                 .naive_local()
                 .checked_add_signed(Duration::days(1))
                 .unwrap()),
-            updated_at: Set(Utc::now().naive_local())
+            updated_at: Set(Utc::now().naive_local()),
         }
         .insert(db)
         .await
     }
 
-    /* pub async fn update_session_expiration(db: &DbConn, 
-        session: session::Model, 
+    /* pub async fn update_session_expiration(db: &DbConn,
+        session: session::Model,
         expires_at: NaiveDateTime,
     ) -> Result<session::Model, DbErr> {
         let mut session = session.into_active_model();
 
         session.expires_at = Set(expires_at);
         session.updated_at = Set(Utc::now().naive_local());
-        
+
         session.update(db).await
     }
 

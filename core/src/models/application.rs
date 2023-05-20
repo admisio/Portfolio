@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::{database::query::application::ApplicationCandidateJoin, error::ServiceError};
 
@@ -26,25 +26,37 @@ impl ApplicationResponse {
         c: ApplicationCandidateJoin,
         related_applications: Vec<i32>,
     ) -> Result<Self, ServiceError> {
-        let personal_id_number = EncryptedString::from(c.personal_id_number.to_owned()).decrypt(private_key).await?;
-        let name = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key).await?;
-        let surname = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.surname).ok(), private_key).await?;
-        let email = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key).await?;
-        let telephone = EncryptedString::decrypt_option(&EncryptedString::try_from(&c.telephone).ok(), private_key).await?;
-        Ok(
-            Self {
-                application_id: c.application_id,
-                candidate_id: c.candidate_id,
-                related_applications,
-                personal_id_number,
-                name: name.unwrap_or_default(),
-                surname: surname.unwrap_or_default(),
-                email: email.unwrap_or_default(),
-                telephone:  telephone.unwrap_or_default(),
-                field_of_study: c.field_of_study,
-                created_at: c.created_at,
-            }
+        let personal_id_number = EncryptedString::from(c.personal_id_number.to_owned())
+            .decrypt(private_key)
+            .await?;
+        let name =
+            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.name).ok(), private_key)
+                .await?;
+        let surname = EncryptedString::decrypt_option(
+            &EncryptedString::try_from(&c.surname).ok(),
+            private_key,
         )
+        .await?;
+        let email =
+            EncryptedString::decrypt_option(&EncryptedString::try_from(&c.email).ok(), private_key)
+                .await?;
+        let telephone = EncryptedString::decrypt_option(
+            &EncryptedString::try_from(&c.telephone).ok(),
+            private_key,
+        )
+        .await?;
+        Ok(Self {
+            application_id: c.application_id,
+            candidate_id: c.candidate_id,
+            related_applications,
+            personal_id_number,
+            name: name.unwrap_or_default(),
+            surname: surname.unwrap_or_default(),
+            email: email.unwrap_or_default(),
+            telephone: telephone.unwrap_or_default(),
+            field_of_study: c.field_of_study,
+            created_at: c.created_at,
+        })
     }
 }
 

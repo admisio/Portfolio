@@ -21,15 +21,23 @@ impl Query {
         AdminSession::find_by_id(uuid).one(db).await
     }
 
-    pub async fn find_related_application_sessions(db: &DbConn, application: &application::Model) -> Result<Vec<session::Model>, DbErr> {
-        application.find_related(Session)
+    pub async fn find_related_application_sessions(
+        db: &DbConn,
+        application: &application::Model,
+    ) -> Result<Vec<session::Model>, DbErr> {
+        application
+            .find_related(Session)
             .order_by_asc(session::Column::UpdatedAt)
             .all(db)
             .await
     }
 
-    pub async fn find_related_admin_sessions(db: &DbConn, admin: &admin::Model) -> Result<Vec<admin_session::Model>, DbErr> {
-        admin.find_related(admin_session::Entity)
+    pub async fn find_related_admin_sessions(
+        db: &DbConn,
+        admin: &admin::Model,
+    ) -> Result<Vec<admin_session::Model>, DbErr> {
+        admin
+            .find_related(admin_session::Entity)
             .order_by_asc(admin_session::Column::UpdatedAt)
             .all(db)
             .await
@@ -38,12 +46,12 @@ impl Query {
 
 #[cfg(test)]
 mod tests {
-    use entity::{session, admin, admin_session};
+    use entity::{admin, admin_session, session};
     use sea_orm::{prelude::Uuid, ActiveModelTrait, Set};
 
     use crate::services::candidate_service::tests::put_user_data;
     use crate::utils::db::get_memory_sqlite_connection;
-    use crate::{Query};
+    use crate::Query;
 
     #[tokio::test]
     async fn test_find_session_by_uuid() {
@@ -56,7 +64,7 @@ mod tests {
             ip_address: Set("10.10.10.10".to_string()),
             created_at: Set(chrono::offset::Local::now().naive_local()),
             expires_at: Set(chrono::offset::Local::now().naive_local()),
-            updated_at: Set(chrono::offset::Local::now().naive_local())
+            updated_at: Set(chrono::offset::Local::now().naive_local()),
         }
         .insert(&db)
         .await
@@ -83,9 +91,9 @@ mod tests {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-            .insert(&db)
-            .await
-            .unwrap();
+        .insert(&db)
+        .await
+        .unwrap();
 
         const ADMIN_ID: i32 = 1;
 
@@ -99,9 +107,9 @@ mod tests {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-            .insert(&db)
-            .await
-            .unwrap();
+        .insert(&db)
+        .await
+        .unwrap();
 
         admin_session::ActiveModel {
             id: Set(Uuid::new_v4()),
@@ -112,14 +120,18 @@ mod tests {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-            .insert(&db)
+        .insert(&db)
+        .await
+        .unwrap();
+
+        let sessions = Query::find_related_application_sessions(&db, &application)
             .await
             .unwrap();
-
-        let sessions = Query::find_related_application_sessions(&db, &application).await.unwrap();
         assert_eq!(sessions.len(), 1);
 
-        let sessions = Query::find_related_admin_sessions(&db, &admin).await.unwrap();
+        let sessions = Query::find_related_admin_sessions(&db, &admin)
+            .await
+            .unwrap();
         assert_eq!(sessions.len(), 1);
     }
 }

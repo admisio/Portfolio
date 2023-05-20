@@ -29,7 +29,11 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Candidate::Citizenship).string())
                     .col(ColumnDef::new(Candidate::Email).string())
                     .col(ColumnDef::new(Candidate::Sex).string())
-                    .col(ColumnDef::new(Candidate::PersonalIdentificationNumber).string().not_null())
+                    .col(
+                        ColumnDef::new(Candidate::PersonalIdentificationNumber)
+                            .string()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Candidate::SchoolName).string())
                     .col(ColumnDef::new(Candidate::HealthInsurance).string())
                     .col(ColumnDef::new(Candidate::GradesJson).string())

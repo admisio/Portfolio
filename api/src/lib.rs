@@ -11,10 +11,10 @@ use migration::MigratorTrait;
 use sea_orm_rocket::Database;
 
 mod guards;
+mod logging;
 mod pool;
 mod requests;
 mod routes;
-mod logging;
 pub mod test;
 
 use pool::Db;
@@ -158,7 +158,7 @@ pub fn rocket() -> Rocket<Build> {
             routes![
                 routes::admin::list_candidates,
                 routes::admin::list_candidates_csv,
-            ]
+            ],
         )
         .register("/", catchers![])
 }

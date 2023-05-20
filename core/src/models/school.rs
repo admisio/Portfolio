@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::error::ServiceError;
@@ -14,13 +14,12 @@ pub struct School {
 impl School {
     pub fn from_opt_str(school: Option<String>) -> Option<Self> {
         school.map(
-            |school| serde_json::from_str(&school).unwrap() // TODO: handle error
+            |school| serde_json::from_str(&school).unwrap(), // TODO: handle error
         )
     }
 
     pub fn validate_self(&self) -> Result<(), ServiceError> {
-        self.validate()
-            .map_err(ServiceError::ValidationError)
+        self.validate().map_err(ServiceError::ValidationError)
     }
 
     pub fn name(&self) -> &str {

@@ -1,17 +1,29 @@
-use std::net::{SocketAddr, IpAddr, Ipv4Addr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use portfolio_core::{
     crypto::random_12_char_string,
-    services::{admin_service::AdminService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
+    error::ServiceError,
+    models::{
+        application::ApplicationResponse,
+        auth::AuthenticableTrait,
+        candidate::{ApplicationDetails, CreateCandidateResponse},
+    },
+    sea_orm::prelude::Uuid,
+    services::{
+        admin_service::AdminService, application_service::ApplicationService,
+        portfolio_service::PortfolioService,
+    },
+    utils::csv,
+    Query,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
-use rocket::http::{Cookie, Status, CookieJar};
+use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
 
-use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
+use crate::{guards::request::auth::AdminAuth, pool::Db, requests};
 
 use super::to_custom_error;
 
@@ -38,7 +50,6 @@ pub async fn login(
             Status::from_code(e.code()).unwrap_or(Status::InternalServerError),
             e.to_string(),
         ));
-    
     };
 
     let session_token = session_token_key.0;
@@ -51,15 +62,26 @@ pub async fn login(
 }
 
 #[post("/logout")]
-pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &CookieJar<'_>,) -> Result<(), Custom<String>> {
+pub async fn logout(
+    conn: Connection<'_, Db>,
+    _session: AdminAuth,
+    cookies: &CookieJar<'_>,
+) -> Result<(), Custom<String>> {
     let db = conn.into_inner();
 
-    let cookie = cookies.get_private("id") // unwrap would be safe here because of the auth guard
-        .ok_or(Custom(Status::Unauthorized, "No session cookie".to_string()))?;
+    let cookie = cookies
+        .get_private("id") // unwrap would be safe here because of the auth guard
+        .ok_or(Custom(
+            Status::Unauthorized,
+            "No session cookie".to_string(),
+        ))?;
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
-    let session = Query::find_admin_session_by_uuid(db, session_id).await.unwrap().unwrap();
-    
+    let session = Query::find_admin_session_by_uuid(db, session_id)
+        .await
+        .unwrap()
+        .unwrap();
+
     let _res = AdminService::logout(db, session)
         .await
         .map_err(to_custom_error)?;
@@ -69,7 +91,6 @@ pub async fn logout(conn: Connection<'_, Db>, _session: AdminAuth, cookies: &Coo
 
     Ok(())
 }
-
 
 #[get("/whoami")]
 pub async fn whoami(session: AdminAuth) -> Result<String, Custom<String>> {
@@ -99,24 +120,18 @@ pub async fn create_candidate(
         &db,
         form.application_id,
         &plain_text_password,
-        form.personal_id_number.clone()
+        form.personal_id_number.clone(),
     )
-        .await
-        .map_err(to_custom_error)?;
+    .await
+    .map_err(to_custom_error)?;
 
-    Ok(
-        Json(
-            CreateCandidateResponse {
-                application_id: application.id,
-                field_of_study: application.field_of_study,
-                applications: applications.iter()
-                    .map(|a| a.id)
-                    .collect(),
-                personal_id_number,
-                password: plain_text_password,
-            }
-        )
-    )
+    Ok(Json(CreateCandidateResponse {
+        application_id: application.id,
+        field_of_study: application.field_of_study,
+        applications: applications.iter().map(|a| a.id).collect(),
+        personal_id_number,
+        password: plain_text_password,
+    }))
 }
 
 #[allow(unused_variables)]
@@ -125,23 +140,25 @@ pub async fn list_candidates(
     conn: Connection<'_, Db>,
     session: AdminAuth,
     field: Option<String>,
-    page: Option<u64>, 
+    page: Option<u64>,
     sort: Option<String>,
 ) -> Result<Json<Vec<ApplicationResponse>>, Custom<String>> {
     let db = conn.into_inner();
     let private_key = session.get_private_key();
     if let Some(field) = field.clone() {
         if !(field == "KB".to_string() || field == "IT".to_string() || field == "G") {
-            return Err(Custom(Status::BadRequest, "Invalid field of study".to_string()));
+            return Err(Custom(
+                Status::BadRequest,
+                "Invalid field of study".to_string(),
+            ));
         }
     }
 
     let candidates = ApplicationService::list_applications(&private_key, db, field, page, sort)
-        .await.map_err(to_custom_error)?;
+        .await
+        .map_err(to_custom_error)?;
 
-    Ok(
-        Json(candidates)
-    )
+    Ok(Json(candidates))
 }
 
 #[get("/candidates_csv")]
@@ -156,9 +173,7 @@ pub async fn list_candidates_csv(
         .await
         .map_err(to_custom_error)?;
 
-    Ok(
-        candidates
-    )
+    Ok(candidates)
 }
 
 #[get("/candidate/<id>")]
@@ -174,18 +189,12 @@ pub async fn get_candidate(
         .await
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
-    
-    let details = ApplicationService::decrypt_all_details(
-        private_key,
-        db,
-        &application
-    )
+
+    let details = ApplicationService::decrypt_all_details(private_key, db, &application)
         .await
         .map_err(to_custom_error)?;
 
-    Ok(
-        Json(details)
-    )
+    Ok(Json(details))
 }
 
 #[delete("/candidate/<id>")]
@@ -201,11 +210,9 @@ pub async fn delete_candidate(
         .map_err(|e| to_custom_error(ServiceError::DbError(e)))?
         .ok_or(to_custom_error(ServiceError::CandidateNotFound))?;
 
-
     ApplicationService::delete(db, application)
         .await
         .map_err(to_custom_error)
-
 }
 
 #[post("/candidate/<id>/reset_password")]
@@ -221,16 +228,14 @@ pub async fn reset_candidate_password(
     let response = ApplicationService::reset_password(private_key, db, id)
         .await
         .map_err(to_custom_error)?;
-    
-    Ok(
-        Json(response)
-    )
+
+    Ok(Json(response))
 }
 
 #[get("/candidate/<id>/portfolio")]
 pub async fn get_candidate_portfolio(
     conn: Connection<'_, Db>,
-    session: AdminAuth, 
+    session: AdminAuth,
     id: i32,
 ) -> Result<Vec<u8>, Custom<String>> {
     let db = conn.into_inner();
@@ -251,9 +256,12 @@ pub async fn get_candidate_portfolio(
 #[cfg(test)]
 pub mod tests {
     use portfolio_core::models::candidate::CreateCandidateResponse;
-    use rocket::{local::blocking::Client, http::{Cookie, Status}};
+    use rocket::{
+        http::{Cookie, Status},
+        local::blocking::Client,
+    };
 
-    use crate::test::tests::{test_client, ADMIN_PASSWORD, ADMIN_ID};
+    use crate::test::tests::{test_client, ADMIN_ID, ADMIN_PASSWORD};
 
     pub fn admin_login(client: &Client) -> (Cookie, Cookie) {
         let response = client
@@ -302,7 +310,7 @@ pub mod tests {
         let client = test_client().lock().unwrap();
         let cookies = admin_login(&client);
         let response = create_candidate(&client, cookies, 1031511, "0".to_string());
-    
+
         assert_eq!(response.password.len(), 12);
     }
 }

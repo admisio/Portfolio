@@ -17,25 +17,47 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Application::FieldOfStudy).string().not_null())
-                    .col(ColumnDef::new(Application::CandidateId).integer().not_null())
+                    .col(
+                        ColumnDef::new(Application::FieldOfStudy)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Application::CandidateId)
+                            .integer()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Application::Password).string().not_null())
                     .col(ColumnDef::new(Application::PublicKey).string().not_null())
                     .col(ColumnDef::new(Application::PrivateKey).string().not_null())
-                    .col(ColumnDef::new(Application::PersonalIdNumber).string().not_null())
-                    .col(ColumnDef::new(Application::CreatedAt).date_time().not_null())
-                    .col(ColumnDef::new(Application::UpdatedAt).date_time().not_null())
+                    .col(
+                        ColumnDef::new(Application::PersonalIdNumber)
+                            .string()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Application::CreatedAt)
+                            .date_time()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Application::UpdatedAt)
+                            .date_time()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
-                .await?;
+            .await?;
 
-        manager.create_index(
-            Index::create()
-                .name("idx_application_candidate_id")
-                .table(Application::Table)
-                .col(Application::CandidateId)
-                .to_owned(),
-        ).await?;
+        manager
+            .create_index(
+                Index::create()
+                    .name("idx_application_candidate_id")
+                    .table(Application::Table)
+                    .col(Application::CandidateId)
+                    .to_owned(),
+            )
+            .await?;
 
         Ok(())
     }

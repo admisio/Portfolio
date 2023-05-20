@@ -1,6 +1,9 @@
 use chrono::NaiveDateTime;
 use entity::{application, candidate};
-use sea_orm::{EntityTrait, DbErr, DbConn, ModelTrait, FromQueryResult, QuerySelect, JoinType, RelationTrait, QueryFilter, ColumnTrait, QueryOrder, PaginatorTrait};
+use sea_orm::{
+    ColumnTrait, DbConn, DbErr, EntityTrait, FromQueryResult, JoinType, ModelTrait, PaginatorTrait,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait,
+};
 
 const PAGE_SIZE: u64 = 20;
 
@@ -17,10 +20,9 @@ pub struct ApplicationCandidateJoin {
     pub created_at: NaiveDateTime,
 }
 
-use crate::{Query};
+use crate::Query;
 
-fn get_ordering(sort: String) -> (application::Column, sea_orm::Order)
-{
+fn get_ordering(sort: String) -> (application::Column, sea_orm::Order) {
     let mut split = sort.split("_");
     let column = split.next();
     let order = split.next();
@@ -28,7 +30,7 @@ fn get_ordering(sort: String) -> (application::Column, sea_orm::Order)
     let column = match column {
         Some("id") => application::Column::Id,
         Some("createdAt") => application::Column::CreatedAt,
-        _ => application::Column::Id
+        _ => application::Column::Id,
     };
 
     let order = match order {
@@ -54,10 +56,7 @@ impl Query {
         db: &DbConn,
         application: &application::Model,
     ) -> Result<Option<candidate::Model>, DbErr> {
-        application
-            .find_related(candidate::Entity)
-            .one(db)
-            .await
+        application.find_related(candidate::Entity).one(db).await
     }
 
     pub async fn list_applications(
@@ -73,34 +72,29 @@ impl Query {
             (application::Column::Id, sea_orm::Order::Asc)
         };
         let query = if let Some(field) = field_of_study {
-            select.filter(application::Column::FieldOfStudy.eq(field)) 
-         } else {
-             select
-         }
-            .order_by(column, order)
-            .join(JoinType::InnerJoin, application::Relation::Candidate.def())
-            .column_as(application::Column::Id, "application_id")
-            .column_as(candidate::Column::Id, "candidate_id")
-            .column_as(candidate::Column::Name, "name")
-            .column_as(candidate::Column::Surname, "surname")
-            .column_as(candidate::Column::Email, "email")
-            .column_as(candidate::Column::Telephone, "telephone")
-            .column_as(application::Column::CreatedAt, "created_at")
-            .into_model::<ApplicationCandidateJoin>();
+            select.filter(application::Column::FieldOfStudy.eq(field))
+        } else {
+            select
+        }
+        .order_by(column, order)
+        .join(JoinType::InnerJoin, application::Relation::Candidate.def())
+        .column_as(application::Column::Id, "application_id")
+        .column_as(candidate::Column::Id, "candidate_id")
+        .column_as(candidate::Column::Name, "name")
+        .column_as(candidate::Column::Surname, "surname")
+        .column_as(candidate::Column::Email, "email")
+        .column_as(candidate::Column::Telephone, "telephone")
+        .column_as(application::Column::CreatedAt, "created_at")
+        .into_model::<ApplicationCandidateJoin>();
 
         if let Some(page) = page {
-            query
-                .paginate(db, PAGE_SIZE)
-                .fetch_page(page).await
+            query.paginate(db, PAGE_SIZE).fetch_page(page).await
         } else {
-            query
-                .all(db).await
+            query.all(db).await
         }
     }
 
-    pub async fn list_applications_compact(
-        db: &DbConn,
-    ) -> Result<Vec<application::Model>, DbErr> {
+    pub async fn list_applications_compact(db: &DbConn) -> Result<Vec<application::Model>, DbErr> {
         application::Entity::find()
             .join(JoinType::InnerJoin, application::Relation::Candidate.def())
             .all(db)

@@ -30,7 +30,7 @@ pub struct CandidateResult {
     pub surname: Option<String>,
     pub email: Option<String>,
     pub telephone: Option<String>,
-    pub study: Option<String>,    
+    pub study: Option<String>,
     pub citizenship: Option<String>,
 }
 
@@ -39,23 +39,17 @@ impl Query {
         db: &DbConn,
         id: i32,
     ) -> Result<Option<candidate::Model>, DbErr> {
-        Candidate::find_by_id(id)
-            .one(db)
-            .await
+        Candidate::find_by_id(id).one(db).await
     }
 
-    pub async fn list_candidates_full(
-        db: &DbConn
-    ) -> Result<Vec<candidate::Model>, DbErr> {
+    pub async fn list_candidates_full(db: &DbConn) -> Result<Vec<candidate::Model>, DbErr> {
         Candidate::find()
             .order_by(candidate::Column::Id, Order::Asc)
             .all(db)
             .await
     }
 
-    pub async fn list_all_candidate_ids(
-        db: &DbConn,
-    ) -> Result<Vec<ApplicationId>, DbErr> {
+    pub async fn list_all_candidate_ids(db: &DbConn) -> Result<Vec<ApplicationId>, DbErr> {
         Candidate::find()
             .order_by(candidate::Column::Id, Order::Asc)
             .column(candidate::Column::Id)
@@ -81,8 +75,8 @@ mod tests {
 
     use entity::candidate;
 
-    use crate::Query;
     use crate::utils::db::get_memory_sqlite_connection;
+    use crate::Query;
 
     #[tokio::test]
     async fn test_find_candidate_by_id() {

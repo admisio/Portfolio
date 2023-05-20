@@ -68,7 +68,6 @@ mod tests {
             .unwrap();
         }
 
-
         let public_keys = Query::get_all_admin_public_keys(&db).await.unwrap();
 
         assert_eq!(public_keys.len(), 4);

@@ -17,7 +17,7 @@ impl<'r> FromData<'r> for Letter {
 
     async fn from_data(req: &'r Request<'_>, data: Data<'r>) -> data::Outcome<'r, Self> {
         if req.content_type() != Some(&ContentType::PDF) {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         let data = data.open(11.megabytes());
@@ -25,7 +25,7 @@ impl<'r> FromData<'r> for Letter {
         let data_bytes = data.into_bytes().await.unwrap();
 
         if !data_bytes.is_complete() {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         let data_bytes = data_bytes.into_inner();
@@ -33,7 +33,7 @@ impl<'r> FromData<'r> for Letter {
         let is_pdf = portfolio_core::utils::filetype::filetype_is_pdf(&data_bytes);
 
         if !is_pdf {
-            return Outcome::Failure((Status::BadRequest, None))
+            return Outcome::Failure((Status::BadRequest, None));
         }
 
         Outcome::Success(Letter(data_bytes))

@@ -1,8 +1,8 @@
 use ::entity::application;
 use log::{info, warn};
-use sea_orm::{DbConn, DbErr, Set, ActiveModelTrait, IntoActiveModel, DeleteResult, ModelTrait};
+use sea_orm::{ActiveModelTrait, DbConn, DbErr, DeleteResult, IntoActiveModel, ModelTrait, Set};
 
-use crate::{Mutation, models::candidate::FieldOfStudy};
+use crate::{models::candidate::FieldOfStudy, Mutation};
 
 impl Mutation {
     pub async fn create_application(
@@ -26,8 +26,8 @@ impl Mutation {
             created_at: Set(chrono::offset::Local::now().naive_local()),
             updated_at: Set(chrono::offset::Local::now().naive_local()),
         }
-            .insert(db)
-            .await?;
+        .insert(db)
+        .await?;
 
         info!("APPLICATION {} CREATED", application_id);
         Ok(insert)
@@ -52,7 +52,7 @@ impl Mutation {
         priv_key_enc: String,
     ) -> Result<application::Model, DbErr> {
         let application_id = application.id;
-        let mut application =  application.into_active_model();
+        let mut application = application.into_active_model();
         application.password = Set(new_password_hash);
         application.public_key = Set(pub_key);
         application.private_key = Set(priv_key_enc);

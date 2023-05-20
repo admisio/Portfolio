@@ -1,4 +1,4 @@
-use crate::{Mutation, models::candidate_details::{EncryptedCandidateDetails}};
+use crate::{models::candidate_details::EncryptedCandidateDetails, Mutation};
 
 use ::entity::candidate;
 use log::{info, warn};
@@ -15,8 +15,8 @@ impl Mutation {
             updated_at: Set(chrono::offset::Local::now().naive_local()),
             ..Default::default()
         }
-            .insert(db)
-            .await?;
+        .insert(db)
+        .await?;
 
         info!("CANDIDATE {} CREATED", candidate.id);
         Ok(candidate)
@@ -78,17 +78,14 @@ impl Mutation {
         let mut candidate = candidate.into_active_model();
         candidate.personal_identification_number = Set(personal_id.to_string());
 
-        candidate
-            .update(db)
-            .await
-
+        candidate.update(db).await
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::models::candidate_details::EncryptedApplicationDetails;
     use crate::models::candidate_details::tests::APPLICATION_DETAILS;
+    use crate::models::candidate_details::EncryptedApplicationDetails;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{Mutation, Query};
 
@@ -96,12 +93,9 @@ mod tests {
     async fn test_create_candidate() {
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = Mutation::create_candidate(
-            &db,
-            "".to_string(),
-        )
-        .await
-        .unwrap();
+        let candidate = Mutation::create_candidate(&db, "".to_string())
+            .await
+            .unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, candidate.id)
             .await
@@ -113,23 +107,26 @@ mod tests {
     async fn test_add_candidate_details() {
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = Mutation::create_candidate(
-            &db,
-            "".to_string(),
-        )
-        .await
-        .unwrap();
+        let candidate = Mutation::create_candidate(&db, "".to_string())
+            .await
+            .unwrap();
 
         let encrypted_details: EncryptedApplicationDetails = EncryptedApplicationDetails::new(
             &APPLICATION_DETAILS.lock().unwrap().clone(),
             &vec!["age1u889gp407hsz309wn09kxx9anl6uns30m27lfwnctfyq9tq4qpus8tzmq5".to_string()],
-        ).await.unwrap();
+        )
+        .await
+        .unwrap();
 
-        let candidate = Mutation::update_candidate_opt_details(&db, candidate, encrypted_details.candidate, 1).await.unwrap();
+        let candidate =
+            Mutation::update_candidate_opt_details(&db, candidate, encrypted_details.candidate, 1)
+                .await
+                .unwrap();
 
         let candidate = Query::find_candidate_by_id(&db, candidate.id)
-        .await
-        .unwrap().unwrap();
+            .await
+            .unwrap()
+            .unwrap();
 
         assert!(candidate.name.is_some());
     }

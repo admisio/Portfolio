@@ -1,12 +1,12 @@
-use std::{path::{PathBuf, Path}};
+use std::path::{Path, PathBuf};
 
 use entity::candidate;
 use log::{info, warn};
-use sea_orm::{DbConn};
-use serde::{Serialize, ser::{SerializeStruct}};
+use sea_orm::DbConn;
+use serde::{ser::SerializeStruct, Serialize};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-use crate::{error::ServiceError, Query, crypto};
+use crate::{crypto, error::ServiceError, Query};
 
 #[derive(Debug, PartialEq)]
 pub enum SubmissionProgress {
@@ -48,7 +48,6 @@ impl Serialize for SubmissionProgress {
         progress.end()
     }
 }
-
 
 #[derive(Debug, Copy, PartialEq, Clone)]
 pub enum FileType {
@@ -98,10 +97,11 @@ impl Serialize for FileType {
     }
 }
 
-
 pub struct PortfolioService;
 impl PortfolioService {
-    pub async fn get_submission_progress(candidate_id: i32) -> Result<SubmissionProgress, ServiceError> {
+    pub async fn get_submission_progress(
+        candidate_id: i32,
+    ) -> Result<SubmissionProgress, ServiceError> {
         let path = Self::get_file_store_path().join(&candidate_id.to_string());
         if !path.exists() {
             return Err(ServiceError::CandidateNotFound);
@@ -125,11 +125,11 @@ impl PortfolioService {
         }
     }
 
-
     // Get root path or local directory
     fn get_file_store_path() -> PathBuf {
         dotenv::dotenv().ok();
-        Path::new(&std::env::var("PORTFOLIO_STORE_PATH").unwrap_or_else(|_| "".to_string())).to_path_buf()
+        Path::new(&std::env::var("PORTFOLIO_STORE_PATH").unwrap_or_else(|_| "".to_string()))
+            .to_path_buf()
     }
 
     /// Writes file to desired location
@@ -138,27 +138,37 @@ impl PortfolioService {
         data: Vec<u8>,
         filename: FileType,
     ) -> Result<(), ServiceError> {
-        info!("PORTFOLIO {} CACHE {} WRITE STARTED", candidate_id, filename.as_str());
+        info!(
+            "PORTFOLIO {} CACHE {} WRITE STARTED",
+            candidate_id,
+            filename.as_str()
+        );
 
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
 
         let mut file = tokio::fs::File::create(cache_path.join(filename.as_str())).await?;
 
         file.write_all(&data).await?;
 
-        info!("PORTFOLIO {} CACHE {} WRITE FINISHED", candidate_id, filename.as_str());
+        info!(
+            "PORTFOLIO {} CACHE {} WRITE FINISHED",
+            candidate_id,
+            filename.as_str()
+        );
         Ok(())
     }
 
     pub async fn create_user_dir(application_id: i32) -> tokio::io::Result<()> {
         tokio::fs::create_dir_all(
             Self::get_file_store_path()
-            .join(&application_id.to_string())
-            .join("cache"))
-            .await
+                .join(&application_id.to_string())
+                .join("cache"),
+        )
+        .await
     }
 
-    
     pub async fn add_cover_letter_to_cache(
         candidate_id: i32,
         letter: Vec<u8>,
@@ -179,76 +189,74 @@ impl PortfolioService {
     ) -> Result<(), ServiceError> {
         Self::write_portfolio_file(candidate_id, zip, FileType::PortfolioZip).await
     }
-    
-    
+
     pub async fn is_cover_letter(candidate_id: i32) -> bool {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
-        
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
+
         tokio::fs::metadata(cache_path.join(cache_path.join(FileType::CoverLetterPdf.as_str())))
-        .await
-        .is_ok()
+            .await
+            .is_ok()
     }
 
     pub async fn is_portfolio_letter(candidate_id: i32) -> bool {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
 
-        tokio::fs::metadata(
-            cache_path.join(
-                cache_path.join(FileType::PortfolioLetterPdf.as_str())
-            )
-        )
+        tokio::fs::metadata(cache_path.join(cache_path.join(FileType::PortfolioLetterPdf.as_str())))
             .await
             .is_ok()
     }
 
     pub async fn is_portfolio_zip(candidate_id: i32) -> bool {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
 
-        tokio::fs::metadata(
-            cache_path.join(
-                cache_path.join(FileType::PortfolioZip.as_str())
-            )
-        )
+        tokio::fs::metadata(cache_path.join(cache_path.join(FileType::PortfolioZip.as_str())))
             .await
             .is_ok()
     }
 
-
     /// Returns true if portfolio is ready to be moved to the final directory
     async fn is_portfolio_prepared(candidate_id: i32) -> bool {
-        Self::get_submission_progress(candidate_id).await.ok() == Some(SubmissionProgress::AllInCache)
+        Self::get_submission_progress(candidate_id).await.ok()
+            == Some(SubmissionProgress::AllInCache)
     }
 
     // Delete single item from cache
-    pub async fn delete_cache_item(candidate_id: i32, file_type: FileType) -> Result<(), ServiceError> {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+    pub async fn delete_cache_item(
+        candidate_id: i32,
+        file_type: FileType,
+    ) -> Result<(), ServiceError> {
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
 
         tokio::fs::remove_file(cache_path.join(file_type.as_str())).await?;
 
         Ok(())
     }
 
-    pub async fn delete_cover_letter_from_cache(
-        candidate_id: i32,
-    ) -> Result<(), ServiceError> {
-        Self::delete_cache_item(candidate_id,  FileType::CoverLetterPdf).await
+    pub async fn delete_cover_letter_from_cache(candidate_id: i32) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id, FileType::CoverLetterPdf).await
     }
 
-    pub async fn delete_portfolio_letter_from_cache(
-        candidate_id: i32,
-    ) -> Result<(), ServiceError> {
-        Self::delete_cache_item(candidate_id,  FileType::PortfolioLetterPdf).await
+    pub async fn delete_portfolio_letter_from_cache(candidate_id: i32) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id, FileType::PortfolioLetterPdf).await
     }
 
-    pub async fn delete_portfolio_zip_from_cache(
-        candidate_id: i32,
-    ) -> Result<(), ServiceError> {
-        Self::delete_cache_item(candidate_id,  FileType::PortfolioZip).await
+    pub async fn delete_portfolio_zip_from_cache(candidate_id: i32) -> Result<(), ServiceError> {
+        Self::delete_cache_item(candidate_id, FileType::PortfolioZip).await
     }
 
     /// Removes all files from cache
     pub async fn delete_cache(candidate_id: i32) -> Result<(), ServiceError> {
-        let cache_path = Self::get_file_store_path().join(&candidate_id.to_string()).join("cache");
+        let cache_path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .join("cache");
         tokio::fs::remove_dir_all(&cache_path).await?;
         // Recreate blank cache directory
         tokio::fs::create_dir_all(&cache_path).await?;
@@ -256,24 +264,30 @@ impl PortfolioService {
         Ok(())
     }
 
-
     /// Move files from cache to final directory and delete cache afterwards
     pub async fn submit(candidate: &candidate::Model, db: &DbConn) -> Result<(), ServiceError> {
         let candidate_id = candidate.id;
-        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .to_path_buf();
         let cache_path = path.join("cache");
 
         if Self::is_portfolio_prepared(candidate_id).await == false {
             return Err(ServiceError::IncompletePortfolio);
         }
-        
+
         info!("PORTFOLIO {} SUBMIT STARTED", candidate.id);
 
-        let mut archive = tokio::fs::File::create(path.join(FileType::PortfolioZip.as_str())).await?;
-        let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
+        let mut archive =
+            tokio::fs::File::create(path.join(FileType::PortfolioZip.as_str())).await?;
+        let mut writer = async_zip::tokio::write::ZipFileWriter::with_tokio(&mut archive);
         let mut buffer = vec![vec![], vec![], vec![]];
 
-        let filenames = vec![FileType::CoverLetterPdf, FileType::PortfolioLetterPdf, FileType::PortfolioZip];
+        let filenames = vec![
+            FileType::CoverLetterPdf,
+            FileType::PortfolioLetterPdf,
+            FileType::PortfolioZip,
+        ];
         for (index, entry) in buffer.iter_mut().enumerate() {
             let filename = filenames[index];
             let mut entry_file = tokio::fs::File::open(cache_path.join(filename.as_str())).await?;
@@ -286,7 +300,7 @@ impl PortfolioService {
         for (index, entry) in buffer.iter_mut().enumerate() {
             let filename = filenames[index];
             let builder = async_zip::ZipEntryBuilder::new(
-                filename.to_string(),
+                async_zip::ZipString::from(filename.to_string()),
                 async_zip::Compression::Deflate,
             );
 
@@ -296,10 +310,12 @@ impl PortfolioService {
         writer.close().await?;
         archive.shutdown().await?;
 
-        let applications_pubkeys: Vec<String> = Query::find_applications_by_candidate_id(db, candidate_id)
-            .await?
-            .iter()
-            .map(|a| a.public_key.to_owned()).collect();
+        let applications_pubkeys: Vec<String> =
+            Query::find_applications_by_candidate_id(db, candidate_id)
+                .await?
+                .iter()
+                .map(|a| a.public_key.to_owned())
+                .collect();
         let admin_public_keys = Query::get_all_admin_public_keys(db).await?;
 
         let mut recipients = vec![];
@@ -312,12 +328,12 @@ impl PortfolioService {
             &final_path,
             &final_path.with_extension("age"),
             recipients,
-        ).await?;
+        )
+        .await?;
         tokio::fs::remove_file(final_path).await?;
 
-        
         if !Self::is_portfolio_submitted(candidate_id).await {
-            return Err(ServiceError::PortfolioWriteError)
+            return Err(ServiceError::PortfolioWriteError);
         }
 
         info!("PORTFOLIO {} SUBMIT FINISHED", candidate_id);
@@ -328,7 +344,9 @@ impl PortfolioService {
     /// Delete PORTFOLIO.age file
     pub async fn delete_portfolio(candidate_id: i32) -> Result<(), ServiceError> {
         info!("PORTFOLIO {} DELETE STARTED", candidate_id);
-        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .to_path_buf();
 
         let portfolio_path = path.join(FileType::PortfolioZip.as_str());
         let portfolio_age_path = portfolio_path.with_extension("age");
@@ -350,7 +368,9 @@ impl PortfolioService {
     pub async fn delete_candidate_root(candidate_id: i32) -> Result<(), ServiceError> {
         warn!("CANDIDATE {} ROOT DIRECTORY DELETE STARTED", candidate_id);
 
-        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .to_path_buf();
         tokio::fs::remove_dir_all(path).await?;
 
         warn!("CANDIDATE {} ROOT DIRECTORY DELETE FINISHED", candidate_id);
@@ -360,13 +380,20 @@ impl PortfolioService {
 
     /// Returns true if portfolio is submitted
     pub async fn is_portfolio_submitted(candidate_id: i32) -> bool {
-        let path = Self::get_file_store_path().join(&candidate_id.to_string()).to_path_buf();
+        let path = Self::get_file_store_path()
+            .join(&candidate_id.to_string())
+            .to_path_buf();
 
-        tokio::fs::metadata(path.join(FileType::Age.as_str())).await.is_ok()
+        tokio::fs::metadata(path.join(FileType::Age.as_str()))
+            .await
+            .is_ok()
     }
 
     /// Returns decrypted portfolio zip as Vec of bytes
-    pub async fn get_portfolio(candidate_id: i32, private_key: String) -> Result<Vec<u8>, ServiceError> {
+    pub async fn get_portfolio(
+        candidate_id: i32,
+        private_key: String,
+    ) -> Result<Vec<u8>, ServiceError> {
         info!("PORTFOLIO {} DECRYPT STARTED", candidate_id);
         let path = Self::get_file_store_path()
             .join(&candidate_id.to_string())
@@ -379,9 +406,10 @@ impl PortfolioService {
         Ok(buffer)
     }
 
-    pub async fn reencrypt_portfolio(candidate_id: i32,
+    pub async fn reencrypt_portfolio(
+        candidate_id: i32,
         private_key: String,
-        recipients: &Vec<String>
+        recipients: &Vec<String>,
     ) -> Result<(), ServiceError> {
         info!("PORTFOLIO {} REENCRYPT STARTED", candidate_id);
         let path = Self::get_file_store_path()
@@ -389,19 +417,14 @@ impl PortfolioService {
             .join(FileType::Age.as_str())
             .to_path_buf();
 
-        let plain_portfolio = crypto::decrypt_file_with_private_key_as_buffer(
-            path.to_owned(),
-            &private_key
-        ).await?;
+        let plain_portfolio =
+            crypto::decrypt_file_with_private_key_as_buffer(path.to_owned(), &private_key).await?;
 
-        
-        let enc_portfolio= crypto::encrypt_buffer_with_recipients(
-            &plain_portfolio, 
-            recipients
-        ).await?;
-        
+        let enc_portfolio =
+            crypto::encrypt_buffer_with_recipients(&plain_portfolio, recipients).await?;
+
         tokio::fs::remove_file(path.to_owned()).await?;
-        
+
         tokio::fs::write(path, enc_portfolio).await?;
 
         info!("PORTFOLIO {} REENCRYPT FINISHED", candidate_id);
@@ -414,7 +437,14 @@ impl PortfolioService {
 mod tests {
     use serial_test::serial;
 
-    use crate::{services::{portfolio_service::{PortfolioService, FileType}, candidate_service::{CandidateService, tests::put_user_data}}, utils::db::get_memory_sqlite_connection, crypto};
+    use crate::{
+        crypto,
+        services::{
+            candidate_service::{tests::put_user_data, CandidateService},
+            portfolio_service::{FileType, PortfolioService},
+        },
+        utils::db::get_memory_sqlite_connection,
+    };
     use std::path::PathBuf;
 
     const APPLICATION_ID: i32 = 103151;
@@ -422,12 +452,16 @@ mod tests {
     #[cfg(test)]
     async fn create_data_store_temp_dir(application_id: i32) -> (PathBuf, PathBuf, PathBuf) {
         let random_number: u32 = rand::Rng::gen(&mut rand::thread_rng());
-        
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join(random_number.to_string());
+
+        let temp_dir = std::env::temp_dir()
+            .join("portfolio_test_tempdir")
+            .join(random_number.to_string());
         let application_dir = temp_dir.join(application_id.to_string());
         let application_cache_dir = application_dir.join("cache");
 
-        tokio::fs::create_dir_all(application_cache_dir.clone()).await.unwrap();
+        tokio::fs::create_dir_all(application_cache_dir.clone())
+            .await
+            .unwrap();
 
         std::env::set_var("PORTFOLIO_STORE_PATH", temp_dir.to_str().unwrap());
 
@@ -446,7 +480,9 @@ mod tests {
     async fn test_folder_creation() {
         let db = get_memory_sqlite_connection().await;
 
-        let temp_dir = std::env::temp_dir().join("portfolio_test_tempdir").join("create_folder");
+        let temp_dir = std::env::temp_dir()
+            .join("portfolio_test_tempdir")
+            .join("create_folder");
         std::env::set_var("PORTFOLIO_STORE_PATH", temp_dir.to_str().unwrap());
 
         let candidate = CandidateService::create(&db, "".to_string())
@@ -454,8 +490,14 @@ mod tests {
             .ok()
             .unwrap();
 
-        assert!(tokio::fs::metadata(temp_dir.join(candidate.id.to_string())).await.is_ok());
-        assert!(tokio::fs::metadata(temp_dir.join(candidate.id.to_string()).join("cache")).await.is_ok());
+        assert!(tokio::fs::metadata(temp_dir.join(candidate.id.to_string()))
+            .await
+            .is_ok());
+        assert!(
+            tokio::fs::metadata(temp_dir.join(candidate.id.to_string()).join("cache"))
+                .await
+                .is_ok()
+        );
 
         tokio::fs::remove_dir_all(temp_dir).await.unwrap();
     }
@@ -465,9 +507,19 @@ mod tests {
     async fn test_write_portfolio_file() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::write_portfolio_file(APPLICATION_ID, vec![0], crate::services::portfolio_service::FileType::PortfolioLetterPdf).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_cache_dir.join(FileType::PortfolioLetterPdf.as_str())).await.is_ok());
+        PortfolioService::write_portfolio_file(
+            APPLICATION_ID,
+            vec![0],
+            crate::services::portfolio_service::FileType::PortfolioLetterPdf,
+        )
+        .await
+        .unwrap();
+
+        assert!(tokio::fs::metadata(
+            application_cache_dir.join(FileType::PortfolioLetterPdf.as_str())
+        )
+        .await
+        .is_ok());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -477,9 +529,15 @@ mod tests {
     async fn test_add_cover_letter_to_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_ok());
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf"))
+                .await
+                .is_ok()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -489,11 +547,19 @@ mod tests {
     async fn test_delete_cover_letter_from_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        PortfolioService::delete_cover_letter_from_cache(APPLICATION_ID).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
-        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_err());
+        PortfolioService::delete_cover_letter_from_cache(APPLICATION_ID)
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf"))
+                .await
+                .is_err()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -503,8 +569,10 @@ mod tests {
     async fn test_is_cover_letter() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
         assert!(PortfolioService::is_cover_letter(APPLICATION_ID).await);
 
         clear_data_store_temp_dir(temp_dir).await;
@@ -515,24 +583,37 @@ mod tests {
     async fn test_delete_cache_item() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
-        PortfolioService::delete_cache_item(APPLICATION_ID, FileType::CoverLetterPdf).await.unwrap();
+        PortfolioService::delete_cache_item(APPLICATION_ID, FileType::CoverLetterPdf)
+            .await
+            .unwrap();
 
-        assert!(tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf")).await.is_err());
-        
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("MOTIVACNI_DOPIS.pdf"))
+                .await
+                .is_err()
+        );
+
         clear_data_store_temp_dir(temp_dir).await;
     }
-    
 
     #[tokio::test]
     #[serial]
     async fn test_add_portfolio_letter_to_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
-        
-        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_ok());
+
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf"))
+                .await
+                .is_ok()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -542,11 +623,19 @@ mod tests {
     async fn test_delete_portfolio_letter_from_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        PortfolioService::delete_portfolio_letter_from_cache(APPLICATION_ID).await.unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
-        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf")).await.is_err());
+        PortfolioService::delete_portfolio_letter_from_cache(APPLICATION_ID)
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.pdf"))
+                .await
+                .is_err()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -556,8 +645,10 @@ mod tests {
     async fn test_is_portfolio_letter() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
         assert!(PortfolioService::is_portfolio_letter(APPLICATION_ID).await);
 
         clear_data_store_temp_dir(temp_dir).await;
@@ -568,9 +659,15 @@ mod tests {
     async fn test_add_portfolio_zip_to_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_ok());
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip"))
+                .await
+                .is_ok()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -580,11 +677,19 @@ mod tests {
     async fn test_delete_portfolio_zip_from_cache() {
         let (temp_dir, _, application_cache_dir) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
-        PortfolioService::delete_portfolio_zip_from_cache(APPLICATION_ID).await.unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
-        assert!(tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip")).await.is_err());
+        PortfolioService::delete_portfolio_zip_from_cache(APPLICATION_ID)
+            .await
+            .unwrap();
+
+        assert!(
+            tokio::fs::metadata(application_cache_dir.join("PORTFOLIO.zip"))
+                .await
+                .is_err()
+        );
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -594,8 +699,10 @@ mod tests {
     async fn test_is_portfolio_zip() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
         assert!(PortfolioService::is_portfolio_zip(APPLICATION_ID).await);
 
         clear_data_store_temp_dir(temp_dir).await;
@@ -606,9 +713,15 @@ mod tests {
     async fn test_is_portfolio_prepared() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
         assert!(PortfolioService::is_portfolio_prepared(APPLICATION_ID).await);
 
@@ -616,9 +729,13 @@ mod tests {
 
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
         //PortfolioService::add_portfolio_letter_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
 
         assert!(!PortfolioService::is_portfolio_prepared(APPLICATION_ID).await);
 
@@ -630,11 +747,15 @@ mod tests {
     async fn test_delete_cache() {
         let (temp_dir, _, _) = create_data_store_temp_dir(APPLICATION_ID).await;
 
-        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0]).await.unwrap();
-        
+        PortfolioService::add_portfolio_zip_to_cache(APPLICATION_ID, vec![0])
+            .await
+            .unwrap();
+
         assert!(PortfolioService::is_portfolio_zip(APPLICATION_ID).await);
 
-        PortfolioService::delete_cache(APPLICATION_ID).await.unwrap();
+        PortfolioService::delete_cache(APPLICATION_ID)
+            .await
+            .unwrap();
 
         assert!(!PortfolioService::is_portfolio_zip(APPLICATION_ID).await);
 
@@ -646,16 +767,24 @@ mod tests {
     async fn test_add_portfolio() {
         let db = get_memory_sqlite_connection().await;
         let (_, candidate, _) = put_user_data(&db).await;
-        
+
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(candidate.id).await;
 
-        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
 
         PortfolioService::submit(&candidate, &db).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
+
+        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age"))
+            .await
+            .is_ok());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -668,17 +797,29 @@ mod tests {
 
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(candidate.id).await;
 
-        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
 
         PortfolioService::submit(&candidate, &db).await.unwrap();
-        
-        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
 
-        PortfolioService::delete_portfolio(candidate.id).await.unwrap();
+        assert!(tokio::fs::metadata(application_dir.join("PORTFOLIO.age"))
+            .await
+            .is_ok());
 
-        assert!(!tokio::fs::metadata(application_dir.join("PORTFOLIO.age")).await.is_ok());
+        PortfolioService::delete_portfolio(candidate.id)
+            .await
+            .unwrap();
+
+        assert!(!tokio::fs::metadata(application_dir.join("PORTFOLIO.age"))
+            .await
+            .is_ok());
 
         clear_data_store_temp_dir(temp_dir).await;
     }
@@ -691,26 +832,40 @@ mod tests {
         let (_, candidate, _) = put_user_data(&db).await;
         let (temp_dir, _, _) = create_data_store_temp_dir(candidate.id).await;
 
-        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
 
         PortfolioService::submit(&candidate, &db).await.unwrap();
-        
+
         assert!(PortfolioService::is_portfolio_submitted(candidate.id).await);
 
         clear_data_store_temp_dir(temp_dir).await;
 
         let (temp_dir, application_dir, _) = create_data_store_temp_dir(candidate.id).await;
 
-        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0]).await.unwrap();
-        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0]).await.unwrap();
+        PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_letter_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
+        PortfolioService::add_portfolio_zip_to_cache(candidate.id, vec![0])
+            .await
+            .unwrap();
 
         PortfolioService::submit(&candidate, &db).await.unwrap();
 
-        tokio::fs::remove_file(application_dir.join("PORTFOLIO.age")).await.unwrap();
-        
+        tokio::fs::remove_file(application_dir.join("PORTFOLIO.age"))
+            .await
+            .unwrap();
+
         assert!(!PortfolioService::is_portfolio_submitted(candidate.id).await);
 
         clear_data_store_temp_dir(temp_dir).await;
@@ -724,9 +879,10 @@ mod tests {
 
         let (temp_dir, _, _) = create_data_store_temp_dir(candidate.id).await;
 
-        let private_key = crypto::decrypt_password(application.private_key.clone(), "test".to_string())
-            .await
-            .unwrap();
+        let private_key =
+            crypto::decrypt_password(application.private_key.clone(), "test".to_string())
+                .await
+                .unwrap();
 
         PortfolioService::add_cover_letter_to_cache(candidate.id, vec![0])
             .await
@@ -738,9 +894,7 @@ mod tests {
             .await
             .unwrap();
 
-        PortfolioService::submit(&candidate, &db)
-            .await
-            .unwrap();
+        PortfolioService::submit(&candidate, &db).await.unwrap();
 
         PortfolioService::get_portfolio(candidate.id, private_key)
             .await

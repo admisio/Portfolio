@@ -1,4 +1,4 @@
-use crate::{Mutation, models::candidate_details::{EncryptedParentDetails}};
+use crate::{models::candidate_details::EncryptedParentDetails, Mutation};
 
 use ::entity::parent::{self, Model};
 use sea_orm::*;
@@ -16,9 +16,7 @@ impl Mutation {
     }
 
     pub async fn delete_parent(db: &DbConn, parent: Model) -> Result<DeleteResult, DbErr> {
-        parent
-            .delete(db)
-            .await
+        parent.delete(db).await
     }
 
     pub async fn add_parent_details(
@@ -40,8 +38,8 @@ impl Mutation {
 
 #[cfg(test)]
 mod tests {
-    use crate::models::candidate_details::EncryptedApplicationDetails;
     use crate::models::candidate_details::tests::APPLICATION_DETAILS;
+    use crate::models::candidate_details::EncryptedApplicationDetails;
     use crate::utils::db::get_memory_sqlite_connection;
     use crate::{Mutation, Query};
 
@@ -49,16 +47,15 @@ mod tests {
     async fn test_create_parent() {
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = Mutation::create_candidate(
-            &db,
-            "".to_string(),
-        )
-        .await
-        .unwrap();
+        let candidate = Mutation::create_candidate(&db, "".to_string())
+            .await
+            .unwrap();
 
         Mutation::create_parent(&db, candidate.id).await.unwrap();
 
-        let parents = Query::find_candidate_parents(&db, &candidate).await.unwrap();
+        let parents = Query::find_candidate_parents(&db, &candidate)
+            .await
+            .unwrap();
         assert!(parents.get(0).is_some());
     }
 
@@ -66,12 +63,9 @@ mod tests {
     async fn test_add_candidate_details() {
         let db = get_memory_sqlite_connection().await;
 
-        let candidate = Mutation::create_candidate(
-            &db,
-            "".to_string(),
-        )
-        .await
-        .unwrap();
+        let candidate = Mutation::create_candidate(&db, "".to_string())
+            .await
+            .unwrap();
 
         let parent = Mutation::create_parent(&db, candidate.id).await.unwrap();
 

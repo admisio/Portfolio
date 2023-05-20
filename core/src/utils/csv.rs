@@ -2,7 +2,8 @@ use crate::{
     error::ServiceError,
     models::candidate_details::EncryptedApplicationDetails,
     models::{application::ApplicationRow, candidate::ApplicationDetails},
-    Query, services::application_service::ApplicationService,
+    services::application_service::ApplicationService,
+    Query,
 };
 use sea_orm::DbConn;
 
@@ -10,11 +11,7 @@ impl TryFrom<(i32, ApplicationDetails)> for ApplicationRow {
     type Error = ServiceError;
     fn try_from((application, d): (i32, ApplicationDetails)) -> Result<Self, ServiceError> {
         let c = d.candidate;
-        let (diploma_1_8, 
-            diploma_2_8,
-            diploma_1_9,
-            diploma_2_9
-        ) = c.grades.group_by_semester()?;
+        let (diploma_1_8, diploma_2_8, diploma_1_9, diploma_2_9) = c.grades.group_by_semester()?;
         Ok(Self {
             application,
             name: Some(c.name),
@@ -63,23 +60,23 @@ pub async fn export(db: &DbConn, private_key: String) -> Result<Vec<u8>, Service
         let candidate = ApplicationService::find_related_candidate(db, &application).await?;
         let parents = Query::find_candidate_parents(db, &candidate).await?;
 
-        let row: ApplicationRow = match EncryptedApplicationDetails::try_from((&candidate, &parents))
-        {
-            Ok(d) => ApplicationRow::try_from(
-                d.decrypt(private_key.to_string())
-                    .await
-                    .map(|d| (application.id, d))?,
-            )
+        let row: ApplicationRow =
+            match EncryptedApplicationDetails::try_from((&candidate, &parents)) {
+                Ok(d) => ApplicationRow::try_from(
+                    d.decrypt(private_key.to_string())
+                        .await
+                        .map(|d| (application.id, d))?,
+                )
                 .unwrap_or(ApplicationRow {
                     application: application.id,
                     ..Default::default()
                 }),
 
-            Err(_) => ApplicationRow {
-                application: application.id,
-                ..Default::default()
-            },
-        };
+                Err(_) => ApplicationRow {
+                    application: application.id,
+                    ..Default::default()
+                },
+            };
         wtr.serialize(row)?;
     }
     wtr.into_inner()

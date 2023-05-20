@@ -18,11 +18,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(Parent::CandidateId)
-                            .integer()
-                            .not_null()
-                    )
+                    .col(ColumnDef::new(Parent::CandidateId).integer().not_null())
                     .col(ColumnDef::new(Parent::Name).string())
                     .col(ColumnDef::new(Parent::Surname).string())
                     .col(ColumnDef::new(Parent::Telephone).string())
@@ -31,7 +27,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Parent::UpdatedAt).date_time().not_null())
                     .to_owned(),
             )
-                .await
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

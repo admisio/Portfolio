@@ -1,9 +1,8 @@
-use chrono::{Utc, Duration, NaiveDateTime};
 use ::entity::session;
-use sea_orm::{*, prelude::Uuid};
+use chrono::{Duration, NaiveDateTime, Utc};
+use sea_orm::{prelude::Uuid, *};
 
 use crate::Mutation;
-
 
 impl Mutation {
     pub async fn insert_candidate_session(
@@ -21,30 +20,30 @@ impl Mutation {
                 .naive_local()
                 .checked_add_signed(Duration::days(14))
                 .unwrap()),
-            updated_at: Set(Utc::now().naive_local())
+            updated_at: Set(Utc::now().naive_local()),
         }
         .insert(db)
         .await
     }
 
-    pub async fn update_session_expiration(db: &DbConn, 
-        session: session::Model, 
+    pub async fn update_session_expiration(
+        db: &DbConn,
+        session: session::Model,
         expires_at: NaiveDateTime,
     ) -> Result<session::Model, DbErr> {
         let mut session = session.into_active_model();
 
         session.expires_at = Set(expires_at);
         session.updated_at = Set(Utc::now().naive_local());
-        
+
         session.update(db).await
     }
 
-    pub async fn delete_session<T>(db: &DbConn, session: T) -> Result<DeleteResult, DbErr> 
-    where T: ActiveModelTrait + std::marker::Send + ActiveModelBehavior
+    pub async fn delete_session<T>(db: &DbConn, session: T) -> Result<DeleteResult, DbErr>
+    where
+        T: ActiveModelTrait + std::marker::Send + ActiveModelBehavior,
     {
-        session
-            .delete(db)
-            .await
+        session.delete(db).await
     }
 }
 

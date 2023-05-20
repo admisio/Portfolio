@@ -1,4 +1,3 @@
-
 use entity::candidate;
 use entity::parent;
 use entity::parent::Model;
@@ -12,10 +11,7 @@ impl Query {
         db: &DbConn,
         candidate: &candidate::Model,
     ) -> Result<Vec<Model>, DbErr> {
-
-        candidate.find_related(parent::Entity)
-            .all(db)
-            .await
+        candidate.find_related(parent::Entity).all(db).await
     }
 }
 
@@ -24,8 +20,8 @@ mod tests {
     use entity::{candidate, parent};
     use sea_orm::{ActiveModelTrait, Set};
 
-    use crate::Query;
     use crate::utils::db::get_memory_sqlite_connection;
+    use crate::Query;
 
     #[tokio::test]
     async fn test_find_parent_by_id() {
@@ -53,7 +49,7 @@ mod tests {
         .await
         .unwrap();
 
-        let parent =  Query::find_candidate_by_id(&db, parent.candidate_id)
+        let parent = Query::find_candidate_by_id(&db, parent.candidate_id)
             .await
             .unwrap();
         assert!(parent.is_some());

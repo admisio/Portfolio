@@ -4,8 +4,8 @@ use argon2::{
     Argon2, PasswordHasher as ArgonPasswordHasher, PasswordVerifier as ArgonPasswordVerifier,
 };
 use async_compat::CompatExt;
-use base64::Engine;
 use base64::engine::general_purpose::STANDARD as base64;
+use base64::Engine;
 use futures::io::{AsyncReadExt, AsyncWriteExt};
 use rand::Rng;
 use secrecy::ExposeSecret;
@@ -24,7 +24,7 @@ pub fn random_12_char_string() -> String {
         .filter(is_usable_char)
         .take(12)
         .collect();
-    
+
     random_chars_12
         .iter()
         .map(|c| c.to_string())
@@ -34,10 +34,10 @@ pub fn random_12_char_string() -> String {
 
 /// Exclude O and 0, lowercase letters
 fn is_usable_char(c: &char) -> bool {
-    ('1'..='9').contains(c) ||
-    ('A'..='N').contains(c) ||
-    ('P'..'Z').contains(c) ||
-    ['@', '#', '$', '%'].contains(c)
+    ('1'..='9').contains(c)
+        || ('A'..='N').contains(c)
+        || ('P'..'Z').contains(c)
+        || ['@', '#', '$', '%'].contains(c)
 }
 
 pub async fn hash_password(password_plain_text: String) -> Result<String, ServiceError> {
@@ -205,10 +205,12 @@ pub async fn encrypt_buffer_with_recipients(
     recipients: &Vec<String>,
 ) -> Result<Vec<u8>, ServiceError> {
     let mut output_buffer = vec![];
-    age_encrypt_with_recipients(input_buffer,
+    age_encrypt_with_recipients(
+        input_buffer,
         &mut output_buffer,
-        &recipients.iter().map(|s| s.as_str()).collect()
-    ).await?;
+        &recipients.iter().map(|s| s.as_str()).collect(),
+    )
+    .await?;
 
     Ok(output_buffer)
 }
@@ -353,8 +355,8 @@ pub async fn decrypt_file_with_private_key_as_buffer<P: AsRef<Path>>(
 
 #[cfg(test)]
 mod tests {
-    use base64::Engine;
     use base64::engine::general_purpose::STANDARD as base64;
+    use base64::Engine;
 
     #[test]
     fn test_random_12_char_string() {

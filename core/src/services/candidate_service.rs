@@ -2,12 +2,12 @@ use entity::candidate;
 use sea_orm::DbConn;
 
 use crate::{
-    models::{candidate_details::EncryptedCandidateDetails, candidate::CandidateDetails},
     error::ServiceError,
+    models::{candidate::CandidateDetails, candidate_details::EncryptedCandidateDetails},
     Mutation,
 };
 
-use super::{portfolio_service::PortfolioService};
+use super::portfolio_service::PortfolioService;
 
 pub struct CandidateService;
 
@@ -21,19 +21,17 @@ impl CandidateService {
         db: &DbConn,
         enc_personal_id_number: String,
     ) -> Result<candidate::Model, ServiceError> {
-        let candidate = Mutation::create_candidate(
-            db,
-            enc_personal_id_number,
-        )
-            .await?;
-        
+        let candidate = Mutation::create_candidate(db, enc_personal_id_number).await?;
+
         PortfolioService::create_user_dir(candidate.id).await?;
 
-            
         Ok(candidate)
     }
 
-    pub async fn delete_candidate(db: &DbConn, candidate: candidate::Model) -> Result<(), ServiceError> {
+    pub async fn delete_candidate(
+        db: &DbConn,
+        candidate: candidate::Model,
+    ) -> Result<(), ServiceError> {
         PortfolioService::delete_candidate_root(candidate.id).await?;
 
         Mutation::delete_candidate(db, candidate).await?;
@@ -48,12 +46,9 @@ impl CandidateService {
         encrypted_by: i32,
     ) -> Result<entity::candidate::Model, ServiceError> {
         let enc_details = EncryptedCandidateDetails::new(&details, recipients).await?;
-        let model = Mutation::update_candidate_opt_details(
-            db,
-            candidate,
-            enc_details,
-            encrypted_by
-        ).await?;
+        let model =
+            Mutation::update_candidate_opt_details(db, candidate, enc_details, encrypted_by)
+                .await?;
         Ok(model)
     }
 }
@@ -62,10 +57,10 @@ impl CandidateService {
 pub mod tests {
     use sea_orm::DbConn;
 
+    use crate::crypto;
     use crate::models::candidate_details::tests::assert_all_application_details;
     use crate::services::admin_service::admin_tests::create_admin;
     use crate::utils::db::get_memory_sqlite_connection;
-    use crate::{crypto};
 
     use crate::models::candidate_details::EncryptedApplicationDetails;
     use entity::{application, candidate, parent};
@@ -78,19 +73,30 @@ pub mod tests {
     async fn test_list_applications() {
         let db = get_memory_sqlite_connection().await;
         let admin = create_admin(&db).await;
-        let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string()).await.unwrap();
-        let candidates = ApplicationService::list_applications(&private_key, &db, None, None, None).await.unwrap();
+        let private_key = crypto::decrypt_password(admin.private_key, "admin".to_string())
+            .await
+            .unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db, None, None, None)
+            .await
+            .unwrap();
         assert_eq!(candidates.len(), 0);
 
         put_user_data(&db).await;
 
-        let candidates = ApplicationService::list_applications(&private_key, &db, None, None, None).await.unwrap();
+        let candidates = ApplicationService::list_applications(&private_key, &db, None, None, None)
+            .await
+            .unwrap();
         assert_eq!(candidates.len(), 1);
     }
 
     #[cfg(test)]
-    pub async fn put_user_data(db: &DbConn) -> (application::Model, candidate::Model, Vec<parent::Model>) {
-        use crate::{models::candidate_details::tests::APPLICATION_DETAILS, services::parent_service::ParentService};
+    pub async fn put_user_data(
+        db: &DbConn,
+    ) -> (application::Model, candidate::Model, Vec<parent::Model>) {
+        use crate::{
+            models::candidate_details::tests::APPLICATION_DETAILS,
+            services::parent_service::ParentService,
+        };
 
         let plain_text_password = "test".to_string();
         let application = ApplicationService::create(
@@ -98,23 +104,25 @@ pub mod tests {
             db,
             APPLICATION_ID,
             &plain_text_password,
-            "0000001111".to_string()
-        ).await.unwrap().0;
+            "0000001111".to_string(),
+        )
+        .await
+        .unwrap()
+        .0;
 
-        let candidate= ApplicationService::find_related_candidate(db, &application).await.unwrap();
+        let candidate = ApplicationService::find_related_candidate(db, &application)
+            .await
+            .unwrap();
         ParentService::create(db, candidate.id).await.unwrap();
 
         let form = APPLICATION_DETAILS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db,  &application, candidate, &form)
-            .await
-            .unwrap();
+        let (candidate, parents) =
+            ApplicationService::add_all_details(&db, &application, candidate, &form)
+                .await
+                .unwrap();
 
-        (
-            application,
-            candidate,
-            parents,
-        )
+        (application, candidate, parents)
     }
 
     #[tokio::test]

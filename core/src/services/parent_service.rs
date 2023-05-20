@@ -1,17 +1,17 @@
-use entity::{parent, candidate};
+use entity::{candidate, parent};
 use sea_orm::DbConn;
 
-use crate::{error::ServiceError, Mutation, models::{candidate_details::{EncryptedParentDetails}, candidate::ParentDetails}, Query};
+use crate::{
+    error::ServiceError,
+    models::{candidate::ParentDetails, candidate_details::EncryptedParentDetails},
+    Mutation, Query,
+};
 
 pub struct ParentService;
 
 impl ParentService {
-    pub async fn create(
-        db: &DbConn,
-        application_id: i32,
-    ) -> Result<parent::Model, ServiceError> {
-        let parent = Mutation::create_parent(db, application_id)
-            .await?;
+    pub async fn create(db: &DbConn, application_id: i32) -> Result<parent::Model, ServiceError> {
+        let parent = Mutation::create_parent(db, application_id).await?;
 
         Ok(parent)
     }
@@ -25,7 +25,7 @@ impl ParentService {
         if parents_details.len() > 2 {
             return Err(ServiceError::ParentOverflow);
         }
-        
+
         let found_parents = Query::find_candidate_parents(db, ref_candidate).await?;
 
         let mut result = vec![];
@@ -35,7 +35,8 @@ impl ParentService {
                 None => ParentService::create(db, ref_candidate.id).await?,
             };
             let enc_details = EncryptedParentDetails::new(&parents_details[i], recipients).await?;
-            let parent = Mutation::add_parent_details(db, found_parent, enc_details.clone()).await?;
+            let parent =
+                Mutation::add_parent_details(db, found_parent, enc_details.clone()).await?;
             result.push(parent);
         }
 
@@ -54,9 +55,23 @@ mod tests {
 
     use once_cell::sync::Lazy;
 
-    use crate::{utils::db::get_memory_sqlite_connection, models::{candidate::{ParentDetails, ApplicationDetails, CandidateDetails}, candidate_details::EncryptedApplicationDetails, grade::GradeList, school::School}, services::{candidate_service::{CandidateService, tests::put_user_data}, application_service::ApplicationService, parent_service::ParentService}, crypto};
+    use crate::{
+        crypto,
+        models::{
+            candidate::{ApplicationDetails, CandidateDetails, ParentDetails},
+            candidate_details::EncryptedApplicationDetails,
+            grade::GradeList,
+            school::School,
+        },
+        services::{
+            application_service::ApplicationService,
+            candidate_service::{tests::put_user_data, CandidateService},
+            parent_service::ParentService,
+        },
+        utils::db::get_memory_sqlite_connection,
+    };
 
-    pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| 
+    pub static APPLICATION_DETAILS_TWO_PARENTS: Lazy<Mutex<ApplicationDetails>> = Lazy::new(|| {
         Mutex::new(ApplicationDetails {
             candidate: CandidateDetails {
                 name: "name".to_string(),
@@ -74,31 +89,43 @@ mod tests {
                 school_name: "school_name".to_string(),
                 health_insurance: "health_insurance".to_string(),
                 grades: GradeList::from(vec![]),
-                first_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"KB\"}".to_string())).unwrap(),
-                second_school: School::from_opt_str(Some("{\"name\": \"SSPS\", \"field\": \"IT\"}".to_string())).unwrap(),
+                first_school: School::from_opt_str(Some(
+                    "{\"name\": \"SSPS\", \"field\": \"KB\"}".to_string(),
+                ))
+                .unwrap(),
+                second_school: School::from_opt_str(Some(
+                    "{\"name\": \"SSPS\", \"field\": \"IT\"}".to_string(),
+                ))
+                .unwrap(),
                 test_language: "test_language".to_string(),
             },
-            parents: vec![ParentDetails {
-                name: "parent_name".to_string(),
-                surname: "parent_surname".to_string(),
-                telephone: "parent_telephone".to_string(),
-                email: "parent_email".to_string(),
-            },
-            ParentDetails {
-                name: "parent_name2".to_string(),
-                surname: "parent_surname2".to_string(),
-                telephone: "parent_telephone2".to_string(),
-                email: "parent_email2".to_string(),
-            }],
+            parents: vec![
+                ParentDetails {
+                    name: "parent_name".to_string(),
+                    surname: "parent_surname".to_string(),
+                    telephone: "parent_telephone".to_string(),
+                    email: "parent_email".to_string(),
+                },
+                ParentDetails {
+                    name: "parent_name2".to_string(),
+                    surname: "parent_surname2".to_string(),
+                    telephone: "parent_telephone2".to_string(),
+                    email: "parent_email2".to_string(),
+                },
+            ],
         })
-    );
+    });
 
     #[tokio::test]
     async fn create_parent_test() {
         let db = get_memory_sqlite_connection().await;
         let candidate = CandidateService::create(&db, "".to_string()).await.unwrap();
-        super::ParentService::create(&db, candidate.id).await.unwrap();
-        super::ParentService::create(&db, candidate.id).await.unwrap();
+        super::ParentService::create(&db, candidate.id)
+            .await
+            .unwrap();
+        super::ParentService::create(&db, candidate.id)
+            .await
+            .unwrap();
     }
 
     #[tokio::test]
@@ -112,11 +139,15 @@ mod tests {
 
         let form = APPLICATION_DETAILS_TWO_PARENTS.lock().unwrap().clone();
 
-        let (candidate, parents) = ApplicationService::add_all_details(&db, &application, candidate, &form)
-            .await
-            .unwrap();
+        let (candidate, parents) =
+            ApplicationService::add_all_details(&db, &application, candidate, &form)
+                .await
+                .unwrap();
 
-        let priv_key = crypto::decrypt_password(application.private_key.clone(), plain_text_password).await.unwrap();
+        let priv_key =
+            crypto::decrypt_password(application.private_key.clone(), plain_text_password)
+                .await
+                .unwrap();
         let dec_details = EncryptedApplicationDetails::try_from((&candidate, &parents))
             .unwrap()
             .decrypt(priv_key)
@@ -129,14 +160,29 @@ mod tests {
         assert_eq!(dec_details.candidate.birthdate, form.candidate.birthdate);
         assert_eq!(dec_details.candidate.address, form.candidate.address);
         assert_eq!(dec_details.candidate.telephone, form.candidate.telephone);
-        assert_eq!(dec_details.candidate.citizenship, form.candidate.citizenship);
+        assert_eq!(
+            dec_details.candidate.citizenship,
+            form.candidate.citizenship
+        );
         assert_eq!(dec_details.candidate.email, form.candidate.email);
         assert_eq!(dec_details.candidate.sex, form.candidate.sex);
-        assert_eq!(dec_details.candidate.personal_id_number, "0000001111".to_string());
-        assert_eq!(dec_details.candidate.school_name, form.candidate.school_name);
-        assert_eq!(dec_details.candidate.health_insurance, form.candidate.health_insurance);
+        assert_eq!(
+            dec_details.candidate.personal_id_number,
+            "0000001111".to_string()
+        );
+        assert_eq!(
+            dec_details.candidate.school_name,
+            form.candidate.school_name
+        );
+        assert_eq!(
+            dec_details.candidate.health_insurance,
+            form.candidate.health_insurance
+        );
         assert_eq!(dec_details.candidate.grades, form.candidate.grades);
-        assert_eq!(dec_details.candidate.test_language, form.candidate.test_language);
+        assert_eq!(
+            dec_details.candidate.test_language,
+            form.candidate.test_language
+        );
 
         assert_eq!(dec_details.parents.len(), form.parents.len());
         for i in 0..dec_details.parents.len() {

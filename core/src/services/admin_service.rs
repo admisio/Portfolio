@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use entity::{admin, admin_session};
 use sea_orm::{prelude::Uuid, DbConn, IntoActiveModel};
 
-use crate::{crypto, error::ServiceError, Query, Mutation, models::auth::AuthenticableTrait};
+use crate::{crypto, error::ServiceError, models::auth::AuthenticableTrait, Mutation, Query};
 
 use super::session_service::SessionService;
 
@@ -14,7 +14,9 @@ impl AdminService {
         admin_id: i32,
         password: String,
     ) -> Result<String, ServiceError> {
-        let admin = Query::find_admin_by_id(db, admin_id).await?.ok_or(ServiceError::InvalidCredentials)?;
+        let admin = Query::find_admin_by_id(db, admin_id)
+            .await?
+            .ok_or(ServiceError::InvalidCredentials)?;
         let private_key_encrypted = admin.private_key;
         let private_key = crypto::decrypt_password(private_key_encrypted, password).await?;
 
@@ -33,15 +35,12 @@ impl AuthenticableTrait for AdminService {
         password: String,
         ip_addr: String,
     ) -> Result<(String, String), ServiceError> {
-        let admin = Query::find_admin_by_id(db, admin_id).await?.ok_or(ServiceError::InvalidCredentials)?;
+        let admin = Query::find_admin_by_id(db, admin_id)
+            .await?
+            .ok_or(ServiceError::InvalidCredentials)?;
 
-        let session_id = Self::new_session(db,
-            &admin,
-            password.clone(),
-            ip_addr
-        )
-            .await?;
-        
+        let session_id = Self::new_session(db, &admin, password.clone(), ip_addr).await?;
+
         let private_key = Self::decrypt_private_key(db, admin.id, password).await?;
         Ok((session_id, private_key))
     }
@@ -100,24 +99,23 @@ impl AuthenticableTrait for AdminService {
         SessionService::delete_sessions(db, sessions, keep_n_recent).await?;
         Ok(())
     }
-
 }
 
 #[cfg(test)]
 pub mod admin_tests {
     use chrono::{Local, Utc};
     use entity::admin;
-    use sea_orm::{Set, ActiveModelTrait};
-    
-    use crate::{utils::db::get_memory_sqlite_connection, error::ServiceError};
-    
+    use sea_orm::{ActiveModelTrait, Set};
+
+    use crate::{error::ServiceError, utils::db::get_memory_sqlite_connection};
+
     use super::*;
-    
-    pub async fn create_admin(db: &DbConn) -> admin::Model {    
+
+    pub async fn create_admin(db: &DbConn) -> admin::Model {
         let password = "admin".to_string();
         let (pubkey, priv_key) = crypto::create_identity();
         let enc_priv_key = crypto::encrypt_password(priv_key, password).await.unwrap();
-    
+
         let admin = admin::ActiveModel {
             name: Set("admin".to_string()),
             public_key: Set(pubkey),
@@ -127,10 +125,10 @@ pub mod admin_tests {
             updated_at: Set(Utc::now().naive_utc()),
             ..Default::default()
         }
-            .insert(db)
-            .await
-            .unwrap();
-    
+        .insert(db)
+        .await
+        .unwrap();
+
         admin
     }
 
@@ -152,15 +150,14 @@ pub mod admin_tests {
             .insert(&db)
             .await?;
 
-        let (session_id, _private_key) = AdminService::login(&db, admin.id, "test".to_owned(), "127.0.0.1".to_owned()).await?;
+        let (session_id, _private_key) =
+            AdminService::login(&db, admin.id, "test".to_owned(), "127.0.0.1".to_owned()).await?;
 
         let logged_admin = AdminService::auth(&db, session_id.parse().unwrap()).await?;
 
         assert_eq!(logged_admin.id, 1);
         assert_eq!(logged_admin.name, "Admin");
-        
 
         Ok(())
-
     }
 }

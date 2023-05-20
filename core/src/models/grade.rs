@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use validator::{Validate};
+use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::error::ServiceError;
 
@@ -22,7 +22,7 @@ impl Semester {
             "2/8" => Ok(Semester::SecondEighth),
             "1/9" => Ok(Semester::FirstNinth),
             "2/9" => Ok(Semester::SecondNinth),
-            _ => Err(ServiceError::FormatError)
+            _ => Err(ServiceError::FormatError),
         }
     }
 
@@ -44,11 +44,9 @@ pub struct Grade {
     value: i32,
 }
 
-
 impl Grade {
     pub fn validate_self(&self) -> Result<(), ServiceError> {
-        self.validate()
-            .map_err(ServiceError::ValidationError)
+        self.validate().map_err(ServiceError::ValidationError)
     }
 }
 
@@ -57,7 +55,8 @@ pub struct GradeList(Vec<Grade>);
 
 impl GradeList {
     pub fn validate_self(&self) -> Result<(), ServiceError> {
-        self.0.iter()
+        self.0
+            .iter()
             .map(|grade| grade.validate_self())
             .collect::<Result<Vec<_>, _>>()
             .map(|_| ())
@@ -65,11 +64,13 @@ impl GradeList {
 
     pub fn from_opt_str(grades: Option<String>) -> Option<Self> {
         grades.map(
-            |grades| serde_json::from_str(&grades).unwrap() // TODO: handle error
+            |grades| serde_json::from_str(&grades).unwrap(), // TODO: handle error
         )
     }
 
-    pub fn group_by_semester(&self) -> Result<(GradeList, GradeList, GradeList, GradeList), ServiceError> {
+    pub fn group_by_semester(
+        &self,
+    ) -> Result<(GradeList, GradeList, GradeList, GradeList), ServiceError> {
         let mut first_semester = GradeList::default();
         let mut second_semester = GradeList::default();
         let mut third_semester = GradeList::default();
@@ -85,9 +86,12 @@ impl GradeList {
             }
         }
 
-        Ok(
-            (first_semester, second_semester, third_semester, fourth_semester)
-        )
+        Ok((
+            first_semester,
+            second_semester,
+            third_semester,
+            fourth_semester,
+        ))
     }
 }
 

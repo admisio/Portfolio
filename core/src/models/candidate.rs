@@ -3,11 +3,13 @@ use entity::{application, candidate};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::{
-    error::ServiceError,
-};
+use crate::error::ServiceError;
 
-use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList, school::School};
+use super::{
+    candidate_details::{EncryptedCandidateDetails, EncryptedString},
+    grade::GradeList,
+    school::School,
+};
 
 pub enum FieldOfStudy {
     G,
@@ -99,8 +101,7 @@ impl CandidateDetails {
         self.first_school.validate()?;
         self.second_school.validate()?;
         self.grades.validate_self()?;
-        self.validate()
-            .map_err(ServiceError::ValidationError)
+        self.validate().map_err(ServiceError::ValidationError)
     }
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]

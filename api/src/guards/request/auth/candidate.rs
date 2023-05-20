@@ -54,13 +54,21 @@ impl<'r> FromRequest<'r> for ApplicationAuth {
 
         match session {
             Ok(model) => {
-                info!("{}: CANDIDATE {} AUTHENTICATED", format_request(req), model.id);
+                info!(
+                    "{}: CANDIDATE {} AUTHENTICATED",
+                    format_request(req),
+                    model.id
+                );
                 Outcome::Success(ApplicationAuth(model, private_key.to_string().to_string()))
-            },
+            }
             Err(e) => {
-                info!("{}: CANDIDATE {} AUTHENTICATION FAILED", format_request(req), e);
+                info!(
+                    "{}: CANDIDATE {} AUTHENTICATION FAILED",
+                    format_request(req),
+                    e
+                );
                 Outcome::Failure((Status::Unauthorized, None))
-            },
+            }
         }
     }
 }

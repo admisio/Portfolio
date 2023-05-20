@@ -1,13 +1,13 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use entity::application;
-use portfolio_core::Query;
 use portfolio_core::error::ServiceError;
 use portfolio_core::models::auth::AuthenticableTrait;
 use portfolio_core::models::candidate::{ApplicationDetails, NewCandidateResponse};
 use portfolio_core::sea_orm::prelude::Uuid;
 use portfolio_core::services::application_service::ApplicationService;
 use portfolio_core::services::portfolio_service::{PortfolioService, SubmissionProgress};
+use portfolio_core::Query;
 use requests::LoginRequest;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status::Custom;
@@ -61,7 +61,10 @@ pub async fn logout(
         ))?;
     let session_id = Uuid::try_parse(cookie.value()) // unwrap would be safe here because of the auth guard
         .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
-    let session = Query::find_session_by_uuid(db, session_id).await.unwrap().unwrap(); // TODO
+    let session = Query::find_session_by_uuid(db, session_id)
+        .await
+        .unwrap()
+        .unwrap(); // TODO
     ApplicationService::logout(db, session)
         .await
         .map_err(to_custom_error)?;
@@ -73,22 +76,24 @@ pub async fn logout(
 }
 
 #[get("/whoami")]
-pub async fn whoami(conn: Connection<'_, Db>, session: ApplicationAuth) -> Result<Json<NewCandidateResponse>, Custom<String>> {
+pub async fn whoami(
+    conn: Connection<'_, Db>,
+    session: ApplicationAuth,
+) -> Result<Json<NewCandidateResponse>, Custom<String>> {
     let db = conn.into_inner();
 
     let private_key = session.get_private_key();
     let application: entity::application::Model = session.into();
     let candidate = ApplicationService::find_related_candidate(&db, &application)
-        .await.map_err(to_custom_error)?; // TODO more compact
+        .await
+        .map_err(to_custom_error)?; // TODO more compact
     let applications = Query::find_applications_by_candidate_id(&db, candidate.id)
-        .await.map_err(|e| to_custom_error(ServiceError::DbError(e)))?; 
-    let response = NewCandidateResponse::from_encrypted(
-        application.id,
-        applications,
-        &private_key,
-        candidate
-    ).await
-        .map_err(to_custom_error)?;
+        .await
+        .map_err(|e| to_custom_error(ServiceError::DbError(e)))?;
+    let response =
+        NewCandidateResponse::from_encrypted(application.id, applications, &private_key, candidate)
+            .await
+            .map_err(to_custom_error)?;
 
     Ok(Json(response))
 }
@@ -104,7 +109,9 @@ pub async fn post_details(
     let form = details.into_inner();
     form.candidate.validate_self().map_err(to_custom_error)?;
     let application: application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
+    let candidate = ApplicationService::find_related_candidate(&db, &application)
+        .await
+        .map_err(to_custom_error)?; // TODO
 
     let _candidate_parent = ApplicationService::add_all_details(db, &application, candidate, &form)
         .await
@@ -122,11 +129,7 @@ pub async fn get_details(
     let private_key = session.get_private_key();
     let application: entity::application::Model = session.into();
 
-    let details = ApplicationService::decrypt_all_details(
-        private_key,
-        db,
-        &application
-    )
+    let details = ApplicationService::decrypt_all_details(private_key, db, &application)
         .await
         .map(|x| Json(x))
         .map_err(to_custom_error);
@@ -230,7 +233,9 @@ pub async fn submit_portfolio(
     let db = conn.into_inner();
 
     let application: entity::application::Model = session.into();
-    let candidate = ApplicationService::find_related_candidate(&db, &application).await.map_err(to_custom_error)?; // TODO
+    let candidate = ApplicationService::find_related_candidate(&db, &application)
+        .await
+        .map_err(to_custom_error)?; // TODO
 
     let submit = PortfolioService::submit(&candidate, &db).await;
 
@@ -250,9 +255,7 @@ pub async fn submit_portfolio(
 }
 
 #[post("/delete")]
-pub async fn delete_portfolio(
-    session: ApplicationAuth,
-) -> Result<(), Custom<String>> {
+pub async fn delete_portfolio(session: ApplicationAuth) -> Result<(), Custom<String>> {
     let application: entity::application::Model = session.into();
 
     PortfolioService::delete_portfolio(application.candidate_id)
@@ -276,7 +279,11 @@ pub async fn download_portfolio(session: ApplicationAuth) -> Result<Vec<u8>, Cus
 
 #[cfg(test)]
 mod tests {
-    use portfolio_core::{crypto, models::candidate::{ApplicationDetails, NewCandidateResponse}, sea_orm::prelude::Uuid};
+    use portfolio_core::{
+        crypto,
+        models::candidate::{ApplicationDetails, NewCandidateResponse},
+        sea_orm::prelude::Uuid,
+    };
     use rocket::{
         http::{Cookie, Status},
         local::blocking::Client,
@@ -383,7 +390,8 @@ mod tests {
 
         assert_eq!(response.status(), Status::Ok);
 
-        let details_resp: ApplicationDetails = serde_json::from_str(&response.into_string().unwrap()).unwrap();
+        let details_resp: ApplicationDetails =
+            serde_json::from_str(&response.into_string().unwrap()).unwrap();
         assert_eq!(details_orig, details_resp);
     }
 
