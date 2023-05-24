@@ -6,8 +6,8 @@
 	const helperText: string = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 	export let placeholder: string = ''; // TODO
 
-	import TelInput, { normalizedCountries } from 'svelte-tel-input';
-	import type { NormalizedTelNumber, CountryCode, E164Number } from 'svelte-tel-input/types';
+	import { TelInput, normalizedCountries } from 'svelte-tel-input';
+	import type { DetailedValue, CountryCode, E164Number } from 'svelte-tel-input/types';
 	import { parsePhoneNumber } from 'libphonenumber-js';
 
 	// Any Country Code Alpha-2 (ISO 3166)
@@ -28,7 +28,7 @@
 	$: error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 
 	// Optional - Extended details about the parsed phone number
-	let parsedTelInput: NormalizedTelNumber | null = null;
+	let parsedTelInput: DetailedValue | null = null;
 
 	let selectedCountry: string | null = country;
 
@@ -101,7 +101,7 @@
 		@apply relative w-full;
 	}
 	.tel-icon {
-		@apply absolute right-0 top-1 bottom-0 my-auto flex bg-transparent p-3;
+		@apply absolute bottom-0 right-0 top-1 my-auto flex bg-transparent p-3;
 	}
 	.wrapper :global(.basic-tel-input) {
 		/* height: 32px;

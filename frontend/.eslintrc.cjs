@@ -16,5 +16,9 @@ module.exports = {
 		browser: true,
 		es2017: true,
 		node: true
+	},
+	rules: {
+		'@typescript-eslint/no-inferrable-types': 1,
+		'@typescript-eslint/ban-ts-comment': 1
 	}
 };
