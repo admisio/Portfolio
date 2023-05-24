@@ -34,7 +34,7 @@ async-compat = "^0.2"
 # file identifier
 infer = "^0.13"
 
-async_zip = {version = "0.0.12", features = ["deflate"]}
+async_zip = {version = "0.0.15", features = ["deflate", "tokio"]}
 
 # crypto
 rand = "^0.8"

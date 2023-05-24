@@ -270,7 +270,7 @@ impl PortfolioService {
         info!("PORTFOLIO {} SUBMIT STARTED", candidate.id);
 
         let mut archive = tokio::fs::File::create(path.join(FileType::PortfolioZip.as_str())).await?;
-        let mut writer = async_zip::write::ZipFileWriter::new(&mut archive);
+        let mut writer = async_zip::tokio::write::ZipFileWriter::with_tokio(&mut archive);
         let mut buffer = vec![vec![], vec![], vec![]];
 
         let filenames = vec![FileType::CoverLetterPdf, FileType::PortfolioLetterPdf, FileType::PortfolioZip];
@@ -286,7 +286,7 @@ impl PortfolioService {
         for (index, entry) in buffer.iter_mut().enumerate() {
             let filename = filenames[index];
             let builder = async_zip::ZipEntryBuilder::new(
-                filename.to_string(),
+                filename.to_string().into(),
                 async_zip::Compression::Deflate,
             );
 
