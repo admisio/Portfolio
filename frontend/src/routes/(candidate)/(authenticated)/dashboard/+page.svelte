@@ -10,11 +10,7 @@
 	import PortfolioLetterUploadCard from '$lib/components/dashboard/PortfolioLetterUploadCard.svelte';
 	import PortfolioZipUploadCard from '$lib/components/dashboard/PortfolioZipUploadCard.svelte';
 	import type { PageData } from './$types';
-	import {
-		submissionProgress,
-		UploadStatus,
-		type Status
-	} from '$lib/stores/portfolio';
+	import { submissionProgress, UploadStatus, type Status } from '$lib/stores/portfolio';
 	import { baseCandidateData, candidateData } from '$lib/stores/candidate';
 
 	export let data: PageData;

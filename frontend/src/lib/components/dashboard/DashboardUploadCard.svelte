@@ -53,7 +53,7 @@
 	};
 
 	let dashAnimationProgress = 0;
-	let dashAnimationInterval: NodeJS.Timer;
+	let dashAnimationInterval: ReturnType<typeof setInterval>;
 
 	const dashAnimationStart = () => {
 		dashAnimationInterval = setInterval(() => {
@@ -83,7 +83,7 @@
 		}
 	};
 
-	const FileDropOptions: FileDropOptions = {
+	const fileDropOptions: FileDropOptions = {
 		accept: filetype === 'PDF' ? '.pdf' : '.zip',
 		maxSize: filesize * 1_000_000,
 		multiple: false,
@@ -100,7 +100,7 @@
 		<div class="absolute right-0 top-4 flex items-center px-7">
 			{#if status === 'uploaded'}
 				<button
-					class="mr-3 rounded-xl bg-[#ef8b46] py-0.5 px-2 text-white shadow-md transition-all duration-300 hover:bg-orange-400"
+					class="mr-3 rounded-xl bg-[#ef8b46] px-2 py-0.5 text-white shadow-md transition-all duration-300 hover:bg-orange-400"
 					on:click={debounce(() => dispatch('delete'), 150)}
 					>{$LL.components.dashboard.dashboardUploadCard.delete()}</button
 				>
@@ -162,7 +162,7 @@
 	{:else}
 		<div class="body">
 			<div
-				use:filedrop={FileDropOptions}
+				use:filedrop={fileDropOptions}
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}
 				on:filedragleave={dashAnimationStop}

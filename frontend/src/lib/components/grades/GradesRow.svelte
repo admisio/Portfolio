@@ -17,7 +17,7 @@
 
 	const deleteRow = () => {
 		dispatch('delete');
-	}
+	};
 </script>
 
 <div class="flex">

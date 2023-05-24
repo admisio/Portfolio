@@ -12,7 +12,7 @@
 <style lang="postcss">
 	div {
 		@apply flex items-center justify-between;
-		@apply py-1 px-4;
+		@apply px-4 py-1;
 		@apply rounded-xl bg-white shadow-md;
 
 		@apply hover:bg-sspsBlue;

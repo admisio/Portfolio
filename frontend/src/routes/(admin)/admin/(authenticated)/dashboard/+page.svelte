@@ -222,7 +222,7 @@
 	.body {
 		@apply h-full w-full;
 		@apply float-left overflow-hidden;
-		@apply my-6 mx-12 mt-16 ml-[27rem];
+		@apply mx-12 my-6 ml-[27rem] mt-16;
 	}
 
 	.body .controls {

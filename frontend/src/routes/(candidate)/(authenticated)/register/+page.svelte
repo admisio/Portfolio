@@ -344,7 +344,7 @@
 					$typedErrors['candidate']['city'] ||
 					$typedErrors['candidate']['street'] ||
 					$typedErrors['candidate']['houseNumber'] ||
-					$typedErrors['candidate']['zip'] || 
+					$typedErrors['candidate']['zip'] ||
 					$typedErrors['candidate']['letterAddress']
 				) {
 					return true;
@@ -427,7 +427,10 @@
 			personalIdErr: false,
 			candidate: {
 				...details.candidate,
-				street: streetHouseNumber.slice(0, streetHouseNumber.length - 1).join(' ').trim(),
+				street: streetHouseNumber
+					.slice(0, streetHouseNumber.length - 1)
+					.join(' ')
+					.trim(),
 				houseNumber: streetHouseNumber[streetHouseNumber.length - 1],
 				city: details.candidate.address.split(',')[1],
 				zip: details.candidate.address.split(',')[2],

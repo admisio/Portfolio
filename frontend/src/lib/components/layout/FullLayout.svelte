@@ -39,19 +39,19 @@
 		@apply bg-cover;
 	}
 	.bgOverlay .logo {
-		@apply absolute top-0 left-0;
+		@apply absolute left-0 top-0;
 		@apply hidden md:inline-block;
 		@apply max-w-72 h-auto;
 		@apply p-7;
 	}
 	.bgOverlay .darkModeToggle {
-		@apply absolute top-0 right-0;
+		@apply absolute right-0 top-0;
 		@apply hidden md:inline-block;
 		@apply p-7;
 	}
 	.view {
 		@apply z-10;
-		@apply top-0 right-0 bottom-0 left-0 m-auto h-screen w-screen;
+		@apply bottom-0 left-0 right-0 top-0 m-auto h-screen w-screen;
 	}
 	.content {
 		@apply h-full w-full;

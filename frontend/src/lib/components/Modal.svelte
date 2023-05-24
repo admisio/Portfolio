@@ -25,7 +25,7 @@
 <style lang="postcss">
 	.modalBackground {
 		@apply fixed;
-		@apply top-0 left-0;
+		@apply left-0 top-0;
 		@apply h-full w-full;
 		background: rgba(0, 0, 0, 0.3);
 
@@ -41,7 +41,7 @@
 
 		@apply z-50;
 
-		@apply top-1/2 left-1/2;
+		@apply left-1/2 top-1/2;
 		transform: translate(-50%, -50%);
 	}
 </style>

@@ -64,7 +64,8 @@ const cs: BaseTranslation = {
 			},
 			eighth: {
 				title: 'Poslední krok',
-				description: 'Přidejte prosím přepis Vaších známek z posledních dvou let studia. Známky z druhého pololetí 9. třídy nevyplňujte, pokud vysvědčení ještě nemáte.'
+				description:
+					'Přidejte prosím přepis Vaších známek z posledních dvou let studia. Známky z druhého pololetí 9. třídy nevyplňujte, pokud vysvědčení ještě nemáte.'
 			}
 		}
 	},

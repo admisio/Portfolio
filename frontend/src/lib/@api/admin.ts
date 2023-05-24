@@ -101,7 +101,10 @@ export const apiLogout = async (fetchSsr?: Fetch) => {
 // List all candidates /admin/list/candidates
 export const apiListCandidates = async (
 	fetchSsr?: Fetch,
-	params: { field?: string; column?: 'createdAt' | 'application', order?: 'asc' | 'desc' } = {column: 'createdAt', order: 'desc'}
+	params: { field?: string; column?: 'createdAt' | 'application'; order?: 'asc' | 'desc' } = {
+		column: 'createdAt',
+		order: 'desc'
+	}
 ): Promise<Array<CandidatePreview>> => {
 	const apiFetch = fetchSsr || fetch;
 	const searchParams = new URLSearchParams();

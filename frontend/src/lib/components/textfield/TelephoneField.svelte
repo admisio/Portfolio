@@ -39,7 +39,11 @@
 		value = null;
 	};
 
-	const isTooltip = helperText ? tippy : () => {};
+	const isTooltip = helperText
+		? tippy
+		: () => {
+				// do nothing
+		  };
 	$: tooltipDelay = error ? 0 : 1000;
 </script>
 

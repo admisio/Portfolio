@@ -55,7 +55,7 @@
 <style lang="postcss">
 	.info {
 		@apply flex items-center justify-between;
-		@apply py-3 px-3;
+		@apply px-3 py-3;
 		@apply rounded-xl border-red-700 bg-red-700 shadow-md;
 
 		@apply hover:cursor-help;

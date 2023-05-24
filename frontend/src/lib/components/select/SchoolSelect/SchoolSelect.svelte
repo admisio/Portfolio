@@ -112,7 +112,8 @@
 	}
 	schoolNameInputValue = selectedSchool.name;
 
-	$: selectedSchool.field = schoolFieldInputValue + (fieldFocusInputValue ? `;${fieldFocusInputValue}` : '');
+	$: selectedSchool.field =
+		schoolFieldInputValue + (fieldFocusInputValue ? `;${fieldFocusInputValue}` : '');
 	$: selectedSchool.name = schoolNameInputValue;
 
 	let isSSPS = false;
@@ -132,7 +133,7 @@
 			on:input={filterSchools}
 			placeholder={$LL.input.schoolName()}
 		/>
-		<div class="flex mt-2">
+		<div class="mt-2 flex">
 			<span class="w-1/2" class:w-full={isSSPS}>
 				<SelectField
 					on:focus={() => setFields(schoolNameInputValue)}
@@ -141,7 +142,7 @@
 					placeholder={$LL.input.fieldOfStudy()}
 				/>
 			</span>
-			<span class="w-1/2 ml-2" class:hidden={isSSPS}>
+			<span class="ml-2 w-1/2" class:hidden={isSSPS}>
 				<TextField
 					bind:value={fieldFocusInputValue}
 					placeholder="Zaměření (jen některé školy)"

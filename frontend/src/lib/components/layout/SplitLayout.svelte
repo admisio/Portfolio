@@ -37,7 +37,7 @@
 		@apply bg-cover;
 	}
 	.bgOverlay .logo {
-		@apply absolute top-0 left-0;
+		@apply absolute left-0 top-0;
 		@apply hidden md:inline-block;
 		@apply max-w-56 h-auto;
 		@apply p-7;
@@ -49,7 +49,7 @@
 	}
 	.view {
 		@apply z-10;
-		@apply absolute top-0 right-0 bottom-0 left-0 m-auto md:top-auto md:bottom-auto md:left-auto md:m-0;
+		@apply absolute bottom-0 left-0 right-0 top-0 m-auto md:bottom-auto md:left-auto md:top-auto md:m-0;
 		@apply md:h-screen md:w-[60vw];
 		@apply md:my-auto;
 		@apply bg-white;
