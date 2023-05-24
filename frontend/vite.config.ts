@@ -1,8 +1,9 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
+import windicss from 'vite-plugin-windicss';
 
 const config: UserConfig = {
-	plugins: [sveltekit()],
+	plugins: [sveltekit(), windicss()],
 	server: {
 		proxy: {
 			'/api': {
