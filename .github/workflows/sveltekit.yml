@@ -17,6 +17,7 @@ jobs:
       - name: Extract frontend 🚜
         run: |
           shopt -s extglob
+          shopt -s dotglob
           rm -r !(frontend)/
           mv frontend/* ./
 
