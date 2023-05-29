@@ -1,3 +1,4 @@
+use log::error;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -80,6 +81,8 @@ pub enum ServiceError {
     CsvIntoInnerError,
     #[error("Format error")]
     FormatError,
+    #[error("Invalid field of study")]
+    InvalidFieldOfStudy,
 }
 
 impl ServiceError {
@@ -125,6 +128,7 @@ impl ServiceError {
             ServiceError::CsvError(_) => 500,
             ServiceError::CsvIntoInnerError => 500,
             ServiceError::FormatError => 500,
+            ServiceError::InvalidFieldOfStudy => 500,
         }
     }
 

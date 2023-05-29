@@ -2,7 +2,7 @@ use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 use portfolio_core::{
     crypto::random_12_char_string,
-    services::{admin_service::AdminService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError, utils::csv,
+    services::{admin_service::AdminService, application_service::ApplicationService, portfolio_service::PortfolioService}, models::{candidate::{CreateCandidateResponse, ApplicationDetails}, auth::AuthenticableTrait, application::ApplicationResponse}, sea_orm::prelude::Uuid, Query, error::ServiceError,
 };
 use requests::{AdminLoginRequest, RegisterRequest};
 use rocket::http::{Cookie, Status, CookieJar};
@@ -10,6 +10,7 @@ use rocket::response::status::Custom;
 use rocket::serde::json::Json;
 
 use sea_orm_rocket::Connection;
+use portfolio_core::utils::csv::{ApplicationCsv, CandidateCsv, CsvExporter};
 
 use crate::{guards::request::{auth::AdminAuth}, pool::Db, requests};
 
@@ -152,7 +153,24 @@ pub async fn list_candidates_csv(
     let db = conn.into_inner();
     let private_key = session.get_private_key();
 
-    let candidates = csv::export(db, private_key)
+    let candidates = ApplicationCsv::export(db, private_key)
+        .await
+        .map_err(to_custom_error)?;
+
+    Ok(
+        candidates
+    )
+}
+
+#[get("/admissions_csv")]
+pub async fn list_admissions_csv(
+    conn: Connection<'_, Db>,
+    session: AdminAuth,
+) -> Result<Vec<u8>, Custom<String>> {
+    let db = conn.into_inner();
+    let private_key = session.get_private_key();
+
+    let candidates = CandidateCsv::export(db, private_key)
         .await
         .map_err(to_custom_error)?;
 

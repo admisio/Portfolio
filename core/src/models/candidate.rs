@@ -1,4 +1,5 @@
 use chrono::NaiveDate;
+use sea_orm::strum::Display;
 use entity::{application, candidate};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -9,6 +10,7 @@ use crate::{
 
 use super::{candidate_details::{EncryptedString, EncryptedCandidateDetails}, grade::GradeList, school::School};
 
+#[derive(Debug, Clone, Serialize, Display)]
 pub enum FieldOfStudy {
     G,
     IT,
@@ -32,6 +34,28 @@ impl From<i32> for FieldOfStudy {
             "102" => FieldOfStudy::IT,
             "103" => FieldOfStudy::KB,
             _ => panic!("Invalid field of study id"), // TODO: handle using TryFrom
+        }
+    }
+}
+
+impl TryFrom<String> for FieldOfStudy {
+    type Error = ServiceError;
+    fn try_from(s: String) -> Result<Self, ServiceError> {
+        match s.as_str() {
+            "7941K41-Gymnázium" => Ok(FieldOfStudy::G),
+            "1820M01-Informační technologie" => Ok(FieldOfStudy::IT), // TODO: constants
+            "1820M01-Informační technologie - Kybernetická bezpečnost" => Ok(FieldOfStudy::KB),
+            _ => Err(ServiceError::InvalidFieldOfStudy),
+        }
+    }
+}
+
+impl Into<i32> for FieldOfStudy {
+    fn into(self) -> i32 {
+        match self {
+            FieldOfStudy::G => 101,
+            FieldOfStudy::IT => 102,
+            FieldOfStudy::KB => 103,
         }
     }
 }
@@ -144,4 +168,91 @@ impl NewCandidateResponse {
             field_of_study,
         })
     }
+}
+
+#[derive(Debug, Serialize, PartialEq)]
+pub enum FieldsCombination {
+    #[serde(rename = "Žádný obor na SSPŠ")]
+    Unknown,
+    #[serde(rename = "G")]
+    G,
+    #[serde(rename = "IT")]
+    IT,
+    #[serde(rename = "KB")]
+    KB,
+    #[serde(rename = "G a IT")]
+    GIt,
+    #[serde(rename = "G a KB")]
+    GKb,
+    #[serde(rename = "IT a KB")]
+    ItKb,
+}
+
+impl FieldsCombination {
+    pub fn from_fields(first: &Option<FieldOfStudy>, second: &Option<FieldOfStudy>) -> Self {
+        match (first, second) {
+            (None, None) => FieldsCombination::Unknown,
+            (Some(FieldOfStudy::G), None) => FieldsCombination::G,
+            (Some(FieldOfStudy::IT), None) => FieldsCombination::IT,
+            (Some(FieldOfStudy::KB), None) => FieldsCombination::KB,
+            (None, Some(FieldOfStudy::G)) => FieldsCombination::G,
+            (None, Some(FieldOfStudy::IT)) => FieldsCombination::IT,
+            (None, Some(FieldOfStudy::KB)) => FieldsCombination::KB,
+            // Field combinations
+            (Some(FieldOfStudy::G), Some(FieldOfStudy::IT)) => FieldsCombination::GIt,
+            (Some(FieldOfStudy::G), Some(FieldOfStudy::KB)) => FieldsCombination::GKb,
+            (Some(FieldOfStudy::IT), Some(FieldOfStudy::KB)) => FieldsCombination::ItKb,
+            (Some(FieldOfStudy::IT), Some(FieldOfStudy::G)) => FieldsCombination::GIt,
+            (Some(FieldOfStudy::KB), Some(FieldOfStudy::G)) => FieldsCombination::GKb,
+            (Some(FieldOfStudy::KB), Some(FieldOfStudy::IT)) => FieldsCombination::ItKb,
+            // Some candidates filled in the same field twice
+            (Some(FieldOfStudy::G), Some(FieldOfStudy::G)) => FieldsCombination::G,
+            (Some(FieldOfStudy::IT), Some(FieldOfStudy::IT)) => FieldsCombination::IT,
+            (Some(FieldOfStudy::KB), Some(FieldOfStudy::KB)) => FieldsCombination::KB,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct CandidateRow {
+    #[serde(rename = "Číslo uchazeče (přiděleno systémem)")]
+    pub id: i32,
+    #[serde(rename = "Ev. č. první přihlášky")]
+    pub first_application: i32,
+    #[serde(rename = "Ev. č. druhé přihlášky (pokud podával dvě)")]
+    pub second_application: Option<i32>,
+    #[serde(rename = "Rodné číslo")]
+    pub personal_id_number: String,
+    #[serde(rename = "Bude dělat JPZ na SSPŠ 13. 4.")]
+    pub first_day_admissions: bool,
+    #[serde(rename = "Bude dělat JPZ na SSPŠ 14. 4.")]
+    pub second_day_admissions: bool,
+    #[serde(rename = "Obor první přihlášky SSPŠ 13. 4.")]
+    pub first_day_field: Option<FieldOfStudy>,
+    #[serde(rename = "Obor druhé přihlášky SSPŠ 14. 4.")]
+    pub second_day_field: Option<FieldOfStudy>,
+    #[serde(rename = "Kombinace SSPŠ oborů")]
+    pub fields_combination: FieldsCombination,
+    #[serde(rename = "Název první školy (JPZ 13. 4.)")]
+    pub first_school: String,
+    #[serde(rename = "Obor první školy")]
+    pub first_school_field: String,
+    #[serde(rename = "Název druhé školy (JPZ 14. 4.)")]
+    pub second_school: String,
+    #[serde(rename = "Obor druhé školy")]
+    pub second_school_field: String,
+    #[serde(rename = "Obory vyplněné uchazečem odpovídají s přihláškami")]
+    pub fields_match: bool,
+    #[serde(rename = "Jméno (pokud vyplnil)")]
+    pub name: String,
+    #[serde(rename = "Příjmení (pokud vyplnil)")]
+    pub surname: String,
+    #[serde(rename = "Email uchazeče (pokud vyplnil)")]
+    pub email: String,
+    #[serde(rename = "Telefon uchazeče (pokud vyplnil)")]
+    pub telephone: String,
+    #[serde(rename = "Email zákonného zástupce (pokud vyplnil)")]
+    pub parent_email: Option<String>,
+    #[serde(rename = "Telefon zákonného zástupce (pokud vyplnil)")]
+    pub parent_telephone: Option<String>,
 }
