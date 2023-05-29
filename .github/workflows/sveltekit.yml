@@ -17,25 +17,26 @@ jobs:
       - name: Extract frontend 🚜
         run: |
           shopt -s extglob
+          shopt -s dotglob
           rm -r !(frontend)/
           mv frontend/* ./
 
       - name: Install pnpm 📦
         uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Setup NodeJS ⚒️
         uses: actions/setup-node@v3
         with:
-          node-version: 19
+          node-version: 20
           cache: "pnpm"
           
       - name: Install dependencies 🚀
         run: pnpm install
 
-      - name: Svelte Check ✔️
-        run: pnpm run check
+      - name: ESLint ✔️
+        run: pnpm lint
 
       - name: Build 🔨
         run: pnpm run build

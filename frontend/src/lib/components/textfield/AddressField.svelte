@@ -17,7 +17,7 @@
 
 	$: {
 		const parsed = value.trim().split(' ');
-        console.log(parsed);
+		console.log(parsed);
 		if (parsed.length >= 2) {
 			valueLeft = parsed.slice(0, parsed.length - 1).join(' ');
 			valueRight = parsed[parsed.length - 1];

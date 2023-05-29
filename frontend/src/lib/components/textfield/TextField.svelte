@@ -15,7 +15,11 @@
 	import { tippy } from 'svelte-tippy';
 	import 'tippy.js/dist/tippy.css';
 
-	const isTooltip = helperText ? tippy : () => {};
+	const isTooltip = helperText
+		? tippy
+		: () => {
+				// do nothing
+		  };
 	$: tooltipDelay = error != '' ? 0 : 1000;
 </script>
 
@@ -25,7 +29,7 @@
 		placement: 'top',
 		showOnCreate: false,
 		delay: tooltipDelay,
-		allowHTML: true,
+		allowHTML: true
 	}}
 >
 	<input
@@ -58,7 +62,7 @@
 		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 	}
 	div span {
-		@apply absolute right-0 top-0 bottom-0 my-auto flex bg-transparent p-3;
+		@apply absolute bottom-0 right-0 top-0 my-auto flex bg-transparent p-3;
 	}
 	.withIcon {
 		@apply pr-14;

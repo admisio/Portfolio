@@ -21,7 +21,7 @@
 	<div class="form">
 		<SchoolBadge />
 		<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{$LL.candidate.auth.login.title()}</h1>
-		<p class="text-gray-700 my-8 text-center">
+		<p class="my-8 text-center text-gray-700">
 			{$LL.candidate.auth.login.description()}
 		</p>
 		<div class="w-4/5 lg:w-3/5">

@@ -17,9 +17,9 @@
 <div class="flex flex-col">
 	<div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
 		<div class="inline-block min-w-full py-4 sm:px-6 lg:px-8">
-			<div class="overflow-hidden rounded-md border-2  border-[#dfe0e9] ">
-				<table class="min-w-full text-center ">
-					<thead class="bg-[#f6f4f4] ">
+			<div class="overflow-hidden rounded-md border-2 border-[#dfe0e9]">
+				<table class="min-w-full text-center">
+					<thead class="bg-[#f6f4f4]">
 						<tr>
 							<th scope="col"> Ev. č. přihlásky </th>
 							<th scope="col"> Obor </th>

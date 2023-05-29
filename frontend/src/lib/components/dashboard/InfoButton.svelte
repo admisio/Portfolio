@@ -50,7 +50,7 @@
 			showOnCreate: false,
 			delay: 0
 		}}
-		class="icon "
+		class="icon"
 	>
 		<Download />
 	</span>

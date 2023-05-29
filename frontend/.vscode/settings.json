@@ -1,0 +1,7 @@
+{
+	"eslint.workingDirectories": [{ "mode": "auto" }],
+	"eslint.lintTask.enable": true,
+	"eslint.validate": ["javascript", "typescript", "svelte"],
+
+	"svelte.plugin.css.diagnostics.enable": false
+}

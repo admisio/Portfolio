@@ -50,7 +50,7 @@
 	<div class="mr-8 max-w-sm">
 		<div class="rounded-lg bg-white p-10 shadow-xl">
 			<div class="p-2">
-				<h3 class="text-sspsBlue text-center  text-2xl font-medium font-semibold leading-8">
+				<h3 class="text-sspsBlue text-center text-2xl font-medium font-semibold leading-8">
 					{candidate.name + ' ' + candidate.surname}
 				</h3>
 
@@ -93,7 +93,7 @@
 		{#each parents as parent}
 			<div class="rounded-lg bg-white p-10 shadow-xl">
 				<div class="p-2">
-					<h3 class="text-sspsBlue text-center  text-2xl font-medium font-semibold leading-8">
+					<h3 class="text-sspsBlue text-center text-2xl font-medium font-semibold leading-8">
 						{parent.name + ' ' + parent.surname}
 					</h3>
 					<table class="my-3 text-xs">

@@ -95,7 +95,7 @@
 	const generatePdf = async (type: 'colored' | 'blackWhite') => {
 		// TODO: Add white version
 		const svg = type === 'colored' ? registerPdfColored : registerPdfBlackWhite;
-		const {r, g, b} = type === 'colored' ? {r: 255, g: 255, b: 255} : {r: 0, g: 0, b: 0};
+		const { r, g, b } = type === 'colored' ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
 
 		const element = document.getElementById('svg-element')!;
 		element.innerHTML = svg;

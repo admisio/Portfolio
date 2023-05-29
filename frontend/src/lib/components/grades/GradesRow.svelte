@@ -17,7 +17,7 @@
 
 	const deleteRow = () => {
 		dispatch('delete');
-	}
+	};
 </script>
 
 <div class="flex">
@@ -55,7 +55,7 @@
 	input {
 		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] outline-none;
 		@apply w-1/2 w-full px-2;
-		@applytransition-colors duration-300;
+		@apply transition-colors duration-300;
 	}
 	select {
 		@apply ml-0.5 w-1/6;
