@@ -9,9 +9,14 @@ import transformerCompileClass from '@unocss/transformer-compile-class';
 import extractorSvelte from '@unocss/extractor-svelte';
 
 export default defineConfig({
-	autocomplete: true,
 	presets: [presetWind()],
-	transformers: [transformerVariantGroup(), transformerDirectives(), transformerCompileClass()],
+	transformers: [
+		transformerVariantGroup(),
+		transformerDirectives({
+			applyVariable: ['--at-apply', '--uno-apply', '--uno']
+		}),
+		transformerCompileClass()
+	],
 	extractors: [extractorSvelte()],
 	content: {
 		pipeline: {
