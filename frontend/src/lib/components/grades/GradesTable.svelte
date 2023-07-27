@@ -85,7 +85,7 @@
 	<span class="ml-0.5 w-1/6 text-center">1/9</span>
 	<span class="ml-0.5 w-1/6 text-center">2/9</span>
 </div>
-<div class="mx-auto flex max-h-[22rem] w-full flex-col overflow-scroll lg:w-4/5">
+<div class="mx-auto max-h-[22rem] w-full flex flex-col overflow-scroll lg:w-4/5">
 	{#each gradesLocal as _, i}
 		<div class="mb-1">
 			<GradesRow

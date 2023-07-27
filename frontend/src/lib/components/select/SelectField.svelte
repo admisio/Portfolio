@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let placeholder: string = '';
-	export let value: string = '';
+	export let placeholder = '';
+	export let value = '';
 
-	export let error: string = '';
+	export let error = '';
 
 	export let options: Array<string> = [];
 </script>

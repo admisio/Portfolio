@@ -19,6 +19,7 @@
 		"@sveltejs/kit": "1.22.3",
 		"@typescript-eslint/eslint-plugin": "^6.2.0",
 		"@typescript-eslint/parser": "^6.2.0",
+		"@unocss/eslint-config": "^0.53.6",
 		"@unocss/extractor-svelte": "^0.53.6",
 		"@unocss/preset-wind": "^0.53.6",
 		"@unocss/transformer-compile-class": "^0.53.6",

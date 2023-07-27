@@ -3,7 +3,7 @@
 	import logo from '$lib/assets/logo/ssps.svg';
 	import DarkModeToggle from '../DarkModeToggle.svelte';
 
-	export let hideHeader: boolean = false;
+	export let hideHeader = false;
 </script>
 
 <div class="bg">

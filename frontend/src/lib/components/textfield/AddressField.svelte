@@ -1,13 +1,13 @@
 <script lang="ts">
 	import TextField from './TextField.svelte';
 
-	export let helperText: string = 'Uveďte ulici a číslo popisné (např. Preslova 72/25).';
-	export let placeholder: string = '';
+	export let helperText = 'Uveďte ulici a číslo popisné (např. Preslova 72/25).';
+	export let placeholder = '';
 
-	export let valueLeft: string = '';
-	export let valueRight: string = '';
+	export let valueLeft = '';
+	export let valueRight = '';
 
-	let value: string = '';
+	let value = '';
 
 	if (valueLeft && valueRight) {
 		value = `${valueLeft} ${valueRight}`;
@@ -27,7 +27,7 @@
 		}
 	}
 
-	export let error: string = '';
+	export let error = '';
 </script>
 
 <TextField

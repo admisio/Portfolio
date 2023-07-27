@@ -11,10 +11,10 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	let applicationId = Number($page.params.code);
-	let codeValueMobile: string = '';
+	let codeValueMobile = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
-	let isError: boolean = false;
+	let isError = false;
 
 	$: {
 		codeValueMobile = codeValueMobile.slice(0, 12);
@@ -132,10 +132,10 @@
 				/>
 			{/each}
 		</div>
-		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
+		<h3 class="mx-8 mt-8 text-center text-xl font-semibold text-sspsBlue">
 			{$LL.candidate.auth.application.title()}
 		</h3>
-		<p class="text-sspsGray mx-8 mt-8 text-center">
+		<p class="mx-8 mt-8 text-center text-sspsGray">
 			{$LL.candidate.auth.application.help.description()}
 			<u>{$LL.candidate.auth.application.help.here()}</u>
 		</p>

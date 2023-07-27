@@ -1,9 +1,9 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let value: boolean = false;
+	export let value = false;
 
-	export let error: string = '';
+	export let error = '';
 </script>
 
 <input class:error on:change type="checkbox" id="gdpr" bind:checked={value} class="peer hidden" />

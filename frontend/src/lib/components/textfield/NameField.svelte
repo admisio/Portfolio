@@ -1,13 +1,13 @@
 <script lang="ts">
 	import TextField from './TextField.svelte';
 
-	export let helperText: string = 'Zadejte jméno a příjmení. Například Radko Sáblík';
-	export let placeholder: string = '';
+	export let helperText = 'Zadejte jméno a příjmení. Například Radko Sáblík';
+	export let placeholder = '';
 
-	export let valueName: string = '';
-	export let valueSurname: string = '';
+	export let valueName = '';
+	export let valueSurname = '';
 
-	let value: string = '';
+	let value = '';
 
 	if (valueName && valueSurname) {
 		value = `${valueName} ${valueSurname}`;
@@ -31,7 +31,7 @@
 		}
 	}
 
-	export let error: string = '';
+	export let error = '';
 </script>
 
 <TextField

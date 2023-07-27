@@ -13,8 +13,7 @@ const config = {
 		alias: {
 			$i18n: path.resolve('./src/translations')
 		}
-	},
-
+	}
 };
 
 export default config;

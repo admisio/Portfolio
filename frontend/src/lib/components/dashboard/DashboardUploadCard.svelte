@@ -21,11 +21,11 @@
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: number;
 	export let fileType: number;
-	export let placeholder: string = '';
+	export let placeholder = '';
 
-	let fileDropped: boolean = false;
-	let progress: number = 1;
-	let bytesTotal: number = 0;
+	let fileDropped = false;
+	let progress = 1;
+	let bytesTotal = 0;
 
 	let status: Status;
 
@@ -117,7 +117,7 @@
 					alt="Icon"
 				/>
 			</div>
-			<svg class="h-25 hidden xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+			<svg class="hidden h-25 xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
 				><line
 					x1="0"
 					y="0"
@@ -155,7 +155,7 @@
 				/></svg
 			>
 			<div class="items-center text-center">
-				<h2 class="text-sspsBlueDark mb-2 text-2xl font-bold">{Math.round(progress * 100)} %</h2>
+				<h2 class="mb-2 text-2xl font-bold text-sspsBlueDark">{Math.round(progress * 100)} %</h2>
 				<ProgressBar submitted={status === 'submitted'} {progress} />
 			</div>
 		</div>

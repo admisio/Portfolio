@@ -1,8 +1,8 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let linkOk: boolean = false;
-	export let linkError: boolean = false;
+	export let linkOk = false;
+	export let linkError = false;
 	export let applications: Array<number>;
 	let title1 = $LL.components.checkbox.accountLinkCheckBox.multiple.title({
 		first: applications[0],
@@ -19,7 +19,7 @@
 		title2 = $LL.components.checkbox.accountLinkCheckBox.single.title2();
 	}
 
-	export let error: string = '';
+	export let error = '';
 
 	const switchSelection = (id: number) => {
 		if (id === 0) {

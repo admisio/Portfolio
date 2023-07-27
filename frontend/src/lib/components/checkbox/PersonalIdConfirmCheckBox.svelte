@@ -1,8 +1,8 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let personalIdOk: boolean = false;
-	export let personalIdErr: boolean = false;
+	export let personalIdOk = false;
+	export let personalIdErr = false;
 	export let personalIdNumber: string;
 	let titleOk = $LL.components.checkbox.personalIdConfirmCheckBox.titleOk({
 		personalId: personalIdNumber
@@ -11,7 +11,7 @@
 		personalId: personalIdNumber
 	});
 
-	export let error: string = '';
+	export let error = '';
 
 	const switchSelection = (id: number) => {
 		if (id === 0) {

@@ -488,9 +488,9 @@
 		/>
 	{/if}
 	<div class="form relative bg-center">
-		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
+		<div class="absolute bottom-5/24 w-full flex flex-col md:h-auto">
 			{#if pageIndex !== 3}
-				<div class="<md:hidden self-center">
+				<div class="self-center <md:hidden">
 					<SchoolBadge />
 				</div>
 			{/if}
@@ -601,7 +601,7 @@
 								/>
 							</span>
 						</div>
-						<div class="flex w-full flex-col">
+						<div class="w-full flex flex-col">
 							<span class="field">
 								<TextField
 									error={$typedErrors['candidate']['letterAddress']}
@@ -619,7 +619,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fourth.description()}
 				</p>
-				<div class="field flex w-full">
+				<div class="field w-full flex">
 					<span class="w-[50%]">
 						<SelectField
 							error={$typedErrors['candidate']['citizenship']}
@@ -706,7 +706,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fifth.description()}
 				</p>
-				<div class="flex w-full flex-col">
+				<div class="w-full flex flex-col">
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
@@ -735,7 +735,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.sixth.description()}
 				</p>
-				<div class="flex w-full flex-col">
+				<div class="w-full flex flex-col">
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
@@ -764,9 +764,9 @@
 				<!-- <p class="description mt-8 block text-center">
 					{$LL.candidate.register.seventh.description()}
 				</p> -->
-				<div class="flex h-full flex-col justify-between">
+				<div class="h-full flex flex-col justify-between">
 					<span class="field">
-						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+						<h2 class="mb-6 text-3xl font-bold text-sspsBlueDark">
 							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
 						</h2>
 						<SchoolSelect
@@ -791,7 +791,7 @@
 					</svg>
 
 					<span class="field mt-10">
-						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+						<h2 class="mb-6 text-3xl font-bold text-sspsBlueDark">
 							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
 						</h2>
 						<SchoolSelect
@@ -814,7 +814,7 @@
 				/>
 			{/if}
 		</div>
-		<div class="bottom-1/24 absolute w-full">
+		<div class="absolute bottom-1/24 w-full">
 			<div class="field">
 				<Submit
 					enterAllowed={pageIndex !== 7}

@@ -38,7 +38,7 @@
 	<div class="dashboard dashboardDesktop">
 		{#each [0] as animated (animated)}
 			<div
-				class="movable name col-span-3 row-span-4"
+				class="name movable col-span-3 row-span-4"
 				animate:flip={{ duration: 400 }}
 				class:showDetailsInfoCard={showDetails}
 			>
@@ -47,8 +47,8 @@
 					status={getUploadStatus($submissionProgress.status)}
 					title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
 				>
-					<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
-					<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
+					<span class="mt-3 truncate text-sspsBlue">{$candidateData.candidate.email}</span>
+					<span class="mt-3 text-xs text-sspsGray">Uchazeč na SSPŠ</span>
 				</DashboardInfoCard>
 			</div>
 		{/each}
@@ -82,8 +82,8 @@
 				status={getUploadStatus($submissionProgress.status)}
 				title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
 			>
-				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
-				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
+				<span class="mt-3 truncate text-sspsBlue">{$candidateData.candidate.email}</span>
+				<span class="mt-3 text-xs text-sspsGray">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
 		<swiper-container slidesPerView={1} spaceBetween={20}>

@@ -3,8 +3,8 @@
 	import { tippy } from 'svelte-tippy';
 	import 'tippy.js/dist/tippy.css';
 
-	const helperText: string = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
-	export let placeholder: string = ''; // TODO
+	const helperText = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
+	export let placeholder = ''; // TODO
 
 	import { TelInput, normalizedCountries } from 'svelte-tel-input';
 	import type { DetailedValue, CountryCode, E164Number } from 'svelte-tel-input/types';
@@ -24,7 +24,7 @@
 
 	// Validity
 	let valid = true;
-	export let error: string = '';
+	export let error = '';
 	$: error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 
 	// Optional - Extended details about the parsed phone number
@@ -48,7 +48,7 @@
 </script>
 
 <div
-	class="wrapper flex h-full w-full"
+	class="wrapper h-full w-full flex"
 	use:isTooltip={{
 		content: helperText,
 		placement: 'top',
@@ -83,7 +83,7 @@
 			bind:value
 			bind:valid
 			bind:parsedTelInput
-			class="basic-tel-input {error ? 'invalid' : ''}"
+			class="basic-tel-input{error ? 'invalid' : ''}"
 			{placeholder}
 		/>
 		<span class="tel-icon">

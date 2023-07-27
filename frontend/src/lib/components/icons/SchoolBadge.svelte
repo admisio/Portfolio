@@ -3,7 +3,7 @@
 </script>
 
 <div
-	class="flex items-center justify-center rounded-[999px] px-6 py-3 shadow-2xl transition-all duration-700 hover:shadow-md md:px-8 md:py-4"
+	class="flex items-center justify-center rounded-[999px] px-6 py-3 shadow-2xl transition-all duration-700 md:px-8 md:py-4 hover:shadow-md"
 >
 	<img class="object-cover" src={lion} alt="" />
 </div>

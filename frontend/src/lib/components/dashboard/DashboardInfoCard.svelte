@@ -88,11 +88,11 @@
 </script>
 
 <div class="card flex flex-col">
-	<div class="infoBar <2xl:flex-col flex flex-row-reverse">
+	<div class="infoBar flex flex-row-reverse <2xl:flex-col">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
-		<div class="<2xl:mr-1 mr-4">
+		<div class="mr-4 <2xl:mr-1">
 			<div on:click on:keydown class="flex flex-col">
-				<div class="<2xl:ml-auto <2xl:flex-row <2xl:my-2 flex flex-col">
+				<div class="flex flex-col <2xl:my-2 <2xl:ml-auto <2xl:flex-row">
 					<InfoButton
 						bind:showDetails
 						on:download={downloadPortfolio}
@@ -121,7 +121,7 @@
 						class="<2xl:hidden hover:cursor-pointer"
 					>
 						<svg
-							class="stroke-sspsBlueDark h-10 w-10"
+							class="h-10 w-10 stroke-sspsBlueDark"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -227,7 +227,7 @@
 					>
 						{#each $candidateData.parents as parent}
 							<div class="flex flex-col">
-								<span class="text-sspsBlue text-xl font-bold"
+								<span class="text-xl font-bold text-sspsBlue"
 									>{parent.name + ' ' + parent.surname}</span
 								>
 								<span>{$LL.input.email()}: <span class="font-bold">{parent.email}</span></span>
@@ -251,7 +251,7 @@
 					class="mt-4 hover:cursor-pointer"
 				>
 					<svg
-						class="stroke-sspsBlue h-10 w-10"
+						class="h-10 w-10 stroke-sspsBlue"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"

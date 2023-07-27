@@ -17,14 +17,14 @@
 {#if isOpened}
 	<SvelteToast />
 	<Modal on:close={close}>
-		<div class="relative flex h-[40vh] w-[80vw] flex-col items-center lg:w-[60vw]">
+		<div class="relative h-[40vh] w-[80vw] flex flex-col items-center lg:w-[60vw]">
 			<div>
-				<h1 class="text-sspsBlueDark mt-6 text-center text-4xl font-bold">
+				<h1 class="mt-6 text-center text-4xl font-bold text-sspsBlueDark">
 					Vaše rodné číslo <span class="underline">není</span>
 					'{personalIdNumber}'?
 				</h1>
 				<h3 class="mt-4 text-center">Znamená to, že jsme udělali chybu v přepisu přihlášky.</h3>
-				<h2 class="text-sspsBlueDark mt-12 text-center text-2xl font-bold">
+				<h2 class="mt-12 text-center text-2xl font-bold text-sspsBlueDark">
 					Kontaktujte nás na telefonu +420 123 456 789,
 				</h2>
 				<h3 class="mt-2 text-center">

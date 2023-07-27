@@ -4,13 +4,13 @@
 		node.type = type;
 	};
 
-	export let helperText: string = '';
-	export let placeholder: string = '';
+	export let helperText = '';
+	export let placeholder = '';
 
-	export let value: string = '';
+	export let value = '';
 
-	export let icon: boolean = false;
-	export let error: string = '';
+	export let icon = false;
+	export let error = '';
 
 	import { tippy } from 'svelte-tippy';
 	import 'tippy.js/dist/tippy.css';

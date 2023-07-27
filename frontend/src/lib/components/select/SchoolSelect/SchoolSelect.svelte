@@ -77,7 +77,7 @@
 		return str.replace(/<(.)*?>/g, '');
 	};
 
-	let hiLiteIndex: number = 0;
+	let hiLiteIndex = 0;
 
 	const navigateList = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowDown') {
@@ -101,7 +101,7 @@
 	};
 
 	export let selectedSchool: SchoolType;
-	export let error: string = '';
+	export let error = '';
 
 	if (selectedSchool.field.split(';').length > 1) {
 		console.log(selectedSchool.field);
@@ -126,7 +126,6 @@
 	<div class="flex flex-col">
 		<input
 			class:error
-			class=""
 			type="text"
 			bind:this={searchInput}
 			bind:value={schoolNameInputValue}

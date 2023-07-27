@@ -4,7 +4,7 @@
 	import DarkModeToggle from '../DarkModeToggle.svelte';
 
 	export let backgroundImage: string = defaultBg;
-	export let backgroundPosition: string = '55%';
+	export let backgroundPosition = '55%';
 </script>
 
 <div class="bg">

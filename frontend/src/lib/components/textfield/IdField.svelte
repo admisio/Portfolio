@@ -2,11 +2,11 @@
 	import Person from '../icons/Person.svelte';
 	import TextField from './TextField.svelte';
 
-	export let helperText: string = '';
-	export let placeholder: string = '';
+	export let helperText = '';
+	export let placeholder = '';
 
-	export let value: string = '';
-	export let error: string = '';
+	export let value = '';
+	export let error = '';
 
 	// Personal Id formatting
 	$: {

@@ -15,9 +15,9 @@
 </script>
 
 <div class="flex flex-col">
-	<div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-		<div class="inline-block min-w-full py-4 sm:px-6 lg:px-8">
-			<div class="overflow-hidden rounded-md border-2 border-[#dfe0e9]">
+	<div class="overflow-x-auto lg:-mx-8 sm:-mx-6">
+		<div class="inline-block min-w-full py-4 lg:px-8 sm:px-6">
+			<div class="overflow-hidden border-2 border-[#dfe0e9] rounded-md">
 				<table class="min-w-full text-center">
 					<thead class="bg-[#f6f4f4]">
 						<tr>
@@ -34,7 +34,7 @@
 					<tbody>
 						{#each candidates as candidate}
 							<tr class="border-b bg-white hover:cursor-pointer">
-								<td class="hover:text-sspsBlue text-gray-900 hover:font-bold"
+								<td class="text-gray-900 hover:font-bold hover:text-sspsBlue"
 									><a
 										target="_blank"
 										rel="noreferrer"
