@@ -95,8 +95,10 @@
 <style lang="postcss">
 	select {
 		@apply border-1 h-full w-2/5 rounded;
-		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 		@apply pb-[0.9rem];
+		--at-apply: "hover:border-sspsBlue";
+
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;
 		appearance: none !important;
@@ -116,7 +118,8 @@
       outline: none;
 	  width: 100%; */
 		/* @apply h-full pl-3 pr-3 border-1 w-full rounded; */
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors duration-300;
+		--at-apply: "hover:border-sspsBlue";
 	}
 
 	.wrapper :global(.invalid) {

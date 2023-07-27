@@ -97,16 +97,17 @@
 
 <style lang="postcss">
 	.icon {
-		@apply text-sspsBlueDark h-10 w-10 transition-colors duration-300 hover:cursor-pointer;
-		@apply hover:text-sspsBlue;
+		@apply text-sspsBlueDark h-10 w-10 transition-colors duration-300;
+		--at-apply: "hover:text-sspsBlue hover:cursor-pointer";
 	}
 	.logoutIcon {
-		@apply 2xl:hidden;
+		--at-apply: "2xl:hidden";
 	}
 	.showDetails {
 		@apply text-sspsBlue;
 	}
 	.disabledIcon {
-		@apply text-gray-300 hover:cursor-not-allowed hover:text-gray-300;
+		@apply text-gray-300;
+		--at-apply: "hover:cursor-not-allowed hover:text-gray-300";
 	}
 </style>

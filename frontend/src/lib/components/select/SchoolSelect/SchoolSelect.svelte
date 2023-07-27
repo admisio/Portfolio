@@ -188,7 +188,8 @@
 		@apply relative flex items-center justify-center;
 	}
 	input {
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors duration-300;
+		--at-apply: "hover:border-sspsBlue";
 	}
 
 	.error {

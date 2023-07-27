@@ -276,15 +276,19 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply <2xl:px-5 <2xl:py-5 px-7 py-10;
 
 		@apply transition-all duration-300;
+
+		/* TODO: < unocss */
+		--at-apply: "<2xl:px-5 <2xl:py-5 px-7 py-10";
+
 	}
 	.card:hover {
 		@apply shadow-2xl;
 		@apply m-0;
 	}
 	.card h3 {
-		@apply text-sspsBlue text-4xl font-semibold md:text-2xl xl:text-4xl;
+		@apply text-sspsBlue text-4xl font-semibold;
+		--at-apply: "md:text-2xl xl:text-4xl";
 	}
 </style>

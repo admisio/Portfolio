@@ -187,8 +187,8 @@
 
 		@apply transition-all duration-200;
 
-		@apply hover:bg-sspsBlue focus:bg-sspsBlue;
-		@apply hover:text-white focus:text-white;
+		--at-apply: "hover:bg-sspsBlue focus:bg-sspsBlue";
+		--at-apply: "hover:text-white focus:text-white";
 	}
 
 	.list div :global(path) {

@@ -108,22 +108,23 @@
 
 <style lang="postcss">
 	.showDetailsInfoCard {
-		@apply md:row-span-8;
+		--at-apply: "md:row-span-8";
 	}
 	.showDetailsPortfolio {
-		@apply md:hidden;
+		--at-apply: "md:hidden";
 	}
 	.showDetailsMoreData {
-		@apply md:col-span-5;
+		--at-apply: "md:col-span-5";
 	}
 	.dashboardDesktop {
 		@apply h-[85vh] w-[85vw];
-		@apply grid-rows-8 hidden grid-cols-8 gap-10 md:grid;
+		@apply grid-rows-8 hidden grid-cols-8 gap-10;
+		--at-apply: "md:grid";
 	}
 
 	.dashboardMobile {
 		@apply h-[90vh] w-[100vw];
-		@apply md:hidden;
+		--at-apply: "md:hidden";
 	}
 
 	.dashboardMobile :global(.uploadCard) {

@@ -212,7 +212,8 @@
 		backdrop-filter: blur(15px) saturate(0.86);
 		-webkit-backdrop-filter: blur(15px) saturate(0.86);
 
-		@apply flex flex-col justify-between sm:flex-row sm:items-center;
+		@apply flex flex-col justify-between;
+		--at-apply: "sm:flex-row sm:items-center";
 	}
 	.body {
 		@apply bg-[#f8fbfc];
@@ -221,10 +222,11 @@
 		@apply p-7;
 	}
 	.uploaded {
-		@apply 2xl:px-14;
+		--at-apply: "2xl:px-14";
 	}
 	.card h3 {
-		@apply text-sspsBlue text-2xl font-semibold xl:text-4xl;
+		@apply text-sspsBlue text-2xl font-semibold; 
+		--at-apply: "xl:text-4xl";
 	}
 	.card span {
 		@apply text-sm opacity-60;
@@ -236,10 +238,10 @@
 		@apply flex flex-col items-center justify-center;
 		border-radius: 9px;
 
-		@apply hover:cursor-pointer;
-
 		/* TODO: Fix this hack */
-		@apply p-10 sm:p-20 md:p-0;
+		@apply p-10;
+		--at-apply: "sm:p-20 md:p-0";
+		--at-apply: "hover:cursor-pointer";
 	}
 	.card .drag:hover span {
 		@apply opacity-100;

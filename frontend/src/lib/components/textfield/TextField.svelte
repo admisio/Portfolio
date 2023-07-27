@@ -59,7 +59,8 @@
 		@apply relative flex items-center justify-center;
 	}
 	input {
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		--at-apply: "hover:border-sspsBlue";
 	}
 	div span {
 		@apply absolute bottom-0 right-0 top-0 my-auto flex bg-transparent p-3;

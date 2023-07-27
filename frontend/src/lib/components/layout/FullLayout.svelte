@@ -40,14 +40,16 @@
 	}
 	.bgOverlay .logo {
 		@apply absolute left-0 top-0;
-		@apply hidden md:inline-block;
+		@apply hidden;
 		@apply max-w-72 h-auto;
 		@apply p-7;
+		--at-apply: 'md:inline-block';
 	}
 	.bgOverlay .darkModeToggle {
 		@apply absolute right-0 top-0;
-		@apply hidden md:inline-block;
+		@apply hidden;
 		@apply p-7;
+		--at-apply: 'md:inline-block';
 	}
 	.view {
 		@apply z-10;

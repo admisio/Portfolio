@@ -28,31 +28,35 @@
 <style lang="postcss">
 	.bgImage {
 		@apply -z-20;
-		@apply min-w-screen fixed min-h-full md:min-w-[50vw];
+		@apply min-w-screen fixed min-h-full;
 		@apply bg-cover bg-no-repeat;
+		--at-apply: "md:min-w-[50vw]";
 	}
 	.bgOverlay {
-		@apply min-w-screen fixed -z-10 min-h-full md:min-w-[50vw];
-		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
+		@apply min-w-screen fixed -z-10 min-h-full ;
 		@apply bg-cover;
+		--at-apply:"md:min-w-[50vw]";
+		background: linear-gradient(45deg, rgba(18, 48, 75, 1), rgba(119, 173, 224, 0.443));
 	}
 	.bgOverlay .logo {
 		@apply absolute left-0 top-0;
-		@apply hidden md:inline-block;
+		@apply hidden;
 		@apply max-w-56 h-auto;
 		@apply p-7;
+		--at-apply: "md:inline-block";
 	}
 	.darkModeToggle {
 		@apply absolute right-0;
-		@apply hidden md:inline-block;
+		@apply hidden;
 		@apply p-7;
+		--at-apply: "md:inline-block";
 	}
 	.view {
 		@apply z-10;
-		@apply absolute bottom-0 left-0 right-0 top-0 m-auto md:bottom-auto md:left-auto md:top-auto md:m-0;
-		@apply md:h-screen md:w-[60vw];
-		@apply md:my-auto;
-		@apply bg-white;
+		@apply absolute bottom-0 left-0 right-0 top-0 m-auto;
+		--at-apply: "md:bottom-auto md:left-auto md:top-auto md:m-0 md:my-auto";
+		--at-apply: "md:h-screen md:w-[60vw]";
+		--at-apply: "md:bg-white";
 	}
 	.content {
 		@apply h-full w-full;

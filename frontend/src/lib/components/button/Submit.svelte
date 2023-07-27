@@ -19,10 +19,9 @@
 
 <style lang="postcss">
 	input {
-		@apply hover:cursor-pointer;
-		@apply bg-sspsBlue hover:bg-sspsBlueDark 
-        @apply rounded-lg p-3 text-xl font-semibold 
-        text-white transition-colors duration-300;
+		@apply bg-sspsBlue;
+		@apply rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300;
 		@apply w-full;
+		--at-apply: 'hover:cursor-pointer hover:bg-sspsBlueDark';
 	}
 </style>

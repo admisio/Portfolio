@@ -49,7 +49,7 @@
 	button {
 		@apply inline-flex items-center;
 		@apply bg-red-700;
-		@apply @apply rounded-lg p-3 font-semibold 
+		@apply rounded-lg p-3 font-semibold 
         text-white transition-colors duration-300;
 
 		animation: none !important;

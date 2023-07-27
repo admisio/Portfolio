@@ -36,7 +36,7 @@
 		@apply fixed;
 		@apply p-4;
 		@apply rounded-xl;
-		@apply transform:
+		@apply transform;
 		@apply bg-white;
 
 		@apply z-50;

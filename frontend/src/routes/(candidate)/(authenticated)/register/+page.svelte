@@ -856,7 +856,8 @@
 
 <style lang="postcss">
 	.field {
-		@apply lg:w-9/10 mt-4 w-full md:mt-8 lg:mx-auto 2xl:w-4/5;
+		@apply mt-4 w-full;
+		--at-apply: "lg:w-9/10 md:mt-8 lg:mx-auto 2xl:w-4/5";
 	}
 	.form {
 		@apply flex flex-col;
@@ -864,9 +865,9 @@
 		@apply items-center justify-center;
 	}
 	.dot {
-		@apply @apply hover:bg-sspsBlue @apply 
-		bg-sspsGray ml-2 h-4
-		w-4 rounded-full hover:cursor-pointer;
+		@apply bg-sspsGray ml-2 h-4;
+		@apply w-4 rounded-full;
+		--at-apply: "hover:bg-sspsBlue hover:cursor-pointer";
 	}
 	.dotActive {
 		@apply bg-sspsBlue;

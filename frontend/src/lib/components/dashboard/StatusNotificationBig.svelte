@@ -58,17 +58,17 @@
 		@apply px-3 py-3;
 		@apply rounded-xl border-red-700 bg-red-700 shadow-md;
 
-		@apply hover:cursor-help;
+		--at-apply: "hover:cursor-help";
 	}
 
 	.submitted {
 		@apply bg-green-600;
-		@apply !cursor-pointer;
+		cursor: pointer !important;
 	}
 
 	.uploaded {
 		@apply bg-yellow-600;
-		@apply !cursor-pointer;
+		cursor: pointer !important;
 	}
 
 	.missing {

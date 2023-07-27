@@ -192,7 +192,7 @@
 				</div>
 				<input
 					on:click={createCandidate}
-					class="bg-sspsBlue hover:bg-sspsBlueDark mt-6 w-full rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
+					class="bg-sspsBlueDark hover:bg-sspsBlueDark mt-6 w-full rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
 					type="submit"
 					value="Vytvořit"
 				/>

@@ -15,8 +15,7 @@
 		@apply px-4 py-1;
 		@apply rounded-xl bg-white shadow-md;
 
-		@apply hover:bg-sspsBlue;
-		@apply hover:cursor-pointer;
+		--at-apply: "hover:bg-sspsBlue hover:cursor-pointer": 
 	}
 
 	div,
