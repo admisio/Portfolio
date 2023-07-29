@@ -44,6 +44,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@unocss/reset": "^0.53.6",
 		"@zerodevx/svelte-toast": "1.0.0-rc.2",
 		"axios": "^1.4.0",
 		"dotenv": "^16.3.1",

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@unocss/reset':
+    specifier: ^0.53.6
+    version: 0.53.6
   '@zerodevx/svelte-toast':
     specifier: 1.0.0-rc.2
     version: 1.0.0-rc.2(svelte@4.1.1)
@@ -1081,7 +1084,6 @@ packages:
 
   /@unocss/reset@0.53.6:
     resolution: {integrity: sha512-WtZU0Q5Y9CHzitYPJ+ZGPUssVuDnRakmHETQ2EuBJgWZhgsmTECrpb78+tnJdFVowuYYQyV0CP6a07uwkFNm6g==}
-    dev: true
 
   /@unocss/scope@0.53.6:
     resolution: {integrity: sha512-Wf5pRuRf85w8H4EuHRUnKOsAB4kLvScEQ0Y+MFSvnSuf0ig58Fdqda3jZ++rFCnMPF5vJIyl8Ay6y93M2R4puA==}
