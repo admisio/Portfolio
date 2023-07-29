@@ -114,8 +114,8 @@
 
 		<div class="my-8">
 			<div class="flex flex-col">
-				<button on:click={(e) => resetCandidatePassword()}>Resetovat heslo</button>
-				<button on:click={(e) => downloadPortfolio()} class="my-8">Stáhnout portfolio</button>
+				<button on:click={resetCandidatePassword}>Resetovat heslo</button>
+				<button on:click={downloadPortfolio} class="my-8">Stáhnout portfolio</button>
 			</div>
 		</div>
 	</div>
@@ -125,6 +125,6 @@
 	button {
 		@apply bg-sspsBlue rounded-lg transition duration-300;
 		@apply px-10 py-4 text-2xl font-bold text-white;
-		--at-apply: "hover:bg-sspsBlueDark";
+		--at-apply: 'hover:bg-sspsBlueDark';
 	}
 </style>

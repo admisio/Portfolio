@@ -24,7 +24,7 @@
 	}
 </script>
 
-<div on:click on:keydown class="flex flex-col">
+<button on:click class="flex flex-col">
 	<div class="info flex flex-col{status}">
 		<span class="font-bold text-white 2xl:text-xl">{title}</span>
 		{#if loading}
@@ -50,7 +50,7 @@
 			<span class="text-md italic text-white">{description}</span>
 		{/if}
 	</div>
-</div>
+</button>
 
 <style lang="postcss">
 	.info {
@@ -58,7 +58,7 @@
 		@apply px-3 py-3;
 		@apply rounded-xl border-red-700 bg-red-700 shadow-md;
 
-		--at-apply: "hover:cursor-help";
+		--at-apply: 'hover:cursor-help';
 	}
 
 	.submitted {

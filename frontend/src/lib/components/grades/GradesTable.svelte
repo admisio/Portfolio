@@ -86,7 +86,8 @@
 	<span class="ml-0.5 w-1/6 text-center">2/9</span>
 </div>
 <div class="mx-auto max-h-[22rem] w-full flex flex-col overflow-scroll lg:w-4/5">
-	{#each gradesLocal as _, i}
+	<!-- eslint-disable -->
+	{#each gradesLocal as __, i}
 		<div class="mb-1">
 			<GradesRow
 				on:keyup={convertGradeToGradeBackend}

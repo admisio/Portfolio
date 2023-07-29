@@ -162,6 +162,7 @@
 	{:else}
 		<div class="body">
 			<div
+				role="document"
 				use:filedrop={fileDropOptions}
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}

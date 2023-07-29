@@ -34,7 +34,7 @@
 
 <div>
 	<input
-		on:click={(_) => switchSelection(0)}
+		on:click={() => switchSelection(0)}
 		class:error
 		on:change
 		type="checkbox"
@@ -55,7 +55,7 @@
 </div>
 <div class="mt-2">
 	<input
-		on:click={(_) => switchSelection(1)}
+		on:click={() => switchSelection(1)}
 		on:change
 		type="checkbox"
 		id="linkError"

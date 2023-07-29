@@ -5,10 +5,16 @@
 	import { apiDeletePortfolioZip, apiUploadPortfolioZip } from '$lib/@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
 	import type { ApiError } from '$lib/@api';
+	import type { AxiosProgressEvent } from 'axios';
 
 	let error: string | null = null;
 
-	const onFileDrop = async (detail: any) => {
+	type Detail = {
+		file: File;
+		callback: (progress: AxiosProgressEvent) => void;
+	};
+	
+	const onFileDrop = async (detail: Detail) => {
 		const file = detail.file;
 		const callback = detail.callback;
 		try {

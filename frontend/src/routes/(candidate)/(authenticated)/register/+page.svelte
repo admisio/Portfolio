@@ -14,7 +14,7 @@
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { PageData } from './$types';
-	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import parsePhoneNumber from 'libphonenumber-js';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
@@ -478,13 +478,13 @@
 	<SvelteToast />
 	{#if visibleModals.personalIdModal}
 		<PersonalIdErrorModal
-			on:close={(_) => (visibleModals.personalIdModal = false)}
+			on:close={() => (visibleModals.personalIdModal = false)}
 			personalIdNumber={baseCandidateDetails.personalIdNumber}
 		/>
 	{:else if visibleModals.linkErrorModal}
 		<LinkErrorModal
 			applications={baseCandidateDetails.applications}
-			on:close={(_) => (visibleModals.linkErrorModal = false)}
+			on:close={() => (visibleModals.linkErrorModal = false)}
 		/>
 	{/if}
 	<div class="form relative bg-center">
@@ -833,6 +833,7 @@
 			</div>
 
 			<div class="mt-4 flex flex-row justify-center md:mt-6">
+				<!-- eslint-disable -->
 				{#each Array(pageCount + 1) as _, i}
 					<button
 						class:dotActive={i === pageIndex}

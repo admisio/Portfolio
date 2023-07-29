@@ -6,7 +6,6 @@
 	import Document from '../icons/Document.svelte';
 	import Download from '../icons/Download.svelte';
 	import { sticky } from 'tippy.js';
-	import Logout from '../icons/Logout.svelte';
 
 	export let showDetails: boolean;
 
@@ -25,9 +24,8 @@
 	};
 </script>
 
-<span
-	on:click={(_) => showInfo()}
-	on:keydown={(_) => showInfo()}
+<button
+	on:click={showInfo}
 	use:tippy={{
 		content: (showDetails ? 'Skrýt' : 'Zobrazit') + ' osobní údaje',
 		placement: 'top',
@@ -38,12 +36,11 @@
 	class:showDetails
 >
 	<Document />
-</span>
+</button>
 
 {#if $submissionProgress.status === UploadStatus.Submitted}
-	<span
-		on:click={(_) => download()}
-		on:keydown={(_) => download()}
+	<button
+		on:click={download}
 		use:tippy={{
 			content: 'Stáhnout portfolio',
 			placement: 'top',
@@ -53,7 +50,7 @@
 		class="icon"
 	>
 		<Download />
-	</span>
+	</button>
 {:else}
 	<span
 		use:tippy={{
@@ -68,7 +65,7 @@
 	</span>
 {/if}
 
-<span
+<button
 	use:tippy={{
 		content: 'Odhlásit se',
 		placement: 'top',
@@ -76,8 +73,7 @@
 		sticky: true,
 		plugins: [sticky]
 	}}
-	on:click={(_) => logout()}
-	on:keydown={(_) => logout()}
+	on:click={logout}
 	class="icon logoutIcon ml-1 hover:cursor-pointer"
 >
 	<svg
@@ -93,21 +89,21 @@
 			d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
 		/></svg
 	>
-</span>
+</button>
 
 <style lang="postcss">
 	.icon {
 		@apply text-sspsBlueDark h-10 w-10 transition-colors duration-300;
-		--at-apply: "hover:text-sspsBlue hover:cursor-pointer";
+		--at-apply: 'hover:text-sspsBlue hover:cursor-pointer';
 	}
 	.logoutIcon {
-		--at-apply: "2xl:hidden";
+		--at-apply: '2xl:hidden';
 	}
 	.showDetails {
 		@apply text-sspsBlue;
 	}
 	.disabledIcon {
 		@apply text-gray-300;
-		--at-apply: "hover:cursor-not-allowed hover:text-gray-300";
+		--at-apply: 'hover:cursor-not-allowed hover:text-gray-300';
 	}
 </style>

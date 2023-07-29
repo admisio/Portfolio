@@ -8,7 +8,7 @@
 	const formatRustChronoDateTime = (date?: string) => {
 		if (!date) return '';
 		const [datePart, timePart] = date.split('T');
-		const [_, month, day] = datePart.split('-');
+		const [, month, day] = datePart.split('-');
 		const [hour, minute, second] = timePart.split(':');
 		return `${day}. ${month}. ${hour}:${minute}:${Number(second).toFixed(0).padStart(2, '0')}`;
 	};

@@ -32,10 +32,13 @@
 
 	let selectedCountry: string | null = country;
 
-	const countrySelect = (e: any) => {
-		selectedCountry = e.target.value;
-		// @ts-ignore
-		country = selectedCountry;
+	const countrySelect = (
+		e: Event & {
+			currentTarget: EventTarget & HTMLSelectElement;
+		}
+	) => {
+		selectedCountry = e.currentTarget.value;
+		country = selectedCountry as CountryCode;
 		value = null;
 	};
 
@@ -83,7 +86,7 @@
 			bind:value
 			bind:valid
 			bind:parsedTelInput
-			class="basic-tel-input{error ? 'invalid' : ''}"
+			class={`${error ? 'invalid' : null} basic-tel-input`}
 			{placeholder}
 		/>
 		<span class="tel-icon">
@@ -97,7 +100,7 @@
 		@apply border-1 h-full w-2/5 rounded;
 		@apply rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 		@apply pb-[0.9rem];
-		--at-apply: "hover:border-sspsBlue";
+		--at-apply: 'hover:border-sspsBlue';
 
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;
@@ -119,7 +122,7 @@
 	  width: 100%; */
 		/* @apply h-full pl-3 pr-3 border-1 w-full rounded; */
 		@apply w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors duration-300;
-		--at-apply: "hover:border-sspsBlue";
+		--at-apply: 'hover:border-sspsBlue';
 	}
 
 	.wrapper :global(.invalid) {

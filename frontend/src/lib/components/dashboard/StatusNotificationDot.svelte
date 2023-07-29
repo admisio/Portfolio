@@ -2,7 +2,7 @@
 	import type { Status } from '$lib/stores/portfolio';
 
 	export let status: Status;
-	let title: string;
+	/*let title: string;
 
 	$: switch (status) {
 		case 'submitted':
@@ -14,7 +14,7 @@
 		case 'missing':
 			title = 'Chybí';
 			break;
-	}
+	}*/
 </script>
 
 <!-- make red dot -->
