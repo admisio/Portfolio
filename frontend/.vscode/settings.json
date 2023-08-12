@@ -3,5 +3,9 @@
 	"eslint.lintTask.enable": true,
 	"eslint.validate": ["javascript", "typescript", "svelte"],
 
-	"svelte.plugin.css.diagnostics.enable": false
+	"svelte.plugin.css.diagnostics.enable": false,
+	"unocss.languageIds": ["svelte"],
+	"editor.quickSuggestions": {
+		"strings": true
+	},
 }
