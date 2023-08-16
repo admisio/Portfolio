@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let placeholder: string = '';
-	export let value: string = '';
+	export let placeholder = '';
+	export let value = '';
 
-	export let error: string = '';
+	export let error = '';
 
 	export let options: Array<string> = [];
 </script>
@@ -47,8 +47,9 @@
 		@apply border-red-700;
 	}
 	select {
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply  w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 		@apply min-w-40;
+		--at-apply: "hover:border-sspsBlue";
 
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;

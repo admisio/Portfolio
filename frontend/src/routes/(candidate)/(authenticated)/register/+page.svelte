@@ -14,7 +14,7 @@
 	import TelephoneField from '$lib/components/textfield/TelephoneField.svelte';
 	import TextField from '$lib/components/textfield/TextField.svelte';
 	import type { PageData } from './$types';
-	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import parsePhoneNumber from 'libphonenumber-js';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
@@ -478,19 +478,19 @@
 	<SvelteToast />
 	{#if visibleModals.personalIdModal}
 		<PersonalIdErrorModal
-			on:close={(_) => (visibleModals.personalIdModal = false)}
+			on:close={() => (visibleModals.personalIdModal = false)}
 			personalIdNumber={baseCandidateDetails.personalIdNumber}
 		/>
 	{:else if visibleModals.linkErrorModal}
 		<LinkErrorModal
 			applications={baseCandidateDetails.applications}
-			on:close={(_) => (visibleModals.linkErrorModal = false)}
+			on:close={() => (visibleModals.linkErrorModal = false)}
 		/>
 	{/if}
 	<div class="form relative bg-center">
-		<div class="bottom-5/24 absolute flex w-full flex-col md:h-auto">
+		<div class="absolute bottom-5/24 w-full flex flex-col md:h-auto">
 			{#if pageIndex !== 3}
-				<div class="<md:hidden self-center">
+				<div class="self-center <md:hidden">
 					<SchoolBadge />
 				</div>
 			{/if}
@@ -601,7 +601,7 @@
 								/>
 							</span>
 						</div>
-						<div class="flex w-full flex-col">
+						<div class="w-full flex flex-col">
 							<span class="field">
 								<TextField
 									error={$typedErrors['candidate']['letterAddress']}
@@ -619,7 +619,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fourth.description()}
 				</p>
-				<div class="field flex w-full">
+				<div class="field w-full flex">
 					<span class="w-[50%]">
 						<SelectField
 							error={$typedErrors['candidate']['citizenship']}
@@ -706,7 +706,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.fifth.description()}
 				</p>
-				<div class="flex w-full flex-col">
+				<div class="w-full flex flex-col">
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][0]['name'] || $typedErrors['parents'][0]['surname']}
@@ -735,7 +735,7 @@
 				<p class="description mt-8 block text-center">
 					{$LL.candidate.register.sixth.description()}
 				</p>
-				<div class="flex w-full flex-col">
+				<div class="w-full flex flex-col">
 					<span class="field">
 						<NameField
 							error={$typedErrors['parents'][1]['name'] || $typedErrors['parents'][1]['surname']}
@@ -764,9 +764,9 @@
 				<!-- <p class="description mt-8 block text-center">
 					{$LL.candidate.register.seventh.description()}
 				</p> -->
-				<div class="flex h-full flex-col justify-between">
+				<div class="h-full flex flex-col justify-between">
 					<span class="field">
-						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+						<h2 class="mb-6 text-3xl font-bold text-sspsBlueDark">
 							První škola - termín JPZ: <span class="underline">13. 4. 2023</span>
 						</h2>
 						<SchoolSelect
@@ -791,7 +791,7 @@
 					</svg>
 
 					<span class="field mt-10">
-						<h2 class="text-sspsBlueDark mb-6 text-3xl font-bold">
+						<h2 class="mb-6 text-3xl font-bold text-sspsBlueDark">
 							Druhá škola - termín JPZ: <span class="underline">14. 4. 2023</span>
 						</h2>
 						<SchoolSelect
@@ -814,7 +814,7 @@
 				/>
 			{/if}
 		</div>
-		<div class="bottom-1/24 absolute w-full">
+		<div class="absolute bottom-1/24 w-full">
 			<div class="field">
 				<Submit
 					enterAllowed={pageIndex !== 7}
@@ -833,6 +833,7 @@
 			</div>
 
 			<div class="mt-4 flex flex-row justify-center md:mt-6">
+				<!-- eslint-disable -->
 				{#each Array(pageCount + 1) as _, i}
 					<button
 						class:dotActive={i === pageIndex}
@@ -856,7 +857,8 @@
 
 <style lang="postcss">
 	.field {
-		@apply lg:w-9/10 mt-4 w-full md:mt-8 lg:mx-auto 2xl:w-4/5;
+		@apply mt-4 w-full;
+		--at-apply: "lg:w-9/10 md:mt-8 lg:mx-auto 2xl:w-4/5";
 	}
 	.form {
 		@apply flex flex-col;
@@ -864,9 +866,9 @@
 		@apply items-center justify-center;
 	}
 	.dot {
-		@apply @apply hover:bg-sspsBlue @apply 
-		bg-sspsGray ml-2 h-4
-		w-4 rounded-full hover:cursor-pointer;
+		@apply bg-sspsGray ml-2 h-4;
+		@apply w-4 rounded-full;
+		--at-apply: "hover:bg-sspsBlue hover:cursor-pointer";
 	}
 	.dotActive {
 		@apply bg-sspsBlue;

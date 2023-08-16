@@ -65,14 +65,14 @@
 
 	let scrollTop = 0;
 
-	let createCandidateModal: boolean = false;
+	let createCandidateModal = false;
 
 	const openCreateCandidateModal = () => {
 		createCandidateModal = true;
 	};
 
 	$: candidatesTable = candidates;
-	let searchValue: string = '';
+	let searchValue = '';
 	$: fuse = new Fuse(candidates, {
 		keys: ['applicationId', 'name', 'surname', 'study']
 	});
@@ -153,7 +153,7 @@
 				<div class="fixed bottom-8 right-8">
 					<button
 						on:click={openCreateCandidateModal}
-						class="bg-sspsBlue flex h-16 w-16 items-center justify-center rounded-full p-6 text-lg font-semibold text-white"
+						class="h-16 w-16 flex items-center justify-center rounded-full bg-sspsBlue p-6 text-lg font-semibold text-white"
 						>+</button
 					>
 				</div>
@@ -187,8 +187,8 @@
 
 		@apply transition-all duration-200;
 
-		@apply hover:bg-sspsBlue focus:bg-sspsBlue;
-		@apply hover:text-white focus:text-white;
+		--at-apply: "hover:bg-sspsBlue focus:bg-sspsBlue";
+		--at-apply: "hover:text-white focus:text-white";
 	}
 
 	.list div :global(path) {

@@ -3,7 +3,7 @@
 
 	import type { Status } from '$lib/stores/portfolio';
 
-	export let loading: boolean = false;
+	export let loading = false;
 	export let status: Status;
 
 	let title: string;
@@ -24,14 +24,14 @@
 	}
 </script>
 
-<div on:click on:keydown class="flex flex-col">
-	<div class="info flex flex-col {status}">
+<button on:click class="flex flex-col">
+	<div class="info flex flex-col{status}">
 		<span class="font-bold text-white 2xl:text-xl">{title}</span>
 		{#if loading}
 			<div role="status">
 				<svg
 					aria-hidden="true"
-					class="!fill-sspsBlue my-2 h-6 w-6 animate-spin text-gray-200"
+					class="my-2 h-6 w-6 animate-spin text-gray-200 !fill-sspsBlue"
 					viewBox="0 0 100 101"
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,7 @@
 			<span class="text-md italic text-white">{description}</span>
 		{/if}
 	</div>
-</div>
+</button>
 
 <style lang="postcss">
 	.info {
@@ -58,17 +58,17 @@
 		@apply px-3 py-3;
 		@apply rounded-xl border-red-700 bg-red-700 shadow-md;
 
-		@apply hover:cursor-help;
+		--at-apply: 'hover:cursor-help';
 	}
 
 	.submitted {
 		@apply bg-green-600;
-		@apply !cursor-pointer;
+		cursor: pointer !important;
 	}
 
 	.uploaded {
 		@apply bg-yellow-600;
-		@apply !cursor-pointer;
+		cursor: pointer !important;
 	}
 
 	.missing {

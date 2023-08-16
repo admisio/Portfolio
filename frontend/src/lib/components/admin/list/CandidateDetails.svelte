@@ -46,11 +46,11 @@
 </script>
 
 <SvelteToast />
-<div class="flex h-screen w-full items-center justify-center">
+<div class="h-screen w-full flex items-center justify-center">
 	<div class="mr-8 max-w-sm">
 		<div class="rounded-lg bg-white p-10 shadow-xl">
 			<div class="p-2">
-				<h3 class="text-sspsBlue text-center text-2xl font-medium font-semibold leading-8">
+				<h3 class="text-center text-2xl font-medium font-semibold leading-8 text-sspsBlue">
 					{candidate.name + ' ' + candidate.surname}
 				</h3>
 
@@ -93,7 +93,7 @@
 		{#each parents as parent}
 			<div class="rounded-lg bg-white p-10 shadow-xl">
 				<div class="p-2">
-					<h3 class="text-sspsBlue text-center text-2xl font-medium font-semibold leading-8">
+					<h3 class="text-center text-2xl font-medium font-semibold leading-8 text-sspsBlue">
 						{parent.name + ' ' + parent.surname}
 					</h3>
 					<table class="my-3 text-xs">
@@ -114,8 +114,8 @@
 
 		<div class="my-8">
 			<div class="flex flex-col">
-				<button on:click={(e) => resetCandidatePassword()}>Resetovat heslo</button>
-				<button on:click={(e) => downloadPortfolio()} class="my-8">Stáhnout portfolio</button>
+				<button on:click={resetCandidatePassword}>Resetovat heslo</button>
+				<button on:click={downloadPortfolio} class="my-8">Stáhnout portfolio</button>
 			</div>
 		</div>
 	</div>
@@ -123,7 +123,8 @@
 
 <style lang="postcss">
 	button {
-		@apply bg-sspsBlue hover:bg-sspsBlueDark rounded-lg transition duration-300;
+		@apply bg-sspsBlue rounded-lg transition duration-300;
 		@apply px-10 py-4 text-2xl font-bold text-white;
+		--at-apply: 'hover:bg-sspsBlueDark';
 	}
 </style>

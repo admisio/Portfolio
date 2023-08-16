@@ -4,9 +4,9 @@
 </script>
 
 <div>
-	<span class="text-sspsBlue text-lg italic">{filetype}</span>
-	<span class="text-sspsGray mx-2">/</span>
-	<span class="text-sspsBlue text-lg italic">Max {filesize}</span>
+	<span class="text-lg italic text-sspsBlue">{filetype}</span>
+	<span class="mx-2 text-sspsGray">/</span>
+	<span class="text-lg italic text-sspsBlue">Max {filesize}</span>
 </div>
 
 <style lang="postcss">
@@ -15,8 +15,7 @@
 		@apply px-4 py-1;
 		@apply rounded-xl bg-white shadow-md;
 
-		@apply hover:bg-sspsBlue;
-		@apply hover:cursor-pointer;
+		--at-apply: "hover:bg-sspsBlue hover:cursor-pointer": 
 	}
 
 	div,

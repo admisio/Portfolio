@@ -30,7 +30,8 @@
 	}
 	.blue {
 		@apply stroke-sspsBlue fill-sspsBlue;
-		@apply hover:fill-sspsBlueDark hover:stroke-sspsBlueDark transition-colors duration-300;
+		@apply transition-colors duration-300;
+		--at-apply: "hover:fill-sspsBlueDark hover:stroke-sspsBlueDark";
 	}
 	.white {
 		@apply fill-white stroke-white;

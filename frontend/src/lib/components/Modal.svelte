@@ -16,7 +16,8 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="modalBackground" on:keydown on:click={close} />
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+<div role="dialog" class="modalBackground" on:keydown on:click={close} />
 
 <div class="modal" role="dialog" aria-modal="true" bind:this={modal}>
 	<slot />
@@ -36,7 +37,7 @@
 		@apply fixed;
 		@apply p-4;
 		@apply rounded-xl;
-		@apply transform:
+		@apply transform;
 		@apply bg-white;
 
 		@apply z-50;

@@ -38,7 +38,7 @@
 	<div class="dashboard dashboardDesktop">
 		{#each [0] as animated (animated)}
 			<div
-				class="movable name col-span-3 row-span-4"
+				class="name movable col-span-3 row-span-4"
 				animate:flip={{ duration: 400 }}
 				class:showDetailsInfoCard={showDetails}
 			>
@@ -47,8 +47,8 @@
 					status={getUploadStatus($submissionProgress.status)}
 					title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
 				>
-					<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
-					<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
+					<span class="mt-3 truncate text-sspsBlue">{$candidateData.candidate.email}</span>
+					<span class="mt-3 text-xs text-sspsGray">Uchazeč na SSPŠ</span>
 				</DashboardInfoCard>
 			</div>
 		{/each}
@@ -82,8 +82,8 @@
 				status={getUploadStatus($submissionProgress.status)}
 				title={$candidateData.candidate.name + ' ' + $candidateData.candidate.surname ?? ''}
 			>
-				<span class="text-sspsBlue mt-3 truncate">{$candidateData.candidate.email}</span>
-				<span class="text-sspsGray mt-3 text-xs">Uchazeč na SSPŠ</span>
+				<span class="mt-3 truncate text-sspsBlue">{$candidateData.candidate.email}</span>
+				<span class="mt-3 text-xs text-sspsGray">Uchazeč na SSPŠ</span>
 			</DashboardInfoCard>
 		</div>
 		<swiper-container slidesPerView={1} spaceBetween={20}>
@@ -108,22 +108,23 @@
 
 <style lang="postcss">
 	.showDetailsInfoCard {
-		@apply md:row-span-8;
+		--at-apply: "md:row-span-8";
 	}
 	.showDetailsPortfolio {
-		@apply md:hidden;
+		--at-apply: "md:hidden";
 	}
 	.showDetailsMoreData {
-		@apply md:col-span-5;
+		--at-apply: "md:col-span-5";
 	}
 	.dashboardDesktop {
 		@apply h-[85vh] w-[85vw];
-		@apply grid-rows-8 hidden grid-cols-8 gap-10 md:grid;
+		@apply grid-rows-8 hidden grid-cols-8 gap-10;
+		--at-apply: "md:grid";
 	}
 
 	.dashboardMobile {
 		@apply h-[90vh] w-[100vw];
-		@apply md:hidden;
+		--at-apply: "md:hidden";
 	}
 
 	.dashboardMobile :global(.uploadCard) {

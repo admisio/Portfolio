@@ -8,7 +8,7 @@ import DOMPurify from 'isomorphic-dompurify';
 export const apiLogout = async (fetchSsr?: Fetch) => {
 	const apiFetch = fetchSsr || fetch;
 	try {
-		const res = await apiFetch(API_URL + '/candidate/logout', {
+		await apiFetch(API_URL + '/candidate/logout', {
 			method: 'POST',
 			credentials: 'include'
 		});
@@ -69,9 +69,9 @@ export const apiWhoami = async (fetchSsr?: Fetch): Promise<BaseCandidate> => {
 
 export const apiLogin = async (data: CandidateLogin): Promise<number> => {
 	try {
-		const res = await axios.post(API_URL + '/candidate/login', data, { withCredentials: true });
+		await axios.post(API_URL + '/candidate/login', data, { withCredentials: true });
 		return data.applicationId;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Login failed');
 	}
 };
@@ -102,7 +102,7 @@ export const apiFillDetails = async (data: CandidateData): Promise<CandidateData
 	try {
 		const res = await axios.post(API_URL + '/candidate/details', data, { withCredentials: true });
 		return res.data;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to fill details');
 	}
 };
@@ -112,7 +112,7 @@ export const apiUploadCoverLetter = async (
 	progressReporter: (progress: AxiosProgressEvent) => void
 ): Promise<boolean> => {
 	try {
-		const res = await axios.post(API_URL + '/candidate/add/cover_letter', letter, {
+		await axios.post(API_URL + '/candidate/add/cover_letter', letter, {
 			withCredentials: true,
 			data: letter,
 			headers: {
@@ -121,7 +121,7 @@ export const apiUploadCoverLetter = async (
 			onUploadProgress: progressReporter
 		});
 		return true;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to upload cover letter');
 	}
 };
@@ -142,7 +142,7 @@ export const apiUploadPortfolioLetter = async (
 	progressReporter: (progress: AxiosProgressEvent) => void
 ): Promise<boolean> => {
 	try {
-		const res = await axios.post(API_URL + '/candidate/add/portfolio_letter', letter, {
+		await axios.post(API_URL + '/candidate/add/portfolio_letter', letter, {
 			withCredentials: true,
 			data: letter,
 			headers: {
@@ -151,7 +151,7 @@ export const apiUploadPortfolioLetter = async (
 			onUploadProgress: progressReporter
 		});
 		return true;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to upload cover letter');
 	}
 };
@@ -172,7 +172,7 @@ export const apiUploadPortfolioZip = async (
 	progressReporter: (progress: AxiosProgressEvent) => void
 ): Promise<boolean> => {
 	try {
-		const res = await axios.post(API_URL + '/candidate/add/portfolio_zip', portfolio, {
+		await axios.post(API_URL + '/candidate/add/portfolio_zip', portfolio, {
 			withCredentials: true,
 			data: portfolio,
 			headers: {
@@ -181,7 +181,7 @@ export const apiUploadPortfolioZip = async (
 			onUploadProgress: progressReporter
 		});
 		return true;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to upload cover letter');
 	}
 };
@@ -201,7 +201,7 @@ export const apiSubmitPortfolio = async (): Promise<boolean> => {
 	try {
 		await axios.post(API_URL + '/candidate/portfolio/submit', {}, { withCredentials: true });
 		return true;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to submit portfolio');
 	}
 };
@@ -221,7 +221,7 @@ export const apiDeltePortfolio = async (): Promise<boolean> => {
 	try {
 		await axios.post(API_URL + '/candidate/portfolio/delete', {}, { withCredentials: true });
 		return true;
-	} catch (e: any) {
+	} catch (e) {
 		throw errorHandler(e, 'Failed to delete portfolio');
 	}
 };

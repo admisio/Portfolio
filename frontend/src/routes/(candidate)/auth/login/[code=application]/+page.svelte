@@ -11,10 +11,10 @@
 	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
 	let applicationId = Number($page.params.code);
-	let codeValueMobile: string = '';
+	let codeValueMobile = '';
 	let codeValueArray: Array<string> = [];
 	let codeElementArray: Array<HTMLInputElement> = [];
-	let isError: boolean = false;
+	let isError = false;
 
 	$: {
 		codeValueMobile = codeValueMobile.slice(0, 12);
@@ -132,10 +132,10 @@
 				/>
 			{/each}
 		</div>
-		<h3 class="text-sspsBlue mx-8 mt-8 text-center text-xl font-semibold">
+		<h3 class="mx-8 mt-8 text-center text-xl font-semibold text-sspsBlue">
 			{$LL.candidate.auth.application.title()}
 		</h3>
-		<p class="text-sspsGray mx-8 mt-8 text-center">
+		<p class="mx-8 mt-8 text-center text-sspsGray">
 			{$LL.candidate.auth.application.help.description()}
 			<u>{$LL.candidate.auth.application.help.here()}</u>
 		</p>
@@ -144,30 +144,34 @@
 
 <style lang="postcss">
 	.error {
-		@apply border-red-700 !important;
+		--at-apply: "border-red-700";
 	}
 	.modal {
 		@apply flex flex-col items-center justify-center;
 		@apply mx-auto my-auto;
-		@apply h-full w-full md:h-4/5 md:w-4/5;
-		@apply md:rounded-3xl;
+		@apply h-full w-full;
 		@apply bg-white;
+		--at-apply: "md:rounded-3xl";
+		--at-apply: "md:h-4/5 md:w-4/5";
 	}
 	input {
 		@apply text-sspsBlue text-center font-semibold;
 		@apply transition-colors duration-300;
-		@apply focus:border-sspsBlue hover:border-sspsBlue caret-sspsBlueDark rounded-xl border border-2 bg-[#f8fafb] p-3 shadow-lg outline-none;
+		@apply caret-sspsBlueDark rounded-xl border border-2 bg-[#f8fafb] p-3 shadow-lg outline-none;
+		--at-apply: "focus:border-sspsBlue hover:border-sspsBlue";
 	}
 	.separater {
-		@apply bg-sspsBlue mr-2 hidden h-2 w-8 md:block;
+		@apply bg-sspsBlue mr-2 hidden h-2 w-8;
+		--at-apply: "md:block";
 	}
 	.codeInputMobile {
-		@apply md:hidden;
 		@apply mx-5 w-full;
+		--at-apply: "md:hidden";
 	}
 	.codeInputDesktop {
 		@apply hidden;
-		@apply mr-1 md:mr-2;
-		@apply sm:h-15 2xl:w-18 2xl:h-22 sm:w-12 sm:text-xl md:block md:h-20 md:w-16 md:text-4xl xl:h-20 xl:w-16 xl:p-0 xl:text-2xl;
+		@apply mr-1;
+		--at-apply: "md:mr-2";
+		--at-apply: "sm:h-15 2xl:w-18 2xl:h-22 sm:w-12 sm:text-xl md:block md:h-20 md:w-16 md:text-4xl xl:h-20 xl:w-16 xl:p-0 xl:text-2xl";
 	}
 </style>

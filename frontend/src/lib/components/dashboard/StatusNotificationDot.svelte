@@ -2,7 +2,7 @@
 	import type { Status } from '$lib/stores/portfolio';
 
 	export let status: Status;
-	let title: string;
+	/*let title: string;
 
 	$: switch (status) {
 		case 'submitted':
@@ -14,12 +14,12 @@
 		case 'missing':
 			title = 'Chybí';
 			break;
-	}
+	}*/
 </script>
 
 <!-- make red dot -->
-<div class="flex animate-pulse flex-row justify-between div-{status}">
-	<span class="h-6 w-6 rounded-full {status}" />
+<div class="div- flex flex-row animate-pulse justify-between{status}">
+	<span class="h-6 w-6 rounded-full{status}" />
 	<!-- <h3 class="ml-8 font-bold text-xl">{title}</h3> -->
 </div>
 

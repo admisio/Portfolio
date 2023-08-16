@@ -1,4 +1,4 @@
-import { apiFetchDetails, apiFetchSubmissionProgress } from '$lib/@api/candidate';
+import { apiFetchDetails } from '$lib/@api/candidate';
 import type { CandidateData } from '$lib/stores/candidate';
 import type { PageServerLoad } from './$types';
 

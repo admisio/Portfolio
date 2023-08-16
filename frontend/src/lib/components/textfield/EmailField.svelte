@@ -2,11 +2,11 @@
 	import Email from '../icons/Email.svelte';
 	import TextField from './TextField.svelte';
 
-	let helperText: string = 'Zadejte platný email. Například radko.sablik@ssps.cz';
-	export let placeholder: string = '';
+	let helperText = 'Zadejte platný email. Například radko.sablik@ssps.cz';
+	export let placeholder = '';
 
-	export let value: string = '';
-	export let error: string = '';
+	export let value = '';
+	export let error = '';
 </script>
 
 <TextField

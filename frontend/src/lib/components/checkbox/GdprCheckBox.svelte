@@ -1,9 +1,9 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let value: boolean = false;
+	export let value = false;
 
-	export let error: string = '';
+	export let error = '';
 </script>
 
 <input class:error on:change type="checkbox" id="gdpr" bind:checked={value} class="peer hidden" />
@@ -26,8 +26,8 @@
 		@apply inline-flex  w-full items-center justify-between;
 		@apply cursor-pointer;
 		@apply bg-white p-5 text-gray-500;
-		@apply hover:bg-gray-50 hover:text-gray-600;
 		@apply rounded-lg border-2 border-gray-200;
+		--at-apply: "hover:bg-gray-50 hover:text-gray-600";
 	}
 	.error {
 		@apply border-red-700;

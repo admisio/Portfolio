@@ -3,8 +3,8 @@
 	import { tippy } from 'svelte-tippy';
 	import 'tippy.js/dist/tippy.css';
 
-	const helperText: string = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
-	export let placeholder: string = ''; // TODO
+	const helperText = 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
+	export let placeholder = ''; // TODO
 
 	import { TelInput, normalizedCountries } from 'svelte-tel-input';
 	import type { DetailedValue, CountryCode, E164Number } from 'svelte-tel-input/types';
@@ -24,7 +24,7 @@
 
 	// Validity
 	let valid = true;
-	export let error: string = '';
+	export let error = '';
 	$: error = valid ? '' : 'Zadejte platný telefon s předvolbou. Například +420 123 456 789';
 
 	// Optional - Extended details about the parsed phone number
@@ -32,10 +32,13 @@
 
 	let selectedCountry: string | null = country;
 
-	const countrySelect = (e: any) => {
-		selectedCountry = e.target.value;
-		// @ts-ignore
-		country = selectedCountry;
+	const countrySelect = (
+		e: Event & {
+			currentTarget: EventTarget & HTMLSelectElement;
+		}
+	) => {
+		selectedCountry = e.currentTarget.value;
+		country = selectedCountry as CountryCode;
 		value = null;
 	};
 
@@ -48,7 +51,7 @@
 </script>
 
 <div
-	class="wrapper flex h-full w-full"
+	class="wrapper h-full w-full flex"
 	use:isTooltip={{
 		content: helperText,
 		placement: 'top',
@@ -83,7 +86,7 @@
 			bind:value
 			bind:valid
 			bind:parsedTelInput
-			class="basic-tel-input {error ? 'invalid' : ''}"
+			class={`${error ? 'invalid' : null} basic-tel-input`}
 			{placeholder}
 		/>
 		<span class="tel-icon">
@@ -95,8 +98,10 @@
 <style lang="postcss">
 	select {
 		@apply border-1 h-full w-2/5 rounded;
-		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
 		@apply pb-[0.9rem];
+		--at-apply: 'hover:border-sspsBlue';
+
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;
 		appearance: none !important;
@@ -116,7 +121,8 @@
       outline: none;
 	  width: 100%; */
 		/* @apply h-full pl-3 pr-3 border-1 w-full rounded; */
-		@apply hover:border-sspsBlue w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors  duration-300;
+		@apply w-full rounded-lg border border-2 bg-[#f8fafb] p-3 text-xl shadow-lg outline-none transition-colors duration-300;
+		--at-apply: 'hover:border-sspsBlue';
 	}
 
 	.wrapper :global(.invalid) {

@@ -88,15 +88,15 @@
 </script>
 
 <div class="card flex flex-col">
-	<div class="infoBar <2xl:flex-col flex flex-row-reverse">
+	<div class="infoBar flex flex-row-reverse <2xl:flex-col">
 		<StatusNotificationBig {loading} {status} on:click={debounce(handleNotificationClick, 150)} />
-		<div class="<2xl:mr-1 mr-4">
-			<div on:click on:keydown class="flex flex-col">
-				<div class="<2xl:ml-auto <2xl:flex-row <2xl:my-2 flex flex-col">
+		<div class="mr-4 <2xl:mr-1">
+			<div role="button" tabindex="0" on:click on:keydown class="flex flex-col">
+				<div class="flex flex-col <2xl:my-2 <2xl:ml-auto <2xl:flex-row">
 					<InfoButton
 						bind:showDetails
 						on:download={downloadPortfolio}
-						on:showInfo={(_) => (showDetails = !showDetails)}
+						on:showInfo={() => (showDetails = !showDetails)}
 						on:logout={logout}
 					/>
 				</div>
@@ -108,9 +108,9 @@
 			<div class="mt-[5%] flex flex-col">
 				<div class="flex justify-between">
 					<h3>{title}</h3>
-					<span
+					<button
 						on:click={logout}
-						on:keydown={logout}
+						on:mousedown={null}
 						use:tippy={{
 							content: 'Odhlásit se',
 							placement: 'top',
@@ -121,7 +121,7 @@
 						class="<2xl:hidden hover:cursor-pointer"
 					>
 						<svg
-							class="stroke-sspsBlueDark h-10 w-10"
+							class="h-10 w-10 stroke-sspsBlueDark"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -133,7 +133,7 @@
 								d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
 							/></svg
 						>
-					</span>
+					</button>
 				</div>
 				<slot />
 			</div>
@@ -227,7 +227,7 @@
 					>
 						{#each $candidateData.parents as parent}
 							<div class="flex flex-col">
-								<span class="text-sspsBlue text-xl font-bold"
+								<span class="text-xl font-bold text-sspsBlue"
 									>{parent.name + ' ' + parent.surname}</span
 								>
 								<span>{$LL.input.email()}: <span class="font-bold">{parent.email}</span></span>
@@ -238,7 +238,7 @@
 						{/each}
 					</div>
 				</div>
-				<span
+				<button
 					use:tippy={{
 						content: 'Upravit osobní údaje',
 						placement: 'top',
@@ -246,12 +246,11 @@
 						sticky: true,
 						plugins: [sticky]
 					}}
-					on:click={(_) => editDetails()}
-					on:keydown={(_) => editDetails()}
+					on:click={editDetails}
 					class="mt-4 hover:cursor-pointer"
 				>
 					<svg
-						class="stroke-sspsBlue h-10 w-10"
+						class="h-10 w-10 stroke-sspsBlue"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -263,7 +262,7 @@
 							d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
 						/></svg
 					>
-				</span>
+				</button>
 			</div>
 		{/if}
 	</div>
@@ -276,15 +275,18 @@
 
 		@apply bg-[#f8fbfc];
 		@apply rounded-3xl;
-		@apply <2xl:px-5 <2xl:py-5 px-7 py-10;
 
 		@apply transition-all duration-300;
+
+		/* TODO: < unocss */
+		--at-apply: '<2xl:px-5 <2xl:py-5 px-7 py-10';
 	}
 	.card:hover {
 		@apply shadow-2xl;
 		@apply m-0;
 	}
 	.card h3 {
-		@apply text-sspsBlue text-4xl font-semibold md:text-2xl xl:text-4xl;
+		@apply text-sspsBlue text-4xl font-semibold;
+		--at-apply: 'md:text-2xl xl:text-4xl';
 	}
 </style>

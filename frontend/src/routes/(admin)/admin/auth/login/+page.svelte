@@ -34,11 +34,11 @@
 		>
 			<img class="object-cover" src={lion} alt="" />
 		</div>
-		<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{$LL.admin.auth.login.title()}</h1>
-		<p class="text-sspsGray mt-8 text-center font-light">
+		<h1 class="mt-8 text-4xl font-semibold text-sspsBlue">{$LL.admin.auth.login.title()}</h1>
+		<p class="mt-8 text-center font-light text-sspsGray">
 			{$LL.admin.auth.login.description()}
 		</p>
-		<div class="mt-8 flex w-4/5 flex-col lg:w-3/5">
+		<div class="mt-8 w-4/5 flex flex-col lg:w-3/5">
 			<span>
 				<TextField bind:value={adminIdValue} placeholder={$LL.input.adminId()} type="number" />
 			</span>

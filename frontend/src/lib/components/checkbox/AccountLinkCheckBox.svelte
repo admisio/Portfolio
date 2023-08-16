@@ -1,8 +1,8 @@
 <script lang="ts">
 	import LL from '$i18n/i18n-svelte';
 
-	export let linkOk: boolean = false;
-	export let linkError: boolean = false;
+	export let linkOk = false;
+	export let linkError = false;
 	export let applications: Array<number>;
 	let title1 = $LL.components.checkbox.accountLinkCheckBox.multiple.title({
 		first: applications[0],
@@ -19,7 +19,7 @@
 		title2 = $LL.components.checkbox.accountLinkCheckBox.single.title2();
 	}
 
-	export let error: string = '';
+	export let error = '';
 
 	const switchSelection = (id: number) => {
 		if (id === 0) {
@@ -34,7 +34,7 @@
 
 <div>
 	<input
-		on:click={(_) => switchSelection(0)}
+		on:click={() => switchSelection(0)}
 		class:error
 		on:change
 		type="checkbox"
@@ -55,7 +55,7 @@
 </div>
 <div class="mt-2">
 	<input
-		on:click={(_) => switchSelection(1)}
+		on:click={() => switchSelection(1)}
 		on:change
 		type="checkbox"
 		id="linkError"
@@ -79,8 +79,8 @@
 		@apply inline-flex  w-full items-center justify-between;
 		@apply cursor-pointer;
 		@apply bg-white p-5 text-gray-500;
-		@apply hover:bg-gray-50 hover:text-gray-600;
 		@apply rounded-lg border-2 border-gray-200;
+		--at-apply: "hover:bg-gray-50 hover:text-gray-600";
 	}
 	.error {
 		@apply border-red-700;

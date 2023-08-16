@@ -21,11 +21,11 @@
 	export let filetype: 'PDF' | 'ZIP';
 	export let filesize: number;
 	export let fileType: number;
-	export let placeholder: string = '';
+	export let placeholder = '';
 
-	let fileDropped: boolean = false;
-	let progress: number = 1;
-	let bytesTotal: number = 0;
+	let fileDropped = false;
+	let progress = 1;
+	let bytesTotal = 0;
 
 	let status: Status;
 
@@ -117,7 +117,7 @@
 					alt="Icon"
 				/>
 			</div>
-			<svg class="h-25 hidden xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
+			<svg class="hidden h-25 xl:block" viewBox="0 0 2 40" xmlns="http://www.w3.org/2000/svg"
 				><line
 					x1="0"
 					y="0"
@@ -155,13 +155,14 @@
 				/></svg
 			>
 			<div class="items-center text-center">
-				<h2 class="text-sspsBlueDark mb-2 text-2xl font-bold">{Math.round(progress * 100)} %</h2>
+				<h2 class="mb-2 text-2xl font-bold text-sspsBlueDark">{Math.round(progress * 100)} %</h2>
 				<ProgressBar submitted={status === 'submitted'} {progress} />
 			</div>
 		</div>
 	{:else}
 		<div class="body">
 			<div
+				role="document"
 				use:filedrop={fileDropOptions}
 				on:filedrop={(e) => onFileDrop(e.detail.files)}
 				on:filedragenter={dashAnimationStart}
@@ -212,7 +213,8 @@
 		backdrop-filter: blur(15px) saturate(0.86);
 		-webkit-backdrop-filter: blur(15px) saturate(0.86);
 
-		@apply flex flex-col justify-between sm:flex-row sm:items-center;
+		@apply flex flex-col justify-between;
+		--at-apply: "sm:flex-row sm:items-center";
 	}
 	.body {
 		@apply bg-[#f8fbfc];
@@ -221,10 +223,11 @@
 		@apply p-7;
 	}
 	.uploaded {
-		@apply 2xl:px-14;
+		--at-apply: "2xl:px-14";
 	}
 	.card h3 {
-		@apply text-sspsBlue text-2xl font-semibold xl:text-4xl;
+		@apply text-sspsBlue text-2xl font-semibold; 
+		--at-apply: "xl:text-4xl";
 	}
 	.card span {
 		@apply text-sm opacity-60;
@@ -236,10 +239,10 @@
 		@apply flex flex-col items-center justify-center;
 		border-radius: 9px;
 
-		@apply hover:cursor-pointer;
-
 		/* TODO: Fix this hack */
-		@apply p-10 sm:p-20 md:p-0;
+		@apply p-10;
+		--at-apply: "sm:p-20 md:p-0";
+		--at-apply: "hover:cursor-pointer";
 	}
 	.card .drag:hover span {
 		@apply opacity-100;

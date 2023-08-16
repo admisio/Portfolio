@@ -53,14 +53,16 @@
 
 <style lang="postcss">
 	input {
-		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] outline-none;
+		@apply rounded-lg border border-2 bg-[#f8fafb] outline-none;
 		@apply w-1/2 w-full px-2;
 		@apply transition-colors duration-300;
+		--at-apply: "hover:border-sspsBlue";
 	}
 	select {
 		@apply ml-0.5 w-1/6;
-		@apply hover:border-sspsBlue rounded-lg border border-2 bg-[#f8fafb] outline-none;
+		@apply rounded-lg border border-2 bg-[#f8fafb] outline-none;
 		@apply transition-colors  duration-300;
+		--at-apply: "hover:border-sspsBlue";
 
 		-webkit-appearance: none !important;
 		-moz-appearance: none !important;

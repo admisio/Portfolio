@@ -16,14 +16,14 @@
 
 	let isOpened = true;
 
-	let applicationId: string = '';
-	let citizenship: string = '';
-	let personalId: string = '';
+	let applicationId = '';
+	let citizenship = '';
+	let personalId = '';
 	let field: 'GYM' | 'IT' | 'KB' | 'Ev. č. nezadáno';
 
 	let login: CreateCandidateLogin;
 
-	let error: string = '';
+	let error = '';
 
 	const dispatch = createEventDispatcher();
 
@@ -139,11 +139,11 @@
 			{#if login}
 				<svg width="210mm" height="297mm" class="hidden h-[297mm] w-[210mm]" id="svg-element" />
 
-				<h1 class="text-sspsBlue text-3xl font-semibold">Ev. č.: {applicationId}</h1>
-				<h1 class="text-sspsBlue text-3xl font-semibold">R. č.: {login.personalIdNumber}</h1>
-				<h1 class="text-sspsBlue text-3xl font-semibold">Heslo: {login.password}</h1>
+				<h1 class="text-3xl font-semibold text-sspsBlue">Ev. č.: {applicationId}</h1>
+				<h1 class="text-3xl font-semibold text-sspsBlue">R. č.: {login.personalIdNumber}</h1>
+				<h1 class="text-3xl font-semibold text-sspsBlue">Heslo: {login.password}</h1>
 				{#if login.applications.length > 1}
-					<h1 class="text-sspsBlue text-3xl font-semibold">
+					<h1 class="text-3xl font-semibold text-sspsBlue">
 						Slinkovaný s {login.applications.filter((a) => a != applicationId)}
 					</h1>
 				{/if}
@@ -153,15 +153,15 @@
 						on:click={async () => await generatePdf('colored')}>Stáhnout PDF</button
 					>
 					<button
-						class="ml-2 rounded-lg border border-gray-300 bg-gray-100 p-2 text-black"
+						class="ml-2 border border-gray-300 rounded-lg bg-gray-100 p-2 text-black"
 						on:click={async () => await generatePdf('blackWhite')}>Stáhnout šetrné PDF 🌱</button
 					>
 				</div>
 			{:else}
-				<h1 class="text-sspsBlue text-3xl font-semibold">Registrace nového uchazeče</h1>
+				<h1 class="text-3xl font-semibold text-sspsBlue">Registrace nového uchazeče</h1>
 				{#if error}
 					<div
-						class="relative my-2 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+						class="relative my-2 border border-red-400 rounded bg-red-100 px-4 py-3 text-red-700"
 						role="alert"
 					>
 						<span class="block sm:inline">{error}</span>
@@ -192,7 +192,7 @@
 				</div>
 				<input
 					on:click={createCandidate}
-					class="bg-sspsBlue hover:bg-sspsBlueDark mt-6 w-full rounded-lg p-3 text-xl font-semibold text-white transition-colors duration-300"
+					class="mt-6 w-full rounded-lg bg-sspsBlueDark p-3 text-xl font-semibold text-white transition-colors duration-300 hover:bg-sspsBlueDark"
 					type="submit"
 					value="Vytvořit"
 				/>

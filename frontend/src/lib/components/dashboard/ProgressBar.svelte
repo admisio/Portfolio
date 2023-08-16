@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let progress: number;
-	export let submitted: boolean = false;
+	export let submitted = false;
 </script>
 
 <div class="progress-bar">

@@ -3,12 +3,18 @@
 
 	import type { ApiError } from '$lib/@api';
 	import { fetchSubmProgress } from '$lib/stores/portfolio';
+	import type { AxiosProgressEvent } from 'axios';
 	import { apiDeletePortfolioLetter, apiUploadPortfolioLetter } from '../../@api/candidate';
 	import DashboardUploadCard from './DashboardUploadCard.svelte';
 
 	let error: string | null = null;
 
-	const onFileDrop = async (detail: any) => {
+	type Detail = {
+		file: File;
+		callback: (progress: AxiosProgressEvent) => void;
+	};
+	
+	const onFileDrop = async (detail: Detail) => {
 		const file = detail.file;
 		const callback = detail.callback;
 		try {

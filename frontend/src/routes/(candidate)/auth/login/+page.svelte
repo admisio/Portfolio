@@ -20,7 +20,7 @@
 <SplitLayout>
 	<div class="form">
 		<SchoolBadge />
-		<h1 class="text-sspsBlue mt-8 text-4xl font-semibold">{$LL.candidate.auth.login.title()}</h1>
+		<h1 class="mt-8 text-4xl font-semibold text-sspsBlue">{$LL.candidate.auth.login.title()}</h1>
 		<p class="my-8 text-center text-gray-700">
 			{$LL.candidate.auth.login.description()}
 		</p>

@@ -1,9 +1,18 @@
 <script lang="ts">
 	export let itemLabel: string;
 	export let highlighted: boolean;
+
+	/* eslint-disable svelte/no-at-html-tags */
 </script>
 
-<li class="autocomplete-items" class:autocomplete-active={highlighted} on:click on:keydown={null}>
+<li
+	role="option"
+	aria-selected="true"
+	class="autocomplete-items"
+	class:autocomplete-active={highlighted}
+	on:click
+	on:keydown={null}
+>
 	{@html itemLabel}
 </li>
 
