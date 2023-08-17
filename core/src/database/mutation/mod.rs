@@ -1,5 +1,6 @@
-pub(crate) struct Mutation;
+pub struct Mutation;
 
+pub mod admin;
 pub mod application;
 pub mod session;
 pub mod candidate;
