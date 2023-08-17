@@ -5,7 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-url = "^2.3"
+url = "^2.4"
 clap = { version = "^4.3", features = ["cargo"] }
 
 portfolio-entity = { path = "../entity" }

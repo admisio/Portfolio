@@ -4,8 +4,8 @@ use clap::{arg, ArgAction, ArgMatches, command, Command, value_parser};
 use sea_orm::{Database, DatabaseConnection, DbConn};
 use url::Url;
 
-use portfolio_core::{crypto, Query};
-use portfolio_core::services::portfolio_service::{FileType};
+use portfolio_core::{crypto, Query, Mutation};
+use portfolio_core::services::portfolio_service::FileType;
 use portfolio_core::utils::csv::{ApplicationCsv, CsvExporter};
 
 async fn get_admin_private_key(db: &DbConn, sub_matches: &ArgMatches) -> Result<String, Box<dyn std::error::Error>> {
@@ -84,7 +84,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     arg!(
                         -a --admin_id <ADMIN_ID> "Admin ID"
                     )
-                    .required(false),
+                    .required(false)
+                    .value_parser(value_parser!(i32)),
                 )
         )
         .subcommand(
@@ -128,7 +129,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     arg!(
                         -a --admin_id <ADMIN_ID> "Admin ID"
                     )
-                        .required(false),
+                        .required(false)
+                        .value_parser(value_parser!(i32)),
                 )
         )
         .subcommand(
@@ -177,7 +179,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     arg!(
                         -a --admin_id <ADMIN_ID> "Admin ID"
                     )
-                        .required(false),
+                        .required(false)
+                        .value_parser(value_parser!(i32)),
                 )
         )
         .subcommand(
@@ -244,8 +247,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         -p --password <PASWORD> "Password"
                     )
                     .required(true)
-                ),
+                    .value_parser(value_parser!(String))
+                )
+                .subcommand(
+                    Command::new("db")
+                        .about("Write to database")
+                        .arg(
+                            arg!(
+                                -d --database <URL> "URL to the database or sql file with postgres:// or sqlite://"
+                            )
+                            .alias("url")
+                            .required(true)
+                            .value_parser(value_parser!(Url)),
+                        )
+                        // arg for id
+                        .arg(
+                            arg!(
+                                -i --id <ID> "Admin ID"
+                            )
+                            .required(true)
+                            .value_parser(value_parser!(i32))
+                        )
+                        .arg(
+                            arg!(
+                                -n --name <NAME> "Admin name"
+                            )
+                            .required(true)
+                            .value_parser(value_parser!(String))
+                        )
+                )
         )
+        // 
         .get_matches();
 
     match clap.subcommand() {
@@ -355,6 +387,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .unwrap();
 
         
+            if let Some(sub_matches) = sub_matches.subcommand_matches("db") {
+                let db = get_db_conn(sub_matches).await?;
+                let admin_id = sub_matches.get_one::<i32>("id").unwrap().to_owned();
+                let admin_name = sub_matches.get_one::<String>("name").unwrap().to_owned();
+                Mutation::set_admin(&db, admin_id, admin_name, pubkey.clone(), priv_key.clone(), password_hash.clone())
+                    .await?;
+                println!("Admin {} created", admin_id);
+            }
+            
             println!("{}", pubkey);
             println!("{}", priv_key);
             println!("{}", password_hash);
